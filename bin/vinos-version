@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# vinos-version — prints repo VERSION.
+set -euo pipefail
+for d in \
+  "$(dirname "$(readlink -f "$0")")/.." \
+  "$HOME/.local/share/vinos" \
+  "/usr/share/vinos"; do
+  if [[ -r "$d/VERSION" ]]; then cat "$d/VERSION"; exit 0; fi
+done
+echo "unknown" >&2
+exit 1
