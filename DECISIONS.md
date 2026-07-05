@@ -14,13 +14,28 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
 - `bin/vinos-version` reads `VERSION` from repo, `~/.local/share/vinos`, or
   `/usr/share/vinos` (in that order) so it works both pre- and post-install.
 
+## M2 — Base install
+- AUR bootstrap uses **`yay-bin`** (prebuilt binary PKGBUILD) rather than
+  compiling `yay` from source. Spec is silent on which; `yay-bin` is faster
+  and preserves the "same yay CLI" contract for 01-base.
+- Container/no-systemd hosts: added `systemctl_enable` helper in
+  `lib/common.sh` that skips enable when `/run/systemd/system` is missing
+  and warns (not fails) on enable errors. Keeps 04-services idempotent on
+  both real Arch and Docker.
+- UFW `enable` warn-and-continue is exercised by the container test — inside
+  a default Docker container the iptables/nftables call fails with
+  `Permission denied` and the test still exits 0, matching the CLAUDE.md
+  UFW quirk.
+- `tests/test.sh` M2 scope: static Rule 1 / Rule 2 grep guardrails, the
+  three dry-run plans, then a docker `archlinux:latest` run that executes
+  `install.sh --skip 02` twice (idempotency). Overlay assertion and
+  `vinos-doctor` PASS check deferred to their owning milestones (M4/M3) so
+  we do not gate M2 on their still-stub scripts.
+
 ### Open items carried into later milestones
-- **M2:** flesh out `01-base.sh` (base packages + yay), `04-services.sh`
-  (ufw/sshd/greetd enablement, warn-and-continue on ufw), and wire
-  `tests/test.sh` to run `install.sh --skip 02` twice in an Arch container
-  (idempotency check per §8).
 - **M3:** implement `05-branding.sh` (os-release override, wallpaper, logo,
-  `vinos-*` symlinks) and finish `bin/vinos-doctor` PASS/FAIL checks.
+  `vinos-*` symlinks) and finish `bin/vinos-doctor` PASS/FAIL checks. Add
+  a `vinos-doctor` invocation to `tests/test.sh` once it can pass.
 - **M4:** convert `overlays/example/install/10-hello.sh` from log-only into a
   real `cowsay` install and add the §6 overlay-marker assertion to test.sh.
 - **M5:** implement `02-desktop.sh` (Hyprland stack + greetd config) and

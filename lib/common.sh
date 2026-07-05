@@ -36,3 +36,14 @@ append_once() {
   [[ -e "$file" ]] || : > "$file"
   grep -qxF -- "$line" "$file" || printf '%s\n' "$line" >> "$file"
 }
+
+# systemctl_enable UNIT...  — enable units on real systemd hosts; skip in
+# containers (no PID-1 systemd) so headless install stays green. Warn but do
+# not die on enable failures — matches the warn-and-continue policy.
+systemctl_enable() {
+  if [[ ! -d /run/systemd/system ]]; then
+    log "systemd not running here; skipping: systemctl enable $*"
+    return 0
+  fi
+  sudo systemctl enable "$@" || warn "systemctl enable $* failed"
+}
