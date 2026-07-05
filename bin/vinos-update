@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# vinos-update — pull repo and re-run install. Filled in M3.
+set -euo pipefail
+REPO="${VINOS_REPO_DIR:-$HOME/.local/share/vinos}"
+[[ -d "$REPO/.git" ]] || { echo "vinOS repo not found at $REPO" >&2; exit 1; }
+git -C "$REPO" pull --ff-only
+exec "$REPO/install.sh" "$@"

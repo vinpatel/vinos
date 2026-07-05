@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# vinos-doctor — health checks. Filled in M3.
+set -euo pipefail
+echo "vinos-doctor: skeleton stub (M1) — checks land in M3"
