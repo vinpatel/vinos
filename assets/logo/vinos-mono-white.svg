@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- vinOS mark — "Prompt V": V as terminal chevrons + cursor block -->
+  <g transform="translate(128,124)">
+    <!-- left stroke (teal) -->
+    <path d="M -70,-70 L 0,70 L -22,70 L -92,-70 Z" fill="#ffffff"/>
+    <!-- right stroke (light) -->
+    <path d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z" fill="#ffffff"/>
+    <!-- cursor block -->
+    <rect x="28" y="54" width="30" height="16" fill="#ffffff"/>
+  </g>
+</svg>
