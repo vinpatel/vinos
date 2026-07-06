@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # tests/test.sh — vinOS acceptance test.
-# M2 scope: static guardrails + dry-run smoke + headless container install
-# (install.sh --skip 02) executed twice to prove idempotency.
-# Overlay/vinos-doctor assertions land in M3/M4.
+# Scope through M3: static guardrails + dry-run smoke + headless container
+# install (install.sh --skip 02) executed twice to prove idempotency, then
+# vinos-doctor + /etc/os-release assertions. Overlay assertion lands in M4.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -46,7 +46,7 @@ command -v docker >/dev/null 2>&1 || fail "docker not found; install docker or s
 IMAGE="${VINOS_TEST_IMAGE:-archlinux:latest}"
 
 echo
-echo "== container install: $IMAGE, install.sh --skip 02, run twice =="
+echo "== container install: $IMAGE, install.sh --skip 02, run twice + doctor =="
 docker run --rm \
   -v "$REPO":/vinos-src:ro \
   -e VINOS_ENABLE_SSH="${VINOS_ENABLE_SSH:-0}" \
@@ -59,13 +59,24 @@ docker run --rm \
     chmod 0440 /etc/sudoers.d/vin
     cp -a /vinos-src /home/vin/vinos
     chown -R vin:vin /home/vin/vinos
+    # Snapshot the working tree so the test copy looks like a clean deployed
+    # clone (vinos-doctor treats uncommitted changes as FAIL by design).
+    sudo -u vin -H git -C /home/vin/vinos -c user.email=test@vinos -c user.name=test add -A
+    sudo -u vin -H git -C /home/vin/vinos -c user.email=test@vinos -c user.name=test commit --allow-empty -m "test snapshot" >/dev/null
     echo
     echo "---- run 1 ----"
     sudo -u vin -H bash -lc "cd ~/vinos && ./install.sh --skip 02"
     echo
     echo "---- run 2 (idempotency) ----"
     sudo -u vin -H bash -lc "cd ~/vinos && ./install.sh --skip 02"
+    echo
+    echo "---- M3: /etc/os-release identity ----"
+    grep -E "^(NAME|PRETTY_NAME|ID|ID_LIKE|VERSION_ID)=" /etc/os-release
+    grep -q "^NAME=\"vinOS\"" /etc/os-release || { echo "os-release NAME check failed"; exit 1; }
+    echo
+    echo "---- M3: vinos-doctor ----"
+    sudo -u vin -H bash -lc "vinos-doctor"
   '
 
 echo
-echo "M2 headless install test: OK"
+echo "test: OK"
