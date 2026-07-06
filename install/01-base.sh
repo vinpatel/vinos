@@ -10,6 +10,11 @@ log "01-base: installing core packages"
 install_pkg base-devel git curl wget rsync openssh ufw fastfetch btop \
             unzip man-db bash-completion
 
+if [[ -n "$VINOS_ROOT" ]]; then
+  log "01-base: VINOS_ROOT mode — yay bootstrap deferred (ISO uses local vinos-aur repo)"
+  exit 0
+fi
+
 if command -v yay >/dev/null 2>&1; then
   log "01-base: yay already present"
   exit 0

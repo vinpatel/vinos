@@ -1,0 +1,25 @@
+[Unit]
+Description=vinOS live: create vin user + seed /home/vin from /etc/skel
+Documentation=file:///usr/share/doc/vinos/VINOS_ISO_SPEC.md
+DefaultDependencies=no
+After=systemd-tmpfiles-setup.service systemd-sysusers.service
+Before=greetd.service systemd-user-sessions.service multi-user.target
+ConditionPathExists=!/home/vin/.vinos-live-init-done
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/bash -eu -c '\
+  if ! id vin >/dev/null 2>&1; then \
+    useradd -m -G wheel -s /bin/bash -c "vinOS live user" vin; \
+    passwd -d vin; \
+  fi; \
+  if [ -d /etc/skel ]; then \
+    cp -aRT /etc/skel /home/vin/; \
+    chown -R vin:vin /home/vin; \
+  fi; \
+  install -m 0644 /dev/null /home/vin/.vinos-live-init-done; \
+  chown vin:vin /home/vin/.vinos-live-init-done'
+
+[Install]
+WantedBy=multi-user.target

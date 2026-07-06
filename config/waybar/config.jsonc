@@ -1,2 +1,41 @@
-// vinOS Waybar config — populated in M5.
-{}
+// vinOS Waybar top bar. Minimal, JetBrains Mono Nerd for glyphs.
+{
+  "layer": "top",
+  "position": "top",
+  "height": 28,
+  "spacing": 4,
+  "modules-left":   ["hyprland/workspaces", "hyprland/window"],
+  "modules-center": ["clock"],
+  "modules-right":  ["network", "pulseaudio", "cpu", "memory", "battery", "tray"],
+
+  "hyprland/workspaces": {
+    "format": "{name}",
+    "on-click": "activate"
+  },
+  "hyprland/window": {
+    "max-length": 60
+  },
+  "clock": {
+    "format": "{:%a %d %b · %H:%M}",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt>{calendar}</tt>"
+  },
+  "cpu":    { "format": "cpu {usage}%",  "interval": 5 },
+  "memory": { "format": "mem {used:0.1f}G", "interval": 5 },
+  "battery": {
+    "states":   { "warning": 30, "critical": 15 },
+    "format":         "bat {capacity}%",
+    "format-charging": "bat +{capacity}%",
+    "format-plugged":  "bat = {capacity}%"
+  },
+  "network": {
+    "format-wifi":     "wifi {essid} ({signalStrength}%)",
+    "format-ethernet": "eth {ifname}",
+    "format-disconnected": "offline"
+  },
+  "pulseaudio": {
+    "format": "vol {volume}%",
+    "format-muted": "muted",
+    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+  },
+  "tray": { "spacing": 8 }
+}

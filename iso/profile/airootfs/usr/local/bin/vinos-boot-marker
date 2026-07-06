@@ -1,0 +1,12 @@
+#!/bin/bash
+# vinos-boot-marker — echoes VINOS_BOOT_OK + os-release identity to the
+# serial console. Called by vinos-boot-marker.service after
+# multi-user.target/graphical.target. Best-effort — never fails.
+set +e
+id_line=$(grep '^ID=' /etc/os-release 2>/dev/null)
+ver_line=$(grep '^VERSION_ID=' /etc/os-release 2>/dev/null)
+msg="VINOS_BOOT_OK boot complete ${id_line:-ID=unknown} ${ver_line:-VERSION_ID=unknown}"
+printf '%s\n' "$msg" > /dev/ttyS0 2>/dev/null
+printf '%s\n' "$msg" > /dev/kmsg  2>/dev/null
+printf '%s\n' "$msg"
+exit 0

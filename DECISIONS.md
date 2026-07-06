@@ -106,13 +106,55 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   it through without any user-in-group juggling; the QEMU test picks
   `accel=kvm:tcg` when present and falls back to pure `tcg` otherwise.
 
+## I2 — Live desktop
+- **`VINOS_ROOT` prefix in `lib/common.sh`**: the one permitted change to
+  common.sh per VINOS_ISO_SPEC §2. When set, `install_pkg`/`install_aur`
+  become no-ops (packages come from packages.x86_64), `copy_config`
+  writes to `$VINOS_ROOT/etc/skel/.config`, `append_once`/`_sudo`/
+  `systemctl_enable` prefix or route into the airootfs. Installer path
+  (VINOS_ROOT empty) behaves exactly as before — backward-compatible.
+- **greetd enable is per-mode**: installer mode uses plain
+  `systemctl enable greetd` (systemd reads WantedBy=graphical.target +
+  Alias=display-manager from the unit). VINOS_ROOT mode builds the two
+  symlinks manually AND sets `default.target -> graphical.target`
+  because the pristine releng airootfs defaults to multi-user.
+- **Boot marker is a script + oneshot service**: earlier attempts to
+  inline the marker in ExecStart with line-continuations produced
+  parse-fragile output. Now `/usr/local/bin/vinos-boot-marker` is
+  called by the unit — cleaner, testable, greppable. The script writes
+  `VINOS_BOOT_OK boot complete ID=vinos VERSION_ID="X"` to /dev/ttyS0
+  and /dev/kmsg (test 5.1 + 5.2 in one line). WantedBy is both
+  graphical.target and multi-user.target so if graphical stalls (e.g.
+  Hyprland can't find DRM on some hardware), the marker still fires
+  and boot reports success.
+- **mkarchiso resets modes**: `profiledef.sh`'s `file_permissions`
+  associative array is the ONLY thing that determines the final mode
+  of a file after squashing — plain `chmod +x` on the source tree gets
+  reset to 0644. Every new executable in `airootfs/` must be listed
+  there (`vinos-boot-marker`, sudoers.d entry).
+- **Releng's `getty@tty1` autologin-root drop-in** conflicts with
+  greetd on VT1 on a live ISO. The live overlay ships a same-directory
+  drop-in that sorts alphabetically AFTER `autologin.conf` and clears
+  ExecStart, restoring a plain agetty on tty1 so greetd owns VT1
+  cleanly.
+- **QEMU display**: `-nographic` sets `-vga none` which leaves the
+  guest without any framebuffer, so Hyprland can never find a DRM
+  device. `iso/test.sh` uses `-display none -vga std -serial file:…`
+  instead — no host window, but the guest sees a bochs-drm GPU which
+  is enough to keep greetd/Hyprland happy.
+- **Live user creation via first-boot service** (`vinos-live-init.service`):
+  runs after systemd-sysusers, before greetd + user-sessions. `useradd
+  -m -G wheel vin && passwd -d vin`, then copies `/etc/skel` into
+  `/home/vin`. Idempotent via a `.vinos-live-init-done` marker file.
+  Chose this over baking passwd/shadow entries directly to avoid
+  conflicting with pacstrap's automatic user additions during
+  mkarchiso.
+- **Rule 3 extension for ISO boot menus** (spec §3.4): syslinux/GRUB/
+  systemd-boot titles say "Boot vinOS" — modifying boot-menu identity
+  outside `install/05-branding.sh` is a sanctioned exception because
+  those files are ISO-only and never touched by installer mode.
+
 ### Open items carried into later milestones
-- **I2:** flesh out `install/02-desktop.sh` (Hyprland stack + greetd
-  autologin) and populate `config/hypr/…`, `config/waybar/…`,
-  `config/alacritty/…`. Extend `iso/build.sh` to assemble airootfs from
-  base + overlays (invoke 03/05 with `VINOS_ROOT` set — the one
-  permitted change to `lib/common.sh`). Boot marker moves to
-  `graphical.target`.
 - **I3:** local `[vinos-aur]` repo, size + RAM budgets, offline boot with
   QEMU `-nic none`.
 - **I4:** `iso/flash.sh` + persistence + `docs/USB.md`. Real-hardware
