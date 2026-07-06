@@ -56,9 +56,24 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   otherwise `vinos-doctor`'s "repo clean" check would FAIL on any
   session that runs the test before final commit.
 
+## M4 — Overlay proof
+- `overlays/example/install/10-hello.sh` installs `cowsay` (extra repo, not
+  AUR) via the shared `install_pkg` helper — idempotent through `--needed`,
+  Rule 1 headless-safe.
+- `overlays/example/config/fastfetch/config.jsonc` now mirrors the base
+  config verbatim with the `// overlay-applied` marker on line 1. That
+  single line is what the M4 assertion greps for; keeping the body a
+  verbatim mirror keeps merge-conflict noise low if the base config
+  evolves.
+- Dry-run assertions in tests/test.sh: parse the plan output and confirm
+  the overlay script line-number is greater than 05-branding's, and the
+  overlay config-source line-number is greater than base's, so a
+  future refactor of the orchestrator cannot silently break §6 ordering.
+- The `--overlay` container run reuses the same non-root user; cowsay
+  ends up on-system and the overlay's fastfetch config wins the
+  shadowing (verified via `grep -F overlay-applied`).
+
 ### Open items carried into later milestones
-- **M4:** convert `overlays/example/install/10-hello.sh` from log-only into a
-  real `cowsay` install and add the §6 overlay-marker assertion to test.sh.
 - **M5:** implement `02-desktop.sh` (Hyprland stack + greetd config) and
   populate `config/hypr/…`, `config/waybar/…`, `config/alacritty/…`.
 - **Deferred:** `--resume NN` alias for `--skip NN`; only add if a real user

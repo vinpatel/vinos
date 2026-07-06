@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # tests/test.sh — vinOS acceptance test.
-# Scope through M3: static guardrails + dry-run smoke + headless container
-# install (install.sh --skip 02) executed twice to prove idempotency, then
-# vinos-doctor + /etc/os-release assertions. Overlay assertion lands in M4.
+# Scope through M4: static guardrails + dry-run smoke + headless container
+# install (install.sh --skip 02) executed twice for idempotency, os-release
+# and vinos-doctor assertions, then a third run with --overlay overlays/
+# example asserting §6 (cowsay installed + overlay-applied marker in
+# ~/.config/fastfetch/config.jsonc).
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -29,7 +31,20 @@ echo "== dry-run plan (base only) =="
 
 echo
 echo "== dry-run plan (with overlays/example) =="
-./install.sh --dry-run --overlay overlays/example
+overlay_plan="$(./install.sh --dry-run --overlay overlays/example)"
+printf '%s\n' "$overlay_plan"
+# §6: overlay script must appear after 05-branding in the ordered plan.
+script_lines="$(printf '%s\n' "$overlay_plan" | grep -E '\.sh   \[')"
+last_base_line="$(printf '%s\n' "$script_lines" | grep -n '05-branding.sh' | tail -n1 | cut -d: -f1)"
+overlay_line="$(printf '%s\n' "$script_lines" | grep -n '10-hello.sh'    | tail -n1 | cut -d: -f1)"
+[[ -n "$last_base_line" && -n "$overlay_line" && "$overlay_line" -gt "$last_base_line" ]] \
+  || fail "overlay script must be listed after 05-branding.sh"
+# §6: overlay config must appear after base in the copy order (overlay wins).
+config_lines="$(printf '%s\n' "$overlay_plan" | awk '/Config copy order/{f=1;next} /Skipped:|dry-run:/{f=0} f')"
+base_cfg="$(printf '%s\n' "$config_lines" | grep -n '\[base\]'    | tail -n1 | cut -d: -f1)"
+over_cfg="$(printf '%s\n' "$config_lines" | grep -n '\[overlay:' | tail -n1 | cut -d: -f1)"
+[[ -n "$base_cfg" && -n "$over_cfg" && "$over_cfg" -gt "$base_cfg" ]] \
+  || fail "overlay config source must be listed after base in copy order"
 
 echo
 echo "== dry-run plan (--skip 02) =="
@@ -75,6 +90,19 @@ docker run --rm \
     grep -q "^NAME=\"vinOS\"" /etc/os-release || { echo "os-release NAME check failed"; exit 1; }
     echo
     echo "---- M3: vinos-doctor ----"
+    sudo -u vin -H bash -lc "vinos-doctor"
+    echo
+    echo "---- M4: overlay run (--overlay overlays/example) ----"
+    sudo -u vin -H bash -lc "cd ~/vinos && ./install.sh --skip 02 --overlay overlays/example"
+    echo
+    echo "---- M4: cowsay installed ----"
+    pacman -Q cowsay
+    echo
+    echo "---- M4: overlay marker present in ~/.config/fastfetch/config.jsonc ----"
+    grep -F "overlay-applied" /home/vin/.config/fastfetch/config.jsonc \
+      || { echo "overlay marker missing — shadowing did not win"; exit 1; }
+    echo
+    echo "---- M4: vinos-doctor still green after overlay ----"
     sudo -u vin -H bash -lc "vinos-doctor"
   '
 
