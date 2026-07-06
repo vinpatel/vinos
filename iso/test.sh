@@ -1,20 +1,28 @@
 #!/usr/bin/env bash
 # iso/test.sh — QEMU acceptance for the built ISO. Boots the ISO headless,
 # tails the serial console, and asserts:
-#   - test 5.1: VINOS_BOOT_OK marker reached (graphical.target).
+#   - test 5.1: VINOS_BOOT_OK marker reached (multi-user/graphical).
 #   - test 5.2: /etc/os-release ID=vinos (echoed by the marker service).
 #   - test 5.3: ISO filename + label carry the repo VERSION.
+#   - test 5.4: ISO size ≤ SIZE_BUDGET_GB (default 3.5 GB).
+#   - test 5.5: boot passes at MEM_FLOOR (default 3G), simulating minimum
+#              hardware.
 #
 # Modes:
 #   bios (default) — BIOS boot with SeaBIOS.
 #   uefi           — UEFI boot via OVMF.
-#   both           — run bios and uefi sequentially (I2 DONE WHEN).
+#   both           — bios + uefi sequentially.
+#   matrix         — the I3 DONE-WHEN matrix: bios/uefi @ 4G,
+#                    bios @ 3G RAM floor, bios @ -nic none (offline).
 #
-# Usage: iso/test.sh [--mode bios|uefi|both] [--iso PATH] [--mem 4G] [--timeout 300]
+# Networking:
+#   --net user (default) — QEMU SLIRP outbound; --net none = no NIC.
 #
-# Runs QEMU inside the same privileged builder image (which has
-# qemu-headless installed by test.sh's own bootstrap step so the host
-# stays untouched). /dev/kvm is passed through when available for speed.
+# Usage: iso/test.sh [--mode bios|uefi|both|matrix] [--iso PATH]
+#                    [--mem 4G] [--timeout 300] [--net user|none]
+#
+# Runs QEMU inside a privileged builder image (which has qemu-headless +
+# edk2-ovmf). /dev/kvm is passed through when available for speed.
 set -euo pipefail
 
 ISO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -22,6 +30,8 @@ MODE="bios"
 ISO=""
 MEM="4G"
 TIMEOUT=300
+NET="user"
+SIZE_BUDGET_GB="${VINOS_ISO_SIZE_BUDGET_GB:-3.5}"
 
 die() { printf '\033[1;31m[iso-test] FAIL:\033[0m %s\n' "$*" >&2; exit 1; }
 log() { printf '\033[1;34m[iso-test]\033[0m %s\n' "$*"; }
@@ -32,23 +42,25 @@ while [[ $# -gt 0 ]]; do
     --iso)     ISO="$2"; shift 2 ;;
     --mem)     MEM="$2"; shift 2 ;;
     --timeout) TIMEOUT="$2"; shift 2 ;;
-    -h|--help) sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --net)     NET="$2"; shift 2 ;;
+    -h|--help) sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) die "unknown argument: $1" ;;
   esac
 done
 
 [[ -z "$ISO" ]] && ISO="$(ls -1t "$ISO_DIR"/out/vinos-*.iso 2>/dev/null | head -1 || true)"
 [[ -n "$ISO" && -f "$ISO" ]] || die "no ISO found — run iso/build.sh first (or pass --iso PATH)"
-case "$MODE" in bios|uefi|both) ;; *) die "--mode must be bios, uefi, or both" ;; esac
+case "$MODE" in bios|uefi|both|matrix) ;; *) die "--mode must be bios/uefi/both/matrix" ;; esac
+case "$NET"  in user|none) ;;              *) die "--net must be user or none" ;; esac
 
-# Test 5.3: identity in artifacts — ISO name carries the repo VERSION.
 REPO="$(cd "$ISO_DIR/.." && pwd)"
 VERSION="$(<"$REPO/VERSION")"
 iso_basename="$(basename "$ISO")"
+
+# Test 5.3: identity in artifacts — ISO name carries the repo VERSION.
 if [[ "$iso_basename" != *"$VERSION"* ]]; then
   die "test 5.3: ISO filename '$iso_basename' does not contain VERSION '$VERSION'"
 fi
-# Label check via file(1) — expected pattern: VINOS_YYYYMM.
 if command -v file >/dev/null 2>&1; then
   label_line="$(file "$ISO" || true)"
   if ! grep -q "'VINOS_" <<<"$label_line"; then
@@ -57,7 +69,14 @@ if command -v file >/dev/null 2>&1; then
 fi
 log "test 5.3 (artifacts): PASS — filename carries $VERSION, label VINOS_*"
 
-log "boot test: mode=$MODE mem=$MEM timeout=${TIMEOUT}s iso=$iso_basename"
+# Test 5.4: size budget.
+iso_bytes="$(stat -c '%s' "$ISO")"
+iso_gb_x100=$(( iso_bytes * 100 / 1024 / 1024 / 1024 ))  # size in 0.01 GB
+budget_x100="$(printf '%.0f' "$(awk -v b="$SIZE_BUDGET_GB" 'BEGIN{printf "%.0f", b*100}')")"
+if (( iso_gb_x100 > budget_x100 )); then
+  die "test 5.4: ISO is $(( iso_gb_x100 / 100 )).$(printf '%02d' $(( iso_gb_x100 % 100 ))) GB > budget ${SIZE_BUDGET_GB} GB"
+fi
+log "test 5.4 (size budget): PASS — $(( iso_gb_x100 / 100 )).$(printf '%02d' $(( iso_gb_x100 % 100 ))) GB ≤ ${SIZE_BUDGET_GB} GB"
 
 IMG="vinos-iso-tester:latest"
 if ! docker image inspect "$IMG" >/dev/null 2>&1; then
@@ -68,27 +87,25 @@ RUN pacman -Sy --needed --noconfirm qemu-base edk2-ovmf && pacman -Scc --noconfi
 DOCKERFILE
 fi
 
-# KVM only if /dev/kvm is present AND user can access it via the container.
 KVM_ARGS=()
 if [[ -c /dev/kvm && -r /dev/kvm && -w /dev/kvm ]]; then
   KVM_ARGS+=(--device /dev/kvm)
 fi
 
-run_one_mode() {
-  local this_mode="$1"
+# run_one BOOT_MODE MEM NET LABEL — one QEMU launch, returns 0 on marker seen.
+run_one() {
+  local boot_mode="$1" mem="$2" net="$3" label="$4"
+  log "boot: mode=$boot_mode mem=$mem net=$net iso=$iso_basename [$label]"
   docker run --rm "${KVM_ARGS[@]}" \
     -v "$ISO":/iso.iso:ro \
     -v "$ISO_DIR/out":/out \
-    -e MODE="$this_mode" -e MEM="$MEM" -e TIMEOUT="$TIMEOUT" \
+    -e MODE="$boot_mode" -e MEM="$mem" -e TIMEOUT="$TIMEOUT" -e NET="$net" -e LABEL="$label" \
     "$IMG" \
     bash -euo pipefail -c '
-      serial=/out/serial-${MODE}.log
+      serial=/out/serial-${LABEL}.log
       : > "$serial"
       ACCEL=tcg
       [[ -c /dev/kvm ]] && ACCEL="kvm:tcg"
-      # -display none suppresses the host window; -vga std gives the guest
-      # a KMS-capable virtual GPU (bochs-drm) so Hyprland can find a DRM
-      # device. -nographic would also disable the guest VGA — do not use.
       qemu_args=(
         -m "$MEM" -smp 2
         -machine accel=$ACCEL
@@ -99,8 +116,11 @@ run_one_mode() {
         -serial "file:$serial"
         -monitor none
         -no-reboot
-        -nic user
       )
+      case "$NET" in
+        user) qemu_args+=(-nic user) ;;
+        none) qemu_args+=(-nic none) ;;
+      esac
       if [[ "$MODE" == uefi ]]; then
         cp /usr/share/edk2/x64/OVMF_VARS.4m.fd /tmp/OVMF_VARS.fd
         qemu_args+=(
@@ -108,7 +128,7 @@ run_one_mode() {
           -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd
         )
       fi
-      echo "== launching qemu-system-x86_64 (accel=$ACCEL mode=$MODE) =="
+      echo "== qemu-system-x86_64 accel=$ACCEL mode=$MODE mem=$MEM net=$NET =="
       timeout --preserve-status "$TIMEOUT" qemu-system-x86_64 "${qemu_args[@]}" >/dev/null 2>&1 &
       qpid=$!
       deadline=$(( $(date +%s) + TIMEOUT ))
@@ -120,23 +140,29 @@ run_one_mode() {
       done
       kill $qpid 2>/dev/null || true
       wait $qpid 2>/dev/null || true
-      echo "---- serial tail (last 40 lines) ----"
-      tail -40 "$serial" || true
-      echo "---- end serial ----"
+      echo "---- serial tail (last 25 lines, ${LABEL}) ----"
+      tail -25 "$serial" || true
+      echo "---- end ${LABEL} ----"
       if ! (( found )); then
-        echo "FAIL: did not see VINOS_BOOT_OK within ${TIMEOUT}s ($MODE)"
+        echo "FAIL: no VINOS_BOOT_OK within ${TIMEOUT}s [${LABEL}]"
         exit 1
       fi
-      # Test 5.2: os-release ID=vinos, echoed by the marker.
       if ! grep -Fq "ID=vinos" "$serial"; then
-        echo "FAIL: test 5.2 — ID=vinos not observed on serial ($MODE)"
+        echo "FAIL: test 5.2 — ID=vinos not on serial [${LABEL}]"
         exit 1
       fi
-      echo "PASS: VINOS_BOOT_OK + ID=vinos observed on serial ($MODE)"
+      echo "PASS [${LABEL}]: VINOS_BOOT_OK + ID=vinos"
     '
 }
 
 case "$MODE" in
-  both) run_one_mode bios; run_one_mode uefi ;;
-  *)    run_one_mode "$MODE" ;;
+  matrix)
+    run_one bios "$MEM" user "bios-4g-net"
+    run_one uefi "$MEM" user "uefi-4g-net"
+    run_one bios "3G"   user "bios-3g-ramfloor"
+    run_one bios "$MEM" none "bios-4g-offline"
+    log "MATRIX PASS — 5.1 + 5.2 + 5.4 + 5.5 + offline boot all green"
+    ;;
+  both) run_one bios "$MEM" "$NET" bios; run_one uefi "$MEM" "$NET" uefi ;;
+  *)    run_one "$MODE" "$MEM" "$NET" "$MODE" ;;
 esac
