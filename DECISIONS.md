@@ -227,3 +227,8 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
 - **I5:** self-hosted CI on Dell + tag → release ISO.
 - **Deferred:** `--resume NN` alias for `--skip NN`; only add if a real
   user hits the resume ergonomics gap.
+- **qemu-desktop UI backend:** `iso/qemu-desktop.sh` picks SDL when
+  `XDG_SESSION_TYPE=wayland`, GTK on X11. QEMU's GTK window loses
+  keyboard focus through XWayland (reproduced on Hyprland). Also
+  attaches `-usb -device usb-kbd -device usb-tablet` so input is a
+  real USB kbd + absolute-pointer mouse instead of PS/2.

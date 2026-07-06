@@ -39,7 +39,11 @@ case "$MODE" in bios|uefi) ;; *) die "--mode must be bios or uefi" ;; esac
 # Prefer host qemu when installed.
 if command -v qemu-system-x86_64 >/dev/null 2>&1; then
   log "using host qemu-system-x86_64"
-  args=(-m "$MEM" -smp 2 -cdrom "$ISO" -boot order=d,menu=off -vga std -display gtk)
+  # Wayland/XWayland drops keys to QEMU's GTK window on Hyprland et al.
+  # SDL captures input directly and works on both session types.
+  display="sdl"; [[ "${XDG_SESSION_TYPE:-}" == "x11" ]] && display="gtk"
+  args=(-m "$MEM" -smp 2 -cdrom "$ISO" -boot order=d,menu=off -vga std -display "$display"
+        -usb -device usb-kbd -device usb-tablet)
   [[ -c /dev/kvm ]] && args+=(-enable-kvm)
   if [[ "$MODE" == uefi ]]; then
     ovmf_code=""
@@ -87,6 +91,7 @@ CMD=(
   -boot order=d,menu=off
   -vga std
   -display gtk
+  -usb -device usb-kbd -device usb-tablet
 )
 if [[ "$MODE" == uefi ]]; then
   CMD+=(
