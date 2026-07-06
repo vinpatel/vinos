@@ -32,10 +32,31 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   `vinos-doctor` PASS check deferred to their owning milestones (M4/M3) so
   we do not gate M2 on their still-stub scripts.
 
+## M3 — Branding
+- `/etc/os-release` rewrite preserves every original key except the five
+  vinOS overrides (NAME, PRETTY_NAME, ID, ID_LIKE, VERSION_ID); backup to
+  `/etc/os-release.arch.bak` happens exactly once, so re-runs regenerate
+  from the pristine Arch original rather than compounding on prior output.
+- `bin/vinos-*` land under **`/usr/share/vinos/bin/`** and are symlinked
+  into `/usr/local/bin`. Spec text says "symlink `bin/vinos-*` →
+  `/usr/local/bin/`"; installing the shared copy first avoids the fragile
+  case of `/usr/local/bin/vinos-doctor` pointing into a per-user
+  `~/.local/share/vinos/bin/` that other users can't read. `VERSION` is
+  copied alongside so `vinos-version`'s existing probe hits it.
+- `default/wallpaper.png` is a **generated composite**: `vinos-512.png`
+  (from the locked `assets/logo/`) centered on a 1920x1080 `#1a1b26`
+  background, produced once via ImageMagick. `assets/logo/` is not
+  modified — the composite is a derived artifact committed under
+  `default/` where the spec expects it.
+- `vinos-doctor` reports **PASS / FAIL / SKIP**; only FAIL causes a
+  non-zero exit. Service checks SKIP when `/run/systemd/system` is
+  absent, mirroring the `systemctl_enable` container semantics.
+- Test.sh runs `git add -A && git commit -m "test snapshot"` inside the
+  container after `cp -a` so the copy looks like a clean deployed clone;
+  otherwise `vinos-doctor`'s "repo clean" check would FAIL on any
+  session that runs the test before final commit.
+
 ### Open items carried into later milestones
-- **M3:** implement `05-branding.sh` (os-release override, wallpaper, logo,
-  `vinos-*` symlinks) and finish `bin/vinos-doctor` PASS/FAIL checks. Add
-  a `vinos-doctor` invocation to `tests/test.sh` once it can pass.
 - **M4:** convert `overlays/example/install/10-hello.sh` from log-only into a
   real `cowsay` install and add the §6 overlay-marker assertion to test.sh.
 - **M5:** implement `02-desktop.sh` (Hyprland stack + greetd config) and

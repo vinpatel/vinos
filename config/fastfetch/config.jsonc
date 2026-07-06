@@ -1,2 +1,23 @@
-// vinOS fastfetch config — populated in M3 (logo + name).
-{}
+// vinOS fastfetch config. Logo path resolves after 05-branding installs to
+// /usr/share/vinos/. Fastfetch auto-detects best image protocol; on terminals
+// with no image support it prints a warning and continues.
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "source": "/usr/share/vinos/logo/png/vinos-256.png",
+    "padding": { "top": 1, "right": 3 }
+  },
+  "modules": [
+    "title",
+    "separator",
+    "os",
+    "kernel",
+    "uptime",
+    "packages",
+    "shell",
+    "terminal",
+    "cpu",
+    "memory",
+    "disk"
+  ]
+}

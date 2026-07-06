@@ -1,4 +1,62 @@
 #!/usr/bin/env bash
-# vinos-doctor — health checks. Filled in M3.
-set -euo pipefail
-echo "vinos-doctor: skeleton stub (M1) — checks land in M3"
+# vinos-doctor — vinOS health check. Prints PASS/FAIL per check and exits
+# non-zero if any check FAILs. SKIP is informational (does not fail).
+set -uo pipefail  # no -e: run every check
+
+if [[ -t 1 ]]; then
+  G=$'\033[1;32m'; R=$'\033[1;31m'; Y=$'\033[1;33m'; Z=$'\033[0m'
+else
+  G='' R='' Y='' Z=''
+fi
+PASS=0; FAIL=0; SKIP=0
+pass() { printf '  %sPASS%s %s\n' "$G" "$Z" "$*"; PASS=$((PASS+1)); }
+fail() { printf '  %sFAIL%s %s\n' "$R" "$Z" "$*"; FAIL=$((FAIL+1)); }
+skip() { printf '  %sSKIP%s %s\n' "$Y" "$Z" "$*"; SKIP=$((SKIP+1)); }
+
+section() { printf '\n%s\n' "$*"; }
+
+section "os-release identity"
+if grep -q '^NAME="vinOS"' /etc/os-release; then pass 'NAME="vinOS"'; else fail 'NAME!="vinOS" in /etc/os-release'; fi
+if grep -q '^ID=vinos'     /etc/os-release; then pass 'ID=vinos';     else fail 'ID!=vinos'; fi
+if grep -q '^ID_LIKE=arch' /etc/os-release; then pass 'ID_LIKE=arch'; else fail 'ID_LIKE!=arch'; fi
+
+section "base packages"
+for pkg in base-devel git curl wget rsync openssh ufw fastfetch btop unzip man-db bash-completion; do
+  if pacman -Q "$pkg" >/dev/null 2>&1; then pass "$pkg"; else fail "missing pkg: $pkg"; fi
+done
+
+section "user configs"
+for c in fastfetch/config.jsonc; do
+  if [[ -f "$HOME/.config/$c" ]]; then pass "~/.config/$c"; else fail "missing config: ~/.config/$c"; fi
+done
+
+section "branding assets"
+for f in /usr/share/vinos/VERSION /usr/share/vinos/wallpaper.png \
+         /usr/share/vinos/logo/vinos.svg /usr/share/vinos/logo/png/vinos-256.png \
+         /usr/local/bin/vinos-version /usr/local/bin/vinos-doctor /usr/local/bin/vinos-update; do
+  if [[ -e "$f" ]]; then pass "$f"; else fail "missing: $f"; fi
+done
+
+section "services"
+if [[ -d /run/systemd/system ]]; then
+  for svc in ufw; do
+    if systemctl is-enabled "$svc" >/dev/null 2>&1; then pass "$svc enabled"; else fail "$svc not enabled"; fi
+  done
+else
+  skip "systemd not active — service checks skipped (container mode)"
+fi
+
+section "repo"
+# Probe: env override, standard install path, then $HOME/vinos (test copy).
+REPO=""
+for c in "${VINOS_REPO_DIR:-}" "$HOME/.local/share/vinos" "$HOME/vinos"; do
+  [[ -n "$c" && -d "$c/.git" ]] && { REPO="$c"; break; }
+done
+if [[ -n "$REPO" ]]; then
+  if [[ -z "$(git -C "$REPO" status --porcelain 2>/dev/null)" ]]; then pass "$REPO clean"; else fail "$REPO has uncommitted changes"; fi
+else
+  skip "no vinOS repo found (direct-invocation mode)"
+fi
+
+printf '\nsummary: %sPASS=%d%s %sFAIL=%d%s %sSKIP=%d%s\n' "$G" "$PASS" "$Z" "$R" "$FAIL" "$Z" "$Y" "$SKIP" "$Z"
+[[ $FAIL -eq 0 ]]
