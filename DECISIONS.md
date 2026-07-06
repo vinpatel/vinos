@@ -177,6 +177,32 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   BIOS 4 GB with net, UEFI 4 GB with net, BIOS 3 GB (RAM floor),
   BIOS 4 GB with `-nic none` (offline). All must PASS.
 
+## I4 — Flash & hardware (software-side complete; hardware verification user-side)
+- **flash.sh safety model**: two blocking confirmations — the device
+  path (typed exactly as `/dev/sdX`) AND the vendor/model string as
+  shown by `lsblk`. Hard-refuses if any partition of the target is
+  mounted at `/`, `/boot`, `/home`, `/efi`, `/boot/efi` (this is
+  never overridable — it means it's the user's OS disk). Refuses
+  `tran != usb` unless `--i-know-what-im-doing` is passed (allows
+  USB-through-a-dock cases). `dd` uses `bs=4M oflag=direct
+  conv=fsync` followed by an explicit `sync`.
+- **Persistence via a labelled ext4 partition**: `flash.sh
+  --with-persistence` runs `sgdisk --new=0:0:0` to append a partition
+  after the ISO's data, then `mkfs.ext4 -L vinos-persist`. On boot
+  the "Boot vinOS (persistent)" menu entry passes
+  `cow_device=/dev/disk/by-label/vinos-persist`; archiso's initramfs
+  mounts it as the copy-on-write overlay so changes survive reboots.
+- **Persistent boot entries in all three loaders**: syslinux
+  (`archpersist`), grub (`archlinux-persistent`), systemd-boot
+  (`03-archiso-persistent-linux.conf`). The persistent entry appears
+  regardless of whether the persist partition exists — kernel just
+  boots without persistence if the label isn't found (archiso's
+  fallback).
+- **Hardware boot verification is user-side**: I cannot flash to a
+  real USB from this environment. The tracker shows `[~]` for I4
+  until the user confirms Acer Aspire boots to Hyprland and
+  persistence survives a reboot.
+
 ### Open items carried into later milestones
 - **I4:** `iso/flash.sh` + persistence + `docs/USB.md`. Real-hardware
   Acer boot is user-side (I cannot flash from here).
