@@ -99,6 +99,19 @@ docker run --rm --privileged \
     echo '== applying live-only airootfs overlay =='
     rsync -a /vinos/iso/airootfs-overlay/ \$AIROOT/
 
+    # Build local [vinos-aur] repo when aur.list is non-empty and we
+    # weren't asked to skip. Empty aur.list -> no-op (I3 default).
+    if [[ '$SKIP_AUR' -ne 1 ]] && grep -qEv '^\s*(#|$)' /vinos/iso/aur.list 2>/dev/null; then
+      echo '== building [vinos-aur] via iso/aur-build.sh =='
+      bash /vinos/iso/aur-build.sh
+      cat >> /vinos/iso/profile/pacman.conf <<PACCONF
+
+[vinos-aur]
+SigLevel = Optional TrustAll
+Server = file:///vinos/iso/aurrepo
+PACCONF
+    fi
+
     # Ensure staged config/branding files are root-owned before squashfs.
     chown -R root:root \$AIROOT/etc \$AIROOT/usr/share/vinos \$AIROOT/usr/local/bin 2>/dev/null || true
 

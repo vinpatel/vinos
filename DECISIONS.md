@@ -154,9 +154,30 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   outside `install/05-branding.sh` is a sanctioned exception because
   those files are ISO-only and never touched by installer mode.
 
+## I3 — Offline completeness
+- **Mask `systemd-time-wait-sync.service`**: releng ships it in
+  `sysinit.target.wants`, and its `TimeoutStartSec` is `no limit`.
+  Without a network (QEMU `-nic none`), NTP never arrives and boot
+  stalls indefinitely at the multi-user handoff. The live overlay
+  now ships a `/dev/null` symlink at
+  `/etc/systemd/system/systemd-time-wait-sync.service`, which is
+  systemd's canonical "masked" form. Applies to online boots too —
+  the live medium never legitimately blocks on NTP.
+- **`iso/aur-build.sh` scaffolding is in the tree but idle**: `aur.list`
+  is empty in the base repo (nothing in 01/02 references AUR). The
+  script + build.sh integration are ready for the first fork that
+  needs a local `[vinos-aur]` file:// repo.
+- **Size budget 5.4**: the ISO is **1.92 GB**, well under the 3.5 GB
+  budget. Adding Hyprland + tools cost ~300 MB over the pristine
+  releng ~1.7 GB. Test.sh's size check is now the guard.
+- **RAM floor 5.5**: PASSes at `-m 3G`. squashfs is memory-mapped
+  (not decompressed to tmpfs), so working-set is much smaller than
+  compressed size.
+- **`iso/test.sh --mode matrix`** is the single-command I3 check:
+  BIOS 4 GB with net, UEFI 4 GB with net, BIOS 3 GB (RAM floor),
+  BIOS 4 GB with `-nic none` (offline). All must PASS.
+
 ### Open items carried into later milestones
-- **I3:** local `[vinos-aur]` repo, size + RAM budgets, offline boot with
-  QEMU `-nic none`.
 - **I4:** `iso/flash.sh` + persistence + `docs/USB.md`. Real-hardware
   Acer boot is user-side (I cannot flash from here).
 - **I5:** self-hosted CI on Dell + tag → release ISO.
