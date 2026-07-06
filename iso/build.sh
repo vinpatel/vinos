@@ -62,11 +62,15 @@ WORK_DIR="/tmp/vinos-iso-work.$$"
 # Use a version-suffixed image tag so successive builds share the archiso
 # install layer instead of re-downloading it every run.
 IMG="vinos-archiso-builder:latest"
-if ! docker image inspect "$IMG" >/dev/null 2>&1; then
-  log "one-time: building archiso builder image"
-  docker build -t "$IMG" -f - "$REPO" <<'DOCKERFILE'
+# Rebuild the image when this stamp changes so runtime deps stay in sync.
+IMG_STAMP="archiso rsync"
+if ! docker image inspect "$IMG" >/dev/null 2>&1 \
+   || ! docker inspect --format '{{ index .Config.Labels "vinos.stamp" }}' "$IMG" 2>/dev/null | grep -qxF "$IMG_STAMP"; then
+  log "building archiso builder image ($IMG_STAMP)"
+  docker build -t "$IMG" -f - "$REPO" <<DOCKERFILE
 FROM archlinux:latest
-RUN pacman -Sy --needed --noconfirm archiso && pacman -Scc --noconfirm
+LABEL vinos.stamp="$IMG_STAMP"
+RUN pacman -Sy --needed --noconfirm $IMG_STAMP && pacman -Scc --noconfirm
 DOCKERFILE
 fi
 
@@ -79,6 +83,25 @@ docker run --rm --privileged \
     cp -a /vinos-src /vinos
     cd /vinos
     export VINOS_VERSION='$VINOS_VERSION'
+
+    echo '== regenerating packages.x86_64 =='
+    bash iso/gen-packages.sh
+
+    echo '== assembling airootfs (VINOS_ROOT mode: 03/05/02/04) =='
+    AIROOT=/vinos/iso/profile/airootfs
+    export VINOS_ROOT=\$AIROOT
+    bash install/03-configs.sh
+    bash install/05-branding.sh
+    bash install/02-desktop.sh
+    bash install/04-services.sh
+    unset VINOS_ROOT
+
+    echo '== applying live-only airootfs overlay =='
+    rsync -a /vinos/iso/airootfs-overlay/ \$AIROOT/
+
+    # Ensure staged config/branding files are root-owned before squashfs.
+    chown -R root:root \$AIROOT/etc \$AIROOT/usr/share/vinos \$AIROOT/usr/local/bin 2>/dev/null || true
+
     mkdir -p '$WORK_DIR'
     mkarchiso -v -w '$WORK_DIR' -o /out iso/profile
     ISO_FILE=\$(ls -1 /out/vinos-*.iso 2>/dev/null | head -1) || true

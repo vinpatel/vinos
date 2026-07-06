@@ -1,1 +1,47 @@
-/* vinOS Waybar style — populated in M5. */
+/* vinOS Waybar theme — Tokyo-Night-ish, matches wallpaper background. */
+* {
+  border: none;
+  border-radius: 0;
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 12px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: rgba(26, 27, 38, 0.85);
+  color: #c0caf5;
+  transition-property: background-color;
+  transition-duration: .2s;
+}
+
+#workspaces button {
+  padding: 0 8px;
+  color: #7aa2f7;
+  background: transparent;
+}
+
+#workspaces button.active {
+  color: #1a1b26;
+  background: #7aa2f7;
+  border-radius: 4px;
+}
+
+#workspaces button:hover {
+  background: rgba(122, 162, 247, 0.2);
+}
+
+#clock,
+#cpu,
+#memory,
+#battery,
+#network,
+#pulseaudio,
+#tray,
+#window {
+  padding: 0 10px;
+  color: #c0caf5;
+}
+
+#battery.warning  { color: #e0af68; }
+#battery.critical { color: #f7768e; }
+#network.disconnected { color: #f7768e; }

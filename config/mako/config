@@ -1,0 +1,9 @@
+# vinOS mako notification defaults.
+background-color=#1a1b26
+text-color=#c0caf5
+border-color=#7aa2f7
+border-size=1
+border-radius=6
+default-timeout=5000
+padding=10
+font=JetBrainsMono Nerd Font 10

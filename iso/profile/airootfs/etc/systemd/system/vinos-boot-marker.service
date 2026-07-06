@@ -1,15 +1,13 @@
 [Unit]
-Description=vinOS boot marker (echoes VINOS_BOOT_OK to serial console)
-Documentation=file:///usr/share/doc/vinos/VINOS_ISO_SPEC.md
+Description=vinOS boot marker (echoes VINOS_BOOT_OK + os-release ID to serial)
 After=multi-user.target
 Wants=multi-user.target
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-# Best-effort dual write to serial + kmsg; do not fail boot if either is
-# unavailable. iso/test.sh greps the serial log for "VINOS_BOOT_OK".
-ExecStart=/bin/sh -c 'printf "VINOS_BOOT_OK reached multi-user.target\n" | tee /dev/kmsg > /dev/null 2>&1 || true; printf "VINOS_BOOT_OK reached multi-user.target\n" > /dev/ttyS0 2>/dev/null || true'
+StandardOutput=journal+console
+ExecStart=/usr/local/bin/vinos-boot-marker
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target graphical.target
