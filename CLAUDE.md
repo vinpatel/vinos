@@ -28,4 +28,4 @@ Read the relevant spec before writing any code. The specs win over your own pref
 
 ## Status tracker (update after each session)
 - [x] M1 skeleton   - [x] M2 base install   - [x] M3 branding   - [x] M4 overlay proof
-- [ ] I1 profile boots   - [ ] I2 live desktop   - [ ] I3 offline complete   - [ ] I4 flash+hardware   - [ ] I5 CI
+- [x] I1 profile boots   - [ ] I2 live desktop   - [ ] I3 offline complete   - [ ] I4 flash+hardware   - [ ] I5 CI

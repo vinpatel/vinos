@@ -1,0 +1,6 @@
+# Live-ISO-only packages (not in the installer path).
+# Merged into profile/packages.x86_64 by iso/gen-packages.sh alongside
+# packages.releng and everything extracted from install/01-base.sh and
+# install/02-desktop.sh.
+networkmanager
+gparted

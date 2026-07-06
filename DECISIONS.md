@@ -73,10 +73,50 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   ends up on-system and the overlay's fastfetch config wins the
   shadowing (verified via `grep -F overlay-applied`).
 
+## I1 — Profile boots
+- **Docker-privileged build path**: host `sudo` is password-protected and
+  CLAUDE.md forbids `pacman -Syu` on host; the sanctioned CI path in
+  VINOS_ISO_SPEC.md §7 is also containerized. `iso/build.sh` therefore
+  bakes a small `vinos-archiso-builder` image (`archlinux:latest` +
+  `archiso`) once and runs `mkarchiso -v` inside it with `--privileged`.
+  `iso/test.sh` uses a peer `vinos-iso-tester` image (`+ qemu-base +
+  edk2-ovmf`) and mounts `/dev/kvm` when available.
+- **Pristine releng first**: `iso/profile/` was committed verbatim from
+  `/usr/share/archiso/configs/releng` (I1a) before any edits, so the
+  vinOS rebrand diff (I1b) is legible against upstream releng.
+- **Package list is generated, never hand-edited**: `iso/gen-packages.sh`
+  writes `iso/profile/packages.x86_64` as the sorted union of
+  `iso/packages.releng` (frozen upstream list), `iso/packages.live` (live
+  extras: `networkmanager`, `gparted`), and every `install_pkg` argument
+  extracted from `install/01-base.sh` + `install/02-desktop.sh`. AUR
+  arguments go to `iso/aur.list` for I3's local repo. Spec §3.2 mandates
+  a drift check; build.sh regenerates and warns on diff.
+- **Boot marker convention**: `airootfs/etc/systemd/system/vinos-boot-marker.service`
+  is enabled via multi-user.target.wants symlink and echoes
+  `VINOS_BOOT_OK reached multi-user.target` to `/dev/kmsg` and
+  `/dev/ttyS0` best-effort. Kernel cmdline in syslinux/grub/systemd-boot
+  entries adds `console=tty0 console=ttyS0,115200` so QEMU
+  `-serial file:` captures the marker in headless mode. Spec §5.1 will
+  reuse the same marker after graphical.target for I2.
+- **install_dir stays `arch`**: renaming to `vinos` would require updating
+  every path reference in syslinux/grub/systemd-boot configs and can wait
+  until the ISO layout stabilizes. It has no user-visible effect since
+  it's just the on-medium directory name.
+- **KVM opportunistic**: `/dev/kvm` is 666 on this host so docker can pass
+  it through without any user-in-group juggling; the QEMU test picks
+  `accel=kvm:tcg` when present and falls back to pure `tcg` otherwise.
+
 ### Open items carried into later milestones
-- **M5:** implement `02-desktop.sh` (Hyprland stack + greetd config) and
-  populate `config/hypr/…`, `config/waybar/…`, `config/alacritty/…`.
-- **Deferred:** `--resume NN` alias for `--skip NN`; only add if a real user
-  hits the resume ergonomics gap.
-- **Env quirk (from CLAUDE.md):** UFW/nftables sync failure — `04-services.sh`
-  must `warn-and-continue`, never hard-fail. Enforce with a test in M2.
+- **I2:** flesh out `install/02-desktop.sh` (Hyprland stack + greetd
+  autologin) and populate `config/hypr/…`, `config/waybar/…`,
+  `config/alacritty/…`. Extend `iso/build.sh` to assemble airootfs from
+  base + overlays (invoke 03/05 with `VINOS_ROOT` set — the one
+  permitted change to `lib/common.sh`). Boot marker moves to
+  `graphical.target`.
+- **I3:** local `[vinos-aur]` repo, size + RAM budgets, offline boot with
+  QEMU `-nic none`.
+- **I4:** `iso/flash.sh` + persistence + `docs/USB.md`. Real-hardware
+  Acer boot is user-side (I cannot flash from here).
+- **I5:** self-hosted CI on Dell + tag → release ISO.
+- **Deferred:** `--resume NN` alias for `--skip NN`; only add if a real
+  user hits the resume ergonomics gap.
