@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# iso/build.sh — build a vinOS live ISO from the current repo state.
+#
+# Usage: iso/build.sh [--overlay <path>]... [--out <dir>] [--skip-aur]
+#                     [--no-drift-check]
+#
+# Runs mkarchiso inside `docker run --privileged archlinux:latest` so the
+# host stays untouched (mkarchiso needs loop devices + chroot). Emits
+# out/vinos-<VERSION>-x86_64.iso and out/sha256sums.txt.
+#
+# I1 scope: base profile boots to multi-user.target. Overlay/build-time
+# assembly of airootfs branding lands in I2. --skip-aur is accepted now
+# and becomes meaningful once AUR packages appear in iso/aur.list.
+set -euo pipefail
+
+ISO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$ISO_DIR/.." && pwd)"
+OUT_DIR="$ISO_DIR/out"
+OVERLAYS=()
+SKIP_AUR=0
+DRIFT_CHECK=1
+
+die() { printf '\033[1;31m[iso-build] FAIL:\033[0m %s\n' "$*" >&2; exit 1; }
+log() { printf '\033[1;34m[iso-build]\033[0m %s\n' "$*"; }
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --overlay) [[ $# -ge 2 ]] || die "--overlay needs a path"; OVERLAYS+=("$2"); shift 2 ;;
+    --out)     [[ $# -ge 2 ]] || die "--out needs a path";     OUT_DIR="$2"; shift 2 ;;
+    --skip-aur) SKIP_AUR=1; shift ;;
+    --no-drift-check) DRIFT_CHECK=0; shift ;;
+    -h|--help) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) die "unknown argument: $1 (try --help)" ;;
+  esac
+done
+
+command -v docker >/dev/null || die "docker not found — install docker or run inside an archiso-capable environment"
+[[ -f "$REPO/VERSION" ]] || die "$REPO/VERSION missing"
+VINOS_VERSION="$(<"$REPO/VERSION")"
+mkdir -p "$OUT_DIR"
+
+log "regenerating packages.x86_64 (drift check)"
+tmp_old="$(mktemp)"; cp "$ISO_DIR/profile/packages.x86_64" "$tmp_old" 2>/dev/null || : > "$tmp_old"
+"$ISO_DIR/gen-packages.sh"
+if (( DRIFT_CHECK )); then
+  if ! diff -q "$tmp_old" "$ISO_DIR/profile/packages.x86_64" >/dev/null 2>&1; then
+    log "packages.x86_64 changed — commit the regenerated file before building for release"
+    diff -u "$tmp_old" "$ISO_DIR/profile/packages.x86_64" | head -40 || true
+    # Not fatal for local dev; use --no-drift-check to silence.
+  fi
+fi
+rm -f "$tmp_old"
+
+if (( SKIP_AUR )); then log "skip-aur requested"; fi
+if [[ ${#OVERLAYS[@]} -gt 0 ]]; then
+  log "overlays requested (deferred to I2 airootfs assembly): ${OVERLAYS[*]}"
+fi
+
+log "building vinOS $VINOS_VERSION via docker (privileged, KVM optional)"
+WORK_DIR="/tmp/vinos-iso-work.$$"
+
+# Use a version-suffixed image tag so successive builds share the archiso
+# install layer instead of re-downloading it every run.
+IMG="vinos-archiso-builder:latest"
+if ! docker image inspect "$IMG" >/dev/null 2>&1; then
+  log "one-time: building archiso builder image"
+  docker build -t "$IMG" -f - "$REPO" <<'DOCKERFILE'
+FROM archlinux:latest
+RUN pacman -Sy --needed --noconfirm archiso && pacman -Scc --noconfirm
+DOCKERFILE
+fi
+
+docker run --rm --privileged \
+  -v "$REPO":/vinos-src:ro \
+  -v "$OUT_DIR":/out \
+  -e VINOS_VERSION="$VINOS_VERSION" \
+  "$IMG" \
+  bash -euo pipefail -c "
+    cp -a /vinos-src /vinos
+    cd /vinos
+    export VINOS_VERSION='$VINOS_VERSION'
+    mkdir -p '$WORK_DIR'
+    mkarchiso -v -w '$WORK_DIR' -o /out iso/profile
+    ISO_FILE=\$(ls -1 /out/vinos-*.iso 2>/dev/null | head -1) || true
+    if [[ -z \"\$ISO_FILE\" ]]; then
+      echo 'mkarchiso produced no vinos-*.iso' >&2
+      ls /out || true
+      exit 1
+    fi
+    ( cd /out && sha256sum \"\$(basename \"\$ISO_FILE\")\" > sha256sums.txt )
+    echo \"ISO: \$ISO_FILE\"
+    ls -lh \"\$ISO_FILE\"
+  "
+
+log "done → $OUT_DIR"
+ls -1sh "$OUT_DIR"/*.iso "$OUT_DIR"/sha256sums.txt 2>/dev/null || true
