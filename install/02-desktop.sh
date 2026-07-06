@@ -11,9 +11,10 @@ require_not_root
 
 log "02-desktop: installing Hyprland stack"
 install_pkg \
-  hyprland waybar alacritty wofi mako grim slurp \
+  hyprland waybar alacritty wofi mako grim slurp swaybg wl-clipboard \
   xdg-desktop-portal-hyprland qt5-wayland qt6-wayland polkit-gnome \
-  greetd greetd-tuigreet ttf-jetbrains-mono-nerd
+  greetd greetd-tuigreet ttf-jetbrains-mono-nerd \
+  pipewire pipewire-pulse wireplumber
 
 log "02-desktop: writing /etc/greetd/config.toml (tuigreet → Hyprland)"
 _conf="$(mktemp)"
