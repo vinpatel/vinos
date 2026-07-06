@@ -36,11 +36,15 @@ strip() { grep -Ev '^\s*(#|$)' "$1" 2>/dev/null || true; }
 
 # awk drops blank lines so the sort-u output can be empty (legal, e.g.
 # when both 01/02 have zero install_aur calls). LC_ALL=C keeps sort
-# deterministic across locales.
+# deterministic across locales. install_aur args are merged into
+# packages.x86_64 too — the local [vinos-aur] pacman repo built by
+# aur-build.sh is added to pacman.conf, so mkarchiso pacstraps them
+# from there just like any other package.
 {
   strip "$ISO_DIR/packages.releng"
   strip "$ISO_DIR/packages.live"
   extract_fn_args install_pkg "$REPO/install/01-base.sh" "$REPO/install/02-desktop.sh"
+  extract_fn_args install_aur "$REPO/install/01-base.sh" "$REPO/install/02-desktop.sh"
 } | awk 'NF' | LC_ALL=C sort -u > "${OUT}.tmp"
 
 extract_fn_args install_aur "$REPO/install/01-base.sh" "$REPO/install/02-desktop.sh" \

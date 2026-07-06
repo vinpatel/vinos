@@ -2,6 +2,8 @@
 # Sources: iso/packages.releng, iso/packages.live,
 #          install/01-base.sh install_pkg args,
 #          install/02-desktop.sh install_pkg args.
+1password
+1password-cli
 alacritty
 alsa-utils
 amd-ucode
@@ -11,6 +13,7 @@ b43-fwcutter
 base
 base-devel
 bash-completion
+bat
 bcachefs-tools
 bind
 bolt
@@ -18,6 +21,7 @@ brltty
 broadcom-wl
 btop
 btrfs-progs
+chromium
 clonezilla
 cloud-init
 cryptsetup
@@ -36,12 +40,16 @@ efibootmgr
 espeakup
 ethtool
 exfatprogs
+eza
 f2fs-tools
 fastfetch
 fatresize
+fd
 foot-terminfo
 fsarchiver
+fzf
 git
+github-cli
 gpart
 gparted
 gpm
@@ -60,6 +68,7 @@ iw
 iwd
 jfsutils
 kitty-terminfo
+lazygit
 ldns
 less
 lftp
@@ -70,6 +79,7 @@ linux-atm
 linux-firmware
 linux-firmware-marvell
 livecd-sounds
+localsend
 lsscsi
 lvm2
 lynx
@@ -87,14 +97,17 @@ mmc-utils
 modemmanager
 mtools
 nano
+nautilus
 nbd
 ndisc6
+neovim
 networkmanager
 nfs-utils
 nilfs-utils
 nmap
 ntfs-3g
 nvme-cli
+obsidian
 open-iscsi
 open-vm-tools
 openconnect
@@ -105,6 +118,9 @@ partclone
 parted
 partimage
 pcsclite
+pipewire
+pipewire-pulse
+plymouth
 polkit-gnome
 ppp
 pptpclient
@@ -114,17 +130,23 @@ qt5-wayland
 qt6-wayland
 refind
 reflector
+ripgrep
 rsync
 rxvt-unicode-terminfo
 screen
 sdparm
 sequoia-sq
 sg3_utils
+signal-desktop
 slurp
 smartmontools
 sof-firmware
+spotify
 squashfs-tools
+starship
 sudo
+sushi
+swaybg
 syslinux
 systemd-resolvconf
 tcpdump
@@ -147,6 +169,8 @@ waybar
 wget
 wireless-regdb
 wireless_tools
+wireplumber
+wl-clipboard
 wofi
 wpa_supplicant
 wvdial
@@ -154,4 +178,5 @@ xdg-desktop-portal-hyprland
 xdg-utils
 xfsprogs
 xl2tpd
+zoxide
 zsh

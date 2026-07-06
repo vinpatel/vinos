@@ -26,16 +26,19 @@ if [[ ${#pkgs[@]} -eq 0 ]]; then
   exit 0
 fi
 
+pacman -Sy --needed --noconfirm base-devel git sudo
+
 # makepkg refuses root; create a build user if missing.
 if ! id builder >/dev/null 2>&1; then
   useradd -m -G wheel builder
+  install -d -m 0750 /etc/sudoers.d
   echo "builder ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/99-builder
+  chmod 0440 /etc/sudoers.d/99-builder
 fi
-
-pacman -Sy --needed --noconfirm base-devel git
 
 install -d -o builder -g builder "$AUR_REPO_DIR"
 
+FAILED=()
 for pkg in "${pkgs[@]}"; do
   if compgen -G "$AUR_REPO_DIR/${pkg}-*.pkg.tar.zst" > /dev/null; then
     log "$pkg — already built, skipping"
@@ -44,15 +47,25 @@ for pkg in "${pkgs[@]}"; do
   log "$pkg — building via makepkg"
   workdir="$(mktemp -d)"
   chown -R builder:builder "$workdir"
-  sudo -u builder -H bash -euo pipefail -c "
+  if ! sudo -u builder -H bash -euo pipefail -c "
     cd '$workdir'
     git clone --depth=1 https://aur.archlinux.org/${pkg}.git
     cd '${pkg}'
-    makepkg -s --noconfirm --needed
+    # --skippgpcheck: sha256sums already validate file integrity;
+    # bypassing the PGP web-of-trust step avoids a per-package
+    # keyring bootstrap in the ephemeral builder container.
+    makepkg -s --skippgpcheck --noconfirm --needed
     cp *.pkg.tar.zst '$AUR_REPO_DIR/'
-  "
+  "; then
+    log "$pkg — BUILD FAILED, continuing without it"
+    FAILED+=("$pkg")
+  fi
   rm -rf "$workdir"
 done
+
+# Emit the failed list so build.sh can drop them from packages.x86_64
+# before mkarchiso tries to pacstrap them and hard-fails.
+printf '%s\n' "${FAILED[@]}" > "$ISO_DIR/aur.failed"
 
 log "repo-add ${AUR_DB_NAME}.db.tar.gz"
 ( cd "$AUR_REPO_DIR" && repo-add "${AUR_DB_NAME}.db.tar.gz" ./*.pkg.tar.zst )

@@ -33,6 +33,23 @@ for f in "$SHARE/bin/"vinos-*; do
   _sudo ln -sfn "/usr/share/vinos/bin/$(basename "$f")" "$LOCAL_BIN/$(basename "$f")"
 done
 
+log "05-branding: installing vinos Plymouth theme"
+# Rule 3: identity — the logo + caret splash is branding, so it lives
+# here. 02-desktop.sh installs the plymouth package and wires the hook;
+# this script owns the artwork and default-theme selection.
+_theme_src="$REPO/themes/vinos"
+_theme_dst="$(_rootpath /usr/share/plymouth/themes/vinos)"
+_pcfg="$(_rootpath /etc/plymouth)"
+_sudo install -d -m 0755 "$_theme_dst" "$_pcfg"
+_sudo install -Dm 0644 "$_theme_src/vinos.plymouth" "$_theme_dst/vinos.plymouth"
+_sudo install -Dm 0644 "$_theme_src/vinos.script"   "$_theme_dst/vinos.script"
+_sudo install -Dm 0644 "$_theme_src/logo.png"       "$_theme_dst/logo.png"
+_sudo install -Dm 0644 "$_theme_src/caret.png"      "$_theme_dst/caret.png"
+_ptmp="$(mktemp)"
+printf '[Daemon]\nTheme=vinos\nShowDelay=0\n' > "$_ptmp"
+_sudo install -Dm 0644 "$_ptmp" "$_pcfg/plymouthd.conf"
+rm -f "$_ptmp"
+
 log "05-branding: writing $OS_REL"
 tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT

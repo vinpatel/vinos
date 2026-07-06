@@ -1,0 +1,61 @@
+// vinOS Plymouth theme — centered vin wordmark with a blinking terminal
+// caret next to it. No spinner, no progress bar — just the mark and a
+// cursor, matching the vinOS aesthetic.
+
+// Solid dark background (#1a1b26 — same tone as the wallpaper composite).
+Window.SetBackgroundTopColor(0.102, 0.106, 0.149);
+Window.SetBackgroundBottomColor(0.102, 0.106, 0.149);
+
+screen_w = Window.GetWidth();
+screen_h = Window.GetHeight();
+
+// Logo — centered.
+logo.image  = Image("logo.png");
+logo.sprite = Sprite(logo.image);
+logo_w = logo.image.GetWidth();
+logo_h = logo.image.GetHeight();
+logo.x  = (screen_w - logo_w) / 2;
+logo.y  = (screen_h - logo_h) / 2;
+logo.sprite.SetX(logo.x);
+logo.sprite.SetY(logo.y);
+logo.sprite.SetZ(0);
+
+// Terminal caret — pre-rendered PNG (12x64 solid white bar) so we
+// don't depend on any fonts being present in the initramfs.
+caret.image  = Image("caret.png");
+caret.sprite = Sprite(caret.image);
+caret.w      = caret.image.GetWidth();
+caret.h      = caret.image.GetHeight();
+caret.x      = logo.x + logo_w + 12;   // 12px gap after the wordmark
+caret.y      = logo.y + (logo_h - caret.h) / 2;
+caret.sprite.SetX(caret.x);
+caret.sprite.SetY(caret.y);
+caret.sprite.SetZ(1);
+
+// Blink loop: toggle caret opacity every ~28 frames (~0.5s @ 50Hz).
+tick = 0;
+fun refresh_cb() {
+  tick++;
+  if (Math.Int(tick / 28) % 2) {
+    caret.sprite.SetOpacity(1.0);
+  } else {
+    caret.sprite.SetOpacity(0.0);
+  }
+}
+Plymouth.SetRefreshFunction(refresh_cb);
+
+// Silence status/progress callbacks — we don't render them, but plymouth
+// still invokes them and unhandled calls spam the debug log.
+fun message_cb(text) { }
+fun update_status_cb(status) { }
+fun display_normal_cb() { }
+fun display_password_cb(prompt, bullets) { }
+fun display_question_cb(prompt, entry) { }
+fun quit_cb() { }
+
+Plymouth.SetMessageFunction(message_cb);
+Plymouth.SetUpdateStatusFunction(update_status_cb);
+Plymouth.SetDisplayNormalFunction(display_normal_cb);
+Plymouth.SetDisplayPasswordFunction(display_password_cb);
+Plymouth.SetDisplayQuestionFunction(display_question_cb);
+Plymouth.SetQuitFunction(quit_cb);

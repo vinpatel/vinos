@@ -9,12 +9,30 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/lib/common.sh"
 
 require_not_root
 
-log "02-desktop: installing Hyprland stack"
+log "02-desktop: installing Hyprland stack + user apps"
 install_pkg \
   hyprland waybar alacritty wofi mako grim slurp swaybg wl-clipboard \
   xdg-desktop-portal-hyprland qt5-wayland qt6-wayland polkit-gnome \
   greetd greetd-tuigreet ttf-jetbrains-mono-nerd \
-  pipewire pipewire-pulse wireplumber
+  pipewire pipewire-pulse wireplumber \
+  chromium nautilus sushi signal-desktop plymouth
+
+log "02-desktop: installing AUR apps (spotify, obsidian, 1password, localsend)"
+install_aur \
+  spotify obsidian 1password 1password-cli localsend
+
+log "02-desktop: wiring Plymouth boot splash (installer mode only)"
+# Rule 1: Plymouth is graphical; owned by this script. Theme assets
+# (vin logo + blinking caret) are shipped by 05-branding (Rule 3).
+# ISO airootfs already has plymouth wired: iso/profile/airootfs/etc/
+# mkinitcpio.conf.d/archiso.conf lists the hook, and the boot menus
+# add `quiet splash` to cmdline. Installer mode here just splices
+# plymouth into the target /etc/mkinitcpio.conf.
+if [[ -z "$VINOS_ROOT" ]] && [[ -f /etc/mkinitcpio.conf ]] \
+   && ! grep -qE '^HOOKS=.*\bplymouth\b' /etc/mkinitcpio.conf; then
+  _sudo sed -i -E 's/^(HOOKS=\(base udev)/\1 plymouth/' /etc/mkinitcpio.conf
+  _sudo mkinitcpio -P || warn "mkinitcpio -P failed; splash may not render"
+fi
 
 log "02-desktop: writing /etc/greetd/config.toml (tuigreet → Hyprland)"
 _conf="$(mktemp)"

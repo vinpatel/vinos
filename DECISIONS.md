@@ -232,3 +232,48 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   keyboard focus through XWayland (reproduced on Hyprland). Also
   attaches `-usb -device usb-kbd -device usb-tablet` so input is a
   real USB kbd + absolute-pointer mouse instead of PS/2.
+
+## I6 — Omarchy parity + Mac + splash
+- **App scope**: curated subset of Omarchy's user-facing package set,
+  not the full 152. Extra-repo: `chromium nvim nautilus sushi
+  signal-desktop localsend plymouth eza bat fzf ripgrep fd zoxide
+  starship github-cli lazygit`. AUR (baked into ISO via `[vinos-aur]`
+  local repo): `spotify obsidian 1password 1password-cli
+  apple-bcm-firmware apple-t2-audio-config tiny-dfr t2fanrd`.
+  Package split: CLI tools go through `install/01-base.sh` (headless,
+  Rule 1); GUI apps + Plymouth land in `install/02-desktop.sh`.
+- **AUR pipeline: install_aur args now merged into packages.x86_64**.
+  gen-packages.sh originally output install_aur strictly to aur.list,
+  which meant the local repo built but mkarchiso never pacstrapped
+  from it. Merging them into packages.x86_64 (alongside install_pkg)
+  closes the loop — build.sh appends `[vinos-aur]` to pacman.conf and
+  the same mkarchiso pass installs both extra-repo and AUR packages.
+- **T2 Mac kernel is post-install only.** `linux-t2` is not baked into
+  the ISO (dual-kernel maintenance, ~150MB size hit not worth the
+  live-boot polish). `install/06-hardware.sh` is a new script that
+  runs after 05-branding and installs `linux-t2 linux-t2-headers`
+  when `dmidecode -s system-manufacturer == "Apple Inc."`, plus
+  NVIDIA/AMD/Intel/Dell/ASUS conditional drivers. gen-packages.sh
+  only scans 01 and 02, so nothing from 06 leaks into the ISO's
+  package set — deliberate.
+- **T2 firmware/audio DOES ship on the ISO** so live boot on T2 Macs
+  gets bcm-firmware + audio config; only the kernel swap is deferred.
+  User picks that up on first install run.
+- **Plymouth split across Rule 1 and Rule 3.** 02-desktop installs
+  the package + wires the mkinitcpio hook (graphical concern);
+  05-branding ships the `vinos` theme (logo + blinking terminal
+  caret) and writes `plymouthd.conf` with `Theme=vinos` (identity
+  concern). ISO airootfs gets `plymouth` in `archiso.conf`'s HOOKS
+  directly (edited in place — profile files are ours to modify per
+  I2). Boot cmdlines across syslinux/grub/systemd-boot get
+  `quiet splash loglevel=3 vt.global_cursor_default=0`. Accessibility
+  and PXE entries left untouched — screen-reader users want text.
+- **Plymouth theme is `themes/vinos/`** at repo root (not
+  `default/`) — it's an installable asset with three files
+  (vinos.plymouth, vinos.script, logo.png), not a single dotfile.
+  `default/` stays for wallpaper-shaped single-file drops.
+- **install/06-hardware.sh naming**: base scripts own 01–09 per
+  Rule 2, so 06 is a legal name. Sitting after 05 also means
+  identity is fully applied before we touch driver stacks —
+  matters because 06 may prompt for a reboot to pick up the new
+  kernel and we want that prompt to say "vinOS" not "Arch".
