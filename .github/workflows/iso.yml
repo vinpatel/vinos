@@ -1,0 +1,96 @@
+# vinOS CI — lint, AUR cache, and ISO build+test.
+# Triggers: manual dispatch, and tag pushes matching v* (which produce
+# release artifacts).
+#
+# The `iso` job runs on a self-hosted runner because mkarchiso needs
+# real loop devices + privileged docker, which GitHub-hosted runners
+# don't expose. Runner setup (label = "self-hosted-dell") and secrets
+# are user-side.
+#
+# The `lint` job is GH-hosted and validates that scripts pass
+# shellcheck and packages.x86_64 is in sync with iso/gen-packages.sh.
+name: iso
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write   # attach release assets on tag push
+  actions: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - name: Install shellcheck + rsync
+        run: pacman -Sy --needed --noconfirm shellcheck rsync bash
+      - uses: actions/checkout@v4
+
+      - name: Shellcheck every install/lib/bin/iso script
+        run: |
+          set -e
+          mapfile -t scripts < <(find install lib bin iso overlays tests \
+            -type f \( -name '*.sh' -o -name 'vinos-*' \))
+          # Vinos-* scripts under bin/ have no extension; guarantee we
+          # only pass shell files.
+          for f in "${scripts[@]}"; do
+            head -1 "$f" | grep -q '^#!.*bash\|^#!.*sh' || continue
+            printf '=== %s ===\n' "$f"
+            shellcheck -x "$f" || exit 1
+          done
+
+      - name: gen-packages drift check
+        run: |
+          set -e
+          cp iso/profile/packages.x86_64 /tmp/before
+          bash iso/gen-packages.sh >/dev/null
+          if ! diff -u /tmp/before iso/profile/packages.x86_64 >/dev/null; then
+            echo "::error::iso/profile/packages.x86_64 is out of date — run iso/gen-packages.sh and commit"
+            diff -u /tmp/before iso/profile/packages.x86_64 | head -80
+            exit 1
+          fi
+
+  iso:
+    needs: lint
+    runs-on: [self-hosted, dell]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read VERSION
+        id: version
+        run: echo "value=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+
+      - name: Build ISO (mkarchiso via docker --privileged)
+        run: |
+          # Runner already has docker + KVM per the setup docs.
+          iso/build.sh
+
+      - name: Test ISO (QEMU matrix — BIOS+UEFI, 3G floor, offline)
+        run: iso/test.sh --mode matrix --timeout 360
+
+      - name: Attach ISO + sha256 to release (tag push only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            iso/out/vinos-*.iso
+            iso/out/sha256sums.txt
+          name: vinOS ${{ steps.version.outputs.value }}
+          draft: false
+          prerelease: false
+
+      - name: Upload artifacts (manual dispatch — 7-day retention)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vinos-iso-${{ steps.version.outputs.value }}
+          path: |
+            iso/out/vinos-*.iso
+            iso/out/sha256sums.txt
+          retention-days: 7

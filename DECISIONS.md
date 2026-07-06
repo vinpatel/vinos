@@ -203,6 +203,24 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   until the user confirms Acer Aspire boots to Hyprland and
   persistence survives a reboot.
 
+## I5 — CI (workflow-side complete; runner + first release pending user)
+- **Split lint from build**: `.github/workflows/iso.yml` has a
+  GH-hosted `lint` job (shellcheck + packages.x86_64 drift check) and
+  a self-hosted `iso` job (build + QEMU matrix + release attach). GH
+  hosted runners cannot expose loop devices privileged enough for
+  mkarchiso, so the actual build must live on the Dell.
+- **Self-hosted runner label**: `[self-hosted, dell]`. Runner setup
+  (GH runner binary, docker in the runner user's groups, /dev/kvm
+  access) is user-side one-time infra work.
+- **Trigger surface**: `workflow_dispatch` (manual, 7-day artifact) +
+  `push tags: v*` (release attach via softprops/action-gh-release).
+  A `v1.0.0` tag would upload `vinos-1.0.0-x86_64.iso` +
+  `sha256sums.txt` to the release page.
+- **Drift enforcement**: the lint job regenerates
+  `iso/profile/packages.x86_64` and fails if it differs from HEAD.
+  This is spec §3.2's "never hand-edit; CI fails if regenerating
+  produces a diff".
+
 ### Open items carried into later milestones
 - **I4:** `iso/flash.sh` + persistence + `docs/USB.md`. Real-hardware
   Acer boot is user-side (I cannot flash from here).

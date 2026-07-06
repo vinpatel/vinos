@@ -28,4 +28,4 @@ Read the relevant spec before writing any code. The specs win over your own pref
 
 ## Status tracker (update after each session)
 - [x] M1 skeleton   - [x] M2 base install   - [x] M3 branding   - [x] M4 overlay proof
-- [x] I1 profile boots   - [x] I2 live desktop   - [x] I3 offline complete   - [~] I4 flash+persistence (Acer hardware boot pending user verification)   - [ ] I5 CI
+- [x] I1 profile boots   - [x] I2 live desktop   - [x] I3 offline complete   - [~] I4 flash+persistence (Acer hardware boot pending user verification)   - [~] I5 CI workflow (self-hosted runner setup + first tag push pending user)
