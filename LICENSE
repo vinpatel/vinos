@@ -1,0 +1,67 @@
+vinOS License and Attribution
+==============================
+
+vinOS itself — the scripts, configs, artwork under `assets/logo/`,
+`themes/vinos/`, `default/`, and all other original content in this
+repository authored by the vinOS project — is released under the
+MIT License:
+
+    Copyright (c) 2026 Vin Patel
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject
+    to the following conditions:
+
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+    BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+    ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+
+Trademark and Attribution Notice
+--------------------------------
+
+vinOS is an independent Linux distribution based on Arch Linux. vinOS
+is not affiliated with, endorsed by, or sponsored by the Arch Linux
+project.
+
+"Arch Linux" and the Arch Linux logo (the blue triangle) are
+trademarks of the Arch Linux team. vinOS does not use the Arch Linux
+name or logo as part of its own identity. Where the string "arch"
+appears in vinOS (e.g. `ID_LIKE=arch` in `/etc/os-release`, or the
+on-medium `install_dir=arch`), it is used descriptively to signal
+Arch-derivation in the standard Linux-vendor way, not as branding.
+
+vinOS is built from the archiso profile shipped by the Arch Linux
+project. The upstream archiso profile is available at
+<https://gitlab.archlinux.org/archlinux/archiso> and licensed under
+the GNU General Public License v3. Modifications to that profile are
+retained under the same license.
+
+
+Third-party components
+----------------------
+
+vinOS installs and redistributes software packages from:
+
+  - the Arch Linux official repositories (core, extra, multilib);
+  - the Arch User Repository (AUR), built via `iso/aur-build.sh`;
+  - upstream vendors (e.g. 1Password, Spotify, Obsidian) whose
+    packages are repackaged by the corresponding AUR PKGBUILDs.
+
+Each individual package retains its own license and copyright as
+declared by its upstream author. vinOS makes no additional claim of
+ownership over redistributed third-party software. See each
+installed package's own `LICENSE` (typically under
+`/usr/share/licenses/<pkgname>/`) for details.

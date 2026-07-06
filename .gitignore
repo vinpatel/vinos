@@ -1,2 +1,5 @@
 iso/out/
+iso/.aur-cache/
+iso/aurrepo/
+iso/aur.failed
 .claude/

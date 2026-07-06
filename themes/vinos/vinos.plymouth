@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=vinOS
+Description=vinOS boot splash — logo + blinking terminal caret
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/vinos
+ScriptFile=/usr/share/plymouth/themes/vinos/vinos.script

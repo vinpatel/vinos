@@ -74,9 +74,15 @@ RUN pacman -Sy --needed --noconfirm $IMG_STAMP && pacman -Scc --noconfirm
 DOCKERFILE
 fi
 
+# Persist AUR build outputs across runs. Without this the container is
+# ephemeral and every rebuild re-does the ~5 min of makepkg work.
+AUR_CACHE="$ISO_DIR/.aur-cache"
+mkdir -p "$AUR_CACHE"
+
 docker run --rm --privileged \
   -v "$REPO":/vinos-src:ro \
   -v "$OUT_DIR":/out \
+  -v "$AUR_CACHE":/vinos-aur-cache \
   -e VINOS_VERSION="$VINOS_VERSION" \
   "$IMG" \
   bash -euo pipefail -c "
@@ -101,15 +107,31 @@ docker run --rm --privileged \
 
     # Build local [vinos-aur] repo when aur.list is non-empty and we
     # weren't asked to skip. Empty aur.list -> no-op (I3 default).
+    # Seed aurrepo from host cache mount so already-built pkgs skip.
+    if [[ -d /vinos-aur-cache ]]; then
+      mkdir -p /vinos/iso/aurrepo
+      cp -a /vinos-aur-cache/. /vinos/iso/aurrepo/ 2>/dev/null || true
+    fi
     if [[ '$SKIP_AUR' -ne 1 ]] && grep -qEv '^\s*(#|$)' /vinos/iso/aur.list 2>/dev/null; then
       echo '== building [vinos-aur] via iso/aur-build.sh =='
       bash /vinos/iso/aur-build.sh
+      # Push freshly built pkgs back to host cache for next run.
+      cp -a /vinos/iso/aurrepo/. /vinos-aur-cache/ 2>/dev/null || true
       cat >> /vinos/iso/profile/pacman.conf <<PACCONF
 
 [vinos-aur]
 SigLevel = Optional TrustAll
 Server = file:///vinos/iso/aurrepo
 PACCONF
+      # If aur-build.sh gave up on any packages, strip them from
+      # packages.x86_64 so mkarchiso doesn't hard-fail chasing them.
+      if [[ -s /vinos/iso/aur.failed ]]; then
+        while read -r fp; do
+          [[ -n \"\$fp\" ]] || continue
+          echo \"== dropping failed AUR pkg from packages.x86_64: \$fp\"
+          sed -i \"/^\${fp}\$/d\" /vinos/iso/profile/packages.x86_64
+        done < /vinos/iso/aur.failed
+      fi
     fi
 
     # Ensure staged config/branding files are root-owned before squashfs.
