@@ -21,10 +21,18 @@ OS_REL="$(_rootpath /etc/os-release)"
 OS_REL_BAK="$(_rootpath /etc/os-release.arch.bak)"
 
 log "05-branding: installing shared assets under $SHARE"
-_sudo install -d -m 0755 "$SHARE" "$SHARE/bin" "$LOCAL_BIN"
-_sudo rsync -a --delete "$REPO/assets/logo/"        "$SHARE/logo/"
-_sudo install -Dm 0644 "$REPO/default/wallpaper.png" "$SHARE/wallpaper.png"
-_sudo install -Dm 0644 "$REPO/VERSION"               "$SHARE/VERSION"
+_sudo install -d -m 0755 "$SHARE" "$SHARE/bin" "$SHARE/themes" "$LOCAL_BIN"
+_sudo rsync -a --delete "$REPO/assets/logo/"  "$SHARE/logo/"
+_sudo install -Dm 0644 "$REPO/VERSION"         "$SHARE/VERSION"
+
+# I8: themes/ system. Each theme is a directory with theme.conf +
+# wallpaper.png (+ optional hyprland.conf, waybar.css etc. as the
+# system grows). /usr/share/vinos/wallpaper.png stays as a stable
+# alias to the active theme's wallpaper — cosmetic switching later
+# rewrites this symlink.
+_sudo rsync -a --delete "$REPO/themes/" "$SHARE/themes/"
+_active_theme="${VINOS_THEME:-tokyo-night}"
+_sudo ln -sfn "themes/${_active_theme}/wallpaper.png" "$SHARE/wallpaper.png"
 
 log "05-branding: installing vinos-* commands"
 _sudo rsync -a "$REPO/bin/" "$SHARE/bin/"
