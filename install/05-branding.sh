@@ -43,8 +43,9 @@ _pcfg="$(_rootpath /etc/plymouth)"
 _sudo install -d -m 0755 "$_theme_dst" "$_pcfg"
 _sudo install -Dm 0644 "$_theme_src/vinos.plymouth" "$_theme_dst/vinos.plymouth"
 _sudo install -Dm 0644 "$_theme_src/vinos.script"   "$_theme_dst/vinos.script"
-_sudo install -Dm 0644 "$_theme_src/logo.png"       "$_theme_dst/logo.png"
-_sudo install -Dm 0644 "$_theme_src/caret.png"      "$_theme_dst/caret.png"
+for _f in "$_theme_src"/frame-*.png; do
+  _sudo install -Dm 0644 "$_f" "$_theme_dst/$(basename "$_f")"
+done
 _ptmp="$(mktemp)"
 printf '[Daemon]\nTheme=vinos\nShowDelay=0\n' > "$_ptmp"
 _sudo install -Dm 0644 "$_ptmp" "$_pcfg/plymouthd.conf"
