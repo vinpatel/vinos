@@ -74,8 +74,16 @@ else
   _sudo ln -sfn /dev/null "$_sys/systemd-networkd-wait-online.service"
 fi
 
-# /etc/resolv.conf → resolved's stub. install(1) refuses cross-device
-# symlink args, so use ln -sfn (both modes route through _sudo).
-_sudo ln -sfn /run/systemd/resolve/stub-resolv.conf "$(_rootpath /etc/resolv.conf)"
+# /etc/resolv.conf → resolved's stub. Some environments (Docker
+# containers, LXC, some VM providers) bind-mount /etc/resolv.conf and
+# ln will fail with EBUSY — that's harmless there because the host is
+# already handling DNS, so warn + continue rather than aborting the
+# whole 04-services run.
+_resolv="$(_rootpath /etc/resolv.conf)"
+if _sudo ln -sfn /run/systemd/resolve/stub-resolv.conf "$_resolv" 2>/dev/null; then
+  log "04-services: /etc/resolv.conf → resolved stub"
+else
+  warn "could not symlink /etc/resolv.conf (bind mount?); leaving as-is"
+fi
 
 log "04-services: done"
