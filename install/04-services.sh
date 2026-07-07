@@ -34,4 +34,17 @@ if [[ "${VINOS_ENABLE_SSH:-0}" == "1" ]]; then
   systemctl_enable sshd
 fi
 
+if [[ -z "$VINOS_ROOT" ]]; then
+  log "04-services: blacklisting floppy module (silences fd0 I/O probe error)"
+  REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  _mp="$(_rootpath /etc/modprobe.d)"
+  _sudo install -d -m 0755 "$_mp"
+  _sudo install -Dm 0644 "$REPO/iso/profile/airootfs/etc/modprobe.d/vinos-no-floppy.conf" \
+                         "$_mp/vinos-no-floppy.conf"
+else
+  # ISO airootfs already ships the file in-tree; installing to itself would
+  # error with "same file" under `install`. Skip in VINOS_ROOT mode.
+  log "04-services: floppy blacklist already staged in airootfs — skipping"
+fi
+
 log "04-services: done"

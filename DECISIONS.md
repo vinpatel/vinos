@@ -233,6 +233,50 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   attaches `-usb -device usb-kbd -device usb-tablet` so input is a
   real USB kbd + absolute-pointer mouse instead of PS/2.
 
+## I6.1 — Plymouth animation + boot I/O error fixups
+- **Splash animation switched from separate logo+caret sprites to paged
+  frames from `assets/logo/vinos-blink.gif`.** The prior approach shipped
+  a 1-bit grayscale `caret.png` and toggled its opacity in the refresh
+  callback — Plymouth's cairo-backed PNG loader plus KMS handoff races
+  made the caret intermittently invisible on some hardware. New approach:
+  `magick ... -coalesce -alpha on -depth 8` extracts two 256×256 8-bit
+  RGBA frames (`themes/vinos/frame-00.png`, `frame-01.png`), then a
+  single sprite swaps `SetImage(frame0|frame1)` in the refresh callback
+  (30 frames on / 30 off ≈ 0.6s each phase at 50 Hz). Single-sprite
+  path avoids the compositing races that hid the caret before.
+- **Visual verification of the splash is deferred to real-hardware
+  (I10 matrix)**: QEMU + framebuffer diff via HMP `screendump` proved
+  timing-fragile — Plymouth's active window is short and shifts with
+  boot speed. The theme is correct by inspection (single-sprite frame
+  swap uses primitives from the stock `script.script` reference) and
+  the CI ISO smoke tests boot cleanly with it. Any regression will
+  surface on the physical T2 MBP test.
+- **`themes/vinos/caret.png` + `themes/vinos/logo.png` deleted**;
+  superseded by the frame pair. `install/05-branding.sh` loops
+  `frame-*.png` so future frame counts don't require code changes.
+- **fd0 I/O error root cause**: QEMU's default machine emulates an
+  ISA floppy controller; the kernel probe emits
+  `I/O error, dev fd0, sector 0 op 0x0:(READ)` early in boot. Fixed
+  by shipping `/etc/modprobe.d/vinos-no-floppy.conf` in airootfs
+  (`blacklist floppy` + `install floppy /bin/true`) and adding
+  `modprobe.blacklist=floppy` to every non-accessibility boot cmdline
+  (syslinux, grub, efiboot main+persistent). Real hardware post-2015
+  typically has no floppy so the blacklist is invisibly correct on
+  install targets too. Accessibility/PXE entries left as-is per the
+  I6 rule.
+- **`install/04-services.sh` owns the installed-system floppy blacklist**
+  (mirrors the airootfs drop into `/etc/modprobe.d/` on installed
+  systems). Guarded with `[[ -z "$VINOS_ROOT" ]]` because under ISO
+  build mode source and destination resolve to the same path and
+  `install(1)` errors with "same file".
+- **`iso/test-plymouth.sh` is the visual regression harness** for the
+  splash — boots ISO headless with `-vga std -monitor stdio`, uses HMP
+  `screendump` at 18/22/26/32/40/55s (widened from the initial
+  20/22/24 window to survive boot-time jitter), and hashes framebuffer
+  bytes. Any two snapshots differing = animation live. Ships as a peer
+  to `iso/test.sh`, not folded in — the interactive HMP launch shape
+  complicates the serial-marker acceptance test.
+
 ## I6 — Omarchy parity + Mac + splash
 - **App scope**: curated subset of Omarchy's user-facing package set,
   not the full 152. Extra-repo: `chromium nvim nautilus sushi
