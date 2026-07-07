@@ -233,6 +233,28 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   attaches `-usb -device usb-kbd -device usb-tablet` so input is a
   real USB kbd + absolute-pointer mouse instead of PS/2.
 
+## I9 — NVIDIA support in 06-hardware.sh
+- **06-hardware NVIDIA branch expanded** past the bare
+  `nvidia-open-dkms + nvidia-utils` install. Now also pulls
+  `libva-nvidia-driver`, `egl-wayland`, and optionally
+  `nvidia-prime` (hybrid graphics helper).
+- **`/etc/environment.d/50-vinos-nvidia.conf`** exports the four env
+  vars needed for Hyprland+NVIDIA to render cleanly on Wayland:
+  `LIBVA_DRIVER_NAME`, `__GLX_VENDOR_LIBRARY_NAME`,
+  `WLR_NO_HARDWARE_CURSORS`, `GBM_BACKEND=nvidia-drm`.
+- **`/etc/xdg/hypr/nvidia.conf`** is a Hyprland snippet users can
+  `source =` from their config. Also sets `cursor.no_hardware_cursors`
+  and disables `explicit_sync` (a known Hyprland+NVIDIA quirk source).
+  I11's vinos-launch-hypr will source this automatically when a
+  discrete NVIDIA card is present.
+- **KMS wiring**: `nvidia_drm.modeset=1` set via
+  `/etc/modprobe.d/vinos-nvidia.conf` (`options nvidia_drm modeset=1
+  fbdev=1`) plus the nvidia modules added to `MODULES=(...)` in
+  `/etc/mkinitcpio.conf`. `mkinitcpio -P` runs after the edit.
+- Skipped in `VINOS_ROOT` (ISO) mode — the ISO ships the stock
+  kernel; NVIDIA drivers are installed post-boot when a real target
+  is detected. Documented at the top of `06-hardware.sh`.
+
 ## I8 — UI/UX polish + walker adoption
 - **wofi replaced by walker (AUR: walker-bin).** wofi is unmaintained;
   walker is Omarchy's launcher, has richer providers (apps, clipboard,
