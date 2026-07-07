@@ -233,6 +233,30 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   attaches `-usb -device usb-kbd -device usb-tablet` so input is a
   real USB kbd + absolute-pointer mouse instead of PS/2.
 
+## I8 — UI/UX polish + walker adoption
+- **wofi replaced by walker (AUR: walker-bin).** wofi is unmaintained;
+  walker is Omarchy's launcher, has richer providers (apps, clipboard,
+  symbols, calc, web), and integrates cleanly with gtk4-layer-shell.
+  Bound to Super+SPACE (primary) and Super+D (legacy compat).
+- **Hyprland stack from Omarchy adopted**: hypridle (5min lock, 10min
+  DPMS), hyprlock (blur wallpaper + JetBrainsMono clock), hyprpicker
+  (color pick via Super+Shift+C), hyprsunset (4500K night light on
+  startup), swayosd (volume/brightness OSD popups for XF86 keys).
+  polkit-gnome authentication agent starts with the session for GUI
+  pkexec dialogs.
+- **Screenshot pipeline**: `grim -g $(slurp) | satty` for annotate
+  workflow (Super+P). Super+Shift+P bypasses satty for a plain copy.
+- **Default terminal switched from alacritty to foot** for consistency
+  with the impala launcher (foot already installed for that) and
+  faster startup. alacritty remains installed for users who prefer it.
+- **`themes/` directory system introduced**. Each theme is
+  `themes/<name>/{theme.conf,wallpaper.png}` and ships to
+  `/usr/share/vinos/themes/<name>/`. `/usr/share/vinos/wallpaper.png`
+  is now a relative symlink to the active theme's wallpaper — theme
+  switching later just rewrites the symlink + `hyprctl reload`.
+  Default theme: tokyo-night. `VINOS_THEME=<name>` at 05-branding time
+  picks the active theme (ISO builds respect it).
+
 ## I7 — Network ergonomics (impala + iwd)
 - **NetworkManager dropped from live ISO in favor of iwd.** Rationale:
   Omarchy's stack is `iwd + impala` (TUI wifi picker), no NM. Two
