@@ -26,6 +26,7 @@ for b in "${BUNDLES[@]}"; do
 done
 add "Wi-Fi controls (impala)"    "vinos-launch-wifi"
 add "System update (vinos-update)" "vinos-update"
+add "Switch theme"                "vinos-theme --pick"
 add "Diagnostics (vinos-doctor)"  "foot --app-id=org.vinos.doctor -T 'vinOS doctor' -- vinos-doctor"
 add "Lock screen"                 "hyprlock"
 

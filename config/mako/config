@@ -1,9 +1,33 @@
-# vinOS mako notification defaults.
+# vinOS mako — tokyo-night notifications, top-right, grouped by app.
+anchor=top-right
+group-by=app-name,summary
+default-timeout=5000
+width=380
+outer-margin=16
+padding=10,15
+border-size=2
+border-radius=8
+max-icon-size=32
+font=JetBrainsMono Nerd Font 11
+
 background-color=#1a1b26
 text-color=#c0caf5
-border-color=#7aa2f7
-border-size=1
-border-radius=6
-default-timeout=5000
-padding=10
-font=JetBrainsMono Nerd Font 10
+border-color=#33ccff
+
+[urgency=low]
+border-color=#565f89
+
+[urgency=critical]
+default-timeout=0
+border-color=#f7768e
+layer=overlay
+
+[mode=do-not-disturb]
+invisible=true
+
+[app-name=Spotify]
+invisible=1
+
+# Setup-Wi-Fi action button — launch impala from the notification.
+[summary~="Setup Wi-Fi"]
+on-button-left=exec sh -c 'makoctl dismiss --group; vinos-launch-wifi'

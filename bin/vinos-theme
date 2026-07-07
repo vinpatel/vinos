@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# vinos-theme — list / apply / show current vinOS theme.
+#
+#   vinos-theme                # print current + list available
+#   vinos-theme <name>         # switch (updates symlink, reloads Hyprland)
+#   vinos-theme --pick         # walker-dmenu picker (or gum/fzf/stdin)
+#
+# A theme lives at /usr/share/vinos/themes/<name>/ with:
+#   theme.conf        (colors + metadata — key=value)
+#   wallpaper.png     (background)
+#
+# Switching:
+#   1) atomically rewrite /usr/share/vinos/wallpaper.png → new theme's PNG.
+#   2) write ~/.config/vinos/active-theme so future logins pick it up.
+#   3) hyprctl reload (best-effort) so swaybg picks up the new wallpaper.
+set -euo pipefail
+
+SHARE=/usr/share/vinos
+THEMES_DIR="$SHARE/themes"
+STATE="${XDG_CONFIG_HOME:-$HOME/.config}/vinos"
+ACTIVE_FILE="$STATE/active-theme"
+
+_die() { printf '\033[1;31mvinos-theme:\033[0m %s\n' "$*" >&2; exit 1; }
+_log() { printf '\033[1;34mvinos-theme:\033[0m %s\n' "$*"; }
+
+_current() {
+  if [[ -f "$ACTIVE_FILE" ]]; then
+    cat "$ACTIVE_FILE"
+  elif [[ -L "$SHARE/wallpaper.png" ]]; then
+    # /usr/share/vinos/wallpaper.png → themes/<name>/wallpaper.png
+    basename "$(dirname "$(readlink "$SHARE/wallpaper.png")")"
+  else
+    printf 'unknown\n'
+  fi
+}
+
+_list() {
+  [[ -d "$THEMES_DIR" ]] || _die "no themes installed at $THEMES_DIR"
+  find "$THEMES_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | LC_ALL=C sort
+}
+
+_apply() {
+  local name="$1"
+  local dir="$THEMES_DIR/$name"
+  [[ -d "$dir" && -f "$dir/wallpaper.png" ]] || _die "theme '$name' not found (need $dir/wallpaper.png)"
+
+  _log "switching to '$name'"
+  # /usr/share/vinos/wallpaper.png is a symlink managed at install time
+  # (05-branding.sh writes it as a relative symlink). Update it in place.
+  sudo ln -sfn "themes/${name}/wallpaper.png" "$SHARE/wallpaper.png"
+  mkdir -p "$STATE"
+  printf '%s\n' "$name" > "$ACTIVE_FILE"
+
+  # Live reload: hyprctl notify + swaybg restart. Best-effort — safe on
+  # headless sessions (hyprctl will just fail).
+  if command -v hyprctl >/dev/null; then
+    hyprctl notify -1 3000 "rgb(33ccff)" "vinOS theme → $name" 2>/dev/null || true
+    hyprctl dispatch exec "swaybg -i $SHARE/wallpaper.png -m fill" 2>/dev/null || true
+    # Kill any stale swaybg (older than 1s to avoid killing the one we
+    # just started); Hyprland respawns it via exec-once on next login.
+    pkill -f "swaybg -i" 2>/dev/null || true
+    sleep 0.3
+    hyprctl dispatch exec "swaybg -i $SHARE/wallpaper.png -m fill" 2>/dev/null || true
+  fi
+  _log "active theme: $name"
+}
+
+_pick() {
+  local names picked
+  mapfile -t names < <(_list)
+  (( ${#names[@]} > 0 )) || _die "no themes to pick from"
+  if [[ -n "${WAYLAND_DISPLAY:-}${DISPLAY:-}" ]] && command -v walker >/dev/null; then
+    picked=$(printf '%s\n' "${names[@]}" | walker --dmenu)
+  elif command -v gum >/dev/null; then
+    picked=$(printf '%s\n' "${names[@]}" | gum choose --limit 1)
+  elif command -v fzf >/dev/null; then
+    picked=$(printf '%s\n' "${names[@]}" | fzf)
+  else
+    printf '%s\n' "${names[@]}" | cat -n
+    printf 'pick number: '
+    read -r n
+    [[ "$n" =~ ^[0-9]+$ ]] || _die "bad number"
+    picked="${names[$((n-1))]}"
+  fi
+  [[ -n "${picked:-}" ]] && _apply "$picked"
+}
+
+case "${1:-}" in
+  "")
+    printf 'current: %s\n' "$(_current)"
+    printf 'available:\n'
+    _list | sed 's/^/  /'
+    ;;
+  --pick|-p) _pick ;;
+  -h|--help)
+    sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
+    ;;
+  *) _apply "$1" ;;
+esac
