@@ -51,9 +51,82 @@ if [[ "$sys_vendor" == "Apple Inc." ]]; then
 fi
 
 # --- NVIDIA ---------------------------------------------------------
+# I9: nvidia-open-dkms is the modern proprietary Wayland-friendly stack.
+# Environment vars quiet the common Hyprland+NVIDIA rendering issues.
+# The Hyprland env drop-in is applied only if hyprland is already
+# installed on the system (i.e. 02-desktop ran). Rule 1 boundary is
+# respected: we're writing a conf file, not launching a compositor.
 if grep -qi 'NVIDIA' <<<"$pci"; then
-  log "06-hardware: NVIDIA GPU detected — installing nvidia-open-dkms"
-  install_pkg nvidia-open-dkms nvidia-utils
+  log "06-hardware: NVIDIA GPU detected — installing nvidia-open-dkms + companions"
+  install_pkg nvidia-open-dkms nvidia-utils libva-nvidia-driver egl-wayland
+
+  # Optional: hybrid-graphics prime-run helper (nvidia-prime). Fatal
+  # nothing if the box has only a single GPU — pacman -Sy --needed
+  # is a no-op when nvidia-prime is already provided by nvidia-utils
+  # on some setups. `|| true` because a small subset of NVIDIA-only
+  # desktops have no CONFIG_HYBRID need but still want the driver.
+  install_pkg nvidia-prime || true
+
+  log "06-hardware: writing NVIDIA env drop-ins"
+  _envd="$(_rootpath /etc/environment.d)"
+  _sudo install -d -m 0755 "$_envd"
+  _envtmp="$(mktemp)"
+  cat > "$_envtmp" <<'ENV'
+# vinOS: NVIDIA + Wayland environment. Written by install/06-hardware.sh.
+# Removes hardware cursor glitches on wlroots-based compositors (Hyprland);
+# forces GLX + VA-API to use the nvidia userspace stack.
+LIBVA_DRIVER_NAME=nvidia
+__GLX_VENDOR_LIBRARY_NAME=nvidia
+WLR_NO_HARDWARE_CURSORS=1
+GBM_BACKEND=nvidia-drm
+ENV
+  _sudo install -Dm 0644 "$_envtmp" "$_envd/50-vinos-nvidia.conf"
+  rm -f "$_envtmp"
+
+  # Hyprland NVIDIA snippet — inserted as an include in the shipped
+  # hyprland.conf if the file exists. Idempotent (grep guard).
+  _hyprsnippet="$(_rootpath /etc/xdg/hypr/nvidia.conf)"
+  _sudo install -d -m 0755 "$(dirname "$_hyprsnippet")"
+  _snip="$(mktemp)"
+  cat > "$_snip" <<'HYPR'
+# vinOS: NVIDIA-specific Hyprland tuning. Source from user's hyprland.conf
+# via `source = /etc/xdg/hypr/nvidia.conf`. Applied automatically when
+# vinos-launch-hypr detects a discrete NVIDIA GPU (I11 helper).
+env = LIBVA_DRIVER_NAME,nvidia
+env = __GLX_VENDOR_LIBRARY_NAME,nvidia
+env = WLR_NO_HARDWARE_CURSORS,1
+env = GBM_BACKEND,nvidia-drm
+cursor {
+  no_hardware_cursors = true
+}
+render {
+  explicit_sync = 0
+  explicit_sync_kms = 0
+}
+HYPR
+  _sudo install -Dm 0644 "$_snip" "$_hyprsnippet"
+  rm -f "$_snip"
+
+  # Kernel-side: nvidia_drm.modeset=1 is required for Wayland. Add via
+  # kernel cmdline (mkinitcpio needs the modules early). Kernel modules
+  # get added to /etc/mkinitcpio.conf MODULES=(...); grep-guard prevents
+  # duplicate appends. Skip in VINOS_ROOT (ISO ships the stock kernel).
+  _mki="$(_rootpath /etc/mkinitcpio.conf)"
+  if [[ -f "$_mki" ]] && ! grep -qE '^MODULES=.*\bnvidia_drm\b' "$_mki"; then
+    log "06-hardware: adding nvidia_drm module to mkinitcpio"
+    _sudo sed -i -E 's/^MODULES=\((.*)\)/MODULES=(\1 nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' "$_mki"
+    _sudo mkinitcpio -P || warn "mkinitcpio -P failed after NVIDIA module add"
+  fi
+
+  # /etc/modprobe.d for KMS. `options nvidia_drm modeset=1` is the
+  # canonical Arch way to guarantee KMS at boot even without a cmdline
+  # edit — belt + suspenders with the mkinitcpio MODULES change.
+  _mp="$(_rootpath /etc/modprobe.d)"
+  _sudo install -d -m 0755 "$_mp"
+  _mptmp="$(mktemp)"
+  printf 'options nvidia_drm modeset=1 fbdev=1\n' > "$_mptmp"
+  _sudo install -Dm 0644 "$_mptmp" "$_mp/vinos-nvidia.conf"
+  rm -f "$_mptmp"
 fi
 
 # --- AMD / Radeon ---------------------------------------------------
