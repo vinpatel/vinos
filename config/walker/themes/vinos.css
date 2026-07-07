@@ -1,0 +1,67 @@
+/* vinOS walker theme — tokyo-night with mint accent, matches the
+   Hyprland border color. Blurred backdrop via Hyprland layerrule. */
+#window,
+#box,
+#search,
+#input,
+#list,
+scrollbar,
+#item,
+#text,
+#label,
+#sub,
+#activationlabel {
+  all: unset;
+}
+
+#window {
+  color: #c0caf5;
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 14px;
+}
+
+#box {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(26, 27, 38, 0.92);
+  border: 2px solid rgba(51, 204, 255, 0.65);
+  min-width: 640px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+#search {
+  background: rgba(20, 21, 30, 0.9);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+#input {
+  color: #c0caf5;
+  font-size: 15px;
+}
+
+#list {
+  padding: 4px;
+}
+
+#item {
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 2px 0;
+}
+
+#item:selected {
+  background: rgba(51, 204, 255, 0.18);
+  color: #c0caf5;
+}
+
+#label { font-weight: 500; }
+#sub { color: #565f89; font-size: 12px; }
+#activationlabel {
+  color: #33ccff;
+  font-weight: 700;
+  min-width: 20px;
+  padding-right: 10px;
+}

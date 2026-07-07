@@ -1,0 +1,35 @@
+# vinOS walker config — application launcher. Providers ordered by
+# frequency: apps first, then desktop-file matches, then math/symbols/
+# clipboard as chorded modes via `vinos-menu`/hypr bindings.
+close_when_open = true
+theme = "vinos"
+locale = ""
+terminal_title_flag = "-T"
+
+[keys]
+close = ["Escape"]
+next = ["Down", "ctrl j"]
+prev = ["Up", "ctrl k"]
+resume_query = ["ctrl l"]
+
+[activation_mode]
+labels = "arstdhneio"
+
+[list]
+max_entries = 25
+show_initial_entries = true
+single_click = true
+placeholder = "Search apps…"
+
+[search]
+placeholder = "Search apps…"
+hide_icons = false
+
+[providers]
+default = ["applications", "runner", "desktopapplications"]
+
+[providers.applications]
+history = true
+
+[providers.calc]
+prefix = "="

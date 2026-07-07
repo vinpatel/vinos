@@ -1,0 +1,28 @@
+/* vinOS swayosd — tokyo-night. Rounded pill at the top center. */
+window {
+  border-radius: 32px;
+  border: 2px solid rgba(51, 204, 255, 0.55);
+  background: rgba(26, 27, 38, 0.92);
+  padding: 12px 18px;
+  color: #c0caf5;
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 14px;
+}
+
+image, label {
+  color: #c0caf5;
+}
+
+progressbar {
+  min-height: 6px;
+  min-width: 240px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}
+
+progressbar > trough > progress {
+  background: #33ccff;
+  border-radius: 6px;
+  min-height: 6px;
+}

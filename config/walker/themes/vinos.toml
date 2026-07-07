@@ -1,0 +1,11 @@
+# vinOS walker theme — tokyo-night colors, rounded, blurred.
+[ui.anchors]
+top = true
+left = false
+right = false
+bottom = false
+
+[ui.window]
+h_align = "fill"
+v_align = "fill"
+margins.top = 96
