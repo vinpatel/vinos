@@ -62,6 +62,7 @@ grub
 hdparm
 hyperv
 hyprland
+impala
 intel-ucode
 irssi
 iw
@@ -101,7 +102,6 @@ nautilus
 nbd
 ndisc6
 neovim
-networkmanager
 nfs-utils
 nilfs-utils
 nmap
@@ -130,6 +130,7 @@ qt5-wayland
 qt6-wayland
 refind
 reflector
+rfkill
 ripgrep
 rsync
 rxvt-unicode-terminfo

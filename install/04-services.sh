@@ -47,4 +47,35 @@ else
   log "04-services: floppy blacklist already staged in airootfs — skipping"
 fi
 
+# I7 — network stack: iwd + impala.
+#  - Enable iwd so wifi is live on boot.
+#  - Enable iwd's built-in DHCP so we don't need systemd-networkd for the
+#    wifi path (main.conf: [General] EnableNetworkConfiguration=true).
+#  - Enable systemd-resolved so DNS works when iwd owns DHCP.
+#  - Mask systemd-networkd-wait-online so boot doesn't stall waiting for
+#    a network that may need user-interactive wifi setup first.
+log "04-services: configuring iwd (built-in DHCP) + resolved"
+_iwd_conf="$(_rootpath /etc/iwd)"
+_sudo install -d -m 0755 "$_iwd_conf"
+_iwd_tmp="$(mktemp)"
+printf '[General]\nEnableNetworkConfiguration=true\n[Network]\nNameResolvingService=systemd\n' > "$_iwd_tmp"
+_sudo install -Dm 0644 "$_iwd_tmp" "$_iwd_conf/main.conf"
+rm -f "$_iwd_tmp"
+
+systemctl_enable iwd
+systemctl_enable systemd-resolved
+
+if [[ -z "$VINOS_ROOT" ]]; then
+  sudo systemctl mask systemd-networkd-wait-online.service 2>/dev/null || \
+    warn "could not mask systemd-networkd-wait-online (already masked or absent)"
+else
+  _sys="$(_rootpath /etc/systemd/system)"
+  _sudo install -d -m 0755 "$_sys"
+  _sudo ln -sfn /dev/null "$_sys/systemd-networkd-wait-online.service"
+fi
+
+# /etc/resolv.conf → resolved's stub. install(1) refuses cross-device
+# symlink args, so use ln -sfn (both modes route through _sudo).
+_sudo ln -sfn /run/systemd/resolve/stub-resolv.conf "$(_rootpath /etc/resolv.conf)"
+
 log "04-services: done"

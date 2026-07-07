@@ -233,6 +233,34 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   attaches `-usb -device usb-kbd -device usb-tablet` so input is a
   real USB kbd + absolute-pointer mouse instead of PS/2.
 
+## I7 — Network ergonomics (impala + iwd)
+- **NetworkManager dropped from live ISO in favor of iwd.** Rationale:
+  Omarchy's stack is `iwd + impala` (TUI wifi picker), no NM. Two
+  stacks compete over the same wlan interface — pick one. iwd is
+  simpler, native to Arch, and matches the reference desktop.
+  `iso/packages.live` no longer lists `networkmanager`; `iwd` +
+  `impala` + `rfkill` are added to `install/01-base.sh` so both the
+  ISO and installer path use the same stack.
+- **iwd owns network configuration (built-in DHCP)**, not
+  systemd-networkd. `install/04-services.sh` writes
+  `/etc/iwd/main.conf` with `[General] EnableNetworkConfiguration=true`
+  and `[Network] NameResolvingService=systemd`. systemd-resolved is
+  enabled and `/etc/resolv.conf` is symlinked to its stub. This
+  removes the two-daemon dance for wifi and keeps ethernet on
+  networkd (unchanged).
+- **`systemd-networkd-wait-online.service` masked** so boot doesn't
+  stall 120s on a first-boot machine with no configured wifi. Live
+  boot: the ISO already had a wait-online drop-in that made it
+  return on any interface — we mask it outright so headless-no-net
+  scenarios don't stall graphical.target either.
+- **`bin/vinos-launch-wifi`** — launches impala inside a foot terminal
+  with `--app-id=org.vinos.impala` so the Hyprland windowrule can
+  float and center it. Falls back to alacritty → xterm if foot is
+  absent. Ships via 05-branding.sh (Rule 3: vinos-* bins are identity).
+- **Hyprland keybind: `Super+Ctrl+W`** matches Omarchy's binding so
+  muscle memory transfers. Three windowrules (float, size 720×480,
+  center) present the impala TUI as a modal-feeling picker.
+
 ## I6.1 — Plymouth animation + boot I/O error fixups
 - **Splash animation switched from separate logo+caret sprites to paged
   frames from `assets/logo/vinos-blink.gif`.** The prior approach shipped
