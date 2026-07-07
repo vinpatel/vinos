@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# vinos-install-dev — server/devops/language runtimes.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+# shellcheck source=./vinos-install-common
+source "$SCRIPT_DIR/vinos-install-common"
+
+bundle_begin "dev" "Databases + k8s + language runtimes"
+
+bundle_pkg postgresql mariadb-libs redis \
+           kubectl helm terraform \
+           jdk-openjdk rust ruby go \
+           docker docker-buildx docker-compose
+
+bundle_aur mise
+
+bundle_post "sudo systemctl enable --now docker.service 2>/dev/null || true"
+bundle_post "sudo usermod -aG docker \"\$USER\" 2>/dev/null || true"
+
+bundle_end

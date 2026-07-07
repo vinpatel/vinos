@@ -9,23 +9,26 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/lib/common.sh"
 
 require_not_root
 
-log "02-desktop: installing Hyprland stack + user apps"
+log "02-desktop: installing Hyprland stack + core UX apps"
+# I11 pivot: base is LEAN. GUI apps (chromium/signal/spotify/obsidian/
+# 1password/localsend) moved to opt-in bundles under bin/vinos-install-*.
+# What remains here is the Hyprland compositor, terminals, notification
+# stack, media pipeline, file manager, and UX-critical utilities.
 install_pkg \
   hyprland waybar alacritty foot mako grim slurp swaybg wl-clipboard \
   xdg-desktop-portal-hyprland qt5-wayland qt6-wayland polkit-gnome \
   greetd greetd-tuigreet ttf-jetbrains-mono-nerd \
   pipewire pipewire-pulse wireplumber \
-  chromium nautilus sushi signal-desktop plymouth \
+  nautilus sushi plymouth \
   hypridle hyprlock hyprpicker hyprsunset swayosd satty \
   gtk4-layer-shell kvantum \
-  pamixer playerctl brightnessctl
+  pamixer playerctl brightnessctl gum
 
-log "02-desktop: installing AUR apps"
-# walker-bin: prebuilt walker (dmenu-style launcher) — AUR only.
+log "02-desktop: installing AUR apps (UX-critical only)"
+# I11 pivot: spotify/obsidian/1password/localsend live in bundles now.
+# walker-bin: prebuilt walker (dmenu-style launcher).
 # yaru-icon-theme: Ubuntu's icon set, used by Omarchy.
-install_aur \
-  spotify obsidian 1password 1password-cli localsend \
-  walker-bin yaru-icon-theme
+install_aur walker-bin yaru-icon-theme
 
 log "02-desktop: wiring Plymouth boot splash (installer mode only)"
 # Rule 1: Plymouth is graphical; owned by this script. Theme assets

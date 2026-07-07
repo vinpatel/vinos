@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# vinos-install-gaming — Steam + game-launcher + perf helpers.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+# shellcheck source=./vinos-install-common
+source "$SCRIPT_DIR/vinos-install-common"
+
+bundle_begin "gaming" "Steam + Lutris + gamemode + mangohud"
+
+# Steam requires multilib — nudge the user if it's not enabled. Not
+# fatal (pacman -Sy will still find the package if the repo is on).
+if ! grep -qE '^\s*\[multilib\]' /etc/pacman.conf; then
+  echo "vinos-install-gaming: [multilib] repo not enabled in /etc/pacman.conf."
+  echo "  Enable it (uncomment both lines) before running this, otherwise"
+  echo "  32-bit Steam runtime packages will 404."
+  confirm "Continue anyway?" || exit 0
+fi
+
+bundle_pkg steam lutris gamemode mangohud lib32-mangohud
+
+bundle_end

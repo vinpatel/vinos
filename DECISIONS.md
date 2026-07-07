@@ -233,6 +233,38 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   attaches `-usb -device usb-kbd -device usb-tablet` so input is a
   real USB kbd + absolute-pointer mouse instead of PS/2.
 
+## I11 — THE PIVOT: lean base + opt-in bundles
+- **Six GUI apps moved out of `install/02-desktop.sh` base**:
+  `chromium`, `signal-desktop`, `spotify`, `obsidian`, `1password`,
+  `1password-cli`, `localsend`. Each lives in a bundle now:
+  - `vinos-install-browser` — chromium + firefox
+  - `vinos-install-comms`   — signal-desktop + localsend
+  - `vinos-install-media`   — spotify (+ mpv, kdenlive, obs, evince, pinta, imv, gpu-screen-recorder)
+  - `vinos-install-productivity` — obsidian + notion-app + typora + 1password
+- **Rationale**: base ISO ≤ 3 GB target from the I11 spec means a
+  first-time trial user isn't pulling a 5 GB image; and each persona
+  (AI dev, gamer, office worker) gets exactly the app group they want.
+  Trade-off: `Super+B` (chromium) breaks until the browser bundle is
+  installed. `vinos-install-once` fires a first-boot notification
+  pointing at the menu so users discover this.
+- **Bundle shape**: every `vinos-install-<name>` sources
+  `vinos-install-common`, calls `bundle_begin/pkg/aur/post/end`, and
+  ships via `05-branding.sh` rsync (Rule 3: vinos-* bins are identity).
+  Confirm prompt uses gum → stdin fallback; skipped when
+  `VINOS_INSTALL_ASSUME_YES=1`. Idempotent by design (`pacman -S
+  --needed` + install ledger at `~/.local/state/vinos/bundles.log`).
+- **`vinos-menu`** is the walker-dmenu entrypoint (Super+Ctrl+O),
+  mirroring omarchy-menu. Lists every bundle installer + wifi +
+  update + doctor + lock. Falls back through walker → gum → fzf →
+  plain stdin depending on what's installed. Bundle installers run
+  inside a floating foot terminal (window rule `org.vinos.install`)
+  so users see yay's progress + prompts.
+- **`vinos-install-once`** — self-sentinelled first-boot notifier
+  fired from Hyprland `exec-once`. One `notify-send` pointing at the
+  menu, then touches `~/.local/state/vinos/install-once.done` and
+  never nags again.
+- **`gum` added to base** for the confirm UX in bundle installers.
+
 ## I9 — NVIDIA support in 06-hardware.sh
 - **06-hardware NVIDIA branch expanded** past the bare
   `nvidia-open-dkms + nvidia-utils` install. Now also pulls
