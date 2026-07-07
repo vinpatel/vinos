@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# vinos-menu — walker/dmenu-style entrypoint for vinOS user actions.
+# Mirrors Omarchy's omarchy-menu. Sections:
+#   Install <bundle>   — run vinos-install-<bundle> in a foot terminal
+#   Wi-Fi              — vinos-launch-wifi (impala)
+#   Update             — vinos-update
+#   Diagnostics        — vinos-doctor in a floating terminal
+#   Lock               — hyprlock
+#
+# Chooser preference: walker --dmenu (best), gum choose, fzf, plain
+# `select` fallback. Never fails if none installed — falls back to
+# printing choices for the user to type.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+
+BUNDLES=(ai dev media office gaming productivity comms browser)
+
+MENU_ITEMS=()
+MENU_CMDS=()
+
+add() { MENU_ITEMS+=("$1"); MENU_CMDS+=("$2"); }
+
+for b in "${BUNDLES[@]}"; do
+  add "Install: $b bundle" "$SCRIPT_DIR/vinos-install-$b"
+done
+add "Wi-Fi controls (impala)"    "vinos-launch-wifi"
+add "System update (vinos-update)" "vinos-update"
+add "Diagnostics (vinos-doctor)"  "foot --app-id=org.vinos.doctor -T 'vinOS doctor' -- vinos-doctor"
+add "Lock screen"                 "hyprlock"
+
+_pick_walker() { printf '%s\n' "${MENU_ITEMS[@]}" | walker --dmenu; }
+_pick_gum()    { printf '%s\n' "${MENU_ITEMS[@]}" | gum choose --limit 1; }
+_pick_fzf()    { printf '%s\n' "${MENU_ITEMS[@]}" | fzf; }
+_pick_stdin() {
+  printf '%s\n' "${MENU_ITEMS[@]}" | cat -n
+  printf 'pick number: '
+  local n; read -r n
+  [[ "$n" =~ ^[0-9]+$ ]] || return 1
+  printf '%s' "${MENU_ITEMS[$((n-1))]}"
+}
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+# Prefer walker only in a graphical session; otherwise gum/fzf/stdin.
+if [[ -n "${WAYLAND_DISPLAY:-}${DISPLAY:-}" ]] && have walker; then
+  PICKED="$(_pick_walker)"
+elif have gum; then
+  PICKED="$(_pick_gum)"
+elif have fzf; then
+  PICKED="$(_pick_fzf)"
+else
+  PICKED="$(_pick_stdin)"
+fi
+
+[[ -z "${PICKED:-}" ]] && exit 0
+
+# Find matching command
+for i in "${!MENU_ITEMS[@]}"; do
+  if [[ "${MENU_ITEMS[$i]}" == "$PICKED" ]]; then
+    # Run bundle installers in a terminal so the user sees output +
+    # can respond to yay's prompts. Other commands run inline.
+    case "${MENU_CMDS[$i]}" in
+      *vinos-install-*)
+        if have foot; then
+          exec foot --app-id=org.vinos.install -T "$PICKED" -- \
+            bash -lc "${MENU_CMDS[$i]}; echo; read -p '[enter to close] '"
+        else
+          exec bash -lc "${MENU_CMDS[$i]}"
+        fi
+        ;;
+      *)
+        exec bash -lc "${MENU_CMDS[$i]}"
+        ;;
+    esac
+  fi
+done

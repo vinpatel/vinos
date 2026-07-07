@@ -2,8 +2,6 @@
 # Sources: iso/packages.releng, iso/packages.live,
 #          install/01-base.sh install_pkg args,
 #          install/02-desktop.sh install_pkg args.
-1password
-1password-cli
 alacritty
 alsa-utils
 amd-ucode
@@ -22,7 +20,6 @@ brltty
 broadcom-wl
 btop
 btrfs-progs
-chromium
 clonezilla
 cloud-init
 cryptsetup
@@ -62,6 +59,7 @@ grim
 grml-zsh-config
 grub
 gtk4-layer-shell
+gum
 hdparm
 hyperv
 hypridle
@@ -88,7 +86,6 @@ linux-atm
 linux-firmware
 linux-firmware-marvell
 livecd-sounds
-localsend
 lsscsi
 lvm2
 lynx
@@ -115,7 +112,6 @@ nilfs-utils
 nmap
 ntfs-3g
 nvme-cli
-obsidian
 open-iscsi
 open-vm-tools
 openconnect
@@ -149,11 +145,9 @@ screen
 sdparm
 sequoia-sq
 sg3_utils
-signal-desktop
 slurp
 smartmontools
 sof-firmware
-spotify
 squashfs-tools
 starship
 sudo

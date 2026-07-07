@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# vinos-install-ai — AI/ML toolkit bundle.
+# Ollama, llama.cpp, huggingface-cli, python-{openai,anthropic,torch},
+# aichat, open-webui. If NVIDIA is detected, also pulls CUDA +
+# nvidia-container-toolkit + docker. Models are NOT pulled automatically
+# (bandwidth/disk is user's choice — `ollama pull <model>` afterwards).
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+# shellcheck source=./vinos-install-common
+source "$SCRIPT_DIR/vinos-install-common"
+
+bundle_begin "ai" "Ollama + llama.cpp + python ML libs + Claude Code"
+
+bundle_pkg ollama python-numpy python-pip \
+           docker docker-buildx
+
+bundle_aur claude-code llama.cpp huggingface-cli \
+           python-openai python-anthropic python-torch \
+           aichat open-webui-bin
+
+# NVIDIA branch: add CUDA + container toolkit if a discrete NVIDIA
+# card is present. Detection is lspci -only to keep it dependency-free.
+if lspci 2>/dev/null | grep -qi 'NVIDIA'; then
+  bundle_pkg cuda cudnn nvidia-container-toolkit
+fi
+
+bundle_post "sudo systemctl enable --now docker.service 2>/dev/null || true"
+bundle_post "sudo systemctl enable --now ollama.service 2>/dev/null || true"
+bundle_post "sudo usermod -aG docker \"\$USER\" 2>/dev/null || true"
+
+bundle_end

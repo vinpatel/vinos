@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# vinos-install-media — video/audio/image editing + playback.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+# shellcheck source=./vinos-install-common
+source "$SCRIPT_DIR/vinos-install-common"
+
+bundle_begin "media" "mpv + kdenlive + OBS + Evince + Pinta + Spotify"
+
+bundle_pkg mpv kdenlive obs-studio evince pinta imv \
+           gpu-screen-recorder
+
+bundle_aur spotify
+
+bundle_end

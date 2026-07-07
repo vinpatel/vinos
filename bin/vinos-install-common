@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# vinos-install-common — shared helpers for the vinos-install-* bundle
+# scripts. Sourced, never run directly. Every bundle installer follows
+# the pattern:
+#   source vinos-install-common
+#   bundle_begin "ai" "AI/ML toolkit"
+#   bundle_pkg   ollama python-numpy ...
+#   bundle_aur   claude-code python-torch ...
+#   bundle_end
+#
+# Uses gum for pretty confirms if present, walker for GUI confirm if
+# both are installed and $DISPLAY/$WAYLAND_DISPLAY is set, else plain
+# stdin y/N.
+set -euo pipefail
+
+_bundle_name=""
+_bundle_desc=""
+_bundle_pkgs=()
+_bundle_aur=()
+_bundle_post=()
+
+_have() { command -v "$1" >/dev/null 2>&1; }
+
+bundle_begin() {
+  _bundle_name="$1"
+  _bundle_desc="$2"
+}
+
+bundle_pkg()  { _bundle_pkgs+=("$@"); }
+bundle_aur()  { _bundle_aur+=("$@"); }
+bundle_post() { _bundle_post+=("$1"); }
+
+_confirm_gum() {
+  local prompt="$1"
+  gum confirm --default=false "$prompt" && return 0 || return 1
+}
+
+_confirm_stdin() {
+  local prompt="$1" ans
+  printf '%s [y/N] ' "$prompt"
+  read -r ans
+  [[ "$ans" =~ ^[Yy] ]]
+}
+
+confirm() {
+  local prompt="$1"
+  if _have gum; then _confirm_gum "$prompt"; else _confirm_stdin "$prompt"; fi
+}
+
+bundle_end() {
+  local total=$(( ${#_bundle_pkgs[@]} + ${#_bundle_aur[@]} ))
+  printf '\n\033[1;34m[vinos-install-%s]\033[0m %s\n' "$_bundle_name" "$_bundle_desc"
+  printf '  extra-repo packages (%d): %s\n' "${#_bundle_pkgs[@]}" "${_bundle_pkgs[*]:-<none>}"
+  printf '  AUR packages       (%d): %s\n' "${#_bundle_aur[@]}"  "${_bundle_aur[*]:-<none>}"
+  printf '  total:              %d\n\n'   "$total"
+
+  if [[ "${VINOS_INSTALL_ASSUME_YES:-0}" != "1" ]]; then
+    confirm "Install vinOS bundle '${_bundle_name}' now?" || { echo "aborted."; exit 0; }
+  fi
+
+  # extra-repo packages via pacman.
+  if (( ${#_bundle_pkgs[@]} > 0 )); then
+    sudo pacman -S --needed --noconfirm "${_bundle_pkgs[@]}"
+  fi
+
+  # AUR: prefer yay. If missing, error clearly — bootstrapping yay
+  # belongs to install/01-base.sh, not the bundle path.
+  if (( ${#_bundle_aur[@]} > 0 )); then
+    if ! _have yay; then
+      echo "vinos-install-${_bundle_name}: yay not found; skipping AUR." >&2
+      echo "  (install yay first: bash install/01-base.sh)" >&2
+    else
+      yay -S --needed --noconfirm "${_bundle_aur[@]}"
+    fi
+  fi
+
+  # Post hooks (idempotent shell commands — enable service, seed
+  # config, etc.). Best-effort; a failing hook shouldn't undo the
+  # already-installed packages.
+  for _hook in "${_bundle_post[@]:-}"; do
+    [[ -z "$_hook" ]] && continue
+    bash -c "$_hook" || echo "vinos-install-${_bundle_name}: post hook failed: $_hook" >&2
+  done
+
+  # Record install in the local ledger so vinos-menu can show state.
+  mkdir -p "${HOME}/.local/state/vinos"
+  printf '%s\t%s\n' "$(date -Is)" "$_bundle_name" >> "${HOME}/.local/state/vinos/bundles.log"
+
+  printf '\033[1;32m[vinos-install-%s]\033[0m done.\n' "$_bundle_name"
+}

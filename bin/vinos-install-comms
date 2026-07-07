@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# vinos-install-comms — chat/video/file-share apps.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+# shellcheck source=./vinos-install-common
+source "$SCRIPT_DIR/vinos-install-common"
+
+bundle_begin "comms" "Signal + LocalSend"
+
+bundle_pkg signal-desktop localsend
+
+bundle_end

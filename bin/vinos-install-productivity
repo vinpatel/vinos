@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# vinos-install-productivity — notes + writing.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+# shellcheck source=./vinos-install-common
+source "$SCRIPT_DIR/vinos-install-common"
+
+bundle_begin "productivity" "Obsidian + Notion + Typora + 1Password"
+
+bundle_aur obsidian notion-app typora 1password 1password-cli
+
+bundle_end
