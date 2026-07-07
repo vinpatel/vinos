@@ -350,13 +350,24 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   single sprite swaps `SetImage(frame0|frame1)` in the refresh callback
   (30 frames on / 30 off ≈ 0.6s each phase at 50 Hz). Single-sprite
   path avoids the compositing races that hid the caret before.
-- **Visual verification of the splash is deferred to real-hardware
-  (I10 matrix)**: QEMU + framebuffer diff via HMP `screendump` proved
-  timing-fragile — Plymouth's active window is short and shifts with
-  boot speed. The theme is correct by inspection (single-sprite frame
-  swap uses primitives from the stock `script.script` reference) and
-  the CI ISO smoke tests boot cleanly with it. Any regression will
-  surface on the physical T2 MBP test.
+- **Splash renders correctly in QEMU (visually verified via
+  screendump PNG); caret animation not observable in QEMU headless.**
+  All 5 in-Plymouth snapshots (18/22/26/32/40s) had identical
+  framebuffer hashes = the theme paints frame-00 stably and the
+  `SetRefreshFunction(refresh_cb)` sprite swap doesn't tick under
+  QEMU's `-vga std` emulation. This matches the previous session's
+  diagnostic X-shift also producing static frames. Root cause is
+  probably a Plymouth-in-headless-QEMU quirk (no KMS mode-switch =
+  refresh timer never arms). Rendering itself is correct — the
+  boot log shows Plymouth start → boot progresses → Plymouth quit
+  → greetd cleanly, and the frame-00 sprite is positioned +
+  colored exactly per design (mint V wordmark, caret dot,
+  tokyo-night bg). Real-hardware KMS may or may not animate; the
+  I10 matrix runs are the truth. If real hardware also shows a
+  static caret, follow-up options: (a) rewrite as a two-step C
+  module theme with `animation-XXXX.png` frames (like the stock
+  `spinner`), or (b) tie the swap to `SetBootProgressFunction` /
+  `SetUpdateStatusFunction` which fire on unit events.
 - **`themes/vinos/caret.png` + `themes/vinos/logo.png` deleted**;
   superseded by the frame pair. `install/05-branding.sh` loops
   `frame-*.png` so future frame counts don't require code changes.
