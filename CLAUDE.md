@@ -30,3 +30,10 @@ Read the relevant spec before writing any code. The specs win over your own pref
 - [x] M1 skeleton   - [x] M2 base install   - [x] M3 branding   - [x] M4 overlay proof
 - [x] I1 profile boots   - [x] I2 live desktop   - [x] I3 offline complete   - [~] I4 flash+persistence (Acer hardware boot pending user verification)   - [~] I5 CI workflow (self-hosted runner setup + first tag push pending user)
 - [~] I6 omarchy parity — chromium/nvim/nautilus/comms + CLI tools + AUR pipeline live, Plymouth splash wired, install/06-hardware.sh for T2/NVIDIA/etc. Build verification pending.
+- [~] I6.1 Plymouth animation + I/O errors — single-sprite frame-swap animation + floppy blacklist committed. Visual anim verification deferred to I10 hardware matrix (QEMU sample window fragile).
+- [x] I7 Network ergonomics — iwd + impala + rfkill, NetworkManager out, systemd-networkd-wait-online masked. Super+Ctrl+W → vinos-launch-wifi.
+- [x] I8 UI/UX polish + walker adoption — walker (replaces wofi), hypridle, hyprlock, hyprpicker, hyprsunset, swayosd, satty, kvantum, gtk4-layer-shell, yaru-icon-theme. themes/ system scaffolded (tokyo-night default).
+- [x] I9 NVIDIA support — nvidia-open-dkms + env drop-ins + Hyprland snippet + KMS via mkinitcpio+modprobe.d.
+- [~] I10 hardware verification matrix — docs/HARDWARE.md scaffold with 5 target machines. Real-hardware boots pending user.
+- [x] I11 THE PIVOT — lean base + 8 opt-in bundles (ai/dev/media/office/gaming/productivity/comms/browser). vinos-menu (Super+Ctrl+O), vinos-install-once first-boot notifier, gum-based confirm UX. Base packages 196 → 190. docs/BUNDLES.md.
+- [x] post-I11 — overlays/education + overlays/health persona forks with first-boot.d/*.list preselection contract.
