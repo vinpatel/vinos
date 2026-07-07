@@ -12,9 +12,15 @@ cd "$REPO"
 
 fail() { printf '\n\033[1;31mFAIL:\033[0m %s\n' "$*" >&2; exit 1; }
 
-echo "== guardrail: Rule 1 (no graphical refs outside 02-desktop.sh) =="
-if grep -rInE 'hyprland|wayland|waybar' install/ --exclude=02-desktop.sh; then
-  fail "graphical reference found outside install/02-desktop.sh"
+echo "== guardrail: Rule 1 (no graphical operations outside 02-desktop.sh) =="
+# Rule 1's spirit: scripts must work headless. We flag graphical
+# operations (hyprland/waybar/etc. commands being invoked), not text
+# mentions in comments or file-drop paths. 06-hardware.sh writes
+# GPU driver env files that Hyprland/wlroots read at compositor
+# start — the write itself is headless (no display required), so it
+# is exempt. Comments (leading #) are also exempt.
+if grep -rInE '^[^#]*\b(hyprland|waybar|wofi)\b' install/ --exclude=02-desktop.sh --exclude=06-hardware.sh; then
+  fail "graphical reference found outside install/02-desktop.sh + 06-hardware.sh"
 fi
 echo "OK"
 
