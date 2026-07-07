@@ -1,8 +1,9 @@
 Welcome to [38;2;23;147;209mvinOS Live[0m — an opinionated Arch layer by Vin Patel.
 
-For Wi-Fi, authenticate to the wireless network using the [35miwctl[0m utility.
+For Wi-Fi, launch [35mimpala[0m (or press [35mSuper+Ctrl+W[0m in Hyprland)
+to pick a network. iwctl is available as a fallback CLI.
 For mobile broadband (WWAN) modems, connect with the [35mmmcli[0m utility.
-Ethernet, WLAN and WWAN interfaces using DHCP should work automatically.
+Ethernet interfaces using DHCP should work automatically.
 
 Install to disk with [35msudo iso/flash.sh[0m onto a USB, or run
 [35mgit clone && bash install.sh[0m to convert this live session into a
