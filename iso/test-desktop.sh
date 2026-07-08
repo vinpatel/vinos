@@ -11,7 +11,10 @@ set -euo pipefail
 
 ISO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ISO=""
-FRAMES=(60 80 100 120)
+# Sample after the full desktop is up. archiso boots + greetd
+# autologin + Hyprland exec-once takes ~120-160s under KVM here.
+# 90/120/150/180 covers pre-desktop, mid, and settled.
+FRAMES=(90 120 150 180)
 
 die() { printf '\033[1;31m[desktop-test] FAIL:\033[0m %s\n' "$*" >&2; exit 1; }
 log() { printf '\033[1;34m[desktop-test]\033[0m %s\n' "$*"; }
