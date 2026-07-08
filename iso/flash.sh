@@ -44,6 +44,13 @@ done
 
 [[ $EUID -eq 0 ]] || die "flash.sh must run as root (dd + partition)"
 
+# --with-persistence needs sgdisk (gptfdisk). Check up front — failing
+# AFTER the dd means the user is stuck without their persistence with a
+# freshly-flashed USB and no clear next step. Fail fast instead.
+if (( WITH_PERSIST )) && ! command -v sgdisk >/dev/null 2>&1; then
+  die "--with-persistence needs sgdisk (Arch: pacman -S gptfdisk) — install first, or drop the flag"
+fi
+
 # ISO discovery.
 [[ -z "$ISO" ]] && ISO="$(ls -1t "$ISO_DIR"/out/vinos-*.iso 2>/dev/null | head -1 || true)"
 [[ -n "$ISO" && -f "$ISO" ]] || die "no ISO found — build with iso/build.sh or pass --iso PATH"
