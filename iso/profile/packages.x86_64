@@ -110,6 +110,9 @@ neovim
 nfs-utils
 nilfs-utils
 nmap
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji
 ntfs-3g
 nvme-cli
 open-iscsi
@@ -134,6 +137,7 @@ pv
 qemu-guest-agent
 qt5-wayland
 qt6-wayland
+qt6ct
 refind
 reflector
 rfkill

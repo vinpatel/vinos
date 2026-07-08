@@ -18,10 +18,11 @@ install_pkg \
   hyprland waybar alacritty foot mako grim slurp swaybg wl-clipboard \
   xdg-desktop-portal-hyprland qt5-wayland qt6-wayland polkit-gnome \
   greetd greetd-tuigreet ttf-jetbrains-mono-nerd \
+  noto-fonts noto-fonts-emoji noto-fonts-cjk \
   pipewire pipewire-pulse wireplumber \
   nautilus sushi plymouth \
   hypridle hyprlock hyprpicker hyprsunset swayosd satty \
-  gtk4-layer-shell kvantum \
+  gtk4-layer-shell kvantum qt6ct \
   pamixer playerctl brightnessctl gum
 
 log "02-desktop: installing AUR apps (UX-critical only)"
