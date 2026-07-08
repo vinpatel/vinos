@@ -20,7 +20,7 @@ Each row is a real box someone actually put a vinOS USB into —
 
 | Machine | CPU/GPU | Kernel | Boot? | Wifi? | Sleep? | Notes |
 |---|---|---|---|---|---|---|
-| Apple MacBook Pro 15" (2019, T2) | Coffee Lake i9 / Radeon Pro 560X + UHD 630 | linux-t2 | pending | pending | pending | Primary target machine. Runs Omarchy — vinOS should follow. 06-hardware.sh installs linux-t2 + apple-bcm-firmware; user must switch bootloader entry to linux-t2. |
+| Apple MacBook Pro 15" (2019, T2) | Coffee Lake i9 / Radeon Pro 560X + UHD 630 | linux-t2 | pending | pending | pending | Primary target machine. `06-hardware.sh` installs linux-t2 + apple-bcm-firmware; user must switch bootloader entry to linux-t2. |
 | Dell XPS 13 9310 | Tiger Lake i7 / Iris Xe | linux | pending | pending | pending | 06-hardware.sh detects `Dell Inc.` + `XPS*` and installs the haptic touchpad driver. |
 | Lenovo ThinkPad T14 Gen3 (AMD) | Ryzen 6850U / Radeon 680M | linux | pending | pending | pending | AMD branch of 06-hardware.sh: vulkan-radeon, libva-mesa-driver, mesa-vdpau. |
 | Framework 13 (AMD 7040) | Ryzen 7 7840U / Radeon 780M | linux | pending | pending | pending | Same AMD branch. Firmware upgrades from Framework installer flow. |

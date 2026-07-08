@@ -3,6 +3,6 @@
 # packages.releng and everything extracted from install/01-base.sh and
 # install/02-desktop.sh.
 #
-# I7: NetworkManager removed — vinOS uses iwd+impala for wifi (mirrors
-# Omarchy). iwd is already in packages.releng (base archiso profile).
+# I7: NetworkManager removed — vinOS uses iwd+impala for wifi.
+# iwd is already in packages.releng (base archiso profile).
 gparted
