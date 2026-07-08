@@ -8,7 +8,7 @@
 
 ## 1. What vinOS is
 
-vinOS is an opinionated Arch Linux layer, in the style of Omarchy: **stock Arch + curated packages + configs + idempotent install scripts = a personal distro.** No custom packages, no custom kernel, no custom repos.
+vinOS is an opinionated Arch Linux layer: **stock Arch + curated packages + configs + idempotent install scripts = a personal distro.** No custom packages, no custom kernel, no custom repos.
 
 vinOS is also a **base for forks**. The first planned fork is `vinos-edu` (offline education OS with a local LLM for rural schools). The base must therefore be modular from day one.
 
@@ -77,8 +77,8 @@ vinos/
 ├── tests/
 │   └── test.sh              # containerized acceptance test (see §8)
 ├── VERSION                  # e.g. 1.0.0
-├── LICENSE                  # MIT, © Vin Patel; note: installer architecture
-│                            # pattern inspired by Omarchy (MIT, © Basecamp)
+├── LICENSE                  # MIT, © Vin Patel
+├── ATTRIBUTIONS.md          # prior art / borrowed patterns (MIT chain-of-credit)
 └── README.md
 ```
 

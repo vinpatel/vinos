@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 # vinos-launch-wifi — open the impala TUI in a floating terminal for
-# quick wifi connect/disconnect. Mirrors Omarchy's omarchy-launch-wifi
-# ergonomics: rfkill unblocks the radio first (Chromebook/Mac quirk),
-# then impala runs inside foot with a well-known app-id so the Hyprland
-# window rule can float it.
+# quick wifi connect/disconnect. rfkill unblocks the radio first
+# (Chromebook/Mac quirk), then impala runs inside foot with a
+# well-known app-id so the Hyprland window rule can float it.
 set -euo pipefail
 
 rfkill unblock wifi 2>/dev/null || true

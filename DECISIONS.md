@@ -254,7 +254,7 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   `VINOS_INSTALL_ASSUME_YES=1`. Idempotent by design (`pacman -S
   --needed` + install ledger at `~/.local/state/vinos/bundles.log`).
 - **`vinos-menu`** is the walker-dmenu entrypoint (Super+Ctrl+O),
-  mirroring omarchy-menu. Lists every bundle installer + wifi +
+  as a system-menu entrypoint. Lists every bundle installer + wifi +
   update + doctor + lock. Falls back through walker → gum → fzf →
   plain stdin depending on what's installed. Bundle installers run
   inside a floating foot terminal (window rule `org.vinos.install`)
@@ -289,10 +289,10 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
 
 ## I8 — UI/UX polish + walker adoption
 - **wofi replaced by walker (AUR: walker-bin).** wofi is unmaintained;
-  walker is Omarchy's launcher, has richer providers (apps, clipboard,
+  walker has richer providers (apps, clipboard,
   symbols, calc, web), and integrates cleanly with gtk4-layer-shell.
   Bound to Super+SPACE (primary) and Super+D (legacy compat).
-- **Hyprland stack from Omarchy adopted**: hypridle (5min lock, 10min
+- **Hyprland UX stack adopted**: hypridle (5min lock, 10min
   DPMS), hyprlock (blur wallpaper + JetBrainsMono clock), hyprpicker
   (color pick via Super+Shift+C), hyprsunset (4500K night light on
   startup), swayosd (volume/brightness OSD popups for XF86 keys).
@@ -313,7 +313,7 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
 
 ## I7 — Network ergonomics (impala + iwd)
 - **NetworkManager dropped from live ISO in favor of iwd.** Rationale:
-  Omarchy's stack is `iwd + impala` (TUI wifi picker), no NM. Two
+  The chosen stack is `iwd + impala` (TUI wifi picker), no NM. Two
   stacks compete over the same wlan interface — pick one. iwd is
   simpler, native to Arch, and matches the reference desktop.
   `iso/packages.live` no longer lists `networkmanager`; `iwd` +
@@ -335,7 +335,7 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   with `--app-id=org.vinos.impala` so the Hyprland windowrule can
   float and center it. Falls back to alacritty → xterm if foot is
   absent. Ships via 05-branding.sh (Rule 3: vinos-* bins are identity).
-- **Hyprland keybind: `Super+Ctrl+W`** matches Omarchy's binding so
+- **Hyprland keybind: `Super+Ctrl+W`** is a common convention so
   muscle memory transfers. Three windowrules (float, size 720×480,
   center) present the impala TUI as a modal-feeling picker.
 
@@ -394,8 +394,8 @@ Ambiguity resolutions recorded here per CLAUDE.md workflow.
   to `iso/test.sh`, not folded in — the interactive HMP launch shape
   complicates the serial-marker acceptance test.
 
-## I6 — Omarchy parity + Mac + splash
-- **App scope**: curated subset of Omarchy's user-facing package set,
+## I6 — curated-app parity + Mac + splash
+- **App scope**: curated user-facing package set,
   not the full 152. Extra-repo: `chromium nvim nautilus sushi
   signal-desktop localsend plymouth eza bat fzf ripgrep fd zoxide
   starship github-cli lazygit`. AUR (baked into ISO via `[vinos-aur]`

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # vinos-menu — walker/dmenu-style entrypoint for vinOS user actions.
-# Mirrors Omarchy's omarchy-menu. Sections:
+# Sections:
 #   Install <bundle>   — run vinos-install-<bundle> in a foot terminal
 #   Wi-Fi              — vinos-launch-wifi (impala)
 #   Update             — vinos-update

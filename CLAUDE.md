@@ -1,7 +1,7 @@
 # CLAUDE.md — vinOS project instructions
 
 ## What this project is
-vinOS: an opinionated Arch Linux layer (Omarchy-style) by Vin Patel. Two specs govern everything:
+vinOS: an opinionated Arch Linux layer by Vin Patel — stock Arch + curated packages + configs + idempotent install scripts. Two specs govern everything:
 - `VINOS_SPEC.md` — base system, Milestones M1–M4
 - `VINOS_ISO_SPEC.md` — live ISO/USB, Milestones I1–I5
 
@@ -22,14 +22,14 @@ Read the relevant spec before writing any code. The specs win over your own pref
 - If something in the spec is ambiguous, pick the simplest option that preserves the Three Rules and note the decision in a `DECISIONS.md` line. Don't stop to ask.
 
 ## Environment
-- This machine runs Arch (Omarchy). Docker available. archiso will be installed for I-milestones.
+- This machine runs Arch. Docker available. archiso will be installed for I-milestones.
 - Known quirk: UFW's nftables backend can fail to sync on this setup — install scripts must warn-and-continue on ufw errors, never hard-fail.
 - Logo assets are pre-made in assets/logo/ — never regenerate or modify them.
 
 ## Status tracker (update after each session)
 - [x] M1 skeleton   - [x] M2 base install   - [x] M3 branding   - [x] M4 overlay proof
 - [x] I1 profile boots   - [x] I2 live desktop   - [x] I3 offline complete   - [~] I4 flash+persistence (Acer hardware boot pending user verification)   - [~] I5 CI workflow (self-hosted runner setup + first tag push pending user)
-- [~] I6 omarchy parity — chromium/nvim/nautilus/comms + CLI tools + AUR pipeline live, Plymouth splash wired, install/06-hardware.sh for T2/NVIDIA/etc. Build verification pending.
+- [~] I6 curated app parity — chromium/nvim/nautilus/comms + CLI tools + AUR pipeline live, Plymouth splash wired, install/06-hardware.sh for T2/NVIDIA/etc. Build verification pending.
 - [~] I6.1 Plymouth animation + I/O errors — floppy blacklist ships and boot is clean. ISO built (2.2 GB) and Plymouth splash renders correctly in QEMU (visually verified via screendump PNG); refresh_cb doesn't tick under QEMU headless so caret animation not observable. Real-hardware KMS test pending.
 - [x] I7 Network ergonomics — iwd + impala + rfkill, NetworkManager out, systemd-networkd-wait-online masked. Super+Ctrl+W → vinos-launch-wifi.
 - [x] I8 UI/UX polish + walker adoption — walker (replaces wofi), hypridle, hyprlock, hyprpicker, hyprsunset, swayosd, satty, kvantum, gtk4-layer-shell, yaru-icon-theme. Ships opinionated configs (foot, walker+theme, swayosd, mako) matching tokyo-night. themes/ system (tokyo-night + gruvbox-dark) + bin/vinos-theme runtime switcher. Verified via iso/test-desktop.sh — Hyprland + waybar render cleanly in QEMU.

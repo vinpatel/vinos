@@ -108,7 +108,7 @@ Live ISOs can't makepkg at boot. Any AUR package referenced by 01/02:
 ## 7. CI pipeline (.github/workflows/iso.yml)
 
 - Trigger: tag push `v*` + manual dispatch.
-- Runner: `ubuntu-latest` with `container: archlinux:latest` (privileged not available on GH-hosted — mkarchiso needs loop devices, so use the documented workaround: run mkarchiso inside the container with `--privileged` via a self-hosted runner **on the Dell T430 (omarchyserver)** — this is the primary path; GH-hosted is fallback for lint/gen-packages checks only).
+- Runner: `ubuntu-latest` with `container: archlinux:latest` (privileged not available on GH-hosted — mkarchiso needs loop devices, so use the documented workaround: run mkarchiso inside the container with `--privileged` via a **self-hosted runner on the Dell T430** — this is the primary path; GH-hosted is fallback for lint/gen-packages checks only).
 - Jobs:
   1. `lint`: shellcheck all scripts; gen-packages drift check.
   2. `aur`: build AUR packages, cache by PKGBUILD hash.
