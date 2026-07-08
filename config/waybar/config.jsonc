@@ -1,41 +1,88 @@
-// vinOS Waybar top bar. Minimal, JetBrains Mono Nerd for glyphs.
+// vinOS Waybar top bar — Nerd Font glyphs, module islands with pill
+// backgrounds, tokyo-night palette. Modules pared to essentials.
 {
   "layer": "top",
   "position": "top",
-  "height": 28,
-  "spacing": 4,
-  "modules-left":   ["hyprland/workspaces", "hyprland/window"],
+  "height": 32,
+  "spacing": 6,
+  "margin-top":    6,
+  "margin-left":   10,
+  "margin-right":  10,
+  "modules-left":   ["custom/logo", "hyprland/workspaces", "hyprland/window"],
   "modules-center": ["clock"],
   "modules-right":  ["network", "pulseaudio", "cpu", "memory", "battery", "tray"],
 
+  "custom/logo": {
+    "format": "󰣇",
+    "tooltip-format": "vinOS",
+    "on-click": "vinos-menu"
+  },
   "hyprland/workspaces": {
-    "format": "{name}",
-    "on-click": "activate"
+    "format": "{icon}",
+    "on-click": "activate",
+    "on-scroll-up": "hyprctl dispatch workspace e+1",
+    "on-scroll-down": "hyprctl dispatch workspace e-1",
+    "format-icons": {
+      "1": "󰲠", "2": "󰲢", "3": "󰲤", "4": "󰲦", "5": "󰲨",
+      "6": "󰲪", "7": "󰲬", "8": "󰲮", "9": "󰲰",
+      "active": "󰮯",
+      "default": "󰧞"
+    }
   },
   "hyprland/window": {
-    "max-length": 60
+    "max-length": 60,
+    "separate-outputs": true
   },
   "clock": {
-    "format": "{:%a %d %b · %H:%M}",
-    "tooltip-format": "<big>{:%Y %B}</big>\n<tt>{calendar}</tt>"
+    "format": "󰥔  {:%a %d %b · %H:%M}",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "mode-mon-col": 3,
+      "on-scroll": 1
+    }
   },
-  "cpu":    { "format": "cpu {usage}%",  "interval": 5 },
-  "memory": { "format": "mem {used:0.1f}G", "interval": 5 },
+  "cpu": {
+    "format": "  {usage}%",
+    "interval": 5,
+    "tooltip": false
+  },
+  "memory": {
+    "format": "  {used:0.1f}G",
+    "interval": 5,
+    "tooltip-format": "{used:0.1f}G / {total:0.1f}G"
+  },
   "battery": {
     "states":   { "warning": 30, "critical": 15 },
-    "format":         "bat {capacity}%",
-    "format-charging": "bat +{capacity}%",
-    "format-plugged":  "bat = {capacity}%"
+    "format":         "{icon}  {capacity}%",
+    "format-charging": "  {capacity}%",
+    "format-plugged":  "  {capacity}%",
+    "format-icons":    ["", "", "", "", ""]
   },
   "network": {
-    "format-wifi":     "wifi {essid} ({signalStrength}%)",
-    "format-ethernet": "eth {ifname}",
-    "format-disconnected": "offline"
+    "format-wifi":     "  {essid} ({signalStrength}%)",
+    "format-ethernet": "  {ifname}",
+    "format-disconnected": "󰤮  offline",
+    "tooltip-format":  "{ipaddr}/{cidr} — {gwaddr}",
+    "on-click":        "vinos-launch-wifi"
   },
   "pulseaudio": {
-    "format": "vol {volume}%",
-    "format-muted": "muted",
-    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+    "format":       "{icon}  {volume}%",
+    "format-muted": "󰝟  muted",
+    "format-icons": {
+      "headphone":  "",
+      "hands-free": "",
+      "headset":    "",
+      "phone":      "",
+      "portable":   "",
+      "car":        "",
+      "default":    ["", "", ""]
+    },
+    "on-click":         "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "on-click-right":   "pavucontrol"
   },
-  "tray": { "spacing": 8 }
+  "tray": {
+    "spacing": 10,
+    "icon-size": 18
+  }
 }

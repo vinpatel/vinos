@@ -1,47 +1,75 @@
-/* vinOS Waybar theme — tokyo-night with mint accents matching the
-   Hyprland border. Modules render with subtle separators via padding;
-   active workspace uses the mint accent, network/battery states carry
-   semantic color. */
+/* vinOS Waybar — pill-island modules on a floating bar. Semantic
+   colors per module, JetBrainsMono Nerd Font throughout, subtle
+   drop shadow on the bar itself. */
 
 * {
   border: none;
   border-radius: 0;
-  font-family: "JetBrainsMono Nerd Font", monospace;
-  font-size: 12px;
+  font-family: "JetBrainsMono Nerd Font", "Symbols Nerd Font", monospace;
+  font-size: 13px;
   min-height: 0;
 }
 
 window#waybar {
-  background: rgba(26, 27, 38, 0.88);
+  background: transparent;
   color: #c0caf5;
-  transition-property: background-color;
-  transition-duration: .2s;
-  border-bottom: 1px solid rgba(51, 204, 255, 0.35);
 }
 
-/* Workspaces */
+/* The visible pieces float on the transparent bar as pills. Each
+   module is a rounded rectangle with a tinted panel background. */
+#custom-logo,
+#workspaces,
+#window,
+#clock,
+#network,
+#pulseaudio,
+#cpu,
+#memory,
+#battery,
+#tray {
+  background: rgba(26, 27, 38, 0.85);
+  padding: 4px 12px;
+  margin: 0 3px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* vinOS logo — accent color, click opens menu. */
+#custom-logo {
+  color: #33ccff;
+  font-size: 18px;
+  padding: 2px 12px 2px 14px;
+  min-width: 0;
+}
+
+#custom-logo:hover {
+  background: rgba(51, 204, 255, 0.15);
+  color: #c0caf5;
+}
+
+/* Workspaces: dots, active is filled mint. */
 #workspaces {
-  margin-left: 8px;
+  padding: 2px 4px;
 }
 
 #workspaces button {
-  padding: 2px 10px;
-  margin: 3px 2px;
-  color: #565f89;
+  padding: 0 8px;
+  margin: 0 1px;
+  color: rgba(192, 202, 245, 0.35);
   background: transparent;
   border-radius: 6px;
-  transition: all 0.15s ease;
+  font-size: 14px;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
 #workspaces button.active {
-  color: #1a1b26;
-  background: #33ccff;
-  font-weight: bold;
+  color: #33ccff;
+  background: rgba(51, 204, 255, 0.15);
 }
 
 #workspaces button:hover {
-  background: rgba(51, 204, 255, 0.18);
   color: #c0caf5;
+  background: rgba(51, 204, 255, 0.08);
 }
 
 #workspaces button.urgent {
@@ -49,68 +77,55 @@ window#waybar {
   background: #f7768e;
 }
 
-/* Window title */
+/* Active window title */
 #window {
   color: #a9b1d6;
-  padding: 0 12px;
+  font-weight: normal;
+  min-width: 0;
 }
+#window.empty { background: transparent; border-color: transparent; }
 
-/* Right side modules */
-#clock,
-#cpu,
-#memory,
-#battery,
-#network,
-#pulseaudio,
-#tray {
-  padding: 0 10px;
-  color: #c0caf5;
-}
-
+/* Clock — accent cyan */
 #clock {
   color: #7dcfff;
   font-weight: 500;
+  padding: 4px 18px;
+  letter-spacing: 0.02em;
 }
 
-#network {
-  color: #9ece6a;
-}
-
-#network.disconnected {
-  color: #f7768e;
-}
-
-#pulseaudio {
-  color: #bb9af7;
-}
-
-#pulseaudio.muted {
-  color: #565f89;
-}
-
-#cpu    { color: #e0af68; }
-#memory { color: #7aa2f7; }
+/* Right-side status modules */
+#network      { color: #9ece6a; }
+#network.disconnected { color: #f7768e; }
+#pulseaudio   { color: #bb9af7; }
+#pulseaudio.muted { color: #565f89; }
+#cpu          { color: #e0af68; }
+#memory       { color: #7aa2f7; }
 
 #battery {
   color: #9ece6a;
 }
+#battery.charging { color: #7dcfff; }
 #battery.warning  { color: #e0af68; }
 #battery.critical {
   color: #f7768e;
-  animation-name: blink;
-  animation-duration: 0.75s;
-  animation-timing-function: linear;
+  animation-name: pulse-critical;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   animation-direction: alternate;
 }
-
-@keyframes blink {
-  to { color: #1a1b26; background: #f7768e; }
+@keyframes pulse-critical {
+  to { color: #1a1b26; background: rgba(247, 118, 142, 0.75); }
 }
 
-#tray {
-  margin-right: 8px;
-}
-
-#tray > .passive       { -gtk-icon-effect: dim; }
+#tray { padding: 2px 8px; }
+#tray > .passive         { -gtk-icon-effect: dim; }
 #tray > .needs-attention { -gtk-icon-effect: highlight; }
+
+tooltip {
+  background: rgba(26, 27, 38, 0.96);
+  border: 1px solid rgba(51, 204, 255, 0.4);
+  border-radius: 8px;
+  color: #c0caf5;
+  padding: 6px 10px;
+}
