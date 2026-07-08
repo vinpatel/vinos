@@ -1,8 +1,19 @@
 // vinOS Plymouth theme — wordmark that toggles between two rendered
-// frames to blink the trailing terminal caret. Frames are pre-composed
-// (logo + on/off caret baked in) so the animation is a single sprite
-// SetImage() swap — no runtime compositing, no font dependency, and
-// no relative opacity math that Plymouth's script backend may drop.
+// frames to blink the trailing terminal caret.
+//
+// Design notes:
+//   - Frames are pre-composed (logo + on/off caret baked in) so the
+//     animation is a single sprite SetImage() swap — no runtime
+//     compositing, no font dependency.
+//   - We drive the swap from THREE clocks and let whichever ticks
+//     first win:
+//       (a) Plymouth.SetRefreshFunction  — nominal 50 Hz frame timer
+//       (b) Plymouth.SetBootProgressFunction — fires on systemd unit
+//           start/finish (typically every 50-300 ms mid-boot)
+//       (c) Plymouth.SetUpdateStatusFunction — fires on plymouth
+//           daemon status messages
+//     Under headless QEMU the refresh timer doesn't reliably tick,
+//     but (b) does — so we get animation from unit events.
 
 Window.SetBackgroundTopColor(0.102, 0.106, 0.149);
 Window.SetBackgroundBottomColor(0.102, 0.106, 0.149);
@@ -20,28 +31,33 @@ sprite.SetX((screen_w - fw) / 2);
 sprite.SetY((screen_h - fh) / 2);
 sprite.SetZ(0);
 
-// Blink cadence: 30 frames at ~50Hz ≈ 0.6s on / 0.6s off.
 tick = 0;
 current = 0;
-fun refresh_cb() {
+
+fun swap() {
   tick++;
-  desired = Math.Int(tick / 30) % 2;
+  desired = Math.Int(tick / 6) % 2;
   if (desired != current) {
     if (desired == 0) { sprite.SetImage(frame0); }
     else              { sprite.SetImage(frame1); }
     current = desired;
   }
 }
-Plymouth.SetRefreshFunction(refresh_cb);
 
-// Silence status/progress callbacks — we don't render them, but Plymouth
-// still invokes them and unhandled calls spam the debug log.
+fun refresh_cb() { swap(); }
+fun progress_cb(duration, progress) { swap(); }
+fun status_cb(status) { swap(); }
+
+Plymouth.SetRefreshFunction(refresh_cb);
+Plymouth.SetBootProgressFunction(progress_cb);
+Plymouth.SetUpdateStatusFunction(status_cb);
+
+// Silence the rest of the callbacks — Plymouth still invokes them
+// and unhandled calls spam the debug log.
 fun noop() { }
 fun noop1(a) { }
 fun noop2(a, b) { }
-
 Plymouth.SetMessageFunction(noop1);
-Plymouth.SetUpdateStatusFunction(noop1);
 Plymouth.SetDisplayNormalFunction(noop);
 Plymouth.SetDisplayPasswordFunction(noop2);
 Plymouth.SetDisplayQuestionFunction(noop2);
