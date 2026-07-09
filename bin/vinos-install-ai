@@ -28,5 +28,7 @@ fi
 bundle_post "sudo systemctl enable --now docker.service 2>/dev/null || true"
 bundle_post "sudo systemctl enable --now ollama.service 2>/dev/null || true"
 bundle_post "sudo usermod -aG docker \"\$USER\" 2>/dev/null || true"
+# Hint the user next steps — models are big, don't auto-pull.
+bundle_post "printf '\n\033[1;34mvinos-ai:\033[0m ready. Try: \033[1mvinos-ai pull llama3.2\033[0m then \033[1mvinos-ai chat\033[0m\n'"
 
 bundle_end

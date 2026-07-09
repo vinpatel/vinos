@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+# vinos-ai — AI shortcut wrapper. Provides a stable CLI over ollama,
+# claude-code, and aichat so users don't have to remember three tools.
+#
+#   vinos-ai                       # opens interactive chat (default model)
+#   vinos-ai chat [prompt...]      # same as above; args become the first prompt
+#   vinos-ai code [prompt...]      # launches claude-code (Anthropic Claude Code CLI)
+#   vinos-ai models                # list installed ollama models
+#   vinos-ai pull <model>          # ollama pull <model>
+#   vinos-ai run <model>           # ollama run <model>
+#   vinos-ai serve                 # start ollama server (systemd user unit)
+#   vinos-ai stop                  # stop ollama server
+#   vinos-ai status                # tell me what's set up
+#
+# Requires the ai bundle (vinos-install-ai). If ollama isn't installed,
+# emits an actionable pointer.
+
+set -euo pipefail
+
+VINOS_AI_DEFAULT_MODEL="${VINOS_AI_DEFAULT_MODEL:-llama3.2}"
+
+_have() { command -v "$1" >/dev/null 2>&1; }
+_die()  { printf '\033[1;31mvinos-ai:\033[0m %s\n' "$*" >&2; exit 1; }
+_log()  { printf '\033[1;34mvinos-ai:\033[0m %s\n' "$*"; }
+
+_needs_ai_bundle() {
+  cat >&2 <<EOF
+vinos-ai: the AI toolchain isn't installed yet.
+Install the ai bundle:
+
+  vinos-install-ai
+
+That pulls ollama, claude-code, aichat, python-{openai,anthropic,torch},
+open-webui, and — if you have an NVIDIA GPU — CUDA + nvidia-container-toolkit.
+EOF
+  exit 1
+}
+
+_ensure_ollama_up() {
+  if ! _have ollama; then _needs_ai_bundle; fi
+  # Prefer the system unit if a user has enabled it; else user unit.
+  if systemctl is-active --quiet ollama 2>/dev/null; then return 0; fi
+  if systemctl --user is-active --quiet ollama 2>/dev/null; then return 0; fi
+  # Neither running — start it. Prefer user unit for less privilege.
+  systemctl --user start ollama 2>/dev/null || sudo systemctl start ollama 2>/dev/null || \
+    { ollama serve >/dev/null 2>&1 & sleep 1; }
+}
+
+cmd="${1:-chat}"; shift || true
+
+case "$cmd" in
+  chat|"")
+    _ensure_ollama_up
+    if _have aichat; then
+      # aichat is the nicer TUI; use ollama backend.
+      exec aichat --model "ollama:$VINOS_AI_DEFAULT_MODEL" "$@"
+    fi
+    exec ollama run "$VINOS_AI_DEFAULT_MODEL" "$@"
+    ;;
+
+  code)
+    if ! _have claude; then
+      cat >&2 <<'EOF'
+vinos-ai: claude-code CLI not found. Install with:
+  vinos-install-ai
+Or directly: yay -S claude-code
+EOF
+      exit 1
+    fi
+    exec claude "$@"
+    ;;
+
+  models|list)
+    _ensure_ollama_up
+    ollama list
+    ;;
+
+  pull)
+    [[ $# -ge 1 ]] || _die "usage: vinos-ai pull <model>"
+    _ensure_ollama_up
+    exec ollama pull "$@"
+    ;;
+
+  run)
+    [[ $# -ge 1 ]] || _die "usage: vinos-ai run <model> [prompt...]"
+    _ensure_ollama_up
+    exec ollama run "$@"
+    ;;
+
+  serve)
+    if _have ollama; then
+      systemctl --user enable --now ollama 2>/dev/null || \
+        sudo systemctl enable --now ollama 2>/dev/null || \
+        { _log "starting ollama serve in background"; ollama serve & disown; }
+      _log "ollama serving at http://127.0.0.1:11434"
+    else
+      _needs_ai_bundle
+    fi
+    ;;
+
+  stop)
+    systemctl --user stop ollama 2>/dev/null || \
+      sudo systemctl stop ollama 2>/dev/null || \
+      pkill ollama || true
+    _log "ollama stopped"
+    ;;
+
+  status)
+    printf 'vinos-ai status:\n'
+    for tool in ollama claude aichat python; do
+      if _have "$tool"; then
+        printf '  %-10s ✓ %s\n' "$tool" "$(command -v "$tool")"
+      else
+        printf '  %-10s ✗ not installed\n' "$tool"
+      fi
+    done
+    if _have ollama; then
+      printf '  models:\n'
+      ollama list 2>/dev/null | sed 's/^/    /' | tail -n +2 || printf '    (ollama not running)\n'
+    fi
+    ;;
+
+  -h|--help|help)
+    sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+    ;;
+
+  *)
+    # Fall through: treat as chat with prompt.
+    _ensure_ollama_up
+    if _have aichat; then
+      exec aichat --model "ollama:$VINOS_AI_DEFAULT_MODEL" "$cmd" "$@"
+    fi
+    exec ollama run "$VINOS_AI_DEFAULT_MODEL" "$cmd" "$@"
+    ;;
+esac

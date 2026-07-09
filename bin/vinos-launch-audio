@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# vinos-launch-audio — open a floating audio mixer. Prefers wiremix
+# (PipeWire TUI) → pavucontrol (GTK).
+set -euo pipefail
+
+if command -v wiremix >/dev/null 2>&1 && command -v foot >/dev/null 2>&1; then
+  exec foot --app-id=org.vinos.wiremix -T 'vinOS audio' -- wiremix
+elif command -v pavucontrol >/dev/null 2>&1; then
+  exec pavucontrol
+elif command -v pulsemixer >/dev/null 2>&1 && command -v foot >/dev/null 2>&1; then
+  exec foot --app-id=org.vinos.wiremix -T 'vinOS audio' -- pulsemixer
+else
+  notify-send -a vinOS 'Audio' 'No mixer installed. Try `yay -S wiremix` or install pavucontrol.'
+fi
