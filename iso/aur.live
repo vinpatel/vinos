@@ -10,3 +10,9 @@
 # apple-t2-audio-config, tiny-dfr, t2fanrd) are NOT AUR — they live
 # in the community [arch-mact2] pacman repo (see iso/profile/pacman.conf
 # + iso/packages.live). Do NOT add them here.
+
+# walker's new 2.16+ architecture split "elephant" into a separate
+# AUR package that walker-bin depends on at runtime. aur-build.sh
+# builds elephant first (alphabetical order) and pushes it into
+# [vinos-aur] so walker-bin's makepkg -s can resolve it.
+elephant

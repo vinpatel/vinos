@@ -38,6 +38,27 @@ fi
 
 install -d -o builder -g builder "$AUR_REPO_DIR"
 
+# Register [vinos-aur] in pacman.conf BEFORE building anything. That
+# way when a later package's makepkg -s wants a dep that's already
+# been built (e.g. walker-bin needing elephant), pacman resolves it
+# from the local repo. Idempotent — only appends the section once.
+if ! grep -q '^\[vinos-aur\]' /etc/pacman.conf; then
+  cat >> /etc/pacman.conf <<PACCONF
+
+[vinos-aur]
+SigLevel = Optional TrustAll
+Server = file://$AUR_REPO_DIR
+PACCONF
+fi
+
+# Seed the db so pacman -Sy can read it even before we build anything.
+# repo-add needs at least one .pkg.tar.zst OR an empty db init.
+if [[ ! -f "$AUR_REPO_DIR/${AUR_DB_NAME}.db.tar.gz" ]]; then
+  ( cd "$AUR_REPO_DIR" && tar -czf "${AUR_DB_NAME}.db.tar.gz" --files-from /dev/null && \
+    ln -sf "${AUR_DB_NAME}.db.tar.gz" "${AUR_DB_NAME}.db" )
+fi
+pacman -Sy --noconfirm >/dev/null 2>&1 || true
+
 FAILED=()
 for pkg in "${pkgs[@]}"; do
   if compgen -G "$AUR_REPO_DIR/${pkg}-*.pkg.tar.zst" > /dev/null; then
@@ -59,6 +80,11 @@ for pkg in "${pkgs[@]}"; do
   "; then
     log "$pkg — BUILD FAILED, continuing without it"
     FAILED+=("$pkg")
+  else
+    # Refresh the local repo so the NEXT package's makepkg -s can
+    # resolve this one as a dep. Cheap; repo-add is fast.
+    ( cd "$AUR_REPO_DIR" && repo-add -q -R "${AUR_DB_NAME}.db.tar.gz" ./"${pkg}"-*.pkg.tar.zst >/dev/null )
+    pacman -Sy --noconfirm >/dev/null 2>&1 || true
   fi
   rm -rf "$workdir"
 done
@@ -66,8 +92,5 @@ done
 # Emit the failed list so build.sh can drop them from packages.x86_64
 # before mkarchiso tries to pacstrap them and hard-fails.
 printf '%s\n' "${FAILED[@]}" > "$ISO_DIR/aur.failed"
-
-log "repo-add ${AUR_DB_NAME}.db.tar.gz"
-( cd "$AUR_REPO_DIR" && repo-add "${AUR_DB_NAME}.db.tar.gz" ./*.pkg.tar.zst )
 
 log "done — $(ls "$AUR_REPO_DIR"/*.pkg.tar.zst 2>/dev/null | wc -l) package(s) in $AUR_REPO_DIR"
