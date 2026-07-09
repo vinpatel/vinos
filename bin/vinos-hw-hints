@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# vinos-hw-hints — detect hardware quirks and post one-shot notifications
+# suggesting the right kernel/boot entry. Runs from Hyprland exec-once.
+# Self-sentinelled at ~/.local/state/vinos/hw-hints.done so it fires at
+# most once per install.
+set -euo pipefail
+
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/vinos"
+SENTINEL="$STATE_DIR/hw-hints.done"
+
+mkdir -p "$STATE_DIR"
+[[ -f "$SENTINEL" ]] && exit 0
+
+# Only useful in a graphical session with notify-send available.
+[[ -n "${WAYLAND_DISPLAY:-}${DISPLAY:-}" ]] || exit 0
+command -v notify-send >/dev/null || exit 0
+
+# Give mako a moment to be up.
+for _ in {1..15}; do
+  pidof mako >/dev/null && break
+  sleep 1
+done
+
+kernel=$(uname -r)
+sys_vendor="$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || printf '')"
+
+# --- Apple T2 Mac on stock kernel → suggest the T2 boot entry ---------
+if [[ "$sys_vendor" == "Apple Inc." ]] && ! [[ "$kernel" =~ -t2 ]]; then
+  notify-send -a vinOS -u critical \
+    "Apple T2 hardware detected on stock kernel" \
+    "Internal keyboard, trackpad and wifi need <b>linux-t2</b>. Reboot and pick <b>Boot vinOS (Apple T2 Mac)</b> from the menu for full support. On the installed system, sudo bash ~/.local/share/vinos/install/06-hardware.sh pulls linux-t2 permanently."
+fi
+
+# --- NVIDIA on Wayland without env drop-ins ---------------------------
+if lspci 2>/dev/null | grep -qi 'nvidia' && [[ ! -f /etc/environment.d/50-vinos-nvidia.conf ]]; then
+  notify-send -a vinOS -u normal \
+    "NVIDIA GPU detected — post-install driver setup available" \
+    "Run <b>sudo bash ~/.local/share/vinos/install/06-hardware.sh</b> to install nvidia-open-dkms + Hyprland env drop-ins. Cursor glitches and video accel need this."
+fi
+
+# --- Broadcom wifi that didn't come up --------------------------------
+# If there's a Broadcom PCI wifi device but no wlan interface, hint at
+# apple-bcm-firmware / broadcom-wl.
+if lspci 2>/dev/null | grep -qiE 'Broadcom.*(BCM43|BCM47)' \
+   && ! ip -o link show 2>/dev/null | grep -qE '(wlp|wlan)[0-9]+' ; then
+  notify-send -a vinOS -u normal \
+    "Broadcom wifi detected but no wireless interface up" \
+    "Try <b>sudo modprobe wl</b> (broadcom-wl-dkms) or install <b>apple-bcm-firmware</b> if you're on a Mac. Or use USB tether/ethernet dongle."
+fi
+
+touch "$SENTINEL"
