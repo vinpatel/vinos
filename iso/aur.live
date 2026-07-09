@@ -15,5 +15,8 @@ apple-bcm-firmware
 apple-t2-audio-config
 tiny-dfr
 
-# Broadcom wifi fallback for older/generic hardware.
-broadcom-wl-dkms
+# NOTE on broadcom wifi: base archiso already ships broadcom-wl (non-DKMS
+# prebuilt module). We deliberately DO NOT add broadcom-wl-dkms — the
+# two packages provide the same wl module and pacman refuses the
+# conflict. For T2 Macs, the in-kernel brcmfmac driver + apple-bcm-
+# firmware (above) is the working path anyway.
