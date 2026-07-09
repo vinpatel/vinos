@@ -1,0 +1,19 @@
+# ISO-only AUR packages (installed via the local [vinos-aur] repo,
+# NOT pulled by install/*.sh on installer path).
+#
+# Format: one package per line, comments and blanks ignored.
+# gen-packages.sh merges these into both packages.x86_64 (so mkarchiso
+# pacstraps them from vinos-aur) and aur.list (so aur-build.sh knows
+# to build them).
+
+# T2 Mac hardware support — the ISO ships linux-t2 as an alternate
+# kernel entry so 2018-2020 MBP/MBA/iMacPro/MacMini boot with working
+# keyboard, trackpad, GPU, and wifi from the live USB.
+linux-t2
+linux-t2-headers
+apple-bcm-firmware
+apple-t2-audio-config
+tiny-dfr
+
+# Broadcom wifi fallback for older/generic hardware.
+broadcom-wl-dkms

@@ -5,6 +5,8 @@
 alacritty
 alsa-utils
 amd-ucode
+apple-bcm-firmware
+apple-t2-audio-config
 arch-install-scripts
 archinstall
 b43-fwcutter
@@ -19,6 +21,7 @@ bolt
 brightnessctl
 brltty
 broadcom-wl
+broadcom-wl-dkms
 btop
 btrfs-progs
 clonezilla
@@ -86,6 +89,8 @@ linux
 linux-atm
 linux-firmware
 linux-firmware-marvell
+linux-t2
+linux-t2-headers
 livecd-sounds
 lsscsi
 lvm2
@@ -164,6 +169,7 @@ systemd-resolvconf
 tcpdump
 terminus-font
 testdisk
+tiny-dfr
 tmux
 tpm2-tools
 tpm2-tss

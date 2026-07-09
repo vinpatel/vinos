@@ -6,3 +6,13 @@
 # I7: NetworkManager removed — vinOS uses iwd+impala for wifi.
 # iwd is already in packages.releng (base archiso profile).
 gparted
+
+# I12: broaden hardware support out of the box.
+# sof-firmware — Sound Open Firmware, needed for audio on most 2019+
+#                Intel laptops (Dell XPS, T2 Macs, Framework 13/16).
+# linux-firmware-marvell — Marvell wifi (older ThinkPads, Chromebooks).
+# broadcom-wl — Broadcom wireless legacy blob (older Macs, non-Apple
+#               Broadcom hardware). broadcom-wl-dkms is in aur.live as
+#               the DKMS variant that survives kernel switches.
+sof-firmware
+linux-firmware-marvell
