@@ -1,0 +1,76 @@
+vinOS keybindings — cheat sheet
+================================
+
+APP LAUNCHERS
+  Super + Return        Terminal (foot)
+  Super + Space         App launcher (walker)
+  Super + D             App launcher (walker)
+  Super + F             File manager (nautilus)
+  Super + B             Web browser (chromium)
+  Super + M             Music (spotify)
+  Super + G             Messenger (signal)
+  Super + N             Neovim
+  Super + T             btop (system monitor)
+  Super + /             Password manager (1password)
+
+MENUS
+  Super + Ctrl + O      vinOS menu (bundles, wifi, theme, doctor, lock)
+  Super + Alt + Space   vinOS menu (alt)
+  Super + Escape        vinOS menu (alt)
+  Super + K             Show these keybindings
+  Super + Ctrl + E      Emoji picker
+  Super + Ctrl + V      Clipboard history
+
+AI (needs the ai bundle: vinos-install-ai)
+  Super + A             AI chat (ollama via aichat)
+  Super + Shift + A     Claude Code CLI (Anthropic)
+  Super + Ctrl + A      AI models list
+
+CONTROL PANELS
+  Super + Ctrl + W      Wi-Fi (impala TUI)
+  Super + Ctrl + B      Bluetooth
+  Super + Ctrl + U      Audio mixer
+  Super + Ctrl + S      System diagnostics (vinos-doctor)
+  Super + Ctrl + T      Switch theme
+
+CAPTURES
+  Print                 Region screenshot → clipboard
+  Shift + Print         Region screenshot + annotate (satty)
+  Super + P             Screenshot + annotate
+  Super + Shift + P     Screenshot plain
+  Ctrl + Print          Color picker (hyprpicker)
+
+NOTIFICATIONS
+  Super + ,             Dismiss latest notification
+  Super + Shift + ,     Dismiss all
+  Super + Alt + ,       Invoke last notification's action
+
+WINDOW MANAGEMENT
+  Super + Q             Close focused window
+  Super + F11           Fullscreen
+  Super + V             Toggle floating
+  Super + Shift + E     Exit Hyprland
+  Super + drag (LMB)    Move window
+  Super + drag (RMB)    Resize window
+
+WORKSPACES
+  Super + 1..9          Switch to workspace N
+  Super + Shift + 1..9  Move focused window to workspace N
+  Super + Ctrl + Left   Previous workspace
+  Super + Ctrl + Right  Next workspace
+
+INFO POPUPS
+  Super + Ctrl + Alt + T   Show time
+  Super + Ctrl + Alt + B   Show battery %
+
+MEDIA (function-row / XF86 keys)
+  Volume up/down/mute      swayosd OSD popup
+  Brightness up/down       swayosd OSD popup
+  Play/pause/next/prev     playerctl (for spotify etc.)
+
+ZOOM
+  Super + Ctrl + Z         Zoom in (cursor magnify)
+  Super + Ctrl + Alt + Z   Reset zoom
+
+LOCK
+  Super + L                Lock (hyprlock with wallpaper blur + big clock)

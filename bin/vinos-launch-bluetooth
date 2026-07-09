@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# vinos-launch-bluetooth — open a floating bluetui TUI for pairing +
+# connecting Bluetooth devices. Falls back to blueman-manager (GUI).
+set -euo pipefail
+
+sudo systemctl start bluetooth 2>/dev/null || true
+
+if command -v bluetui >/dev/null 2>&1 && command -v foot >/dev/null 2>&1; then
+  exec foot --app-id=org.vinos.bluetui -T 'vinOS bluetooth' -- bluetui
+elif command -v blueman-manager >/dev/null 2>&1; then
+  exec blueman-manager
+elif command -v bluetoothctl >/dev/null 2>&1 && command -v foot >/dev/null 2>&1; then
+  exec foot --app-id=org.vinos.bluetui -T 'vinOS bluetooth' -- bluetoothctl
+else
+  notify-send -a vinOS 'Bluetooth' 'No Bluetooth UI installed. Try `yay -S bluetui` or install blueman.'
+fi

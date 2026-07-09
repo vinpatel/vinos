@@ -24,7 +24,12 @@ add() { MENU_ITEMS+=("$1"); MENU_CMDS+=("$2"); }
 for b in "${BUNDLES[@]}"; do
   add "Install: $b bundle" "$SCRIPT_DIR/vinos-install-$b"
 done
-add "Wi-Fi controls (impala)"    "vinos-launch-wifi"
+add "AI chat (vinos-ai)"          "foot --app-id=org.vinos.ai -T 'vinOS AI' -- vinos-ai chat"
+add "AI: pull model"              "foot --app-id=org.vinos.ai -T 'AI pull' -- bash -lc 'read -p \"model: \" m && vinos-ai pull \"\$m\"; read -p enter '"
+add "AI: status"                  "foot --app-id=org.vinos.ai -T 'AI status' -- bash -lc 'vinos-ai status; read -p enter '"
+add "Wi-Fi controls (impala)"     "vinos-launch-wifi"
+add "Bluetooth"                   "vinos-launch-bluetooth"
+add "Audio mixer"                 "vinos-launch-audio"
 add "System update (vinos-update)" "vinos-update"
 add "Switch theme"                "vinos-theme --pick"
 add "Diagnostics (vinos-doctor)"  "foot --app-id=org.vinos.doctor -T 'vinOS doctor' -- vinos-doctor"
