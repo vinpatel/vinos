@@ -5,18 +5,8 @@
 # gen-packages.sh merges these into both packages.x86_64 (so mkarchiso
 # pacstraps them from vinos-aur) and aur.list (so aur-build.sh knows
 # to build them).
-
-# T2 Mac hardware support — the ISO ships linux-t2 as an alternate
-# kernel entry so 2018-2020 MBP/MBA/iMacPro/MacMini boot with working
-# keyboard, trackpad, GPU, and wifi from the live USB.
-linux-t2
-linux-t2-headers
-apple-bcm-firmware
-apple-t2-audio-config
-tiny-dfr
-
-# NOTE on broadcom wifi: base archiso already ships broadcom-wl (non-DKMS
-# prebuilt module). We deliberately DO NOT add broadcom-wl-dkms — the
-# two packages provide the same wl module and pacman refuses the
-# conflict. For T2 Macs, the in-kernel brcmfmac driver + apple-bcm-
-# firmware (above) is the working path anyway.
+#
+# NOTE: T2 Mac support packages (linux-t2, apple-bcm-firmware,
+# apple-t2-audio-config, tiny-dfr, t2fanrd) are NOT AUR — they live
+# in the community [arch-mact2] pacman repo (see iso/profile/pacman.conf
+# + iso/packages.live). Do NOT add them here.

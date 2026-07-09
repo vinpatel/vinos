@@ -8,6 +8,7 @@ amd-ucode
 apple-bcm-firmware
 apple-t2-audio-config
 arch-install-scripts
+arch-mact2-mirrorlist
 archinstall
 b43-fwcutter
 base
@@ -165,6 +166,7 @@ swaybg
 swayosd
 syslinux
 systemd-resolvconf
+t2fanrd
 tcpdump
 terminus-font
 testdisk

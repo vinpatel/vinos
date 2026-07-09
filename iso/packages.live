@@ -11,8 +11,17 @@ gparted
 # sof-firmware — Sound Open Firmware, needed for audio on most 2019+
 #                Intel laptops (Dell XPS, T2 Macs, Framework 13/16).
 # linux-firmware-marvell — Marvell wifi (older ThinkPads, Chromebooks).
-# broadcom-wl — Broadcom wireless legacy blob (older Macs, non-Apple
-#               Broadcom hardware). broadcom-wl-dkms is in aur.live as
-#               the DKMS variant that survives kernel switches.
 sof-firmware
 linux-firmware-marvell
+
+# I12: Apple T2 Mac support — from [arch-mact2] pacman repo defined
+# in iso/profile/pacman.conf (NOT AUR). Ships linux-t2 as an alternate
+# kernel entry so 2018-2020 MBP/MBA/iMacPro/MacMini boot with working
+# keyboard, trackpad, GPU, and wifi from the live USB.
+linux-t2
+linux-t2-headers
+apple-bcm-firmware
+apple-t2-audio-config
+tiny-dfr
+t2fanrd
+arch-mact2-mirrorlist
