@@ -1,0 +1,42 @@
+baseURL = "https://vinos.dev/"
+locale = "en-us"
+title = "vinOS — an opinionated Arch layer, AI-native"
+enableRobotsTXT = true
+enableGitInfo = false
+# No external theme — we ship layouts/ + static/ ourselves.
+
+[params]
+  description   = "vinOS is an opinionated Arch Linux layer by Vin Patel. Curated apps, Hyprland out of the box, AI-first workflow. One command to install on any Arch system."
+  installCmd    = "curl -fsSL https://raw.githubusercontent.com/vinpatel/vinos/main/boot.sh | bash"
+  github        = "https://github.com/vinpatel/vinos"
+  version       = "1.0.0"
+  accent        = "#33ccff"
+  accent2       = "#bb9af7"
+
+[markup]
+  [markup.highlight]
+    style        = "github-dark"
+    lineNos      = false
+    noClasses    = false
+    codeFences   = true
+
+[[menu.main]]
+  identifier = "install"
+  name       = "Install"
+  url        = "/install/"
+  weight     = 10
+[[menu.main]]
+  identifier = "docs"
+  name       = "Docs"
+  url        = "/docs/"
+  weight     = 20
+[[menu.main]]
+  identifier = "bundles"
+  name       = "Bundles"
+  url        = "/bundles/"
+  weight     = 30
+[[menu.main]]
+  identifier = "github"
+  name       = "GitHub"
+  url        = "https://github.com/vinpatel/vinos"
+  weight     = 40
