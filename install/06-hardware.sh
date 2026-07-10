@@ -40,14 +40,72 @@ log "06-hardware: detected vendor='$sys_vendor' product='$sys_product'"
 # 2018+ MBP/MBA have the T2 chip. linux-t2 replaces the stock kernel
 # to get internal keyboard/trackpad/audio working. macbook12-spi is
 # for the pre-2018 butterfly-keyboard MBPs.
+#
+# linux-t2 and Apple firmware live in the community [arch-mact2]
+# pacman repo (t2linux community project), NOT the AUR. On Path B
+# (ISO install) the repo is already in the target's /etc/pacman.conf
+# because archinstall inherited it from the ISO. On Path A (layer
+# vinOS onto an existing Arch) we need to register the repo first.
 if [[ "$sys_vendor" == "Apple Inc." ]]; then
-  log "06-hardware: Apple detected — installing T2 kernel + drivers"
-  install_aur linux-t2 linux-t2-headers
+  log "06-hardware: Apple detected — installing T2 kernel + firmware stack"
+
+  _pacman_conf="$(_rootpath /etc/pacman.conf)"
+  if ! grep -q '^\[arch-mact2\]' "$_pacman_conf" 2>/dev/null; then
+    log "06-hardware: registering [arch-mact2] repo in /etc/pacman.conf"
+    _sudo tee -a "$_pacman_conf" >/dev/null <<'PACCONF'
+
+[arch-mact2]
+SigLevel = Never
+Server = https://mirror.funami.tech/arch-mact2/os/$arch
+PACCONF
+    sudo pacman -Syy 2>&1 | tail -3 || warn "pacman -Syy failed; arch-mact2 mirror may be temporarily down"
+  fi
+
+  # Ship the whole T2 stack. arch-mact2-mirrorlist pulls a curated
+  # list of mirrors so we're not pinned to funami forever.
+  install_pkg linux-t2 linux-t2-headers apple-bcm-firmware \
+              apple-t2-audio-config tiny-dfr t2fanrd arch-mact2-mirrorlist
+
+  # Older butterfly-keyboard MBPs use the SPI driver rather than the
+  # in-tree linux-t2 driver.
   case "$sys_product" in
     MacBookPro13,*|MacBookPro14,*|MacBook9,*|MacBook10,*)
       install_aur macbook12-spi-driver-dkms ;;
   esac
-  warn "T2 kernel installed as linux-t2 — update your bootloader to boot it (see docs/MAC.md when it lands)"
+
+  # After arch-mact2-mirrorlist is installed, switch the pacman.conf
+  # entry to Include the mirrorlist file. Idempotent — grep-guarded.
+  if ! grep -q '^Include = /etc/pacman.d/arch-mact2-mirrorlist' "$_pacman_conf"; then
+    _sudo sed -i '/^\[arch-mact2\]/,/^Server/ { /^Server/c\Include = /etc/pacman.d/arch-mact2-mirrorlist
+    }' "$_pacman_conf" || warn "could not switch to mirrorlist; direct Server= remains"
+  fi
+
+  # Enable T2-specific services.
+  systemctl_enable t2fanrd
+  systemctl_enable tiny-dfr
+
+  # Rebuild initramfs for the new linux-t2 kernel + regenerate
+  # bootloader entries so the T2 kernel is bootable.
+  if [[ -z "$VINOS_ROOT" ]] && command -v mkinitcpio >/dev/null; then
+    _sudo mkinitcpio -P 2>&1 | tail -5 || warn "mkinitcpio -P failed; boot may still be OK if entries exist"
+  fi
+
+  # If systemd-boot is the loader, add a T2 entry pinned to linux-t2.
+  if [[ -z "$VINOS_ROOT" ]] && [[ -d /boot/loader ]] && command -v bootctl >/dev/null; then
+    if ! ls /boot/loader/entries/*linux-t2* >/dev/null 2>&1; then
+      log "06-hardware: writing systemd-boot entry for linux-t2"
+      _root_uuid=$(findmnt -no UUID /)
+      _sudo tee /boot/loader/entries/vinos-t2.conf >/dev/null <<T2ENTRY
+title   vinOS (Apple T2 Mac)
+linux   /vmlinuz-linux-t2
+initrd  /initramfs-linux-t2.img
+options root=UUID=${_root_uuid} rw quiet splash intel_iommu=on iommu=pt
+T2ENTRY
+      _sudo bootctl set-default vinos-t2.conf 2>&1 | tail -3 || true
+    fi
+  fi
+
+  log "06-hardware: T2 stack installed. Reboot into the linux-t2 kernel for full hardware support."
 fi
 
 # --- NVIDIA ---------------------------------------------------------

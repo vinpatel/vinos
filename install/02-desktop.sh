@@ -23,7 +23,12 @@ install_pkg \
   nautilus sushi plymouth \
   hypridle hyprlock hyprpicker hyprsunset swayosd satty \
   gtk4-layer-shell kvantum qt6ct \
-  pamixer playerctl brightnessctl gum
+  pamixer playerctl brightnessctl gum \
+  mesa vulkan-radeon vulkan-intel libva-mesa-driver libva-intel-driver \
+  intel-media-driver mesa-vdpau \
+  bluez bluez-utils \
+  alsa-firmware alsa-ucm-conf alsa-utils sof-firmware \
+  power-profiles-daemon thermald acpid bolt
 
 log "02-desktop: installing AUR apps (UX-critical only)"
 # I11 pivot: spotify/obsidian/1password/localsend live in bundles now.

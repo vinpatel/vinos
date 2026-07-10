@@ -25,3 +25,34 @@ apple-t2-audio-config
 tiny-dfr
 t2fanrd
 arch-mact2-mirrorlist
+
+# Full hardware userspace so wifi/audio/GPU/BT/thermal/battery all
+# work in the live session on 2019 Intel MBP + most modern laptops.
+# linux-firmware (already in packages.releng) is a metapackage that
+# pulls every per-vendor subpackage — we don't need to list them.
+
+# GPU userspace (works alongside vendor firmware from linux-firmware):
+mesa
+vulkan-radeon
+vulkan-intel
+libva-mesa-driver
+libva-intel-driver
+intel-media-driver
+mesa-vdpau
+
+# Bluetooth:
+bluez
+bluez-utils
+
+# Audio config profiles beyond sof-firmware:
+alsa-firmware
+alsa-ucm-conf
+alsa-utils
+
+# Power management + thermals (matters on any laptop, especially T2 Macs):
+power-profiles-daemon
+thermald
+acpid
+
+# Thunderbolt device authorization daemon:
+# bolt (already in packages.releng; keep here as a comment reminder).

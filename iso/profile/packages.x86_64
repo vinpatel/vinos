@@ -2,7 +2,10 @@
 # Sources: iso/packages.releng, iso/packages.live,
 #          install/01-base.sh install_pkg args,
 #          install/02-desktop.sh install_pkg args.
+acpid
 alacritty
+alsa-firmware
+alsa-ucm-conf
 alsa-utils
 amd-ucode
 apple-bcm-firmware
@@ -18,6 +21,8 @@ bat
 bcachefs-tools
 bibata-cursor-theme
 bind
+bluez
+bluez-utils
 bolt
 brightnessctl
 brltty
@@ -73,6 +78,7 @@ hyprlock
 hyprpicker
 hyprsunset
 impala
+intel-media-driver
 intel-ucode
 irssi
 iw
@@ -86,6 +92,8 @@ less
 lftp
 libfido2
 libusb-compat
+libva-intel-driver
+libva-mesa-driver
 linux
 linux-atm
 linux-firmware
@@ -103,6 +111,8 @@ mc
 mdadm
 memtest86+
 memtest86+-efi
+mesa
+mesa-vdpau
 mkinitcpio
 mkinitcpio-archiso
 mkinitcpio-nfs-utils
@@ -138,6 +148,7 @@ pipewire-pulse
 playerctl
 plymouth
 polkit-gnome
+power-profiles-daemon
 ppp
 pptpclient
 pv
@@ -171,6 +182,7 @@ t2fanrd
 tcpdump
 terminus-font
 testdisk
+thermald
 tiny-dfr
 tmux
 tpm2-tools
@@ -185,6 +197,8 @@ usbutils
 vim
 virtualbox-guest-utils-nox
 vpnc
+vulkan-intel
+vulkan-radeon
 walker
 waybar
 wget

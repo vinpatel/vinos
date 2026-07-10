@@ -94,6 +94,16 @@ fi
 # Enable in installer mode only — the ISO live boot doesn't need to
 # run driver-install on ephemeral squashfs. vinos-install-disk enables
 # it explicitly in the chroot after archinstall lays down the target.
+# Enable everyday hardware services so laptops behave properly. Any
+# machine that doesn't have the underlying hardware will simply not
+# use the service — enabling costs nothing.
+log "04-services: enabling bluetooth + thermald + acpid + power-profiles-daemon + bolt"
+systemctl_enable bluetooth
+systemctl_enable thermald
+systemctl_enable acpid
+systemctl_enable power-profiles-daemon
+systemctl_enable bolt
+
 log "04-services: installing vinos-firstboot.service"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 _sysd="$(_rootpath /etc/systemd/system)"
