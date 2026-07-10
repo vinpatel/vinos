@@ -1,6 +1,30 @@
 {{ define "main" }}
 
 <!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+
+<div class="hero-mark-container">
+  <svg class="hero-logo" viewBox="0 0 256 256" width="220" height="220" aria-label="vinOS">
+    <defs>
+      <linearGradient id="vinos-teal" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"  stop-color="#4fd1c5"/>
+        <stop offset="100%" stop-color="#33ccff"/>
+      </linearGradient>
+      <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="8" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    <g transform="translate(128,124)" filter="url(#glow)">
+      <path d="M -70,-70 L 0,70 L -22,70 L -92,-70 Z" fill="url(#vinos-teal)" class="vinos-stroke-l"/>
+      <path d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z"    fill="#e6e8eb" class="vinos-stroke-r"/>
+      <rect class="vinos-caret" x="28" y="54" width="30" height="16" fill="url(#vinos-teal)" rx="2"/>
+    </g>
+  </svg>
+</div>
+
 <section class="hero">
   <div class="hero-copy">
     <div class="hero-eyebrow">
