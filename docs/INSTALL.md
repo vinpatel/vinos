@@ -1,68 +1,69 @@
 # Install vinOS
 
-vinOS is an opinionated Arch Linux layer — you install Arch first, then
-run one command to add the vinOS desktop + configs + tools on top.
+Three install paths, all end at the same working vinOS desktop. Pick
+whichever matches your situation:
 
-Two paths depending on your hardware. Both end at the same
-`install.sh` and the same desktop.
-
-## Which one are you?
-
-- **You have a 2018-2020 Intel Mac with a T2 chip** (MBP, MBA,
-  iMac Pro, Mac Mini, iMac): → [T2 Mac path](#path-a-t2-mac).
-- **Everything else** (any other laptop or desktop): →
-  [Standard path](#path-b-standard).
+- **Path A** — Flash the vinOS ISO to USB, boot, run one command from the
+  live desktop. Zero prior Arch knowledge needed. Detects hardware
+  automatically. See [Path A — single ISO](#path-a-single-iso-recommended).
+- **Path B** — You already have Arch (or Omarchy, EndeavourOS, etc.)
+  running. One `curl | bash` layers vinOS on top. See [Path B — on
+  existing Arch](#path-b-on-existing-arch).
+- **T2 Mac path** — On 2018-2020 T2 Macs, use the community
+  [t2linux Arch build](https://wiki.t2linux.org) and then Path B. Or
+  wait for Path A which auto-detects T2 hardware. See [T2 Mac](#t2-mac).
 
 ---
 
-## Path A — T2 Mac
+## Path A — Single ISO (recommended)
 
-The T2 chip owns internal keyboard, trackpad, wifi, and audio. Stock
-Arch's `linux` kernel can't drive that hardware. Use the community
-[t2linux](https://wiki.t2linux.org/) build of Arch, which ships a
-patched `linux-t2` kernel.
+**No prior Arch install needed.**
 
-**On the Mac:**
+1. Download the latest ISO from [Releases](https://github.com/vinpatel/vinos/releases) (~3 GB).
+2. Flash to USB. On Linux/Mac:
+   ```bash
+   sudo dd if=vinos-*.iso of=/dev/sdX bs=4M status=progress conv=fsync && sync
+   ```
+   Or use [Etcher](https://etcher.balena.io) / [Rufus](https://rufus.ie).
+3. Boot the target machine off the USB. syslinux menu appears; press Enter for the default entry.
+4. Wait ~2 minutes → live vinOS desktop.
+5. Open a terminal (`Super+Return`) and run:
+   ```bash
+   sudo vinos-install-disk
+   ```
+6. Three prompts: which disk, username (defaults to `vin`), hostname (defaults to `vinos`). Confirm the wipe. `vinos-install-disk` auto-detects your hardware (Apple T2 / NVIDIA / generic), picks the right kernel + firmware, installs Arch, layers vinOS, configures the bootloader.
+7. ~15 min later, reboot when prompted.
 
-1. Read + follow the **t2linux pre-install guide**:
-   <https://wiki.t2linux.org/guides/preinstall/> — Secure Boot off,
-   allow external boot, shrink macOS partition.
-2. Follow the **t2linux Arch install guide**:
-   <https://wiki.t2linux.org/distributions/arch/installation/>. Use
-   `t2archinstall` (guided) if you want the easy path.
-3. When it asks which packages to `pacstrap`, use their recommended
-   set: `base linux-t2 linux-t2-headers arch-mact2-mirrorlist
-   arch-mact2-rankmirrors apple-t2-audio-config apple-bcm-firmware
-   linux-firmware iwd grub efibootmgr t2fanrd`.
-4. Finish the Arch install, reboot into your new Arch system, log in
-   as your user.
+Non-interactive (for provisioning tools):
+```bash
+sudo vinos-install-disk --disk /dev/nvme0n1 --user vin --hostname vinos-mbp --yes --reboot
+```
 
-**Then install vinOS on top:**
+## Path B — On existing Arch
+
+If you already have Arch running (or Omarchy, EndeavourOS, CachyOS, Manjaro):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/vinpatel/vinos/main/boot.sh | bash
 ```
 
-That's it. Reboot; you'll be in the vinOS Hyprland desktop with your
-T2 hardware fully working.
+That clones this repo to `~/.local/share/vinos` and runs `install.sh`. Everything is idempotent — safe to re-run.
 
-## Path B — Standard laptop / desktop
+## T2 Mac
 
-**On the machine** (2018+ Intel or AMD, any modern laptop):
+On 2018-2020 T2 Macs, you have three options:
 
-1. Flash the official Arch install ISO to USB (or the vinOS live ISO
-   in `iso/out/` if you have it — same as Arch's plus our branding).
-2. Boot the USB. At the Arch prompt, run `archinstall` (guided).
-   Pick your kernel (`linux` is fine), filesystem, timezone, user, and
-   `sudo`. When asked about profile, pick **minimal** — vinOS does the
-   rest.
-3. Reboot into your new Arch, log in.
+- **Easiest (Path A)**: flash the vinOS ISO. `vinos-install-disk` detects `Apple Inc.` in DMI and auto-selects the `linux-t2` kernel + `apple-bcm-firmware` + `tiny-dfr` + friends from the arch-mact2 repo. Bootloader is systemd-boot pinned to `linux-t2` by default.
 
-**Then install vinOS on top:**
+- **Path B, existing Arch install**: if you're already running Arch on the Mac (e.g. via t2linux's `t2archinstall`), just:
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/vinpatel/vinos/main/boot.sh | bash
+  ```
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/vinpatel/vinos/main/boot.sh | bash
-```
+- **Manual (if you want control)**: follow the t2linux wiki for the base Arch install:
+  - [Pre-install](https://wiki.t2linux.org/guides/preinstall/) — Secure Boot off, allow external boot.
+  - [Arch install guide](https://wiki.t2linux.org/distributions/arch/installation/).
+  Then run our one-liner.
 
 ## What `boot.sh` does
 

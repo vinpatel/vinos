@@ -21,11 +21,16 @@ OS_REL="$(_rootpath /etc/os-release)"
 OS_REL_BAK="$(_rootpath /etc/os-release.arch.bak)"
 
 log "05-branding: installing shared assets under $SHARE"
-_sudo install -d -m 0755 "$SHARE" "$SHARE/bin" "$SHARE/themes" "$SHARE/docs" "$LOCAL_BIN"
+_sudo install -d -m 0755 "$SHARE" "$SHARE/bin" "$SHARE/themes" "$SHARE/docs" \
+                             "$SHARE/archinstall" "$LOCAL_BIN"
 _sudo rsync -a --delete "$REPO/assets/logo/"  "$SHARE/logo/"
 _sudo install -Dm 0644 "$REPO/VERSION"         "$SHARE/VERSION"
 if [[ -f "$REPO/docs/KEYBINDINGS.txt" ]]; then
   _sudo install -Dm 0644 "$REPO/docs/KEYBINDINGS.txt" "$SHARE/docs/KEYBINDINGS.txt"
+fi
+# archinstall profile templates for vinos-install-disk (Path B).
+if [[ -d "$REPO/iso/profiles/archinstall" ]]; then
+  _sudo rsync -a --delete "$REPO/iso/profiles/archinstall/" "$SHARE/archinstall/"
 fi
 
 # I8: themes/ system. Each theme is a directory with theme.conf +
