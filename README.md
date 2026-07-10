@@ -1,8 +1,11 @@
-# vinOS
+# vinOS — the OS for agent operators
 
-**vinOS** is an opinionated Arch Linux layer by Vin Patel — the
-desktop Arch experience with curated apps, a beautiful Hyprland
-config, and an AI-first workflow. Runs on any Arch install.
+**Boot to a working Claude Code + local LLM setup in 90 seconds.**
+
+vinOS is an opinionated Arch Linux layer by Vin Patel — the desktop
+Arch experience with Claude Code, Ollama, and a curated Hyprland
+config already wired up. `Super+A` opens a local LLM. `Super+Shift+A`
+opens Claude Code. Runs on any Arch install.
 
 ## Install
 
