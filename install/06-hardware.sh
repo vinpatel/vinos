@@ -190,7 +190,7 @@ fi
 # --- AMD / Radeon ---------------------------------------------------
 if grep -qiE 'AMD.*(Radeon|VGA)|Advanced Micro Devices.*(Radeon|VGA)' <<<"$pci"; then
   log "06-hardware: AMD GPU detected — installing vulkan-radeon"
-  install_pkg vulkan-radeon libva-mesa-driver mesa-vdpau
+  install_pkg vulkan-radeon libva-mesa-driver
 fi
 
 # --- Intel graphics -------------------------------------------------

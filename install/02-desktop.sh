@@ -25,7 +25,7 @@ install_pkg \
   gtk4-layer-shell kvantum qt6ct \
   pamixer playerctl brightnessctl gum \
   mesa vulkan-radeon vulkan-intel libva-mesa-driver libva-intel-driver \
-  intel-media-driver mesa-vdpau \
+  intel-media-driver \
   bluez bluez-utils \
   alsa-firmware alsa-ucm-conf alsa-utils sof-firmware \
   power-profiles-daemon thermald acpid bolt
