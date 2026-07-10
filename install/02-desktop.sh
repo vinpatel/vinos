@@ -27,9 +27,10 @@ install_pkg \
 
 log "02-desktop: installing AUR apps (UX-critical only)"
 # I11 pivot: spotify/obsidian/1password/localsend live in bundles now.
-# walker-bin: prebuilt walker (dmenu-style launcher, AUR-only).
+# walker (source): matches Omarchy's build so no walker/walker-bin
+# conflict when vinOS is layered onto Omarchy.
 # yaru-icon-theme: Ubuntu's icon set — clean, dark-friendly.
-install_aur walker-bin yaru-icon-theme bibata-cursor-theme-bin
+install_aur walker yaru-icon-theme bibata-cursor-theme
 
 log "02-desktop: wiring Plymouth boot splash (installer mode only)"
 # Rule 1: Plymouth is graphical; owned by this script. Theme assets
