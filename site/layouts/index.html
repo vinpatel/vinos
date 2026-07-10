@@ -21,7 +21,7 @@
     </div>
 
     <div class="hero-cta">
-      <a href="/install/" class="btn btn-primary">Read the install guide →</a>
+      <a href="{{ "install/" | relURL }}" class="btn btn-primary">Read the install guide →</a>
       <a href="{{ .Site.Params.github }}" class="btn btn-ghost" target="_blank" rel="noopener">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.2 2.9 0 3.2.9.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.7-5.5 6 .5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
         GitHub
@@ -243,56 +243,56 @@
     <p class="section-lede">Base is lean. Each bundle is one command, idempotent, and can uninstall clean.</p>
   </div>
   <div class="bundle-grid">
-    <a href="/bundles/#ai" class="bundle b-ai">
+    <a href="{{ "bundles/" | relURL }}#ai" class="bundle b-ai">
       <div class="bundle-icon"></div>
       <h4>ai</h4>
       <code>vinos-install-ai</code>
       <p>Ollama · Claude Code · torch · aichat · open-webui · CUDA on NVIDIA</p>
       <span class="bundle-size">~4–9 GB</span>
     </a>
-    <a href="/bundles/#dev" class="bundle">
+    <a href="{{ "bundles/" | relURL }}#dev" class="bundle">
       <div class="bundle-icon"></div>
       <h4>dev</h4>
       <code>vinos-install-dev</code>
       <p>Postgres · Redis · kubectl · Helm · Terraform · Rust · Go · Ruby · Docker</p>
       <span class="bundle-size">~2 GB</span>
     </a>
-    <a href="/bundles/#media" class="bundle">
+    <a href="{{ "bundles/" | relURL }}#media" class="bundle">
       <div class="bundle-icon"></div>
       <h4>media</h4>
       <code>vinos-install-media</code>
       <p>mpv · kdenlive · OBS · Evince · Pinta · Spotify · gpu-screen-recorder</p>
       <span class="bundle-size">~1.5 GB</span>
     </a>
-    <a href="/bundles/#office" class="bundle">
+    <a href="{{ "bundles/" | relURL }}#office" class="bundle">
       <div class="bundle-icon"></div>
       <h4>office</h4>
       <code>vinos-install-office</code>
       <p>LibreOffice Fresh · Thunderbird</p>
       <span class="bundle-size">~800 MB</span>
     </a>
-    <a href="/bundles/#gaming" class="bundle">
+    <a href="{{ "bundles/" | relURL }}#gaming" class="bundle">
       <div class="bundle-icon"></div>
       <h4>gaming</h4>
       <code>vinos-install-gaming</code>
       <p>Steam · Lutris · GameMode · MangoHud</p>
       <span class="bundle-size">~1 GB</span>
     </a>
-    <a href="/bundles/#productivity" class="bundle">
+    <a href="{{ "bundles/" | relURL }}#productivity" class="bundle">
       <div class="bundle-icon"></div>
       <h4>productivity</h4>
       <code>vinos-install-productivity</code>
       <p>Obsidian · Notion · Typora · 1Password</p>
       <span class="bundle-size">~700 MB</span>
     </a>
-    <a href="/bundles/#comms" class="bundle">
+    <a href="{{ "bundles/" | relURL }}#comms" class="bundle">
       <div class="bundle-icon"></div>
       <h4>comms</h4>
       <code>vinos-install-comms</code>
       <p>Signal Desktop · LocalSend</p>
       <span class="bundle-size">~200 MB</span>
     </a>
-    <a href="/bundles/#browser" class="bundle">
+    <a href="{{ "bundles/" | relURL }}#browser" class="bundle">
       <div class="bundle-icon"></div>
       <h4>browser</h4>
       <code>vinos-install-browser</code>
@@ -366,7 +366,7 @@
       <code id="install-cmd-tail">{{ .Site.Params.installCmd }}</code>
       <button class="copy-btn" onclick="copyCmd(this, 'install-cmd-tail')">copy</button>
     </div>
-    <p class="hint">Not on Arch yet? <a href="/install/">Install guide</a> covers the T2 Mac path and the standard <code>archinstall</code> path.</p>
+    <p class="hint">Not on Arch yet? <a href="{{ "install/" | relURL }}">Install guide</a> covers the T2 Mac path and the standard <code>archinstall</code> path.</p>
   </div>
 </section>
 
