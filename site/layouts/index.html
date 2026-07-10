@@ -1,0 +1,401 @@
+{{ define "main" }}
+
+<!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+<section class="hero">
+  <div class="hero-copy">
+    <div class="hero-eyebrow">
+      <span class="pill">v{{ .Site.Params.version }} · MIT</span>
+      <span class="pill pill-mint">AI-native</span>
+    </div>
+    <h1>Arch Linux,<br><span class="grad">done for you.</span></h1>
+    <p class="hero-lede">
+      vinOS is an opinionated Arch layer — Hyprland pre-tuned, 5 themes
+      swappable at runtime, and <kbd>Super</kbd>+<kbd>A</kbd> opens a
+      local LLM. One command on any Arch install.
+    </p>
+
+    <div class="install-cmd hero-install" role="group">
+      <span class="cmd-prompt">$</span>
+      <code id="install-cmd-hero">{{ .Site.Params.installCmd }}</code>
+      <button class="copy-btn" onclick="copyCmd(this, 'install-cmd-hero')">copy</button>
+    </div>
+
+    <div class="hero-cta">
+      <a href="/install/" class="btn btn-primary">Read the install guide →</a>
+      <a href="{{ .Site.Params.github }}" class="btn btn-ghost" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.2 2.9 0 3.2.9.8 1.3 1.9 1.3 3.1 0 4.6-2.8 5.7-5.5 6 .5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="mockwin terminal">
+      <div class="mockwin-bar">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="mockwin-title">vin@vinos:~</span>
+      </div>
+      <div class="mockwin-body font-mono">
+        <div class="term-line"><span class="term-prompt">➜</span> <span class="term-cwd">~</span> <span class="term-cmd">curl -fsSL vinos.dev/boot.sh | bash</span></div>
+        <div class="term-line dim">[vinOS] installing core packages…</div>
+        <div class="term-line dim">[vinOS] 02-desktop: Hyprland + waybar + walker + foot</div>
+        <div class="term-line dim">[vinOS] 05-branding: themes, wallpaper, vinos-* bins</div>
+        <div class="term-line ok">[vinOS] install complete — press Super to fly</div>
+        <div class="term-line"><span class="term-prompt">➜</span> <span class="term-cwd">~</span> <span class="term-cmd">vinos-ai chat</span></div>
+        <div class="term-line accent">▎ Type a message, or <span class="dim">/exit</span></div>
+        <div class="term-line"><span class="cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ WHAT ═══════════════════════════════ -->
+<section class="what">
+  <div class="section-head">
+    <span class="eyebrow">what you get</span>
+    <h2>An entire Wayland desktop, pre-configured with taste.</h2>
+    <p class="section-lede">
+      No dotfile hunt. No config rabbit hole. Boot into Arch, run one
+      command, and you're at a working Hyprland desktop with keybindings,
+      themes, and AI tools that already make sense.
+    </p>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature">
+      <div class="feature-icon">󰣇</div>
+      <h3>Hyprland, tuned</h3>
+      <p>Wayland-native compositor with the beauty pass applied — animations, blur, gradient borders, Nerd Font waybar, Bibata cursor. It just looks right.</p>
+    </div>
+    <div class="feature ai">
+      <div class="feature-icon"></div>
+      <h3>AI-native</h3>
+      <p><kbd>Super</kbd>+<kbd>A</kbd> opens <code>vinos-ai chat</code> (ollama). <kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd> opens Claude Code. Install with <code>vinos-install-ai</code>, no fiddling.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon"></div>
+      <h3>Bundles, not bloat</h3>
+      <p>Base is lean. Add what you use — <code>ai · dev · media · office · gaming · productivity · comms · browser</code> — each is one command, always idempotent.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon"></div>
+      <h3>Themes that swap live</h3>
+      <p>Five palettes ship: tokyo-night · catppuccin-mocha · rose-pine · everforest · gruvbox-dark. <code>vinos-theme &lt;name&gt;</code> and it's done — no restart.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">󰋊</div>
+      <h3>Hardware-aware</h3>
+      <p>Auto-detects Apple T2, NVIDIA, AMD, Intel, Dell XPS, ASUS ROG at install time. Pulls the right kernel modules, drivers, env vars, and Hyprland tweaks.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon"></div>
+      <h3>Fork-friendly</h3>
+      <p>Ship your own vinOS variant with one directory. Two live examples: <code>overlays/education</code> (schools, offline LLMs) and <code>overlays/health</code> (clinicians).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ THEMES ═══════════════════════════════ -->
+<section class="themes-showcase">
+  <div class="section-head centered">
+    <span class="eyebrow">themes</span>
+    <h2>Five palettes, one keystroke away.</h2>
+    <p class="section-lede">Tap a theme to preview. On your machine: <kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>T</kbd>.</p>
+  </div>
+
+  <div class="theme-picker">
+    <button class="swatch active" data-theme="tokyo-night" onclick="pickTheme(this)">
+      <div class="swatch-strip" style="--c1:#33ccff; --c2:#bb9af7; --c3:#1a1b26;"></div>
+      <span>tokyo-night</span>
+    </button>
+    <button class="swatch" data-theme="catppuccin-mocha" onclick="pickTheme(this)">
+      <div class="swatch-strip" style="--c1:#cba6f7; --c2:#f5c2e7; --c3:#1e1e2e;"></div>
+      <span>catppuccin</span>
+    </button>
+    <button class="swatch" data-theme="rose-pine" onclick="pickTheme(this)">
+      <div class="swatch-strip" style="--c1:#ebbcba; --c2:#c4a7e7; --c3:#191724;"></div>
+      <span>rose-pine</span>
+    </button>
+    <button class="swatch" data-theme="everforest" onclick="pickTheme(this)">
+      <div class="swatch-strip" style="--c1:#a7c080; --c2:#dbbc7f; --c3:#2d353b;"></div>
+      <span>everforest</span>
+    </button>
+    <button class="swatch" data-theme="gruvbox-dark" onclick="pickTheme(this)">
+      <div class="swatch-strip" style="--c1:#fabd2f; --c2:#fe8019; --c3:#282828;"></div>
+      <span>gruvbox</span>
+    </button>
+  </div>
+
+  <div class="theme-preview" id="themePreview">
+    <div class="fake-desktop">
+      <div class="fake-waybar">
+        <span class="wb-item">󰣇</span>
+        <span class="wb-item"><span class="wb-active">●</span> ○ ○ ○</span>
+        <span class="wb-center">Fri 10 Jul · 09:41</span>
+        <span class="wb-item">  ens0</span>
+        <span class="wb-item">  100%</span>
+        <span class="wb-item">  12%</span>
+        <span class="wb-item">  3.4G</span>
+      </div>
+      <div class="fake-wp"></div>
+      <div class="fake-walker">
+        <div class="walker-search">Search apps…</div>
+        <div class="walker-item selected"> chromium</div>
+        <div class="walker-item"> foot</div>
+        <div class="walker-item"> nautilus</div>
+        <div class="walker-item"> obsidian</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ AI ═══════════════════════════════ -->
+<section class="ai-story">
+  <div class="ai-grid">
+    <div class="ai-copy">
+      <span class="eyebrow">AI-first</span>
+      <h2>Your models. Your keyboard. Your machine.</h2>
+      <p class="section-lede">
+        <code>vinos-install-ai</code> pulls Ollama, Claude Code, aichat, PyTorch, transformers,
+        open-webui — plus CUDA + <code>nvidia-container-toolkit</code> if you have a discrete NVIDIA card.
+      </p>
+      <p class="section-lede">Then just:</p>
+      <div class="install-cmd" role="group">
+        <span class="cmd-prompt">$</span>
+        <code>vinos-ai pull llama3.2 && vinos-ai chat</code>
+      </div>
+      <p class="section-lede" style="margin-top: 24px;">
+        <kbd>Super</kbd>+<kbd>A</kbd> from anywhere opens the chat. <kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd> opens Claude Code.
+        No auth flow, no cloud. Your models live on your disk.
+      </p>
+    </div>
+
+    <div class="ai-visual">
+      <div class="mockwin chat">
+        <div class="mockwin-bar">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="mockwin-title"> vinos-ai chat · llama3.2</span>
+        </div>
+        <div class="mockwin-body">
+          <div class="chat-msg user">
+            <span class="chat-role">you</span>
+            <p>rewrite this python function to use asyncio</p>
+          </div>
+          <div class="chat-msg ai">
+            <span class="chat-role role-ai">llama3.2</span>
+            <p>Here's the asyncio version — <code>requests.get</code> becomes <code>aiohttp.ClientSession</code>, semaphore hoisted for rate control:</p>
+            <div class="chat-code font-mono">
+              <span class="tk-kw">async def</span> <span class="tk-fn">fetch_all</span>(urls):<br>
+              &nbsp;&nbsp;<span class="tk-kw">async with</span> aiohttp.ClientSession() <span class="tk-kw">as</span> sess:<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="tk-kw">return await</span> asyncio.gather(<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*(<span class="tk-fn">_fetch</span>(sess, u) <span class="tk-kw">for</span> u <span class="tk-kw">in</span> urls))
+            </div>
+          </div>
+          <div class="chat-msg user typing">
+            <span class="chat-role">you</span>
+            <p><span class="cursor"></span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ KEYS ═══════════════════════════════ -->
+<section class="keys">
+  <div class="section-head centered">
+    <span class="eyebrow">learn it in 30 seconds</span>
+    <h2>Every keybinding you need.</h2>
+    <p class="section-lede"><kbd>Super</kbd>+<kbd>K</kbd> from the desktop opens this same cheat sheet.</p>
+  </div>
+
+  <div class="key-columns">
+    <div class="key-col">
+      <h4>Launch</h4>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>Return</kbd></span><span>Terminal</span></div>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>Space</kbd></span><span>App launcher</span></div>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>B</kbd></span><span>Browser</span></div>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>F</kbd></span><span>Files</span></div>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>K</kbd></span><span>Keybindings</span></div>
+    </div>
+    <div class="key-col">
+      <h4>AI</h4>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>A</kbd></span><span>Chat (ollama)</span></div>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>Shift</kbd> <kbd>A</kbd></span><span>Claude Code</span></div>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>Ctrl</kbd> <kbd>A</kbd></span><span>Models</span></div>
+    </div>
+    <div class="key-col">
+      <h4>System</h4>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>Ctrl</kbd> <kbd>O</kbd></span><span>vinOS menu</span></div>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>Ctrl</kbd> <kbd>W</kbd></span><span>Wi-Fi</span></div>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>Ctrl</kbd> <kbd>T</kbd></span><span>Switch theme</span></div>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>L</kbd></span><span>Lock</span></div>
+      <div class="key-row"><span class="key-combo"><kbd>Super</kbd> <kbd>P</kbd></span><span>Screenshot</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ BUNDLES ═══════════════════════════════ -->
+<section class="bundles">
+  <div class="section-head">
+    <span class="eyebrow">bundles</span>
+    <h2>Install exactly what you use.</h2>
+    <p class="section-lede">Base is lean. Each bundle is one command, idempotent, and can uninstall clean.</p>
+  </div>
+  <div class="bundle-grid">
+    <a href="/bundles/#ai" class="bundle b-ai">
+      <div class="bundle-icon"></div>
+      <h4>ai</h4>
+      <code>vinos-install-ai</code>
+      <p>Ollama · Claude Code · torch · aichat · open-webui · CUDA on NVIDIA</p>
+      <span class="bundle-size">~4–9 GB</span>
+    </a>
+    <a href="/bundles/#dev" class="bundle">
+      <div class="bundle-icon"></div>
+      <h4>dev</h4>
+      <code>vinos-install-dev</code>
+      <p>Postgres · Redis · kubectl · Helm · Terraform · Rust · Go · Ruby · Docker</p>
+      <span class="bundle-size">~2 GB</span>
+    </a>
+    <a href="/bundles/#media" class="bundle">
+      <div class="bundle-icon"></div>
+      <h4>media</h4>
+      <code>vinos-install-media</code>
+      <p>mpv · kdenlive · OBS · Evince · Pinta · Spotify · gpu-screen-recorder</p>
+      <span class="bundle-size">~1.5 GB</span>
+    </a>
+    <a href="/bundles/#office" class="bundle">
+      <div class="bundle-icon"></div>
+      <h4>office</h4>
+      <code>vinos-install-office</code>
+      <p>LibreOffice Fresh · Thunderbird</p>
+      <span class="bundle-size">~800 MB</span>
+    </a>
+    <a href="/bundles/#gaming" class="bundle">
+      <div class="bundle-icon"></div>
+      <h4>gaming</h4>
+      <code>vinos-install-gaming</code>
+      <p>Steam · Lutris · GameMode · MangoHud</p>
+      <span class="bundle-size">~1 GB</span>
+    </a>
+    <a href="/bundles/#productivity" class="bundle">
+      <div class="bundle-icon"></div>
+      <h4>productivity</h4>
+      <code>vinos-install-productivity</code>
+      <p>Obsidian · Notion · Typora · 1Password</p>
+      <span class="bundle-size">~700 MB</span>
+    </a>
+    <a href="/bundles/#comms" class="bundle">
+      <div class="bundle-icon"></div>
+      <h4>comms</h4>
+      <code>vinos-install-comms</code>
+      <p>Signal Desktop · LocalSend</p>
+      <span class="bundle-size">~200 MB</span>
+    </a>
+    <a href="/bundles/#browser" class="bundle">
+      <div class="bundle-icon"></div>
+      <h4>browser</h4>
+      <code>vinos-install-browser</code>
+      <p>Chromium · Firefox</p>
+      <span class="bundle-size">~500 MB</span>
+    </a>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ PHILOSOPHY ═══════════════════════════════ -->
+<section class="philosophy">
+  <div class="section-head centered">
+    <span class="eyebrow">philosophy</span>
+    <h2>Three rules. Never violated.</h2>
+  </div>
+  <div class="rules-grid">
+    <div class="rule">
+      <span class="rule-num">01</span>
+      <h3>Desktop is a module.</h3>
+      <p>Only <code>02-desktop.sh</code> touches anything graphical. Every other script works headless — servers, VMs, containers, whatever.</p>
+    </div>
+    <div class="rule">
+      <span class="rule-num">02</span>
+      <h3>Forks overlay, never edit.</h3>
+      <p>Base owns 01–09. Forks own 10–99. Overlays add and shadow, never modify. Every script idempotent.</p>
+    </div>
+    <div class="rule">
+      <span class="rule-num">03</span>
+      <h3>Identity in one place.</h3>
+      <p>Only <code>05-branding.sh</code> touches os-release, wallpaper, logos, or <code>vinos-*</code> bins. Rebranding a fork is one file.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ WHO ═══════════════════════════════ -->
+<section class="who">
+  <div class="section-head">
+    <span class="eyebrow">who's this for</span>
+    <h2>Honest fit-check.</h2>
+  </div>
+  <div class="who-grid">
+    <div>
+      <h3><span class="check-icon">✓</span> Yes if you</h3>
+      <ul class="check">
+        <li>Already run Arch, or don't mind installing it via <code>archinstall</code></li>
+        <li>Want Hyprland + AI tools without spending a weekend on dotfiles</li>
+        <li>Like opinionated defaults you can override with one line</li>
+        <li>Have a 2018–2020 T2 Mac and want it to feel native</li>
+        <li>Want your LLMs local and your keybindings sane</li>
+      </ul>
+    </div>
+    <div>
+      <h3><span class="cross-icon">×</span> Skip if you</h3>
+      <ul class="cross">
+        <li>Want a Windows-style graphical installer (not there yet)</li>
+        <li>Prefer to hand-craft dotfiles — a valid preference; ours are opinionated</li>
+        <li>Aren't comfortable in a terminal for at least the install step</li>
+        <li>Need LTS stability — this is a rolling Arch layer, updates daily</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ CTA TAIL ═══════════════════════════════ -->
+<section class="cta-tail">
+  <div class="cta-inner">
+    <h2>Try it in a minute.</h2>
+    <p class="section-lede">On any Arch install. No sign-up, no telemetry, no config files to write first.</p>
+    <div class="install-cmd solo" role="group">
+      <span class="cmd-prompt">$</span>
+      <code id="install-cmd-tail">{{ .Site.Params.installCmd }}</code>
+      <button class="copy-btn" onclick="copyCmd(this, 'install-cmd-tail')">copy</button>
+    </div>
+    <p class="hint">Not on Arch yet? <a href="/install/">Install guide</a> covers the T2 Mac path and the standard <code>archinstall</code> path.</p>
+  </div>
+</section>
+
+<script>
+function copyCmd(btn, id) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent.trim());
+  const old = btn.textContent;
+  btn.textContent = 'copied ✓';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1500);
+}
+const themes = {
+  'tokyo-night':      { a: '#33ccff', b: '#bb9af7', c: '#c0caf5', bg: '#1a1b26', bg2: '#0d0e14' },
+  'catppuccin-mocha': { a: '#cba6f7', b: '#f5c2e7', c: '#cdd6f4', bg: '#1e1e2e', bg2: '#11111b' },
+  'rose-pine':        { a: '#ebbcba', b: '#c4a7e7', c: '#e0def4', bg: '#191724', bg2: '#0f0d1a' },
+  'everforest':       { a: '#a7c080', b: '#dbbc7f', c: '#d3c6aa', bg: '#2d353b', bg2: '#232a2e' },
+  'gruvbox-dark':     { a: '#fabd2f', b: '#fe8019', c: '#ebdbb2', bg: '#282828', bg2: '#1d2021' },
+};
+function pickTheme(el) {
+  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  const t = themes[el.dataset.theme];
+  const p = document.getElementById('themePreview');
+  p.style.setProperty('--th-a', t.a);
+  p.style.setProperty('--th-b', t.b);
+  p.style.setProperty('--th-c', t.c);
+  p.style.setProperty('--th-bg', t.bg);
+  p.style.setProperty('--th-bg2', t.bg2);
+}
+</script>
+
+{{ end }}

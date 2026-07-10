@@ -1,0 +1,16 @@
+{{ define "main" }}
+<article class="doc-content">
+  <h1>{{ .Title }}</h1>
+  {{ .Content }}
+  <ul class="doc-list">
+    {{ range .Pages.ByTitle }}
+    <li>
+      <a href="{{ .Permalink }}">
+        <strong>{{ .Title }}</strong>
+        {{ with .Description }}<span class="muted small">— {{ . }}</span>{{ end }}
+      </a>
+    </li>
+    {{ end }}
+  </ul>
+</article>
+{{ end }}
