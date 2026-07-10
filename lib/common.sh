@@ -45,6 +45,15 @@ install_pkg() {
     log "install_pkg (VINOS_ROOT mode, no-op): $*"
     return 0
   fi
+  # Arch requires a full system sync before installing new packages —
+  # a partial upgrade breaks deps (pipewire, aquamarine, etc.). We do
+  # this once per install.sh run, guarded by a marker file so the
+  # long -Syu only runs the first time install_pkg is called.
+  if [[ ! -f /tmp/.vinos-syu-done-$$ ]]; then
+    log "install_pkg: running full system sync (pacman -Syu) — Arch requires this before adding packages"
+    sudo pacman -Syu --needed --noconfirm || warn "pacman -Syu returned non-zero — proceeding anyway"
+    touch /tmp/.vinos-syu-done-$$
+  fi
   sudo pacman -S --needed --noconfirm "$@"
 }
 install_aur() {
