@@ -34,6 +34,7 @@ YES=0
 REBOOT=0
 PROFILE=""  # override auto-detect
 KEEP_TMP=0
+DRY_RUN=0
 
 die()  { printf '\033[1;31m[vinos-install-disk] FAIL:\033[0m %s\n' "$*" >&2; exit 1; }
 log()  { printf '\033[1;34m[vinos-install-disk]\033[0m %s\n' "$*"; }
@@ -50,12 +51,15 @@ while [[ $# -gt 0 ]]; do
     --yes|-y)    YES=1;   shift ;;
     --reboot)    REBOOT=1; shift ;;
     --keep-tmp)  KEEP_TMP=1; shift ;;
+    --dry-run|-n) DRY_RUN=1; shift ;;
     -h|--help)   usage; exit 0 ;;
     *) die "unknown argument: $1 (try --help)" ;;
   esac
 done
 
-[[ $EUID -eq 0 ]] || die "must run as root (partitioning + pacstrap)"
+if (( DRY_RUN == 0 )); then
+  [[ $EUID -eq 0 ]] || die "must run as root (partitioning + pacstrap). Add --dry-run to preview without root."
+fi
 
 # ── Hardware detection ──────────────────────────────────────────────
 detect_profile() {
@@ -145,6 +149,15 @@ sed \
   "$TEMPLATE" > "$RENDERED"
 
 log "rendered archinstall config → $RENDERED"
+
+if (( DRY_RUN )); then
+  log "DRY RUN — no changes made. Rendered archinstall config:"
+  cat "$RENDERED"
+  log "would run:  archinstall --config $RENDERED --silent"
+  log "would then: arch-chroot /mnt to clone $VINOS_REPO_URL + run install.sh"
+  KEEP_TMP=1
+  exit 0
+fi
 
 # ── Run archinstall ─────────────────────────────────────────────────
 command -v archinstall >/dev/null || die "archinstall not found (should ship in the live ISO)"

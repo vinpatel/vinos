@@ -16,7 +16,7 @@ base-devel
 bash-completion
 bat
 bcachefs-tools
-bibata-cursor-theme-bin
+bibata-cursor-theme
 bind
 bolt
 brightnessctl
@@ -185,7 +185,7 @@ usbutils
 vim
 virtualbox-guest-utils-nox
 vpnc
-walker-bin
+walker
 waybar
 wget
 wireless-regdb
