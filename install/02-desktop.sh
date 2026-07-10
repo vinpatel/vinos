@@ -27,10 +27,30 @@ install_pkg \
 
 log "02-desktop: installing AUR apps (UX-critical only)"
 # I11 pivot: spotify/obsidian/1password/localsend live in bundles now.
-# walker (source): matches Omarchy's build so no walker/walker-bin
-# conflict when vinOS is layered onto Omarchy.
+# walker (source): matches upstream so no walker/walker-bin conflict
+# on machines that already have the source variant.
 # yaru-icon-theme: Ubuntu's icon set — clean, dark-friendly.
+# bibata-cursor-theme: sharp modern cursors.
+# hyprpm needs its git alternate; we install plugins post-boot with
+# vinos-hypr-plugins (see below).
 install_aur walker yaru-icon-theme bibata-cursor-theme
+
+# Optional Hyprland plugins via hyprpm. hyprpm ships with hyprland,
+# so no extra package needed. We install the beauty-pass plugins on
+# first boot after Hyprland is running so headers match the exact
+# version. Installer mode only — VINOS_ROOT (ISO build) skips because
+# hyprpm needs a running graphical session.
+if [[ -z "$VINOS_ROOT" ]] && command -v hyprpm >/dev/null 2>&1; then
+  log "02-desktop: enabling hyprland plugins (hyprexpo + borders-plus-plus + hyprwinwrap)"
+  hyprpm update --no-shallow 2>&1 | tail -3 || warn "hyprpm update failed; will retry on next Hyprland launch"
+  for plugin in hyprland-plugins; do
+    hyprpm add "https://github.com/hyprwm/${plugin}" 2>&1 | tail -3 || true
+  done
+  # Enable the specific plugins by name.
+  for name in hyprexpo borders-plus-plus hyprwinwrap; do
+    hyprpm enable "$name" 2>&1 | tail -3 || warn "hyprpm enable $name failed"
+  done
+fi
 
 log "02-desktop: wiring Plymouth boot splash (installer mode only)"
 # Rule 1: Plymouth is graphical; owned by this script. Theme assets
