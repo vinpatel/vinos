@@ -1,7 +1,7 @@
 
    [38;2;79;209;197m/  /[38;2;230;232;235m\  \[0m
   [38;2;79;209;197m/  /[38;2;230;232;235m  \  \[0m       [38;2;51;204;255mvinOS Live[0m
- [38;2;79;209;197m/  /[38;2;230;232;235m    \  \[0m      an opinionated Arch layer, AI-native
+ [38;2;79;209;197m/  /[38;2;230;232;235m    \  \[0m      the OS for agent operators
 [38;2;79;209;197m/__/[38;2;230;232;235m [38;2;79;209;197m▪[0m [38;2;230;232;235m\__\[0m
 
 [38;2;51;204;255m➜ Install to this machine's disk:[0m
@@ -9,7 +9,7 @@
   [1msudo vinos-install-disk[0m
 
   Auto-detects hardware (Apple T2 / NVIDIA / generic), partitions,
-  installs Arch + vinOS, and reboots. ~15 min end-to-end.
+  installs the system, and reboots. ~15 min end-to-end.
 
 [38;2;51;204;255m➜ Try before you install:[0m
 
