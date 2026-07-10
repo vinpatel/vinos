@@ -39,10 +39,16 @@
       <kbd>Super</kbd>+<kbd>A</kbd> as the chat key.
     </p>
 
-    <div class="install-cmd hero-install" role="group">
-      <span class="cmd-prompt">$</span>
-      <code id="install-cmd-hero">{{ .Site.Params.installCmd }}</code>
-      <button class="copy-btn" onclick="copyCmd(this, 'install-cmd-hero')">copy</button>
+    <div class="install-options">
+      <div class="install-cmd hero-install" role="group">
+        <span class="install-tag">or grab the ISO</span>
+        <code id="install-cmd-hero">{{ .Site.Params.installCmd }}</code>
+        <button class="copy-btn" onclick="copyCmd(this, 'install-cmd-hero')">copy</button>
+      </div>
+      <p class="install-alt">
+        <span class="install-tag alt">no Arch yet?</span>
+        Download the <a href="{{ .Site.Params.github }}/releases" target="_blank" rel="noopener">vinOS ISO</a>, flash to USB, boot, run <code>sudo vinos-install-disk</code>. Auto-detects Apple T2, NVIDIA, generic hardware.
+      </p>
     </div>
 
     <div class="hero-cta">

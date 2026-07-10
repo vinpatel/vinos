@@ -86,4 +86,24 @@ else
   warn "could not symlink /etc/resolv.conf (bind mount?); leaving as-is"
 fi
 
+# Install the vinos-firstboot systemd unit. Runs 06-hardware.sh once
+# on first boot after graphical.target is ready, so driver detection
+# + install happens without user intervention. Idempotent via a
+# ConditionPathExists sentinel at /var/lib/vinos/firstboot.done.
+#
+# Enable in installer mode only — the ISO live boot doesn't need to
+# run driver-install on ephemeral squashfs. vinos-install-disk enables
+# it explicitly in the chroot after archinstall lays down the target.
+log "04-services: installing vinos-firstboot.service"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+_sysd="$(_rootpath /etc/systemd/system)"
+_sudo install -d -m 0755 "$_sysd"
+_sudo install -Dm 0644 "$REPO/install/systemd/vinos-firstboot.service" \
+                       "$_sysd/vinos-firstboot.service"
+if [[ -z "$VINOS_ROOT" ]]; then
+  systemctl_enable vinos-firstboot
+else
+  log "04-services: vinos-firstboot staged (not enabled on live ISO)"
+fi
+
 log "04-services: done"

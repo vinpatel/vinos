@@ -1,0 +1,34 @@
+[Unit]
+Description=vinOS first-boot hardware setup (runs 06-hardware.sh once)
+Documentation=file:///usr/share/doc/vinos/VINOS_SPEC.md
+After=network-online.target NetworkManager-wait-online.service systemd-networkd-wait-online.service
+Wants=network-online.target
+Before=graphical.target greetd.service
+ConditionPathExists=!/var/lib/vinos/firstboot.done
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+ExecStart=/usr/bin/bash -eu -c ' \
+  install -d -m 0755 /var/lib/vinos; \
+  install -d -m 0755 /var/log/vinos; \
+  target_user=$(getent passwd 1000 | cut -d: -f1); \
+  if [[ -z "$target_user" ]]; then \
+    echo "vinos-firstboot: no uid=1000 user, skipping"; \
+    touch /var/lib/vinos/firstboot.done; \
+    exit 0; \
+  fi; \
+  if [[ ! -x /home/$target_user/.local/share/vinos/install/06-hardware.sh ]]; then \
+    echo "vinos-firstboot: 06-hardware.sh not found for $target_user, skipping"; \
+    touch /var/lib/vinos/firstboot.done; \
+    exit 0; \
+  fi; \
+  echo "vinos-firstboot: running 06-hardware.sh as $target_user"; \
+  sudo -u "$target_user" -H bash /home/$target_user/.local/share/vinos/install/06-hardware.sh \
+    2>&1 | tee /var/log/vinos/firstboot.log || true; \
+  touch /var/lib/vinos/firstboot.done'
+
+[Install]
+WantedBy=graphical.target multi-user.target
