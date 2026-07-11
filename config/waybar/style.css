@@ -1,13 +1,17 @@
-/* vinOS Waybar — pill-island modules on a floating bar. Semantic
-   colors per module, JetBrainsMono Nerd Font throughout, subtle
-   drop shadow on the bar itself. */
+/* vinOS Waybar — floating frosted-glass pill islands with subtle
+   inner glow. The bar itself is transparent; each module is its
+   own rounded surface with a translucent tokyo-night background.
+   Hyprland's `layerrule = blur, waybar` gives the actual glass
+   effect underneath — the alpha here just tints it. */
 
 * {
   border: none;
   border-radius: 0;
   font-family: "JetBrainsMono Nerd Font", "Symbols Nerd Font", monospace;
   font-size: 13px;
+  font-weight: 500;
   min-height: 0;
+  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 window#waybar {
@@ -15,8 +19,8 @@ window#waybar {
   color: #c0caf5;
 }
 
-/* The visible pieces float on the transparent bar as pills. Each
-   module is a rounded rectangle with a tinted panel background. */
+/* Each module is a floating pill. Backing alpha low so the Hyprland
+   blur really shows through. Subtle mint outline + inner highlight. */
 #custom-logo,
 #workspaces,
 #window,
@@ -27,51 +31,50 @@ window#waybar {
 #memory,
 #battery,
 #tray {
-  background: rgba(26, 27, 38, 0.85);
-  padding: 4px 12px;
+  background: rgba(20, 21, 30, 0.55);
+  padding: 4px 14px;
   margin: 0 3px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(51, 204, 255, 0.10);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-/* vinOS logo — accent color, click opens menu. */
+/* Logo — accent-tinted. Click opens vinos-menu. */
 #custom-logo {
   color: #33ccff;
   font-size: 18px;
-  padding: 2px 12px 2px 14px;
-  min-width: 0;
+  padding: 2px 14px 2px 16px;
+  border-color: rgba(51, 204, 255, 0.30);
+  background: linear-gradient(135deg, rgba(51,204,255,0.14), rgba(20,21,30,0.55));
 }
-
 #custom-logo:hover {
-  background: rgba(51, 204, 255, 0.15);
-  color: #c0caf5;
+  background: linear-gradient(135deg, rgba(51,204,255,0.28), rgba(20,21,30,0.65));
+  color: #f5f6fa;
+  border-color: rgba(51, 204, 255, 0.55);
 }
 
-/* Workspaces: dots, active is filled mint. */
+/* Workspaces */
 #workspaces {
-  padding: 2px 4px;
+  padding: 2px 6px;
 }
-
 #workspaces button {
-  padding: 0 8px;
-  margin: 0 1px;
+  padding: 2px 9px;
+  margin: 0 2px;
   color: rgba(192, 202, 245, 0.35);
   background: transparent;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
-  transition: color 0.15s ease, background 0.15s ease;
 }
-
 #workspaces button.active {
-  color: #33ccff;
-  background: rgba(51, 204, 255, 0.15);
+  color: #f5f6fa;
+  background: linear-gradient(135deg, rgba(51,204,255,0.35), rgba(187,154,247,0.25));
+  box-shadow: 0 0 12px rgba(51, 204, 255, 0.4);
 }
-
 #workspaces button:hover {
-  color: #c0caf5;
-  background: rgba(51, 204, 255, 0.08);
+  color: #f5f6fa;
+  background: rgba(51, 204, 255, 0.12);
 }
-
 #workspaces button.urgent {
   color: #1a1b26;
   background: #f7768e;
@@ -80,34 +83,40 @@ window#waybar {
 /* Active window title */
 #window {
   color: #a9b1d6;
-  font-weight: normal;
   min-width: 0;
+  font-weight: 500;
 }
-#window.empty { background: transparent; border-color: transparent; }
+#window.empty {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
 
-/* Clock — accent cyan */
+/* Clock — accent cyan, gentle glow */
 #clock {
   color: #7dcfff;
-  font-weight: 500;
-  padding: 4px 18px;
+  font-weight: 600;
+  padding: 4px 20px;
   letter-spacing: 0.02em;
+  background: linear-gradient(135deg, rgba(125,207,255,0.10), rgba(20,21,30,0.55));
+  border-color: rgba(125, 207, 255, 0.18);
 }
 
-/* Right-side status modules */
+/* Right-side status */
 #network      { color: #9ece6a; }
-#network.disconnected { color: #f7768e; }
+#network.disconnected { color: #f7768e; background: rgba(247,118,142,0.10); border-color: rgba(247,118,142,0.20); }
 #pulseaudio   { color: #bb9af7; }
 #pulseaudio.muted { color: #565f89; }
 #cpu          { color: #e0af68; }
 #memory       { color: #7aa2f7; }
 
-#battery {
-  color: #9ece6a;
-}
+#battery { color: #9ece6a; }
 #battery.charging { color: #7dcfff; }
 #battery.warning  { color: #e0af68; }
 #battery.critical {
-  color: #f7768e;
+  color: #f5f6fa;
+  background: rgba(247, 118, 142, 0.35);
+  border-color: rgba(247, 118, 142, 0.60);
   animation-name: pulse-critical;
   animation-duration: 1s;
   animation-timing-function: ease-in-out;
@@ -115,17 +124,21 @@ window#waybar {
   animation-direction: alternate;
 }
 @keyframes pulse-critical {
-  to { color: #1a1b26; background: rgba(247, 118, 142, 0.75); }
+  to {
+    background: rgba(247, 118, 142, 0.65);
+    box-shadow: 0 0 20px rgba(247, 118, 142, 0.55);
+  }
 }
 
-#tray { padding: 2px 8px; }
+#tray { padding: 2px 10px; }
 #tray > .passive         { -gtk-icon-effect: dim; }
 #tray > .needs-attention { -gtk-icon-effect: highlight; }
 
 tooltip {
-  background: rgba(26, 27, 38, 0.96);
-  border: 1px solid rgba(51, 204, 255, 0.4);
-  border-radius: 8px;
+  background: rgba(20, 21, 30, 0.95);
+  border: 1px solid rgba(51, 204, 255, 0.35);
+  border-radius: 10px;
   color: #c0caf5;
   padding: 6px 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }

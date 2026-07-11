@@ -1,67 +1,79 @@
-/* vinOS walker theme — tokyo-night with mint accent, matches the
-   Hyprland border color. Blurred backdrop via Hyprland layerrule. */
-#window,
-#box,
-#search,
-#input,
-#list,
-scrollbar,
-#item,
-#text,
-#label,
-#sub,
-#activationlabel {
+/* vinOS walker — frosted-glass launcher matching the desktop.
+   Hyprland's `layerrule = blur, walker` handles the real blur;
+   this file layers translucent tokyo-night on top with a mint
+   accent border and refined typography. */
+
+#window, #box, #search, #input, #list, scrollbar,
+#item, #text, #label, #sub, #activationlabel {
   all: unset;
 }
 
 #window {
-  color: #c0caf5;
-  font-family: "JetBrainsMono Nerd Font", monospace;
+  color: #f5f6fa;
+  font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
   font-size: 14px;
 }
 
 #box {
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(26, 27, 38, 0.92);
-  border: 2px solid rgba(51, 204, 255, 0.65);
-  min-width: 640px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(20, 21, 30, 0.55);
+  border: 1px solid rgba(51, 204, 255, 0.28);
+  min-width: 680px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 #search {
-  background: rgba(20, 21, 30, 0.9);
-  border-radius: 8px;
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.30);
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 #input {
-  color: #c0caf5;
-  font-size: 15px;
+  color: #f5f6fa;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 #list {
-  padding: 4px;
+  padding: 4px 2px;
 }
 
 #item {
-  padding: 8px 12px;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border-radius: 10px;
   margin: 2px 0;
+  color: #a9b1d6;
+  transition: all 0.15s ease;
 }
 
 #item:selected {
-  background: rgba(51, 204, 255, 0.18);
-  color: #c0caf5;
+  background: linear-gradient(135deg, rgba(51,204,255,0.28), rgba(187,154,247,0.14));
+  color: #f5f6fa;
+  box-shadow: inset 0 0 0 1px rgba(51, 204, 255, 0.30);
 }
 
-#label { font-weight: 500; }
-#sub { color: #565f89; font-size: 12px; }
+#label {
+  font-weight: 500;
+  font-family: "Geist", sans-serif;
+  font-size: 14px;
+}
+#sub {
+  color: #565f89;
+  font-size: 11px;
+  font-family: "Geist Mono", "JetBrains Mono", monospace;
+  margin-top: 1px;
+}
 #activationlabel {
   color: #33ccff;
+  font-family: "Geist Mono", monospace;
   font-weight: 700;
-  min-width: 20px;
-  padding-right: 10px;
+  font-size: 13px;
+  min-width: 22px;
+  padding-right: 12px;
 }

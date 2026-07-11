@@ -1,25 +1,41 @@
-# vinOS mako — tokyo-night notifications, top-right, grouped by app.
+# vinOS mako — frosted-glass notifications, top-right, grouped by app.
+# Backing alpha low so Hyprland's `layerrule = blur, mako` shows the
+# glass effect underneath. Rounded corners + gentle drop-shadow.
+
 anchor=top-right
 group-by=app-name,summary
 default-timeout=5000
 width=380
-outer-margin=16
-padding=10,15
-border-size=2
-border-radius=8
-max-icon-size=32
-font=JetBrainsMono Nerd Font 11
+height=100
+outer-margin=16,16,0,16
+margin=8
+padding=14,18
+border-size=1
+border-radius=14
+max-icon-size=40
+icon-border-radius=8
+font=Geist 12
 
-background-color=#1a1b26
-text-color=#c0caf5
-border-color=#33ccff
+# Backing colour + border. Alpha low → Hyprland blur fills through.
+background-color=#14151db8
+text-color=#f5f6fa
+border-color=#33ccff40
+progress-color=over #33ccff88
 
+# Layered urgency palette.
 [urgency=low]
-border-color=#565f89
+default-timeout=4000
+border-color=#565f8933
+text-color=#a9b1d6
+
+[urgency=normal]
+border-color=#33ccff40
 
 [urgency=critical]
 default-timeout=0
-border-color=#f7768e
+border-color=#f7768e88
+background-color=#2a1a20e0
+text-color=#f5f6fa
 layer=overlay
 
 [mode=do-not-disturb]
