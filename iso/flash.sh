@@ -55,9 +55,10 @@ fi
 [[ -z "$ISO" ]] && ISO="$(ls -1t "$ISO_DIR"/out/vinos-*.iso 2>/dev/null | head -1 || true)"
 [[ -n "$ISO" && -f "$ISO" ]] || die "no ISO found — build with iso/build.sh or pass --iso PATH"
 
-# List candidate devices for the user.
+# List candidate devices for the user. TRAN goes first so multi-word
+# MODEL strings ("SanDisk 3.2Gen1") don't shift columns and hide devs.
 log "detected block devices:"
-lsblk -d -o NAME,SIZE,MODEL,TRAN,VENDOR --paths | awk 'NR==1 || $4=="usb" {print "  " $0}'
+lsblk -d -o TRAN,NAME,SIZE,VENDOR,MODEL --paths | awk 'NR==1 || $1=="usb" {print "  " $0}'
 
 # Device selection.
 if [[ -z "$DEV" ]]; then
