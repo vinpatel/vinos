@@ -15,7 +15,7 @@ log "02-desktop: installing Hyprland stack + core UX apps"
 # What remains here is the Hyprland compositor, terminals, notification
 # stack, media pipeline, file manager, and UX-critical utilities.
 install_pkg \
-  hyprland waybar alacritty foot mako grim slurp swww wl-clipboard \
+  hyprland waybar alacritty foot mako grim slurp awww wl-clipboard \
   xdg-desktop-portal-hyprland qt5-wayland qt6-wayland polkit-gnome \
   greetd greetd-tuigreet ttf-jetbrains-mono-nerd \
   noto-fonts noto-fonts-emoji noto-fonts-cjk \
