@@ -2,7 +2,7 @@
 
 **Boot to a working Claude Code + local LLM setup in 90 seconds.**
 
-vinOS is an opinionated Arch Linux layer by Vin Patel — the desktop
+vinOS is a secure, agent-native Arch Linux layer by Vin Patel — the desktop
 Arch experience with Claude Code, Ollama, and a curated Hyprland
 config already wired up. `Super+A` opens a local LLM. `Super+Shift+A`
 opens Claude Code. Runs on any Arch install.

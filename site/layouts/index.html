@@ -35,9 +35,9 @@
     One keystroke away.
   </h1>
   <p class="hero-lede">
-    vinOS turns any laptop into a workstation where Claude Code and a
-    local LLM are always a keypress away. Flash a USB, boot, install.
-    You're up and running in about 15 minutes.
+    Flash a USB. Boot. In fifteen minutes, Claude Code and a local
+    LLM are one keystroke away. On your MacBook. Your ThinkPad.
+    Whatever's on your desk.
   </p>
 
   <div class="hero-actions">
@@ -74,12 +74,10 @@
 
 <section class="pitch">
   <p class="section-lead">
-    <em>vinOS is Linux.</em> Specifically, it's a thin, opinionated layer over
-    stock <strong>Arch Linux</strong> — every package, config file, and driver
-    Omarchy would give you, wired up to boot on Apple T2 Macs, ThinkPads,
-    Framework, Dell XPS, or any 2015+ Intel/AMD machine <em>out of the box</em>.
-    Then it goes further: AI workflows one keystroke away, a bootable ISO
-    installer, and eight opt-in bundles for the way you actually work.
+    <em>vinOS is Arch Linux, refined.</em> Every driver you need.
+    Every config you'd tune yourself. AI wired in from the first
+    boot. Secure by design — your password, your files, your
+    prompts, all yours. Ready the moment you press power.
   </p>
 </section>
 
@@ -143,15 +141,15 @@
 <section class="facts">
   <div class="fact">
     <div class="fact-num">15<span class="fact-unit">min</span></div>
-    <p>From flashing a USB to a working AI desktop.</p>
+    <p>From USB to a working AI desktop.</p>
   </div>
   <div class="fact">
     <div class="fact-num">1<span class="fact-unit">key</span></div>
-    <p><kbd>Super</kbd>+<kbd>A</kbd> opens your assistant. From anywhere. Instantly.</p>
+    <p><kbd>Super</kbd>+<kbd>A</kbd>. Your assistant, anywhere.</p>
   </div>
   <div class="fact">
     <div class="fact-num">0<span class="fact-unit">$</span></div>
-    <p>Free forever. Runs locally. Your data stays on your machine.</p>
+    <p>Free forever. Local by default. Yours.</p>
   </div>
 </section>
 
@@ -167,7 +165,7 @@
     <div class="step">
       <div class="step-num">1</div>
       <h3>Download the ISO</h3>
-      <p>Grab the vinOS ISO from GitHub. About 3 GB.</p>
+      <p>Grab the vinOS ISO from GitHub. About 4 GB.</p>
       <a href="{{ .Site.Params.github }}/releases/latest" class="step-link" target="_blank" rel="noopener">Latest release →</a>
     </div>
     <div class="step">
@@ -185,7 +183,8 @@
   </div>
 
   <p class="how-note">
-    That's it. It detects your hardware (Apple T2, NVIDIA, AMD, Intel), picks the right kernel and drivers, wipes your target disk, installs everything. Reboots into a clean desktop with your AI tools ready.
+    That's it. vinOS detects your hardware, picks the right drivers, and sets everything up.
+    Reboot into a clean desktop. Your AI tools are already there.
   </p>
 </section>
 
@@ -194,120 +193,113 @@
 <section class="features-modern">
   <div class="section-head">
     <span class="eyebrow">what's inside</span>
-    <h2 class="display-2">An AI-native desktop. <br><span class="grad">Configured for you.</span></h2>
+    <h2 class="display-2">Ready when <span class="grad">you are.</span></h2>
     <p class="section-lede">
-      Everything Arch and Omarchy give you — plus a bootable installer, hardware drivers baked in, and AI workflows one keystroke away.
+      Every driver. Every config. Every keybinding. All wired up before you press power.
     </p>
   </div>
 
   <div class="feature-list feature-list-rich">
 
-    <!-- 1. AI workflows -->
+    <!-- 1. AI -->
     <div class="feature-item feature-hero">
-      <span class="feature-tag">AI-native</span>
-      <h3>Two keys to your AI stack</h3>
+      <span class="feature-tag">AI</span>
+      <h3>Your AI, two keys away.</h3>
       <p>
-        <kbd>Super</kbd>+<kbd>A</kbd> opens a terminal running <code>vinos-ai chat</code> —
-        a local Ollama session with the model of your choice. <kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd>
-        opens Claude Code for agentic edits across your repo. No API keys leak, no data goes anywhere
-        you didn't send it. The <code>vinos-ai</code> CLI wraps <code>ollama</code>, <code>claude</code>,
-        and <code>aichat</code> behind one command — pull models, chat, run code assist, all local by default.
+        <kbd>Super</kbd>+<kbd>A</kbd> opens a local chat. <kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd>
+        opens Claude Code across your whole project. Fast. Private. Always ready.
       </p>
     </div>
 
-    <!-- 2. OOBE / hardware -->
+    <!-- 2. Security -->
     <div class="feature-item">
-      <span class="feature-tag">out-of-box</span>
-      <h3>Boots on your hardware. All of it.</h3>
+      <span class="feature-tag">Secure</span>
+      <h3>Private by design.</h3>
       <p>
-        Drivers ship in the ISO — no post-install detection dance. NVIDIA (open kernel modules + Wayland),
-        Intel graphics, Apple T2 Macs (2018–2020) via <code>macbook12-spi-driver</code>, ThinkPad, Framework,
-        Dell XPS haptic touchpads, ASUS via <code>asusctl</code>. Wi-Fi, trackpad, GPU, and audio work from
-        the moment the live USB comes up — no manual setup, no offline dead-ends.
+        Your password, your files, your prompts. No defaults. Nothing listening on
+        the network. Nothing leaves your laptop unless you send it.
       </p>
     </div>
 
-    <!-- 3. Omarchy-parity desktop -->
+    <!-- 3. Hardware -->
     <div class="feature-item">
-      <span class="feature-tag">Hyprland</span>
-      <h3>A fully configured Hyprland desktop</h3>
+      <span class="feature-tag">Hardware</span>
+      <h3>It just boots.</h3>
       <p>
-        Hyprland compositor with opinionated configs for waybar, walker (app launcher), mako
-        (notifications), hypridle, hyprlock, hyprpicker, hyprsunset, swayosd, and satty — every
-        keybinding, animation, gap, and blur wired to feel like Omarchy from second one. Kvantum
-        + qt6ct for consistent Qt theming, GTK 3/4 themes, Noto CJK + emoji fonts, ready-to-use
-        <code>foot</code> terminal. Nothing to configure.
+        T2 MacBook. NVIDIA laptop. ThinkPad. Framework. Dell XPS. Wi-Fi works.
+        Trackpad works. GPU works. That's the whole point.
+      </p>
+    </div>
+
+    <!-- 4. Desktop -->
+    <div class="feature-item">
+      <span class="feature-tag">Desktop</span>
+      <h3>A desktop that feels finished.</h3>
+      <p>
+        Snappy windows. Smart tiling. Beautiful defaults. Every terminal,
+        notification, and launcher already looks like it belongs.
       </p>
       <figure class="feature-shot">
         <img src="{{ "img/screenshots/01-desktop.png" | relURL }}" alt="vinOS Hyprland desktop with waybar" loading="lazy"
              onerror="this.parentElement.classList.add('shot-missing')" />
-        <figcaption>Hyprland + waybar + wallpaper — untouched vinOS boot</figcaption>
+        <figcaption>Straight off a fresh boot. No wallpaper picker, no setup wizard.</figcaption>
       </figure>
     </div>
 
-    <!-- 4. Themes -->
+    <!-- 5. Themes -->
     <div class="feature-item">
-      <span class="feature-tag">themes</span>
-      <h3>Five themes. Swap in one keystroke.</h3>
+      <span class="feature-tag">Themes</span>
+      <h3>One key. New look.</h3>
       <p>
-        tokyo-night (default), catppuccin-mocha, rose-pine, everforest, gruvbox-dark. Press
-        <kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>T</kbd> and <code>vinos-theme --pick</code> retints
-        Hyprland, waybar, walker, foot, mako, and the wallpaper live — no session restart.
-        Persona overlays (education, health) can preselect their own theme too.
+        <kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>T</kbd>. Tokyo Night, Catppuccin,
+        Rose Pine, Everforest, Gruvbox. Everything retints in half a second.
+        No session restart.
       </p>
     </div>
 
-    <!-- 5. Bundles -->
+    <!-- 6. Bundles -->
     <div class="feature-item">
-      <span class="feature-tag">bundles</span>
-      <h3>Eight opt-in bundles. One command each.</h3>
+      <span class="feature-tag">Bundles</span>
+      <h3>Add only what you use.</h3>
       <p>
-        The base ISO stays lean. When you need more, pick from
-        <code>ai</code>, <code>dev</code>, <code>media</code>, <code>office</code>, <code>gaming</code>,
-        <code>productivity</code>, <code>comms</code>, and <code>browser</code>. Each is a single
-        <code>vinos-install-&lt;bundle&gt;</code> command. First-boot notifier shows what's
-        available; the vinOS menu (<kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>O</kbd>) is one click away.
+        Base stays lean. When you want it, one command adds your AI stack,
+        dev tools, creative apps, games, or comms. Nothing you didn't ask for.
       </p>
     </div>
 
-    <!-- 6. Wi-Fi / networking -->
+    <!-- 7. Wi-Fi -->
     <div class="feature-item">
-      <span class="feature-tag">networking</span>
-      <h3>Wi-Fi that just works</h3>
+      <span class="feature-tag">Networking</span>
+      <h3>Wi-Fi in two keystrokes.</h3>
       <p>
-        <code>iwd</code> + <code>impala</code> instead of NetworkManager — smaller, faster, and
-        driven from a keyboard-first TUI. <kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>W</kbd> opens the
-        Wi-Fi picker; <code>rfkill</code> is wired up; <code>systemd-networkd-wait-online</code>
-        is masked so boots stay fast on airplanes and hotels.
+        <kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>W</kbd>. Pick a network. Type your
+        password. Done. No settings app. No waiting.
       </p>
     </div>
 
-    <!-- 7. Keyboard-first -->
+    <!-- 8. Keyboard -->
     <div class="feature-item">
-      <span class="feature-tag">keyboard-first</span>
-      <h3>Every action is a keystroke</h3>
+      <span class="feature-tag">Keyboard</span>
+      <h3>Your hands stay home.</h3>
       <p>
-        <kbd>Super</kbd>+<kbd>K</kbd> shows every binding. <kbd>Super</kbd>+<kbd>/</kbd> generates
-        a live cheatsheet from your current config. Walker (<kbd>Super</kbd>+<kbd>Space</kbd>) launches
-        apps, symbols, calc, files, and clipboard history from one prompt. Once you've spent an
-        afternoon here your hands won't leave the home row.
+        <kbd>Super</kbd>+<kbd>K</kbd> lists every shortcut.
+        <kbd>Super</kbd>+<kbd>Space</kbd> launches anything — apps, files, symbols,
+        calc. Once you're here your hands never leave the home row.
       </p>
       <figure class="feature-shot">
         <img src="{{ "img/screenshots/02-walker.png" | relURL }}" alt="walker launcher" loading="lazy"
              onerror="this.parentElement.classList.add('shot-missing')" />
-        <figcaption>Super+Space — walker: apps, symbols, clipboard, files</figcaption>
+        <figcaption>Super+Space — one launcher for everything.</figcaption>
       </figure>
     </div>
 
-    <!-- 8. Rolling / Arch -->
+    <!-- 9. Fresh -->
     <div class="feature-item">
-      <span class="feature-tag">rolling</span>
-      <h3>Arch underneath. Rolling forever.</h3>
+      <span class="feature-tag">Fresh</span>
+      <h3>New every day.</h3>
       <p>
-        vinOS is a thin, honest layer over stock Arch. <code>pacman</code> works. AUR works.
-        Updates flow daily — no LTS purgatory, no version-locked libraries. <code>vinos-update</code>
-        runs the upstream Arch update path plus a few post-hooks (mirror check, orphan sweep).
-        When Arch ships something new, you get it.
+        Security patches arrive the day they're written. No year-old libraries.
+        No LTS backlog. When something new ships, you get it.
       </p>
     </div>
 
@@ -452,23 +444,22 @@
 <section class="who-modern">
   <div class="section-head centered">
     <span class="eyebrow">is this for you</span>
-    <h2 class="display-2">Yes if you want:</h2>
+    <h2 class="display-2">Made for people who <span class="grad">ship.</span></h2>
   </div>
 
   <div class="fit-list">
     <div class="fit-yes">
       <ul>
-        <li>A machine that boots into an AI-ready desktop.</li>
-        <li>To use LLMs locally without paying subscriptions.</li>
-        <li>Claude Code, Ollama, and modern tools working out of the box.</li>
-        <li>Something that runs on your existing laptop — including old T2 Macs.</li>
-        <li>Speed. Simplicity. No bloat.</li>
+        <li>You want AI on your laptop, not in someone else's cloud.</li>
+        <li>You'd rather press one key than open five menus.</li>
+        <li>You have a MacBook, ThinkPad, or Framework — and you want it to feel new again.</li>
+        <li>You value speed, simplicity, and things that just work.</li>
       </ul>
     </div>
   </div>
 
   <p class="who-alt">
-    <strong>Skip vinOS</strong> if you need Windows-style hand-holding, LTS stability, or you love spending weekends configuring your desktop from scratch.
+    <strong>Not for you</strong> if you love spending weekends configuring your desktop from scratch, or you need Windows-style hand-holding.
   </p>
 </section>
 
@@ -476,10 +467,10 @@
 
 <section class="cta-final centered">
   <h2 class="display">
-    Ready?
+    Press power.
   </h2>
   <p class="section-lede">
-    Free, open source, and yours to keep.
+    Free. Open source. Yours to keep.
   </p>
   <div class="hero-actions">
     <a href="{{ .Site.Params.github }}/releases/latest" class="btn btn-primary btn-lg" target="_blank" rel="noopener">

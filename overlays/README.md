@@ -1,6 +1,6 @@
 # vinOS Overlays
 
-Overlays are how vinOS ships opinionated variants without forking the
+Overlays are how vinOS ships focused variants without forking the
 base repo. Per Rule 2:
 
 - **Base owns install scripts 01–09.** Never edit these to bake in

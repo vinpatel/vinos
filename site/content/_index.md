@@ -1,4 +1,4 @@
 ---
 title: "vinOS"
-description: "An opinionated Arch layer, AI-native out of the box"
+description: "A secure, agent-native Arch layer — Claude Code + local LLMs one keystroke away."
 ---
