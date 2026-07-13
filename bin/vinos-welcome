@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# vinos-welcome — gum-driven first-run flow: Wi-Fi → theme → bundles.
+# Returns to the top menu after each action so users can chain them.
+# Does NOT manage its own once-only sentinel — vinos-install-once is
+# the exec-once wrapper that guards this via ~/.local/state/vinos.
+#
+# Overlay preselection (persona forks): every non-comment line in
+# /etc/vinos/first-boot.d/*.list is a bundle name pre-checked in the
+# bundle picker. Contract unchanged from vinos-install-once.
+set -euo pipefail
+
+command -v gum >/dev/null || { printf 'vinos-welcome: gum not installed\n' >&2; exit 1; }
+
+BUNDLES=(ai dev media office gaming productivity comms browser)
+
+PRESELECT=()
+if compgen -G "/etc/vinos/first-boot.d/*.list" >/dev/null 2>&1; then
+  mapfile -t PRESELECT < <(cat /etc/vinos/first-boot.d/*.list 2>/dev/null \
+    | grep -Ev '^\s*(#|$)' | awk '{print $1}')
+fi
+
+gum style --border rounded --margin "1" --padding "1 3" --border-foreground 33 \
+  "$(printf '󰣇  Welcome to vinOS\n\nGet online, pick a look, pick your tools.\nYou can rerun this any time: %s' "vinos-welcome")"
+
+while :; do
+  action=$(gum choose --header "What next?" \
+    "Connect Wi-Fi" \
+    "Pick theme" \
+    "Install app bundles" \
+    "Done") || break
+
+  case "$action" in
+    "Connect Wi-Fi")
+      # Blocks until user quits impala (foot child waits).
+      vinos-launch-wifi || true
+      ;;
+    "Pick theme")
+      vinos-theme --pick || true
+      ;;
+    "Install app bundles")
+      selected_flag=()
+      if (( ${#PRESELECT[@]} )); then
+        # gum choose --selected wants comma-separated
+        _csv="$(IFS=,; echo "${PRESELECT[*]}")"
+        selected_flag=(--selected="$_csv")
+      fi
+      chosen=$(printf '%s\n' "${BUNDLES[@]}" \
+        | gum choose --no-limit --header "Bundles (space to toggle, enter to run)" \
+              "${selected_flag[@]}") || continue
+      [[ -z "$chosen" ]] && continue
+      while IFS= read -r b; do
+        [[ -z "$b" ]] && continue
+        gum style --foreground 33 "→ installing bundle: $b"
+        foot --app-id=org.vinos.installer -T "vinos-install-$b" \
+             -e "vinos-install-$b" || \
+          gum style --foreground 196 "vinos-install-$b exited non-zero (see terminal)"
+      done <<<"$chosen"
+      ;;
+    "Done") break ;;
+  esac
+done
+
+gum style --foreground 46 "󰄬  vinOS welcome complete — reopen with:  vinos-welcome"
