@@ -19,7 +19,7 @@ install_pkg \
   xdg-desktop-portal-hyprland qt5-wayland qt6-wayland polkit-gnome \
   greetd greetd-tuigreet ttf-jetbrains-mono-nerd \
   noto-fonts noto-fonts-emoji noto-fonts-cjk \
-  pipewire pipewire-pulse wireplumber \
+  pipewire pipewire-pulse wireplumber pavucontrol \
   nautilus sushi plymouth \
   hypridle hyprlock hyprpicker hyprsunset swayosd satty \
   gtk4-layer-shell kvantum qt6ct \

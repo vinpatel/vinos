@@ -13,8 +13,8 @@
   "modules-right":  ["network", "pulseaudio", "cpu", "memory", "battery", "tray"],
 
   "custom/logo": {
-    "format": "󰣇",
-    "tooltip-format": "vinOS",
+    "format": "󰣇  Menu",
+    "tooltip-format": "vinOS menu — apps, bundles, wifi, theme (Super+Ctrl+O)",
     "on-click": "vinos-menu"
   },
   "hyprland/workspaces": {
@@ -63,8 +63,9 @@
     "format-wifi":     "  {essid} ({signalStrength}%)",
     "format-ethernet": "  {ifname}",
     "format-disconnected": "󰤮  offline",
-    "tooltip-format":  "{ipaddr}/{cidr} — {gwaddr}",
-    "on-click":        "vinos-launch-wifi"
+    "tooltip-format":  "{ipaddr}/{cidr} — {gwaddr}\nLeft-click: wifi · Right-click: bluetooth",
+    "on-click":        "vinos-launch-wifi",
+    "on-click-right":  "vinos-launch-bluetooth"
   },
   "pulseaudio": {
     "format":       "{icon}  {volume}%",
@@ -78,8 +79,11 @@
       "car":        "",
       "default":    ["", "", ""]
     },
-    "on-click":         "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-    "on-click-right":   "pavucontrol"
+    "tooltip-format":   "{desc} @ {volume}%\nLeft-click: mixer · Middle-click: mute · Scroll: volume",
+    "on-click":         "pavucontrol",
+    "on-click-middle":  "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "on-click-right":   "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "scroll-step":      5
   },
   "tray": {
     "spacing": 10,
