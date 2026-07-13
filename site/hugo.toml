@@ -1,4 +1,4 @@
-baseURL = "https://vinos.dev/"
+baseURL = "https://vinos.computer/"
 locale = "en-us"
 title = "vinOS — the OS for agent operators"
 enableRobotsTXT = true
