@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-# vinos-install-once — first-boot bundle offer. Runs from a Hyprland
-# exec-once. If ~/.local/state/vinos/install-once.done exists, exit —
-# otherwise fire one notification pointing at vinos-menu, then create
-# the sentinel so it never nags twice.
+# vinos-install-once — first-boot wrapper. Runs from a Hyprland exec-once
+# and (once per user) launches vinos-welcome inside a floating foot
+# window. Sentinel at ~/.local/state/vinos/install-once.done prevents
+# reruns; delete it (or just run `vinos-welcome`) to reopen.
 #
-# Overlays (education, health, ...) drop a bundle preselection list at
-# /etc/vinos/first-boot.d/<persona>.list. When present, the
-# notification names the persona-specific bundles instead of the
-# generic bundle list.
+# The persona-overlay contract (/etc/vinos/first-boot.d/<persona>.list)
+# is honored by vinos-welcome directly — no preselection work here.
 set -euo pipefail
 
 STATE_DIR="${HOME}/.local/state/vinos"
@@ -21,32 +19,15 @@ if [[ -z "${WAYLAND_DISPLAY:-}${DISPLAY:-}" ]]; then
   exit 0
 fi
 
+# Wait for the compositor to be ready enough to launch foot.
 for _ in {1..20}; do
-  command -v walker >/dev/null && walker --version >/dev/null 2>&1 && break
+  command -v foot >/dev/null && [[ -n "${WAYLAND_DISPLAY:-}" ]] && break
   sleep 1
 done
 
-# Overlay-aware preselection: read every .list under /etc/vinos/first-boot.d
-# and gather the union of bundle names. Comments (# ...) + blanks
-# are ignored. If nothing is registered, use the generic message.
-_preselect=()
-if [[ -d /etc/vinos/first-boot.d ]]; then
-  while IFS= read -r line; do
-    line="${line%%#*}"; line="${line//[[:space:]]/}"
-    [[ -n "$line" ]] && _preselect+=("$line")
-  done < <(find /etc/vinos/first-boot.d -maxdepth 1 -name '*.list' -type f -exec cat {} \; 2>/dev/null)
-fi
-
-if (( ${#_preselect[@]} > 0 )); then
-  # Deduplicate while preserving order.
-  declare -A _seen=(); _uniq=()
-  for b in "${_preselect[@]}"; do
-    [[ -z "${_seen[$b]:-}" ]] && _uniq+=("$b") && _seen[$b]=1
-  done
-  msg="Recommended for this vinOS variant: ${_uniq[*]}. Open the menu (Super+Ctrl+O) to install."
-else
-  msg="Open the menu (Super+Ctrl+O) to add optional bundles (AI, dev, media, gaming, …)."
-fi
-
-notify-send -a vinOS "Welcome to vinOS" "$msg" 2>/dev/null || true
+# Launch the flow inside a floating foot terminal. The generic
+# org.vinos.* windowrule floats+sizes it. Sentinel written even if
+# the user closes early — they can reopen with `vinos-welcome`.
+foot --app-id=org.vinos.welcome -T "Welcome to vinOS" \
+     -e vinos-welcome || true
 touch "$SENTINEL"
