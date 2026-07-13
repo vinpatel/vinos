@@ -8,7 +8,7 @@
 
 ## 1. What vinOS is
 
-vinOS is an opinionated Arch Linux layer: **stock Arch + curated packages + configs + idempotent install scripts = a personal distro.** No custom packages, no custom kernel, no custom repos.
+vinOS is a secure, agent-native Arch Linux layer: **stock Arch + curated packages + configs + idempotent install scripts = a personal distro.** No custom packages, no custom kernel, no custom repos.
 
 vinOS is also a **base for forks**. The first planned fork is `vinos-edu` (offline education OS with a local LLM for rural schools). The base must therefore be modular from day one.
 

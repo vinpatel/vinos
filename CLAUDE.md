@@ -1,7 +1,7 @@
 # CLAUDE.md — vinOS project instructions
 
 ## What this project is
-vinOS: an opinionated Arch Linux layer by Vin Patel — stock Arch + curated packages + configs + idempotent install scripts. Two specs govern everything:
+vinOS: a secure, agent-native Arch Linux layer by Vin Patel — stock Arch + curated packages + configs + idempotent install scripts. Two specs govern everything:
 - `VINOS_SPEC.md` — base system, Milestones M1–M4
 - `VINOS_ISO_SPEC.md` — live ISO/USB, Milestones I1–I5
 
@@ -32,7 +32,7 @@ Read the relevant spec before writing any code. The specs win over your own pref
 - [~] I6 curated app parity — chromium/nvim/nautilus/comms + CLI tools + AUR pipeline live, Plymouth splash wired, install/06-hardware.sh for T2/NVIDIA/etc. Build verification pending.
 - [~] I6.1 Plymouth animation + I/O errors — floppy blacklist ships and boot is clean. ISO built (2.2 GB) and Plymouth splash renders correctly in QEMU (visually verified via screendump PNG); refresh_cb doesn't tick under QEMU headless so caret animation not observable. Real-hardware KMS test pending.
 - [x] I7 Network ergonomics — iwd + impala + rfkill, NetworkManager out, systemd-networkd-wait-online masked. Super+Ctrl+W → vinos-launch-wifi.
-- [x] I8 UI/UX polish + walker adoption — walker (replaces wofi), hypridle, hyprlock, hyprpicker, hyprsunset, swayosd, satty, kvantum, gtk4-layer-shell, yaru-icon-theme. Ships opinionated configs (foot, walker+theme, swayosd, mako) matching tokyo-night. themes/ system (tokyo-night + gruvbox-dark) + bin/vinos-theme runtime switcher. Verified via iso/test-desktop.sh — Hyprland + waybar render cleanly in QEMU.
+- [x] I8 UI/UX polish + walker adoption — walker (replaces wofi), hypridle, hyprlock, hyprpicker, hyprsunset, swayosd, satty, kvantum, gtk4-layer-shell, yaru-icon-theme. Ships agent-native configs (foot, walker+theme, swayosd, mako) matching tokyo-night. themes/ system (tokyo-night + gruvbox-dark) + bin/vinos-theme runtime switcher. Verified via iso/test-desktop.sh — Hyprland + waybar render cleanly in QEMU.
 - [x] I9 NVIDIA support — nvidia-open-dkms + env drop-ins + Hyprland snippet + KMS via mkinitcpio+modprobe.d.
 - [~] I10 hardware verification matrix — docs/HARDWARE.md scaffold with 5 target machines. Real-hardware boots pending user.
 - [x] I11 THE PIVOT — lean base + 8 opt-in bundles (ai/dev/media/office/gaming/productivity/comms/browser). vinos-menu (Super+Ctrl+O), vinos-install-once first-boot notifier, gum-based confirm UX. **ISO 2.33 GB (was 2.9 GB pre-I11), well under the 3 GB budget.** Matrix pass: 5.1+5.2+5.4+5.5+offline all green. Kvantum+qt6ct+GTK-3/4 themes, waybar semantic-color styling, Noto CJK+emoji fonts, docs/{BUNDLES,QUICKSTART}.md.
