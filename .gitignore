@@ -1,5 +1,9 @@
 iso/out/
+iso/qa/
 iso/.aur-cache/
 iso/aurrepo/
 iso/aur.failed
+site/public/
+site/resources/
 .claude/
+site/static/img/screenshots/*-serial.log

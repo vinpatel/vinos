@@ -19,7 +19,7 @@
     </defs>
     <g transform="translate(128,124)" filter="url(#glow)">
       <path d="M -70,-70 L 0,70 L -22,70 L -92,-70 Z" fill="url(#vinos-teal)" class="vinos-stroke-l"/>
-      <path d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z"    fill="#e6e8eb" class="vinos-stroke-r"/>
+      <path d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z"    fill="#0f1116" class="vinos-stroke-r"/>
       <rect class="vinos-caret" x="28" y="54" width="30" height="16" fill="url(#vinos-teal)" rx="2"/>
     </g>
   </svg>
@@ -55,15 +55,31 @@
   </p>
 </section>
 
+<!-- ═══════════════════════ HERO SCREENSHOT ═══════════════════════ -->
+<!-- Real desktop shot captured from the live ISO. Swap to
+     img/screenshots/hero-agentic.png later for a wider workflow scene;
+     the shot-missing class auto-hides the section if that file is absent. -->
+
+<section class="hero-shot-section">
+  <figure class="hero-shot" id="heroShot">
+    <img src="{{ "img/screenshots/01-desktop.png" | relURL }}"
+         alt="vinOS Hyprland desktop — waybar top, wallpaper, workspace clean"
+         loading="eager"
+         onerror="document.getElementById('heroShot').classList.add('shot-missing')" />
+    <figcaption>A real vinOS boot — Hyprland, waybar, tokyo-night theme, straight from the live ISO.</figcaption>
+  </figure>
+</section>
+
 <!-- ═══════════════════════ WHAT IS IT ═══════════════════════ -->
 
 <section class="pitch">
   <p class="section-lead">
-    <em>vinOS is Linux.</em> Specifically, it's a small layer on top of
-    Arch Linux that pre-configures everything you'd otherwise spend a
-    weekend setting up — the desktop, the terminal, the fonts, the AI
-    tools, the keybindings. You get a machine that <em>just works</em>
-    the moment you log in.
+    <em>vinOS is Linux.</em> Specifically, it's a thin, opinionated layer over
+    stock <strong>Arch Linux</strong> — every package, config file, and driver
+    Omarchy would give you, wired up to boot on Apple T2 Macs, ThinkPads,
+    Framework, Dell XPS, or any 2015+ Intel/AMD machine <em>out of the box</em>.
+    Then it goes further: AI workflows one keystroke away, a bootable ISO
+    installer, and eight opt-in bundles for the way you actually work.
   </p>
 </section>
 
@@ -178,34 +194,123 @@
 <section class="features-modern">
   <div class="section-head">
     <span class="eyebrow">what's inside</span>
-    <h2 class="display-2">Everything you need. <br><span class="grad">Nothing you don't.</span></h2>
+    <h2 class="display-2">An AI-native desktop. <br><span class="grad">Configured for you.</span></h2>
+    <p class="section-lede">
+      Everything Arch and Omarchy give you — plus a bootable installer, hardware drivers baked in, and AI workflows one keystroke away.
+    </p>
   </div>
 
-  <div class="feature-list">
-    <div class="feature-item">
-      <h3>A beautiful desktop</h3>
-      <p>Modern Wayland compositor. Smooth animations. Five themes that swap live. Dark by default because your eyes deserve it.</p>
+  <div class="feature-list feature-list-rich">
+
+    <!-- 1. AI workflows -->
+    <div class="feature-item feature-hero">
+      <span class="feature-tag">AI-native</span>
+      <h3>Two keys to your AI stack</h3>
+      <p>
+        <kbd>Super</kbd>+<kbd>A</kbd> opens a terminal running <code>vinos-ai chat</code> —
+        a local Ollama session with the model of your choice. <kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd>
+        opens Claude Code for agentic edits across your repo. No API keys leak, no data goes anywhere
+        you didn't send it. The <code>vinos-ai</code> CLI wraps <code>ollama</code>, <code>claude</code>,
+        and <code>aichat</code> behind one command — pull models, chat, run code assist, all local by default.
+      </p>
     </div>
+
+    <!-- 2. OOBE / hardware -->
     <div class="feature-item">
-      <h3>Your local AI</h3>
-      <p>Ollama pre-installed. Claude Code ready. Pull any model with one command. Everything runs on your machine unless you say otherwise.</p>
+      <span class="feature-tag">out-of-box</span>
+      <h3>Boots on your hardware. All of it.</h3>
+      <p>
+        Drivers ship in the ISO — no post-install detection dance. NVIDIA (open kernel modules + Wayland),
+        Intel graphics, Apple T2 Macs (2018–2020) via <code>macbook12-spi-driver</code>, ThinkPad, Framework,
+        Dell XPS haptic touchpads, ASUS via <code>asusctl</code>. Wi-Fi, trackpad, GPU, and audio work from
+        the moment the live USB comes up — no manual setup, no offline dead-ends.
+      </p>
     </div>
+
+    <!-- 3. Omarchy-parity desktop -->
     <div class="feature-item">
-      <h3>Keyboard-first</h3>
-      <p>Every action has a keybinding you'll actually remember. Press <kbd>Super</kbd>+<kbd>K</kbd> to see the whole map.</p>
+      <span class="feature-tag">Hyprland</span>
+      <h3>A fully configured Hyprland desktop</h3>
+      <p>
+        Hyprland compositor with opinionated configs for waybar, walker (app launcher), mako
+        (notifications), hypridle, hyprlock, hyprpicker, hyprsunset, swayosd, and satty — every
+        keybinding, animation, gap, and blur wired to feel like Omarchy from second one. Kvantum
+        + qt6ct for consistent Qt theming, GTK 3/4 themes, Noto CJK + emoji fonts, ready-to-use
+        <code>foot</code> terminal. Nothing to configure.
+      </p>
+      <figure class="feature-shot">
+        <img src="{{ "img/screenshots/01-desktop.png" | relURL }}" alt="vinOS Hyprland desktop with waybar" loading="lazy"
+             onerror="this.parentElement.classList.add('shot-missing')" />
+        <figcaption>Hyprland + waybar + wallpaper — untouched vinOS boot</figcaption>
+      </figure>
     </div>
+
+    <!-- 4. Themes -->
     <div class="feature-item">
-      <h3>Persona bundles</h3>
-      <p>Optional add-ons for AI dev, media, gaming, office, and more. Each is one command. Install only what you use.</p>
+      <span class="feature-tag">themes</span>
+      <h3>Five themes. Swap in one keystroke.</h3>
+      <p>
+        tokyo-night (default), catppuccin-mocha, rose-pine, everforest, gruvbox-dark. Press
+        <kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>T</kbd> and <code>vinos-theme --pick</code> retints
+        Hyprland, waybar, walker, foot, mako, and the wallpaper live — no session restart.
+        Persona overlays (education, health) can preselect their own theme too.
+      </p>
     </div>
+
+    <!-- 5. Bundles -->
     <div class="feature-item">
-      <h3>Works on your hardware</h3>
-      <p>Apple T2 Macs (2018–2020). ThinkPads. Framework. Dell XPS. Any 2015+ Intel or AMD laptop or desktop. Auto-detected at install.</p>
+      <span class="feature-tag">bundles</span>
+      <h3>Eight opt-in bundles. One command each.</h3>
+      <p>
+        The base ISO stays lean. When you need more, pick from
+        <code>ai</code>, <code>dev</code>, <code>media</code>, <code>office</code>, <code>gaming</code>,
+        <code>productivity</code>, <code>comms</code>, and <code>browser</code>. Each is a single
+        <code>vinos-install-&lt;bundle&gt;</code> command. First-boot notifier shows what's
+        available; the vinOS menu (<kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>O</kbd>) is one click away.
+      </p>
     </div>
+
+    <!-- 6. Wi-Fi / networking -->
     <div class="feature-item">
-      <h3>Rolling forever</h3>
-      <p>Built on Arch. Updates flow in daily. Never stuck on an old version. <code>vinos-update</code> keeps you current.</p>
+      <span class="feature-tag">networking</span>
+      <h3>Wi-Fi that just works</h3>
+      <p>
+        <code>iwd</code> + <code>impala</code> instead of NetworkManager — smaller, faster, and
+        driven from a keyboard-first TUI. <kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>W</kbd> opens the
+        Wi-Fi picker; <code>rfkill</code> is wired up; <code>systemd-networkd-wait-online</code>
+        is masked so boots stay fast on airplanes and hotels.
+      </p>
     </div>
+
+    <!-- 7. Keyboard-first -->
+    <div class="feature-item">
+      <span class="feature-tag">keyboard-first</span>
+      <h3>Every action is a keystroke</h3>
+      <p>
+        <kbd>Super</kbd>+<kbd>K</kbd> shows every binding. <kbd>Super</kbd>+<kbd>/</kbd> generates
+        a live cheatsheet from your current config. Walker (<kbd>Super</kbd>+<kbd>Space</kbd>) launches
+        apps, symbols, calc, files, and clipboard history from one prompt. Once you've spent an
+        afternoon here your hands won't leave the home row.
+      </p>
+      <figure class="feature-shot">
+        <img src="{{ "img/screenshots/02-walker.png" | relURL }}" alt="walker launcher" loading="lazy"
+             onerror="this.parentElement.classList.add('shot-missing')" />
+        <figcaption>Super+Space — walker: apps, symbols, clipboard, files</figcaption>
+      </figure>
+    </div>
+
+    <!-- 8. Rolling / Arch -->
+    <div class="feature-item">
+      <span class="feature-tag">rolling</span>
+      <h3>Arch underneath. Rolling forever.</h3>
+      <p>
+        vinOS is a thin, honest layer over stock Arch. <code>pacman</code> works. AUR works.
+        Updates flow daily — no LTS purgatory, no version-locked libraries. <code>vinos-update</code>
+        runs the upstream Arch update path plus a few post-hooks (mirror check, orphan sweep).
+        When Arch ships something new, you get it.
+      </p>
+    </div>
+
   </div>
 </section>
 
@@ -244,7 +349,7 @@
   <div class="theme-preview" id="themePreview">
     <div class="fake-desktop">
       <div class="fake-waybar">
-        <span class="wb-item">󰣇</span>
+        <span class="wb-item wb-mark">V</span>
         <span class="wb-item"><span class="wb-active">●</span> ○ ○ ○</span>
         <span class="wb-center">Fri 10 Jul · 09:41</span>
         <span class="wb-item">  ens0</span>
@@ -264,40 +369,82 @@
   </div>
 </section>
 
+<!-- ═══════════════════════ WI-FI SHOWCASE ═══════════════════════ -->
+
+<section class="wifi-showcase">
+  <div class="section-head centered">
+    <span class="eyebrow">networking</span>
+    <h2 class="display-2">Wi-Fi in <span class="grad">two keystrokes.</span></h2>
+    <p class="section-lede">
+      <kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>W</kbd> opens <code>impala</code> — a keyboard-first
+      TUI on top of <code>iwd</code>. No NetworkManager, no tray icon, no mystery daemons.
+    </p>
+  </div>
+
+  <figure class="keys-shot">
+    <img src="{{ "img/screenshots/04-wifi.png" | relURL }}"
+         alt="impala Wi-Fi picker running in a floating foot terminal"
+         loading="lazy"
+         onerror="this.parentElement.classList.add('shot-missing')" />
+    <figcaption>impala over iwd — pick a network with the arrow keys, done.</figcaption>
+  </figure>
+</section>
+
 <!-- ═══════════════════════ KEYBOARD ═══════════════════════ -->
 
 <section class="keys-modern">
   <div class="section-head centered">
     <span class="eyebrow">learn it in 30 seconds</span>
     <h2 class="display-2">The shortcuts that matter.</h2>
+    <p class="section-lede">Every keybind below is real, wired in the default config, and works on first boot.</p>
   </div>
 
   <div class="key-showcase">
-    <div class="key-card">
+    <div class="key-card key-card-ai">
       <div class="key-visual"><kbd>Super</kbd> + <kbd>A</kbd></div>
-      <div class="key-label">Open AI chat</div>
+      <div class="key-label">Local AI chat (Ollama)</div>
     </div>
-    <div class="key-card">
+    <div class="key-card key-card-ai">
       <div class="key-visual"><kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd></div>
-      <div class="key-label">Open Claude Code</div>
+      <div class="key-label">Claude Code</div>
     </div>
     <div class="key-card">
       <div class="key-visual"><kbd>Super</kbd> + <kbd>Space</kbd></div>
-      <div class="key-label">Launch any app</div>
+      <div class="key-label">Walker — launch anything</div>
+    </div>
+    <div class="key-card">
+      <div class="key-visual"><kbd>Super</kbd> + <kbd>Return</kbd></div>
+      <div class="key-label">Terminal (foot)</div>
     </div>
     <div class="key-card">
       <div class="key-visual"><kbd>Super</kbd> + <kbd>Ctrl</kbd> + <kbd>O</kbd></div>
-      <div class="key-label">System menu</div>
+      <div class="key-label">vinOS menu</div>
     </div>
     <div class="key-card">
       <div class="key-visual"><kbd>Super</kbd> + <kbd>Ctrl</kbd> + <kbd>W</kbd></div>
-      <div class="key-label">Wi-Fi picker</div>
+      <div class="key-label">Wi-Fi picker (impala)</div>
+    </div>
+    <div class="key-card">
+      <div class="key-visual"><kbd>Super</kbd> + <kbd>Ctrl</kbd> + <kbd>T</kbd></div>
+      <div class="key-label">Live theme switch</div>
     </div>
     <div class="key-card">
       <div class="key-visual"><kbd>Super</kbd> + <kbd>K</kbd></div>
-      <div class="key-label">See all shortcuts</div>
+      <div class="key-label">All keybindings</div>
+    </div>
+    <div class="key-card">
+      <div class="key-visual"><kbd>Super</kbd> + <kbd>/</kbd></div>
+      <div class="key-label">Live cheatsheet</div>
     </div>
   </div>
+
+  <figure class="keys-shot">
+    <img src="{{ "img/screenshots/03-menu.png" | relURL }}"
+         alt="vinos-menu — bundles, wifi, theme, doctor in one keystroke"
+         loading="lazy"
+         onerror="this.parentElement.classList.add('shot-missing')" />
+    <figcaption>Super+Ctrl+O opens the vinOS menu — bundles, wifi, theme, doctor in one keystroke.</figcaption>
+  </figure>
 </section>
 
 <!-- ═══════════════════════ FIT CHECK ═══════════════════════ -->
