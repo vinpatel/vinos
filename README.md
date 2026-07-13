@@ -1,4 +1,4 @@
-# vinOS — the OS for agent operators
+# vinOS — the OS for developers in the agentic era
 
 **Boot to a working Claude Code + local LLM setup in 90 seconds.**
 
