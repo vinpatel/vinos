@@ -12,7 +12,8 @@
 # Switching:
 #   1) atomically rewrite /usr/share/vinos/wallpaper.png → new theme's PNG.
 #   2) write ~/.config/vinos/active-theme so future logins pick it up.
-#   3) hyprctl reload (best-effort) so swaybg picks up the new wallpaper.
+#   3) `swww img … --transition-type any` for a live fade (best-effort;
+#      no-op on headless / pre-Hyprland sessions).
 set -euo pipefail
 
 SHARE=/usr/share/vinos
@@ -51,17 +52,17 @@ _apply() {
   mkdir -p "$STATE"
   printf '%s\n' "$name" > "$ACTIVE_FILE"
 
-  # Live reload: hyprctl notify + swaybg restart. Best-effort — safe on
-  # headless sessions (hyprctl will just fail).
-  if command -v hyprctl >/dev/null; then
-    hyprctl notify -1 3000 "rgb(33ccff)" "vinOS theme → $name" 2>/dev/null || true
-    hyprctl dispatch exec "swaybg -i $SHARE/wallpaper.png -m fill" 2>/dev/null || true
-    # Kill any stale swaybg (older than 1s to avoid killing the one we
-    # just started); Hyprland respawns it via exec-once on next login.
-    pkill -f "swaybg -i" 2>/dev/null || true
-    sleep 0.3
-    hyprctl dispatch exec "swaybg -i $SHARE/wallpaper.png -m fill" 2>/dev/null || true
+  # Live reload via swww. `swww img` connects to the running daemon
+  # spawned by Hyprland's exec-once; the fade transition avoids the
+  # black-flash that swaybg-kill/respawn caused. Silent no-op if the
+  # daemon isn't up (headless, or theme change before login).
+  if command -v swww >/dev/null && swww query >/dev/null 2>&1; then
+    swww img "$SHARE/wallpaper.png" \
+         --transition-type any --transition-duration 0.6 --transition-fps 60 \
+         2>/dev/null || true
   fi
+  command -v hyprctl >/dev/null && \
+    hyprctl notify -1 3000 "rgb(33ccff)" "vinOS theme → $name" 2>/dev/null || true
   _log "active theme: $name"
 }
 
