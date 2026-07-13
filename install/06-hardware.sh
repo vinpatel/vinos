@@ -213,6 +213,43 @@ if grep -qiE 'Intel.*(Graphics|Iris|UHD|HD Graphics)' <<<"$pci"; then
   install_pkg vulkan-intel intel-media-driver libva-intel-driver
 fi
 
+# --- Broadcom wireless (BCM43xx) ------------------------------------
+# In-tree drivers (b43, brcmsmac, brcmfmac) work for some cards but the
+# 4360/43602/43a0 family (Apple pre-T2 MBPs, various Dell/HP laptops)
+# needs the out-of-tree wl driver from broadcom-wl-dkms. Detection is
+# by PCI device-id — the archiso ships /etc/modprobe.d/broadcom-wl.conf
+# which pre-blacklists b43/bcma/ssb, but only matters if wl is installed.
+# T2 Macs don't hit this path — wifi there is via apple-bcm-firmware.
+_bcm_wl_ids='14e4:4331|14e4:4353|14e4:4357|14e4:4359|14e4:4360|14e4:43a0|14e4:43a3|14e4:43b1|14e4:43ba'
+if grep -qiE "Broadcom.*Network|Broadcom.*Wireless" <<<"$pci" \
+   && lspci -nn 2>/dev/null | grep -qiE "($_bcm_wl_ids)"; then
+  log "06-hardware: Broadcom BCM43xx (wl-only) detected — installing broadcom-wl-dkms"
+  install_aur broadcom-wl-dkms || warn "broadcom-wl-dkms failed; leaving b43/brcmsmac attempt in place"
+
+  # b43/bcma/ssb conflict with wl — blacklist them and unload any that
+  # are live. The archiso file only exists on the live medium; write our
+  # own so the target keeps the blacklist after install.
+  _mpd="$(_rootpath /etc/modprobe.d)"
+  _sudo install -d -m 0755 "$_mpd"
+  _bcm_tmp="$(mktemp)"
+  cat > "$_bcm_tmp" <<'BCM'
+# vinOS: BCM43xx uses out-of-tree `wl` (broadcom-wl-dkms). b43, bcma,
+# and ssb attach to the same PCI device and prevent wl from loading.
+blacklist b43
+blacklist bcma
+blacklist ssb
+BCM
+  _sudo install -Dm 0644 "$_bcm_tmp" "$_mpd/vinos-broadcom.conf"
+  rm -f "$_bcm_tmp"
+
+  if [[ -z "$VINOS_ROOT" ]]; then
+    for _mod in b43 bcma ssb; do
+      lsmod 2>/dev/null | grep -q "^$_mod " && _sudo rmmod "$_mod" 2>/dev/null || true
+    done
+    _sudo modprobe wl 2>/dev/null || warn "modprobe wl failed; reboot needed for wifi"
+  fi
+fi
+
 # --- Dell XPS -------------------------------------------------------
 if [[ "$sys_vendor" == "Dell Inc." ]] && [[ "$sys_product" == XPS* ]]; then
   log "06-hardware: Dell XPS detected — installing haptic touchpad driver"
