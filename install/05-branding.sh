@@ -39,7 +39,24 @@ fi
 # alias to the active theme's wallpaper — cosmetic switching later
 # rewrites this symlink.
 _sudo rsync -a --delete "$REPO/themes/" "$SHARE/themes/"
-_active_theme="${VINOS_THEME:-tokyo-night}"
+
+# Wallpapers can live in either themes/<name>/wallpaper.png (committed
+# directly) or assets/wallpapers/<name>/wallpaper.png (source-of-truth
+# handoff spot for new bitmaps). If the assets/ variant exists, it wins
+# — this lets big PNGs live outside themes/ if we ever want to split
+# them. Iterate every assets/wallpapers/<name>/ dir and drop its PNG
+# into the corresponding themes/<name>/ under $SHARE.
+if [[ -d "$REPO/assets/wallpapers" ]]; then
+  for _wp in "$REPO/assets/wallpapers"/*/wallpaper.png; do
+    [[ -f "$_wp" ]] || continue
+    _tname="$(basename "$(dirname "$_wp")")"
+    _sudo install -Dm 0644 "$_wp" "$SHARE/themes/$_tname/wallpaper.png"
+  done
+fi
+
+# aurora is the default first-boot theme (bright warm dawn). Overridable
+# by exporting VINOS_THEME= before install.sh / iso/build.sh.
+_active_theme="${VINOS_THEME:-aurora}"
 _sudo ln -sfn "themes/${_active_theme}/wallpaper.png" "$SHARE/wallpaper.png"
 
 log "05-branding: installing vinos-* commands"
