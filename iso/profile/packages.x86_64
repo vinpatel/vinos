@@ -13,7 +13,6 @@ apple-t2-audio-config
 arch-install-scripts
 arch-mact2-mirrorlist
 archinstall
-awww
 b43-fwcutter
 base
 base-devel
@@ -175,6 +174,7 @@ squashfs-tools
 starship
 sudo
 sushi
+swaybg
 swayosd
 syslinux
 systemd-resolvconf
