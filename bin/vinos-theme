@@ -12,7 +12,7 @@
 # Switching:
 #   1) atomically rewrite /usr/share/vinos/wallpaper.png → new theme's PNG.
 #   2) write ~/.config/vinos/active-theme so future logins pick it up.
-#   3) `swww img … --transition-type any` for a live fade (best-effort;
+#   3) `awww img … --transition-type any` for a live fade (best-effort;
 #      no-op on headless / pre-Hyprland sessions).
 set -euo pipefail
 
@@ -52,12 +52,12 @@ _apply() {
   mkdir -p "$STATE"
   printf '%s\n' "$name" > "$ACTIVE_FILE"
 
-  # Live reload via swww. `swww img` connects to the running daemon
-  # spawned by Hyprland's exec-once; the fade transition avoids the
-  # black-flash that swaybg-kill/respawn caused. Silent no-op if the
-  # daemon isn't up (headless, or theme change before login).
-  if command -v swww >/dev/null && swww query >/dev/null 2>&1; then
-    swww img "$SHARE/wallpaper.png" \
+  # Live reload via awww (formerly swww). `awww img` connects to the
+  # running daemon spawned by Hyprland's exec-once; the fade transition
+  # avoids the black-flash that swaybg-kill/respawn caused. Silent no-op
+  # if the daemon isn't up (headless, or theme change before login).
+  if command -v awww >/dev/null && awww query >/dev/null 2>&1; then
+    awww img "$SHARE/wallpaper.png" \
          --transition-type any --transition-duration 0.6 --transition-fps 60 \
          2>/dev/null || true
   fi

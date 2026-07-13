@@ -39,7 +39,7 @@ while :; do
       ;;
     "Pick theme")
       theme=$(printf '%s\n' "${WELCOME_THEMES[@]}" \
-        | gum choose --header "Theme (applies live via swww)") || continue
+        | gum choose --header "Theme (applies live via awww)") || continue
       [[ -n "$theme" ]] && vinos-theme "$theme" || true
       ;;
     "Install app bundles")
