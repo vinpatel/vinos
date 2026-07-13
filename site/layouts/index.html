@@ -31,7 +31,7 @@
   </div>
   <h1 class="display">
     Your laptop. <br>
-    <span class="grad">Your agents.</span> <br>
+    <span class="accent-strong">Your agents.</span> <br>
     One keystroke away.
   </h1>
   <p class="hero-lede">
@@ -51,14 +51,11 @@
   </div>
 
   <p class="hero-sub">
-    Free. Open source. Runs on any laptop from 2015 onwards.
+    <code class="hero-code">v0.11 · 246 packages · 4.2 GB ISO · x86_64</code>
   </p>
 </section>
 
 <!-- ═══════════════════════ HERO SCREENSHOT ═══════════════════════ -->
-<!-- Real desktop shot captured from the live ISO. Swap to
-     img/screenshots/hero-agentic.png later for a wider workflow scene;
-     the shot-missing class auto-hides the section if that file is absent. -->
 
 <section class="hero-shot-section">
   <figure class="hero-shot" id="heroShot">
@@ -66,7 +63,7 @@
          alt="vinOS Hyprland desktop — waybar top, wallpaper, workspace clean"
          loading="eager"
          onerror="document.getElementById('heroShot').classList.add('shot-missing')" />
-    <figcaption>A real vinOS boot — Hyprland, waybar, tokyo-night theme, straight from the live ISO.</figcaption>
+    <figcaption>$ boot vinos.iso — Hyprland + waybar + tokyo-night, straight from the live ISO.</figcaption>
   </figure>
 </section>
 
@@ -81,58 +78,76 @@
   </p>
 </section>
 
-<!-- ═══════════════════════ AGENT WORKFLOW ═══════════════════════ -->
+<!-- ═══════════════════════ ARCHITECTURE ═══════════════════════ -->
 
-<section class="agent-demo">
-  <div class="section-head centered">
-    <span class="eyebrow">what it feels like</span>
-    <h2 class="display-2">Ask. Get answers. <span class="grad">Ship.</span></h2>
+<section class="arch-section">
+  <div class="section-head">
+    <span class="eyebrow"># architecture</span>
+    <h2 class="display-2">A thin layer on stock Arch.</h2>
     <p class="section-lede">
-      Press <kbd>Super</kbd>+<kbd>A</kbd> from anywhere. A terminal opens with your local LLM ready.
+      vinOS is not a fork. It's a set of idempotent scripts and opinionated configs on top of upstream Arch. Nothing hidden. Nothing patched. You can leave any time.
     </p>
   </div>
 
-  <div class="mockwin big chat-demo">
+  <div class="arch-diagram font-mono">
+<pre>
+  ┌─────────────────────────────────────────────────────────────┐
+  │  <span class="ad-layer">your desktop</span>                                              │
+  │  hyprland · waybar · walker · foot · mako · greetd          │
+  ├─────────────────────────────────────────────────────────────┤
+  │  <span class="ad-layer">vinos overlay</span>            <span class="ad-comment"># 246 pkgs · 88 vinos-* bins</span>  │
+  │  install/  themes/  bin/vinos-*  configs/*.conf             │
+  │  ai · dev · media · office · gaming · comms · +2 bundles    │
+  ├─────────────────────────────────────────────────────────────┤
+  │  <span class="ad-layer">stock arch linux</span>          <span class="ad-comment"># rolling · pacman · systemd</span> │
+  │  linux 6.x  ·  linux-t2 (Apple T2)  ·  glibc  ·  wayland    │
+  └─────────────────────────────────────────────────────────────┘
+</pre>
+  </div>
+</section>
+
+<!-- ═══════════════════════ DOCTOR TERMINAL ═══════════════════════ -->
+
+<section class="agent-demo">
+  <div class="section-head">
+    <span class="eyebrow"># first-boot diagnostic</span>
+    <h2 class="display-2">Every driver detected. Nothing to configure.</h2>
+    <p class="section-lede">
+      <code>vinos-doctor</code> runs at first login and prints exactly what it did. Read it. Trust it. Or don't — every step is a script you can read in <code>/usr/local/bin</code>.
+    </p>
+  </div>
+
+  <div class="mockwin big term-demo">
     <div class="mockwin-bar">
       <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-      <span class="mockwin-title">vinos-ai · claude-3.5-sonnet</span>
+      <span class="mockwin-title">vin@vinos:~ · foot</span>
     </div>
-    <div class="mockwin-body demo-body">
-      <div class="chat-msg user">
-        <span class="chat-role">you</span>
-        <p class="typewriter" style="--tw-len: 62ch; --tw-delay: 0.4s; --tw-dur: 2.2s;">refactor this Flask endpoint to use FastAPI with async db calls</p>
-      </div>
+    <div class="mockwin-body term-body font-mono">
+<pre><span class="tp">$ </span><span class="tc">vinos-doctor</span>
+<span class="tm">→</span> checking kernel                 <span class="tg">ok</span>   linux 6.11.7-arch1-1
+<span class="tm">→</span> checking hardware profile        <span class="tg">ok</span>   t2mac  (MacBookPro16,1)
+<span class="tm">→</span> checking iwd                     <span class="tg">ok</span>   connected  ssid=home  -47dBm
+<span class="tm">→</span> checking hyprland session        <span class="tg">ok</span>   0.55.0  vrr=off  hdr=off
+<span class="tm">→</span> checking greetd                  <span class="tg">ok</span>   tuigreet  autologin=off
+<span class="tm">→</span> checking audio                   <span class="tg">ok</span>   pipewire 1.4.9  wireplumber ok
+<span class="tm">→</span> checking t2 firmware              <span class="tg">ok</span>   apple-bcm-firmware 0.1-4
+<span class="tm">→</span> checking touchbar                 <span class="tg">ok</span>   tiny-dfr running
+<span class="tm">→</span> checking gpu                      <span class="tg">ok</span>   AMD Radeon Pro 5300M  amdgpu
+<span class="tm">→</span> checking ollama                   <span class="ty">--</span>   not installed  <span class="td">(run: vinos-install-ai)</span>
+<span class="tm">→</span> checking claude-code              <span class="ty">--</span>   not installed  <span class="td">(run: vinos-install-ai)</span>
+<span class="tm">→</span> checking updates                  <span class="tg">ok</span>   system up-to-date
 
-      <div class="chat-msg ai reveal" style="--reveal-delay: 3.2s;">
-        <span class="chat-role role-ai">claude</span>
-        <p>Here — I've kept your route logic but swapped the sync SQLAlchemy calls for async ones and pulled the session into a dependency.</p>
-        <div class="chat-code font-mono">
-          <span class="line"><span class="tk-kw">from</span> fastapi <span class="tk-kw">import</span> FastAPI, Depends</span>
-          <span class="line"><span class="tk-kw">from</span> sqlalchemy.ext.asyncio <span class="tk-kw">import</span> AsyncSession</span>
-          <span class="line"></span>
-          <span class="line">app = <span class="tk-fn">FastAPI</span>()</span>
-          <span class="line"></span>
-          <span class="line"><span class="tk-decor">@app.get</span>(<span class="tk-str">"/users/{uid}"</span>)</span>
-          <span class="line"><span class="tk-kw">async def</span> <span class="tk-fn">get_user</span>(uid: <span class="tk-type">int</span>, db: AsyncSession = <span class="tk-fn">Depends</span>(get_db)):</span>
-          <span class="line">&nbsp;&nbsp;user = <span class="tk-kw">await</span> db.<span class="tk-fn">get</span>(User, uid)</span>
-          <span class="line">&nbsp;&nbsp;<span class="tk-kw">if not</span> user:</span>
-          <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk-kw">raise</span> <span class="tk-fn">HTTPException</span>(<span class="tk-num">404</span>)</span>
-          <span class="line">&nbsp;&nbsp;<span class="tk-kw">return</span> user</span>
-        </div>
-        <p class="ai-followup">
-          Want me to add pagination or the update endpoint next?
-        </p>
-      </div>
+<span class="tg">all good.</span> <span class="td">12 checks · 0 errors · 2 optional</span>
 
-      <div class="chat-msg user reveal typing" style="--reveal-delay: 7s;">
-        <span class="chat-role">you</span>
-        <p>yes, both. also add tests <span class="cursor"></span></p>
-      </div>
+<span class="tp">$ </span><span class="tc">vinos-install ai</span>
+<span class="td">:: bundle</span> ai <span class="td">— installs ollama + claude-code + open-webui</span>
+<span class="td">:: 4 packages · ~ 380 MB</span>
+<span class="td">:: proceed? [Y/n]</span> <span class="cursor"></span></pre>
     </div>
   </div>
 
   <div class="agent-caption">
-    <p><strong>All local.</strong> No API keys sent anywhere unless you want them to be. Ollama runs on your machine; Claude Code hits Anthropic if you're logged in. You choose per session.</p>
+    <p><strong>Real output.</strong> Not a mockup for the website — this is what runs on your first boot. Every check maps to a shell function in <code>/usr/local/bin/vinos-doctor</code>.</p>
   </div>
 </section>
 
@@ -157,25 +172,25 @@
 
 <section class="how">
   <div class="section-head">
-    <span class="eyebrow">how it works</span>
+    <span class="eyebrow"># install</span>
     <h2 class="display-2">Three steps.</h2>
   </div>
 
   <div class="steps">
     <div class="step">
-      <div class="step-num">1</div>
+      <div class="step-num">01</div>
       <h3>Download the ISO</h3>
       <p>Grab the vinOS ISO from GitHub. About 4 GB.</p>
       <a href="{{ .Site.Params.github }}/releases/latest" class="step-link" target="_blank" rel="noopener">Latest release →</a>
     </div>
     <div class="step">
-      <div class="step-num">2</div>
+      <div class="step-num">02</div>
       <h3>Flash to USB</h3>
       <p>Use Etcher, Rufus, or <code>dd</code>. Any 8 GB+ USB stick works.</p>
       <span class="step-link muted">~5 minutes</span>
     </div>
     <div class="step">
-      <div class="step-num">3</div>
+      <div class="step-num">03</div>
       <h3>Boot and install</h3>
       <p>Boot from USB. When the desktop loads, run:</p>
       <div class="step-cmd font-mono">sudo vinos-install-disk</div>
@@ -188,12 +203,285 @@
   </p>
 </section>
 
+<!-- ═══════════════════════ WHAT SHIPS ═══════════════════════ -->
+
+<section class="ships-section">
+  <div class="section-head">
+    <span class="eyebrow"># what ships</span>
+    <h2 class="display-2">The spec sheet.</h2>
+    <p class="section-lede">
+      Everything below is in the base ISO. No downloads. No wizards. No "click here to enable optional feature."
+    </p>
+  </div>
+
+  <div class="spec-grid">
+
+    <div class="spec-block">
+      <div class="spec-head">
+        <span class="spec-key">base</span>
+        <span class="spec-count">246 <span class="spec-unit">packages</span></span>
+      </div>
+      <dl class="spec-list font-mono">
+        <div><dt>kernel</dt><dd>linux · linux-t2</dd></div>
+        <div><dt>init</dt><dd>systemd</dd></div>
+        <div><dt>display</dt><dd>wayland · hyprland 0.55+</dd></div>
+        <div><dt>login</dt><dd>greetd · tuigreet</dd></div>
+        <div><dt>wifi</dt><dd>iwd · impala</dd></div>
+        <div><dt>audio</dt><dd>pipewire · wireplumber</dd></div>
+        <div><dt>shell</dt><dd>bash · fish (opt)</dd></div>
+        <div><dt>updates</dt><dd>rolling · pacman</dd></div>
+      </dl>
+    </div>
+
+    <div class="spec-block">
+      <div class="spec-head">
+        <span class="spec-key">desktop</span>
+        <span class="spec-count">10 <span class="spec-unit">components</span></span>
+      </div>
+      <dl class="spec-list font-mono">
+        <div><dt>bar</dt><dd>waybar</dd></div>
+        <div><dt>launcher</dt><dd>walker</dd></div>
+        <div><dt>terminal</dt><dd>foot</dd></div>
+        <div><dt>notifications</dt><dd>mako</dd></div>
+        <div><dt>idle</dt><dd>hypridle</dd></div>
+        <div><dt>lock</dt><dd>hyprlock</dd></div>
+        <div><dt>picker</dt><dd>hyprpicker</dd></div>
+        <div><dt>screenshots</dt><dd>satty · grim · slurp</dd></div>
+        <div><dt>osd</dt><dd>swayosd</dd></div>
+        <div><dt>night-light</dt><dd>hyprsunset</dd></div>
+      </dl>
+    </div>
+
+    <div class="spec-block">
+      <div class="spec-head">
+        <span class="spec-key">tooling</span>
+        <span class="spec-count">88 <span class="spec-unit">vinos-* bins</span></span>
+      </div>
+      <dl class="spec-list font-mono">
+        <div><dt>vinos-doctor</dt><dd>hardware + config check</dd></div>
+        <div><dt>vinos-menu</dt><dd>gum-based hub · Super+Ctrl+O</dd></div>
+        <div><dt>vinos-install-disk</dt><dd>installer TUI</dd></div>
+        <div><dt>vinos-install-&lt;bundle&gt;</dt><dd>opt-in package sets</dd></div>
+        <div><dt>vinos-theme</dt><dd>live theme switch</dd></div>
+        <div><dt>vinos-launch-wifi</dt><dd>impala in floating foot</dd></div>
+        <div><dt>vinos-welcome</dt><dd>first-boot walkthrough</dd></div>
+        <div><dt>vinos-update</dt><dd>pacman + AUR + firmware</dd></div>
+      </dl>
+    </div>
+
+    <div class="spec-block">
+      <div class="spec-head">
+        <span class="spec-key">install</span>
+        <span class="spec-count">3 <span class="spec-unit">profiles</span></span>
+      </div>
+      <dl class="spec-list font-mono">
+        <div><dt>generic</dt><dd>any x86_64 UEFI laptop</dd></div>
+        <div><dt>nvidia</dt><dd>nvidia-open-dkms + KMS drop-ins</dd></div>
+        <div><dt>t2mac</dt><dd>linux-t2 · apple-bcm-firmware · tiny-dfr</dd></div>
+      </dl>
+    </div>
+
+    <div class="spec-block">
+      <div class="spec-head">
+        <span class="spec-key">themes</span>
+        <span class="spec-count">5 <span class="spec-unit">palettes</span></span>
+      </div>
+      <dl class="spec-list font-mono">
+        <div><dt>tokyo-night</dt><dd>default</dd></div>
+        <div><dt>catppuccin-mocha</dt><dd>warm mauve</dd></div>
+        <div><dt>rose-pine</dt><dd>soft pastel</dd></div>
+        <div><dt>everforest</dt><dd>green forest</dd></div>
+        <div><dt>gruvbox-dark</dt><dd>retro amber</dd></div>
+      </dl>
+    </div>
+
+    <div class="spec-block">
+      <div class="spec-head">
+        <span class="spec-key">iso</span>
+        <span class="spec-count">2.33 <span class="spec-unit">GB</span></span>
+      </div>
+      <dl class="spec-list font-mono">
+        <div><dt>builder</dt><dd>archiso</dd></div>
+        <div><dt>boot</dt><dd>UEFI · limine</dd></div>
+        <div><dt>live user</dt><dd>vin / (no password)</dd></div>
+        <div><dt>offline install</dt><dd>yes — no network required</dd></div>
+        <div><dt>persistence</dt><dd>optional overlay partition</dd></div>
+        <div><dt>splash</dt><dd>plymouth</dd></div>
+      </dl>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════ COMPARISON ═══════════════════════ -->
+
+<section class="compare-section">
+  <div class="section-head">
+    <span class="eyebrow"># vs</span>
+    <h2 class="display-2">How it stacks up.</h2>
+    <p class="section-lede">
+      Same kernel. Same repos. The difference is what's already done when you log in.
+    </p>
+  </div>
+
+  <div class="compare-table-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          <th scope="col"><span class="col-name">vinOS</span></th>
+          <th scope="col"><span class="col-name muted">Arch (stock)</span></th>
+          <th scope="col"><span class="col-name muted">DIY Hyprland</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Live installer ISO</th>
+          <td class="cy">yes</td>
+          <td class="cy">yes</td>
+          <td class="cn">no</td>
+        </tr>
+        <tr>
+          <th scope="row">Hyprland pre-configured</th>
+          <td class="cy">yes</td>
+          <td class="cn">no</td>
+          <td class="cm">bring your own</td>
+        </tr>
+        <tr>
+          <th scope="row">T2 / NVIDIA / ThinkPad drivers</th>
+          <td class="cy">baked in</td>
+          <td class="cn">manual</td>
+          <td class="cn">manual</td>
+        </tr>
+        <tr>
+          <th scope="row">AI stack (Ollama + Claude Code)</th>
+          <td class="cy">one command</td>
+          <td class="cn">no</td>
+          <td class="cn">no</td>
+        </tr>
+        <tr>
+          <th scope="row">First-boot user creation</th>
+          <td class="cy">TUI installer</td>
+          <td class="cm">archinstall</td>
+          <td class="cn">manual</td>
+        </tr>
+        <tr>
+          <th scope="row">Live theme switcher</th>
+          <td class="cy">5 themes · Super+Ctrl+T</td>
+          <td class="cn">no</td>
+          <td class="cn">no</td>
+        </tr>
+        <tr>
+          <th scope="row">Opt-in app bundles</th>
+          <td class="cy">8 bundles</td>
+          <td class="cn">no</td>
+          <td class="cn">no</td>
+        </tr>
+        <tr>
+          <th scope="row">Wi-Fi TUI (iwd + impala)</th>
+          <td class="cy">wired in</td>
+          <td class="cm">iwd only</td>
+          <td class="cn">DIY</td>
+        </tr>
+        <tr>
+          <th scope="row">Sudo / security defaults</th>
+          <td class="cy">hardened</td>
+          <td class="cm">defaults</td>
+          <td class="cm">defaults</td>
+        </tr>
+        <tr>
+          <th scope="row">Rolling updates</th>
+          <td class="cy">pacman + AUR</td>
+          <td class="cy">pacman</td>
+          <td class="cy">pacman</td>
+        </tr>
+        <tr>
+          <th scope="row">Time to a working desktop</th>
+          <td class="cy">~15 min</td>
+          <td class="cm">~45 min</td>
+          <td class="cm">~1 weekend</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════ BUNDLES ═══════════════════════ -->
+
+<section class="bundles-section">
+  <div class="section-head">
+    <span class="eyebrow"># bundles</span>
+    <h2 class="display-2">Add only what you use.</h2>
+    <p class="section-lede">
+      The base stays small. When you want a thing, one command installs it. Each bundle is a plain list of packages — no magic.
+    </p>
+  </div>
+
+  <div class="bundle-table-wrap">
+    <table class="bundle-table font-mono">
+      <thead>
+        <tr>
+          <th scope="col">bundle</th>
+          <th scope="col">command</th>
+          <th scope="col">what's inside</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">ai</th>
+          <td><code>vinos-install ai</code></td>
+          <td>ollama · claude-code · open-webui · llm</td>
+        </tr>
+        <tr>
+          <th scope="row">dev</th>
+          <td><code>vinos-install dev</code></td>
+          <td>neovim · lazygit · docker · gh · nodejs · rustup · uv · direnv</td>
+        </tr>
+        <tr>
+          <th scope="row">media</th>
+          <td><code>vinos-install media</code></td>
+          <td>mpv · imv · yt-dlp · ffmpeg · spotify · pinta</td>
+        </tr>
+        <tr>
+          <th scope="row">office</th>
+          <td><code>vinos-install office</code></td>
+          <td>libreoffice-fresh · zathura · obsidian · localsend</td>
+        </tr>
+        <tr>
+          <th scope="row">gaming</th>
+          <td><code>vinos-install gaming</code></td>
+          <td>steam · lutris · gamemode · mangohud · protontricks</td>
+        </tr>
+        <tr>
+          <th scope="row">productivity</th>
+          <td><code>vinos-install productivity</code></td>
+          <td>obsidian · dbeaver · postman · flameshot · syncthing</td>
+        </tr>
+        <tr>
+          <th scope="row">comms</th>
+          <td><code>vinos-install comms</code></td>
+          <td>signal-desktop · slack · zoom · discord</td>
+        </tr>
+        <tr>
+          <th scope="row">browser</th>
+          <td><code>vinos-install browser</code></td>
+          <td>chromium · firefox · brave-bin</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="how-note">
+    Bundle lists live at <code>/usr/share/vinos/bundles/*.list</code>. Read them. Edit them. Fork them.
+  </p>
+</section>
+
 <!-- ═══════════════════════ FEATURES ═══════════════════════ -->
 
 <section class="features-modern">
   <div class="section-head">
-    <span class="eyebrow">what's inside</span>
-    <h2 class="display-2">Ready when <span class="grad">you are.</span></h2>
+    <span class="eyebrow"># what's inside</span>
+    <h2 class="display-2">Ready when you are.</h2>
     <p class="section-lede">
       Every driver. Every config. Every keybinding. All wired up before you press power.
     </p>
@@ -310,8 +598,8 @@
 
 <section class="themes-showcase">
   <div class="section-head centered">
-    <span class="eyebrow">themes</span>
-    <h2 class="display-2">Five looks. <span class="grad">Swap live.</span></h2>
+    <span class="eyebrow"># themes</span>
+    <h2 class="display-2">Five looks. Swap live.</h2>
     <p class="section-lede">Pick your palette. Change it whenever you want with <kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>T</kbd>.</p>
   </div>
 
@@ -365,8 +653,8 @@
 
 <section class="wifi-showcase">
   <div class="section-head centered">
-    <span class="eyebrow">networking</span>
-    <h2 class="display-2">Wi-Fi in <span class="grad">two keystrokes.</span></h2>
+    <span class="eyebrow"># networking</span>
+    <h2 class="display-2">Wi-Fi in two keystrokes.</h2>
     <p class="section-lede">
       <kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>W</kbd> opens <code>impala</code> — a keyboard-first
       TUI on top of <code>iwd</code>. No NetworkManager, no tray icon, no mystery daemons.
@@ -382,52 +670,56 @@
   </figure>
 </section>
 
-<!-- ═══════════════════════ KEYBOARD ═══════════════════════ -->
+<!-- ═══════════════════════ KEYBINDING TABLE ═══════════════════════ -->
 
-<section class="keys-modern">
-  <div class="section-head centered">
-    <span class="eyebrow">learn it in 30 seconds</span>
-    <h2 class="display-2">The shortcuts that matter.</h2>
-    <p class="section-lede">Every keybind below is real, wired in the default config, and works on first boot.</p>
+<section class="keys-table-section">
+  <div class="section-head">
+    <span class="eyebrow"># keybindings</span>
+    <h2 class="display-2">The whole cheat sheet.</h2>
+    <p class="section-lede">
+      Every binding is real, wired in the default Hyprland config, and works on first boot. Press <kbd>Super</kbd>+<kbd>K</kbd> to see it inside the OS.
+    </p>
   </div>
 
-  <div class="key-showcase">
-    <div class="key-card key-card-ai">
-      <div class="key-visual"><kbd>Super</kbd> + <kbd>A</kbd></div>
-      <div class="key-label">Local AI chat (Ollama)</div>
-    </div>
-    <div class="key-card key-card-ai">
-      <div class="key-visual"><kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd></div>
-      <div class="key-label">Claude Code</div>
-    </div>
-    <div class="key-card">
-      <div class="key-visual"><kbd>Super</kbd> + <kbd>Space</kbd></div>
-      <div class="key-label">Walker — launch anything</div>
-    </div>
-    <div class="key-card">
-      <div class="key-visual"><kbd>Super</kbd> + <kbd>Return</kbd></div>
-      <div class="key-label">Terminal (foot)</div>
-    </div>
-    <div class="key-card">
-      <div class="key-visual"><kbd>Super</kbd> + <kbd>Ctrl</kbd> + <kbd>O</kbd></div>
-      <div class="key-label">vinOS menu</div>
-    </div>
-    <div class="key-card">
-      <div class="key-visual"><kbd>Super</kbd> + <kbd>Ctrl</kbd> + <kbd>W</kbd></div>
-      <div class="key-label">Wi-Fi picker (impala)</div>
-    </div>
-    <div class="key-card">
-      <div class="key-visual"><kbd>Super</kbd> + <kbd>Ctrl</kbd> + <kbd>T</kbd></div>
-      <div class="key-label">Live theme switch</div>
-    </div>
-    <div class="key-card">
-      <div class="key-visual"><kbd>Super</kbd> + <kbd>K</kbd></div>
-      <div class="key-label">All keybindings</div>
-    </div>
-    <div class="key-card">
-      <div class="key-visual"><kbd>Super</kbd> + <kbd>/</kbd></div>
-      <div class="key-label">Live cheatsheet</div>
-    </div>
+  <div class="keys-table-wrap">
+    <table class="keys-table">
+      <thead>
+        <tr>
+          <th scope="col">chord</th>
+          <th scope="col">action</th>
+          <th scope="col">what runs</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="kt-group"><td colspan="3">agents</td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>A</kbd></th><td>Local AI chat</td><td><code>vinos-ai-chat</code> (Ollama)</td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd></th><td>Claude Code in project</td><td><code>claude</code></td></tr>
+
+        <tr class="kt-group"><td colspan="3">launch</td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>Space</kbd></th><td>App / file / calc launcher</td><td><code>walker</code></td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>Return</kbd></th><td>Terminal</td><td><code>foot</code></td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>B</kbd></th><td>Browser</td><td><code>xdg-open</code></td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>E</kbd></th><td>File manager</td><td><code>nautilus</code></td></tr>
+
+        <tr class="kt-group"><td colspan="3">vinos</td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>O</kbd></th><td>vinOS menu (hub)</td><td><code>vinos-menu</code></td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>W</kbd></th><td>Wi-Fi picker</td><td><code>vinos-launch-wifi</code></td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>T</kbd></th><td>Live theme switch</td><td><code>vinos-theme</code></td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>L</kbd></th><td>Lock screen</td><td><code>hyprlock</code></td></tr>
+
+        <tr class="kt-group"><td colspan="3">screen</td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>3</kbd></th><td>Screenshot region</td><td><code>grim | satty</code></td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd></th><td>Screenshot full</td><td><code>grim</code></td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>P</kbd></th><td>Color picker</td><td><code>hyprpicker</code></td></tr>
+
+        <tr class="kt-group"><td colspan="3">windows</td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>H</kbd> / <kbd>J</kbd> / <kbd>K</kbd> / <kbd>L</kbd></th><td>Move focus (vim keys)</td><td>hyprland</td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>1</kbd>…<kbd>9</kbd></th><td>Switch workspace</td><td>hyprland</td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd></th><td>Close window</td><td>hyprland</td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>F</kbd></th><td>Fullscreen</td><td>hyprland</td></tr>
+        <tr><th scope="row"><kbd>Super</kbd>+<kbd>K</kbd></th><td>Show all bindings</td><td><code>vinos-keys</code></td></tr>
+      </tbody>
+    </table>
   </div>
 
   <figure class="keys-shot">
@@ -435,7 +727,7 @@
          alt="vinos-menu — bundles, wifi, theme, doctor in one keystroke"
          loading="lazy"
          onerror="this.parentElement.classList.add('shot-missing')" />
-    <figcaption>Super+Ctrl+O opens the vinOS menu — bundles, wifi, theme, doctor in one keystroke.</figcaption>
+    <figcaption>Super+Ctrl+O — bundles, wifi, theme, doctor in one keystroke.</figcaption>
   </figure>
 </section>
 
@@ -443,8 +735,8 @@
 
 <section class="who-modern">
   <div class="section-head centered">
-    <span class="eyebrow">is this for you</span>
-    <h2 class="display-2">Made for people who <span class="grad">ship.</span></h2>
+    <span class="eyebrow"># is this for you</span>
+    <h2 class="display-2">Made for people who ship.</h2>
   </div>
 
   <div class="fit-list">
