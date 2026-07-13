@@ -141,6 +141,7 @@ pamixer
 partclone
 parted
 partimage
+pavucontrol
 pcsclite
 pipewire
 pipewire-pulse
