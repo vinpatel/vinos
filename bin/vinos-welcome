@@ -12,6 +12,9 @@ set -euo pipefail
 command -v gum >/dev/null || { printf 'vinos-welcome: gum not installed\n' >&2; exit 1; }
 
 BUNDLES=(ai dev media office gaming productivity comms browser)
+# Themes offered on first-run. Others in /usr/share/vinos/themes/ are
+# still reachable via `vinos-theme --pick` for power users.
+WELCOME_THEMES=(aurora daybreak polar-night tokyo-night)
 
 PRESELECT=()
 if compgen -G "/etc/vinos/first-boot.d/*.list" >/dev/null 2>&1; then
@@ -35,7 +38,9 @@ while :; do
       vinos-launch-wifi || true
       ;;
     "Pick theme")
-      vinos-theme --pick || true
+      theme=$(printf '%s\n' "${WELCOME_THEMES[@]}" \
+        | gum choose --header "Theme (applies live via swww)") || continue
+      [[ -n "$theme" ]] && vinos-theme "$theme" || true
       ;;
     "Install app bundles")
       selected_flag=()
