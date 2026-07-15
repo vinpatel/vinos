@@ -48,9 +48,7 @@ install_aur walker yaru-icon-theme bibata-cursor-theme
 if [[ -z "$VINOS_ROOT" ]] && command -v hyprpm >/dev/null 2>&1; then
   log "02-desktop: enabling hyprland plugins (hyprexpo + borders-plus-plus + hyprwinwrap)"
   hyprpm update --no-shallow 2>&1 | tail -3 || warn "hyprpm update failed; will retry on next Hyprland launch"
-  for plugin in hyprland-plugins; do
-    hyprpm add "https://github.com/hyprwm/${plugin}" 2>&1 | tail -3 || true
-  done
+  hyprpm add "https://github.com/hyprwm/hyprland-plugins" 2>&1 | tail -3 || true
   # Enable the specific plugins by name.
   for name in hyprexpo borders-plus-plus hyprwinwrap; do
     hyprpm enable "$name" 2>&1 | tail -3 || warn "hyprpm enable $name failed"

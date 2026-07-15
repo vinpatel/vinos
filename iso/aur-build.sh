@@ -12,7 +12,6 @@
 set -euo pipefail
 
 ISO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO="$(cd "$ISO_DIR/.." && pwd)"
 AUR_LIST="$ISO_DIR/aur.list"
 AUR_REPO_DIR="$ISO_DIR/aurrepo"
 AUR_DB_NAME="vinos-aur"
