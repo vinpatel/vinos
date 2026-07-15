@@ -127,3 +127,9 @@ upower
 # keybindings work day-one without a bundle install prompt.
 signal-desktop
 obsidian
+
+# Omarchy-parity hardware/UX packages (kernel-modules-hook, bluetui,
+# zram-generator, pipewire-alsa/jack, gvfs-*, ffmpegthumbnailer) are
+# added by install/02-desktop.sh — gen-packages.sh scoops them into
+# packages.x86_64 from there. Keeping the single source of truth in
+# 02-desktop avoids drift between live and installed builds.

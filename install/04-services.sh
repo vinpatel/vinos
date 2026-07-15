@@ -136,6 +136,54 @@ systemctl_enable acpid
 systemctl_enable power-profiles-daemon
 systemctl_enable bolt
 
+# hid_apple fnmode=2 — omarchy parity. Makes Apple/Lofree keyboards
+# treat the F-row as F-keys by default (media keys behind fn). The
+# module only loads when Apple HID hardware is present, so this file
+# is a harmless no-op on non-Apple systems.
+_modp="$(_rootpath /etc/modprobe.d)"
+_sudo install -d -m 0755 "$_modp"
+_hid_tmp="$(mktemp)"
+printf 'options hid_apple fnmode=2\n' > "$_hid_tmp"
+_sudo install -Dm 0644 "$_hid_tmp" "$_modp/vinos-hid-apple.conf"
+rm -f "$_hid_tmp"
+
+# Unmount FUSE mounts before suspend/hibernate — omarchy parity. Fixes
+# the "suspend silently fails" class of bug caused by gvfsd-fuse mounts
+# blocking the kernel process-freeze on wake. Universal (harmless on
+# systems that never mount FUSE).
+_slp="$(_rootpath /usr/lib/systemd/system-sleep)"
+_sudo install -d -m 0755 "$_slp"
+_slp_tmp="$(mktemp)"
+cat > "$_slp_tmp" <<'SLEEPHOOK'
+#!/bin/bash
+# vinOS system-sleep hook: lazy-unmount gvfsd-fuse mounts before
+# suspend/hibernate so the freeze doesn't time out. Restores gvfs on
+# wake so Nautilus's SMB/MTP/etc mounts come back.
+if [[ $1 == pre ]]; then
+  while IFS=' ' read -r _ mountpoint fstype _; do
+    if [[ $fstype == fuse.gvfsd-fuse ]]; then
+      mountpoint=$(printf '%b' "$mountpoint")
+      fusermount3 -uz "$mountpoint" 2>/dev/null || \
+        fusermount -uz "$mountpoint" 2>/dev/null || true
+    fi
+  done < /proc/mounts
+fi
+if [[ $1 == post ]]; then
+  (
+    sleep 5
+    for uid_dir in /run/user/*; do
+      uid=$(basename "$uid_dir")
+      [[ -S $uid_dir/bus ]] && sudo -u "#$uid" env \
+        DBUS_SESSION_BUS_ADDRESS="unix:path=$uid_dir/bus" \
+        XDG_RUNTIME_DIR="$uid_dir" \
+        systemctl --user restart gvfs-daemon.service 2>/dev/null || true
+    done
+  ) &
+fi
+SLEEPHOOK
+_sudo install -Dm 0755 "$_slp_tmp" "$_slp/vinos-unmount-fuse"
+rm -f "$_slp_tmp"
+
 log "04-services: installing vinos-firstboot.service"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 _sysd="$(_rootpath /etc/systemd/system)"

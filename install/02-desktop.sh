@@ -16,19 +16,26 @@ log "02-desktop: installing Hyprland stack + core UX apps"
 # stack, media pipeline, file manager, and UX-critical utilities.
 install_pkg \
   hyprland waybar alacritty foot mako grim slurp swaybg wl-clipboard \
-  xdg-desktop-portal-hyprland qt5-wayland qt6-wayland polkit-gnome \
-  greetd greetd-tuigreet ttf-jetbrains-mono-nerd \
-  noto-fonts noto-fonts-emoji noto-fonts-cjk \
-  pipewire pipewire-pulse wireplumber pavucontrol \
-  nautilus sushi plymouth \
+  xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprland-guiutils \
+  qt5-wayland qt6-wayland polkit-gnome \
+  greetd greetd-tuigreet ttf-jetbrains-mono-nerd woff2-font-awesome \
+  noto-fonts noto-fonts-emoji noto-fonts-cjk fontconfig \
+  pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber \
+  pavucontrol wiremix \
+  nautilus sushi nautilus-python gnome-disk-utility \
+  gnome-calculator libqalculate tldr \
+  plymouth \
   hypridle hyprlock hyprpicker hyprsunset swayosd satty \
-  gtk4-layer-shell kvantum qt6ct \
+  gtk4-layer-shell kvantum kvantum-qt5 qt6ct \
+  gnome-keyring gnome-themes-extra libsecret \
   pamixer playerctl brightnessctl gum \
   mesa vulkan-radeon vulkan-intel libva-mesa-driver libva-intel-driver \
   intel-media-driver \
-  bluez bluez-utils \
+  bluez bluez-utils bluetui \
   alsa-firmware alsa-ucm-conf alsa-utils sof-firmware \
-  power-profiles-daemon thermald acpid bolt
+  power-profiles-daemon thermald acpid bolt \
+  ffmpegthumbnailer gvfs-mtp gvfs-nfs gvfs-smb \
+  zram-generator kernel-modules-hook
 
 log "02-desktop: installing AUR apps (UX-critical only)"
 # I11 pivot: spotify/obsidian/1password/localsend live in bundles now.

@@ -100,6 +100,40 @@ PACCONF
     _sudo sed -i -E 's/^MODULES=\( +/MODULES=(/' "$_mki"
   fi
 
+  # T2 USB/Bluetooth stack — omarchy parity. apple-bce carries the T2
+  # USB tunnel + audio + touchpad; hci_bcm4377 is the T2 Bluetooth
+  # radio; hid_apple / hid_generic / usbhid / xhci_* give the internal
+  # keyboard + external USB devices from early boot (before udev).
+  _mki_d="$(_rootpath /etc/mkinitcpio.conf.d)"
+  _sudo install -d -m 0755 "$_mki_d"
+  _t2_mki_tmp="$(mktemp)"
+  printf 'MODULES+=(apple-bce usbhid hid_apple hid_generic xhci_pci xhci_hcd)\n' > "$_t2_mki_tmp"
+  _sudo install -Dm 0644 "$_t2_mki_tmp" "$_mki_d/apple-t2.conf"
+  rm -f "$_t2_mki_tmp"
+
+  # apple-bce + hci_bcm4377 need to be loaded early on the running
+  # system too (not just initramfs) — modules-load.d handles that.
+  _modl="$(_rootpath /etc/modules-load.d)"
+  _sudo install -d -m 0755 "$_modl"
+  _t2_ml_tmp="$(mktemp)"
+  printf 'apple-bce\nhci_bcm4377\n' > "$_t2_ml_tmp"
+  _sudo install -Dm 0644 "$_t2_ml_tmp" "$_modl/vinos-t2.conf"
+  rm -f "$_t2_ml_tmp"
+
+  # brcmfmac quirk — T2 Broadcom Wi-Fi disassociates without this
+  # feature-disable mask. Root cause of "wifi keeps dropping" on T2.
+  _modp="$(_rootpath /etc/modprobe.d)"
+  _sudo install -d -m 0755 "$_modp"
+  _t2_mp_tmp="$(mktemp)"
+  cat > "$_t2_mp_tmp" <<'BRCMCONF'
+# T2 MacBook Wi-Fi connectivity workaround (omarchy parity).
+# Without this the T2 brcmfmac driver disassociates repeatedly on
+# 5GHz APs — mask the broken firmware features it can't handle.
+options brcmfmac feature_disable=0x82000
+BRCMCONF
+  _sudo install -Dm 0644 "$_t2_mp_tmp" "$_modp/vinos-brcmfmac.conf"
+  rm -f "$_t2_mp_tmp"
+
   # Rebuild initramfs for the new linux-t2 kernel + regenerate
   # bootloader entries so the T2 kernel is bootable.
   if [[ -z "$VINOS_ROOT" ]] && command -v mkinitcpio >/dev/null; then
