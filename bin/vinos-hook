@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# vinos:summary=Run a named hook from ~/.config/vinos/hooks/<name> and ~/.config/vinos/hooks/<name>.d/.
+# vinos:args=[name] [args...]
+
+set -e
+
+if (( $# < 1 )); then
+  echo "Usage: vinos-hook [name] [args...]"
+  exit 1
+fi
+
+HOOK_PATH="$HOME/.config/vinos/hooks/$1"
+HOOK_DIR="$HOOK_PATH.d"
+shift
+
+if [[ -f $HOOK_PATH ]]; then
+  bash "$HOOK_PATH" "$@" || echo "Hook failed: $HOOK_PATH"
+fi
+
+if [[ -d $HOOK_DIR ]]; then
+  for hook in "$HOOK_DIR"/*; do
+    [[ -f $hook ]] || continue
+    [[ $hook == *.sample ]] && continue
+    bash "$hook" "$@" || echo "Hook failed: $hook"
+  done
+fi

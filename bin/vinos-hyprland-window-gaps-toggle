@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# vinos:summary=Toggles the window gaps globally between no gaps and the default.
+
+vinos-hyprland-toggle window-no-gaps

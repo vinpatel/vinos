@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# vinos:summary=Check if a toggle is enabled (flag file exists)
+# vinos:args=<flag-name>
+
+[[ -f "$HOME/.local/state/vinos/toggles/$1" ]]
