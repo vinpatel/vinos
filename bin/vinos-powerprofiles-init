@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# vinos:summary=Set the correct power profile on boot based on current AC/battery state.
+
+if vinos-battery-present && ! vinos-ac-present; then
+  vinos-powerprofiles-set battery
+else
+  vinos-powerprofiles-set ac
+fi

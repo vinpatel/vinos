@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# vinos:summary=Toggle Waybar visibility
+# vinos:examples=vinos toggle waybar
+
+vinos-toggle waybar-off
+
+if pgrep -x waybar >/dev/null; then
+  pkill -x waybar
+else
+  uwsm-app -- waybar >/dev/null 2>&1 &
+fi

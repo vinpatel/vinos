@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# vinos:summary=Check if a Hyprland toggle is currently enabled.
+# vinos:args=<flag-name>
+
+[[ -f "$HOME/.local/state/vinos/toggles/hypr/$1.conf" ]]

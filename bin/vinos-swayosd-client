@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# vinos:summary=Wrapper for swayosd-client that targets the currently focused monitor.
+# vinos:args=<swayosd-client-args...>
+
+exec swayosd-client --monitor "$(vinos-hyprland-monitor-focused)" "$@"
