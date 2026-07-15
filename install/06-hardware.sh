@@ -84,15 +84,17 @@ PACCONF
   systemctl_enable t2fanrd
   systemctl_enable tiny-dfr
 
-  # Add the T2 SPI + audio + Touch Bar modules to initramfs so the
-  # internal keyboard works from early boot. Without this, applespi
-  # loads too late and only the trackpad works (they're both on the
-  # T2 SPI bus but the trackpad's driver initializes on its own).
+  # Add the T2 SPI modules to initramfs so the internal keyboard
+  # works from early boot. Without this, applespi loads too late and
+  # only the trackpad works (they're both on the T2 SPI bus but the
+  # trackpad's driver initializes on its own).
+  # apple_ibridge/apple_ib_tb (Touch Bar) were dropped — no longer in
+  # linux-t2 upstream. Touch Bar is handled by tiny-dfr userspace.
   _mki="$(_rootpath /etc/mkinitcpio.conf)"
   if [[ -f "$_mki" ]] && ! grep -qE '^MODULES=.*\bapplespi\b' "$_mki"; then
     log "06-hardware: adding applespi + T2 SPI modules to mkinitcpio"
     _sudo sed -i -E \
-      's/^MODULES=\((.*)\)/MODULES=(\1 applespi spi_pxa2xx_platform intel_lpss intel_lpss_pci apple_ibridge apple_ib_tb)/' \
+      's/^MODULES=\((.*)\)/MODULES=(\1 applespi spi_pxa2xx_platform intel_lpss intel_lpss_pci)/' \
       "$_mki"
     # Handle the case where MODULES= is empty.
     _sudo sed -i -E 's/^MODULES=\( +/MODULES=(/' "$_mki"

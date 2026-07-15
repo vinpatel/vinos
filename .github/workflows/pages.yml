@@ -41,7 +41,7 @@ jobs:
           HUGO_ENVIRONMENT: production
         run: |
           cd site
-          hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+          hugo --gc --minify
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

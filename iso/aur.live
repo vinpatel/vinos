@@ -16,3 +16,27 @@
 # builds elephant first (alphabetical order) and pushes it into
 # [vinos-aur] so walker-bin's makepkg -s can resolve it.
 elephant
+
+# OOBE-parity: vendor DKMS drivers baked into the squashfs. Each builds
+# against the shipped `linux` kernel headers at mkarchiso time, so the
+# live boot already has the module (no first-boot DKMS wait).
+# macbook12-spi-driver-dkms — pre-2018 butterfly-keyboard MBPs (T2 stack
+#                             handles 2018+; this covers 2015-2017)
+#
+# Deferred to install/06-hardware.sh (post-install) because the AUR
+# entries are either gone (asdcontrol, dell-xps-touchpad-haptics — no
+# PKGBUILD in AUR as of 2026-07) or their upstream source URL 404s
+# (yt6801-dkms). 06-hardware.sh already retries with warn-and-continue.
+macbook12-spi-driver-dkms
+
+# OOBE-parity: shell-referenced userspace that only lives in AUR.
+# xdg-terminal-exec — resolves $TERMINAL / handlr terminal preference
+#                     for walker + hyprland keybind that opens a shell.
+xdg-terminal-exec
+
+# OOBE-parity: apps bound to keybindings in config/hypr/hyprland.conf.
+# Super+M → spotify · Super+/ → 1password · terminal ops → 1password-cli.
+# aur-build.sh caches these in iso/.aur-cache so rebuilds are fast (~90 s).
+spotify
+1password
+1password-cli

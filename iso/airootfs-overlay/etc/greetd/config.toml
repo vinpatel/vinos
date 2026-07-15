@@ -1,14 +1,15 @@
-# vinOS LIVE greetd — autologin as vin, launch Hyprland with no prompt.
-# The disk installer replaces this file with the prompt-based
-# /etc/greetd/config.toml that install/02-desktop.sh writes.
+# vinOS LIVE greetd — autologin as the ephemeral live user, launch
+# Hyprland with no prompt. The disk installer replaces this file with
+# the prompt-based /etc/greetd/config.toml that install/02-desktop.sh
+# writes, using the username you choose during install.
 
 [terminal]
 vt = 1
 
 [default_session]
 command = "Hyprland"
-user = "vin"
+user = "vinos"
 
 [initial_session]
 command = "Hyprland"
-user = "vin"
+user = "vinos"

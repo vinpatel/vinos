@@ -43,7 +43,7 @@ With `--with-persistence` adds an ext4 partition labeled
 - Stock `linux` kernel — most modern hardware.
 - Same 200-package base as a fresh install (base tools + Hyprland +
   UX stack + Nerd Fonts).
-- Live user `vin`, passwordless, autologin via greetd.
+- Live user `vinos`, passwordless, autologin via greetd.
 - `Boot vinOS`, `Boot vinOS (safe graphics)`, `Boot vinOS (persistent)`
   in the syslinux/GRUB menu.
 

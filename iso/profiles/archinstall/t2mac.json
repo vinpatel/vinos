@@ -59,7 +59,7 @@
   "users": [
     {
       "username": "@@USER@@",
-      "!password": "",
+      "!password": "@@PASSWORD@@",
       "sudo": true
     }
   ],

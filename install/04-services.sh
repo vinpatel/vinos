@@ -47,22 +47,54 @@ else
   log "04-services: floppy blacklist already staged in airootfs — skipping"
 fi
 
-# I7 — network stack: iwd + impala.
-#  - Enable iwd so wifi is live on boot.
-#  - Enable iwd's built-in DHCP so we don't need systemd-networkd for the
-#    wifi path (main.conf: [General] EnableNetworkConfiguration=true).
-#  - Enable systemd-resolved so DNS works when iwd owns DHCP.
-#  - Mask systemd-networkd-wait-online so boot doesn't stall waiting for
-#    a network that may need user-interactive wifi setup first.
-log "04-services: configuring iwd (built-in DHCP) + resolved"
+# I7 — network stack: iwd for wifi auth + systemd-networkd for DHCP.
+# Belt-and-suspenders after 1.1.0 T2 boot showed "Operation failed":
+#  - wireless-regdb ships via iso/packages.live so iwd has a regdb.
+#  - Country=US pinned in main.conf so 5GHz channels light up out of box.
+#  - EnableNetworkConfiguration removed — iwd's built-in DHCP races the
+#    brcmfmac driver on T2 Macs. Using systemd-networkd + iwd is the
+#    battle-tested combo (Arch Wiki: iwd + systemd-networkd).
+#  - systemd-resolved owns /etc/resolv.conf (see block below).
+#  - systemd-networkd-wait-online masked so a wifi-less boot doesn't stall.
+log "04-services: configuring iwd (auth) + systemd-networkd (dhcp) + resolved"
 _iwd_conf="$(_rootpath /etc/iwd)"
 _sudo install -d -m 0755 "$_iwd_conf"
 _iwd_tmp="$(mktemp)"
-printf '[General]\nEnableNetworkConfiguration=true\n[Network]\nNameResolvingService=systemd\n' > "$_iwd_tmp"
+cat > "$_iwd_tmp" <<'IWDCONF'
+[General]
+# Set regulatory domain up front so 5GHz + high channels come alive.
+Country=US
+[Network]
+# systemd-resolved owns DNS.
+NameResolvingService=systemd
+# Do NOT set EnableNetworkConfiguration=true — systemd-networkd does DHCP.
+[Settings]
+AutoConnect=true
+IWDCONF
 _sudo install -Dm 0644 "$_iwd_tmp" "$_iwd_conf/main.conf"
 rm -f "$_iwd_tmp"
 
+# systemd-networkd config for any wireless interface iwd brings up.
+_networkd_conf="$(_rootpath /etc/systemd/network)"
+_sudo install -d -m 0755 "$_networkd_conf"
+_networkd_tmp="$(mktemp)"
+cat > "$_networkd_tmp" <<'NETCONF'
+# vinOS wireless — DHCP on any interface named wlan* (iwd owns naming).
+[Match]
+Name=wlan*
+
+[Network]
+DHCP=yes
+IgnoreCarrierLoss=3s
+
+[DHCPv4]
+RouteMetric=20
+NETCONF
+_sudo install -Dm 0644 "$_networkd_tmp" "$_networkd_conf/25-wireless.network"
+rm -f "$_networkd_tmp"
+
 systemctl_enable iwd
+systemctl_enable systemd-networkd
 systemctl_enable systemd-resolved
 
 if [[ -z "$VINOS_ROOT" ]]; then

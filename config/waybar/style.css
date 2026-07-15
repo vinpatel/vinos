@@ -43,7 +43,9 @@ window#waybar {
 /* Logo — accent-tinted. Click opens vinos-menu. */
 #custom-logo {
   color: #33ccff;
-  font-size: 18px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   padding: 2px 14px 2px 16px;
   border-color: rgba(51, 204, 255, 0.30);
   background: linear-gradient(135deg, rgba(51,204,255,0.14), rgba(20,21,30,0.55));

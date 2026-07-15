@@ -9,6 +9,14 @@
 #   iso/qemu-desktop.sh --mode uefi     # UEFI via OVMF
 #   iso/qemu-desktop.sh --mem 8G
 #   iso/qemu-desktop.sh --iso PATH
+#   iso/qemu-desktop.sh --vnc            # headless, VNC on 127.0.0.1:5900
+#   iso/qemu-desktop.sh --vnc 5901       # headless, VNC on 127.0.0.1:5901
+#   iso/qemu-desktop.sh --vnc 0.0.0.0:5900   # LAN-visible (careful!)
+#
+# --vnc mode is designed for remote testing: SSH-tunnel port 5900 to your
+# laptop and connect with macOS Screen Sharing (Finder → Cmd+K →
+# vnc://localhost:5900) or any RFB client. VNC forwards Super natively,
+# so no keyboard-grab dance is needed.
 #
 # Prefers host `qemu-system-x86_64` when present (faster startup);
 # otherwise runs the tester container with GTK display forwarded.
@@ -18,16 +26,26 @@ ISO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ISO=""
 MODE="bios"
 MEM="4G"
+VNC=""  # empty = local GUI; "5900" or "0.0.0.0:5900" = VNC headless
 
 die() { printf '\033[1;31m[qemu-desktop] FAIL:\033[0m %s\n' "$*" >&2; exit 1; }
 log() { printf '\033[1;34m[qemu-desktop]\033[0m %s\n' "$*"; }
 
+# Parse --vnc's optional value: --vnc alone → default 5900, --vnc NNNN → that
+# port. Accept "host:port" too. Falls through to default when the next arg is
+# another flag or missing.
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --iso)  ISO="$2"; shift 2 ;;
     --mode) MODE="$2"; shift 2 ;;
     --mem)  MEM="$2"; shift 2 ;;
-    -h|--help) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --vnc)
+      if [[ $# -ge 2 && "$2" != --* ]]; then VNC="$2"; shift 2
+      else VNC="127.0.0.1:5900"; shift; fi
+      # Bare port → bind to localhost only (safe default).
+      [[ "$VNC" =~ ^[0-9]+$ ]] && VNC="127.0.0.1:$VNC"
+      ;;
+    -h|--help) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) die "unknown argument: $1" ;;
   esac
 done
@@ -39,9 +57,26 @@ case "$MODE" in bios|uefi) ;; *) die "--mode must be bios or uefi" ;; esac
 # Prefer host qemu when installed.
 if command -v qemu-system-x86_64 >/dev/null 2>&1; then
   log "using host qemu-system-x86_64"
-  # Wayland/XWayland drops keys to QEMU's GTK window on Hyprland et al.
-  # SDL captures input directly and works on both session types.
-  display="sdl"; [[ "${XDG_SESSION_TYPE:-}" == "x11" ]] && display="gtk"
+  # Display selection:
+  #   --vnc → serve VNC over the network (Super passes through natively).
+  #   Wayland session → SDL with grab hotkey (LShift+LCtrl+LAlt) so the
+  #     host compositor releases Super via keyboard-shortcuts-inhibit-v1.
+  #     (SDL only accepts lshift-lctrl-lalt or rctrl for grab-mod.)
+  #   X11 session → plain GTK.
+  if [[ -n "$VNC" ]]; then
+    # QEMU's -vnc expects "host:display" where display is (port-5900).
+    host="${VNC%:*}"; port="${VNC##*:}"
+    dpy=$(( port - 5900 ))
+    [[ "$dpy" -ge 0 ]] || die "VNC port must be >= 5900 (got $port)"
+    display="vnc=${host}:${dpy}"
+    log "VNC on ${host}:${port} — connect from your laptop with:"
+    log "  ssh -L 5900:${host}:${port} <this-host>   # tunnel"
+    log "  Then on macOS: Finder → Cmd+K → vnc://localhost:5900"
+  elif [[ "${XDG_SESSION_TYPE:-}" == "x11" ]]; then
+    display="gtk"
+  else
+    display="sdl,grab-mod=lshift-lctrl-lalt"
+  fi
   args=(-m "$MEM" -smp 2 -cdrom "$ISO" -boot order=d,menu=off -vga std -display "$display"
         -usb -device usb-kbd -device usb-tablet)
   [[ -c /dev/kvm ]] && args+=(-enable-kvm)

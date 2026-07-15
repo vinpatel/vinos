@@ -1,1 +1,13 @@
+# vinOS LIVE-ISO sudoers policy.
+#
+# This file ships ONLY in the live airootfs (iso/airootfs-overlay/); the
+# on-disk install runs vinos-install-disk which writes its own policy
+# into /mnt/etc/sudoers.d/ AFTER prompting the user for a password.
+#
+# On the live medium the live user (`vinos`) has an empty password
+# (passwd -d vinos, see vinos-live-init.service). PAM refuses empty
+# passwords via `sudo`, so NOPASSWD here is the only way `sudo
+# vinos-install-disk` can run — which is the whole reason the ISO
+# exists. SSH is masked in the same overlay so this policy is not
+# reachable over the network.
 %wheel ALL=(ALL:ALL) NOPASSWD: ALL
