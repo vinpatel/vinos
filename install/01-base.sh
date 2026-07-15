@@ -10,7 +10,8 @@ log "01-base: installing core packages"
 install_pkg base-devel git curl wget rsync openssh ufw fastfetch btop \
             unzip man-db bash-completion \
             neovim eza bat fzf ripgrep fd zoxide starship github-cli lazygit \
-            iwd impala rfkill
+            iwd impala rfkill \
+            inetutils inxi plocate whois xmlstarlet expac dust tldr
 
 if [[ -n "$VINOS_ROOT" ]]; then
   log "01-base: VINOS_ROOT mode — yay bootstrap deferred (ISO uses local vinos-aur repo)"

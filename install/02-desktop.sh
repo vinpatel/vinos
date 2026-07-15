@@ -23,7 +23,7 @@ install_pkg \
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber \
   pavucontrol wiremix \
   nautilus sushi nautilus-python gnome-disk-utility \
-  gnome-calculator libqalculate tldr \
+  gnome-calculator libqalculate \
   plymouth \
   hypridle hyprlock hyprpicker hyprsunset swayosd satty \
   gtk4-layer-shell kvantum kvantum-qt5 qt6ct \
