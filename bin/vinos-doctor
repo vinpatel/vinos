@@ -46,6 +46,46 @@ else
   skip "systemd not active — service checks skipped (container mode)"
 fi
 
+section "wifi (T2 Mac + generic)"
+# Only FAIL when wireless hardware is present but the interface isn't up;
+# a wired desktop or a container legitimately has no wifi — SKIP those.
+has_wifi_hw=0
+if command -v lspci >/dev/null 2>&1 && \
+   lspci 2>/dev/null | grep -qiE 'Network controller.*(Broadcom|Intel|Realtek|Qualcomm|Atheros|MediaTek)'; then
+  has_wifi_hw=1
+fi
+wlans=0
+if [[ -d /sys/class/net ]]; then
+  wlans=$(find /sys/class/net -maxdepth 1 \( -name 'wlan*' -o -name 'wlp*' \) 2>/dev/null | wc -l)
+fi
+if (( wlans > 0 )); then
+  for iface in /sys/class/net/wlan* /sys/class/net/wlp*; do
+    [[ -e "$iface" ]] || continue
+    name=$(basename "$iface")
+    state=$(cat "$iface/operstate" 2>/dev/null || echo unknown)
+    pass "wireless interface $name (operstate=$state)"
+  done
+elif (( has_wifi_hw )); then
+  fail "wifi hardware present but no wlan* interface — driver failed to bind"
+else
+  skip "no wireless hardware detected (wired-only host / container)"
+fi
+if command -v rfkill >/dev/null 2>&1; then
+  if rfkill list wifi 2>/dev/null | grep -q 'Soft blocked: no'; then pass "wifi radio not soft-blocked"
+  elif rfkill list wifi 2>/dev/null | grep -q 'Soft blocked: yes'; then fail "wifi radio soft-blocked — run: rfkill unblock wifi"
+  else skip "rfkill: no wifi entry"; fi
+else skip "rfkill not installed"; fi
+if [[ -d /run/systemd/system ]]; then
+  if systemctl is-active iwd >/dev/null 2>&1; then pass "iwd active"
+  elif (( has_wifi_hw )); then fail "iwd not active — systemctl start iwd"
+  else skip "iwd inactive (no wifi hw)"; fi
+else skip "iwd status skipped (container mode)"; fi
+if find /lib/firmware/brcm /usr/lib/firmware/brcm -maxdepth 1 -name 'brcmfmac*apple*' 2>/dev/null | grep -q .; then
+  pass "apple-bcm-firmware present (T2 Broadcom NVRAM)"
+else
+  skip "apple-bcm-firmware not installed (non-T2 hardware — fine)"
+fi
+
 section "repo"
 # Probe: env override, standard install path, then $HOME/vinos (test copy).
 REPO=""
