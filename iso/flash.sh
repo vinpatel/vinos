@@ -6,10 +6,10 @@
 # classic "dd onto your NVMe" disaster.
 #
 # Usage:
-#   iso/flash.sh --dev sdX [--iso PATH] [--with-persistence] [--i-know-what-im-doing]
+#   iso/flash.sh --dev sdX [--iso PATH] [--no-persistence] [--i-know-what-im-doing]
 #   iso/flash.sh                     # interactive: lists devices, prompts
 #
-# Persistence (--with-persistence):
+# Persistence (DEFAULT — pass --no-persistence to opt out):
 #   After `dd`, adds an ext4 partition labelled vinos-persist covering the
 #   remaining space on the USB. The ISO's "Boot vinOS (persistent)" menu
 #   entry mounts /dev/disk/by-label/vinos-persist as archiso's COW device
@@ -22,6 +22,11 @@ set -euo pipefail
 ISO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ISO=""
 DEV=""
+# Persistence is opt-in (--with-persistence). The default boot entry
+# does NOT require the vinos-persist partition, so a plain flash boots
+# cleanly. Enabling persistence changes the flash to create an ext4
+# partition after the ISO; the "T2 + persistence" boot menu entry can
+# then be selected to use it.
 WITH_PERSIST=0
 ALLOW_NON_USB=0
 
@@ -36,6 +41,7 @@ while [[ $# -gt 0 ]]; do
     --iso)  ISO="$2"; shift 2 ;;
     --dev)  DEV="$2"; shift 2 ;;
     --with-persistence)      WITH_PERSIST=1; shift ;;
+    --no-persistence)        WITH_PERSIST=0; shift ;;
     --i-know-what-im-doing)  ALLOW_NON_USB=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) die "unknown argument: $1 (try --help)" ;;

@@ -2,6 +2,8 @@
 # Sources: iso/packages.releng, iso/packages.live,
 #          install/01-base.sh install_pkg args,
 #          install/02-desktop.sh install_pkg args.
+1password
+1password-cli
 acpid
 alacritty
 alsa-firmware
@@ -13,6 +15,7 @@ apple-t2-audio-config
 arch-install-scripts
 arch-mact2-mirrorlist
 archinstall
+avahi
 b43-fwcutter
 base
 base-devel
@@ -29,14 +32,20 @@ brltty
 broadcom-wl
 btop
 btrfs-progs
+chromium
 clonezilla
 cloud-init
 cryptsetup
+cups
+cups-browsed
+cups-filters
+cups-pdf
 curl
 darkhttpd
 ddrescue
 dhcpcd
 diffutils
+dkms
 dmidecode
 dmraid
 dnsmasq
@@ -44,6 +53,7 @@ dosfstools
 e2fsprogs
 edk2-shell
 efibootmgr
+egl-wayland
 elephant
 espeakup
 ethtool
@@ -52,7 +62,11 @@ eza
 f2fs-tools
 fastfetch
 fatresize
+fcitx5
+fcitx5-gtk
+fcitx5-qt
 fd
+ffmpeg
 foot
 foot-terminfo
 fsarchiver
@@ -77,13 +91,16 @@ hyprland
 hyprlock
 hyprpicker
 hyprsunset
+imagemagick
 impala
+intel-lpmd
 intel-media-driver
 intel-ucode
 irssi
 iw
 iwd
 jfsutils
+jq
 kitty-terminfo
 kvantum
 lazygit
@@ -94,16 +111,20 @@ libfido2
 libusb-compat
 libva-intel-driver
 libva-mesa-driver
+libva-nvidia-driver
+libxkbcommon
 linux
 linux-atm
 linux-firmware
 linux-firmware-marvell
+linux-headers
 linux-t2
 linux-t2-headers
 livecd-sounds
 lsscsi
 lvm2
 lynx
+macbook12-spi-driver-dkms
 mako
 man-db
 man-pages
@@ -129,8 +150,12 @@ nmap
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
+nss-mdns
 ntfs-3g
+nvidia-open-dkms
+nvidia-utils
 nvme-cli
+obsidian
 open-iscsi
 open-vm-tools
 openconnect
@@ -167,9 +192,12 @@ screen
 sdparm
 sequoia-sq
 sg3_utils
+signal-desktop
 slurp
 smartmontools
+socat
 sof-firmware
+spotify
 squashfs-tools
 starship
 sudo
@@ -177,10 +205,13 @@ sushi
 swaybg
 swayosd
 syslinux
+system-config-printer
 systemd-resolvconf
 t2fanrd
 tcpdump
 terminus-font
+tesseract
+tesseract-data-eng
 testdisk
 thermald
 tiny-dfr
@@ -191,9 +222,11 @@ ttf-jetbrains-mono-nerd
 udftools
 ufw
 unzip
+upower
 usb_modeswitch
 usbmuxd
 usbutils
+uwsm
 vim
 virtualbox-guest-utils-nox
 vpnc
@@ -209,6 +242,7 @@ wl-clipboard
 wpa_supplicant
 wvdial
 xdg-desktop-portal-hyprland
+xdg-terminal-exec
 xdg-utils
 xfsprogs
 xl2tpd

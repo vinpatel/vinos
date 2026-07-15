@@ -13,7 +13,7 @@
   "modules-right":  ["network", "pulseaudio", "cpu", "memory", "battery", "tray"],
 
   "custom/logo": {
-    "format": "󰣇  Menu",
+    "format": "V  Menu",
     "tooltip-format": "vinOS menu — apps, bundles, wifi, theme (Super+Ctrl+O)",
     "on-click": "vinos-menu"
   },

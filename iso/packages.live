@@ -5,7 +5,10 @@
 #
 # I7: NetworkManager removed — vinOS uses iwd+impala for wifi.
 # iwd is already in packages.releng (base archiso profile).
+# wireless-regdb — regulatory DB. Without it iwd refuses to associate on
+# non-world channels; #1 root cause of "Operation failed" on T2 brcmfmac.
 gparted
+wireless-regdb
 
 # I12: broaden hardware support out of the box.
 # sof-firmware — Sound Open Firmware, needed for audio on most 2019+
@@ -55,3 +58,72 @@ acpid
 
 # Thunderbolt device authorization daemon:
 # bolt (already in packages.releng; keep here as a comment reminder).
+
+# OOBE-parity: NVIDIA proprietary stack (Turing+ open-source variant).
+# Baked into the squashfs so first-boot Wayland works on NVIDIA laptops
+# without a post-install driver install. dkms + linux-headers are the
+# infra for building against the shipped `linux` kernel at mkarchiso time.
+dkms
+linux-headers
+nvidia-open-dkms
+nvidia-utils
+libva-nvidia-driver
+egl-wayland
+
+# OOBE-parity: Intel platform helpers.
+# intel-lpmd  — Intel Low Power Mode Daemon (P/E-core scheduling on 12th+ gen).
+intel-lpmd
+
+# OOBE-parity: printing + mDNS. Any live-USB user plugging into a home
+# network expects "the printer just shows up." cups.socket + avahi are
+# enabled in the airootfs-overlay so discovery works from first boot.
+cups
+cups-browsed
+cups-filters
+cups-pdf
+avahi
+nss-mdns
+system-config-printer
+
+# OOBE-parity: input methods (CJK / Indic / everyone-not-Latin-1).
+# fcitx5 is autostarted by config/hypr/autostart.conf, so missing it
+# breaks IME entirely on non-Latin languages. Adding at base tier.
+fcitx5
+fcitx5-gtk
+fcitx5-qt
+
+# OOBE-parity: shell-referenced userspace. These are called by shipped
+# keybindings, autostart snippets, and vinos-* helpers — omitting them
+# means a keybind or autostart silently fails.
+# chromium     — Super+B default browser (bindings.conf)
+# jq           — vinos-cheatsheet, 06-hardware.sh
+# imagemagick  — theme + screenshot pipelines
+# uwsm         — every autostart line: `uwsm-app -- <thing>`
+# socat        — vinos-launch-* IPC helpers
+# (xdg-terminal-exec is AUR-only — see iso/aur.live)
+chromium
+jq
+imagemagick
+uwsm
+socat
+
+# I11-post: shell-referenced userspace for vinos-* keybind helpers.
+# Every binary below is invoked by a shipped Hyprland binding — omitting
+# any of them silently breaks a keystroke that the website advertises.
+# libxkbcommon       — /usr/bin/xkbcli used by vinos-menu-keybindings
+#                      (Super+K — the "show all keys" flagship)
+# brightnessctl      — vinos-brightness-keyboard (keyboard backlight steps)
+# ffmpeg             — vinos-transcode (Super+Ctrl+.)
+# tesseract + eng    — vinos-capture-text-extraction (Super+Ctrl+PrtSc OCR)
+libxkbcommon
+brightnessctl
+ffmpeg
+tesseract
+tesseract-data-eng
+upower
+
+# OOBE-parity: user chose "install in base" for the Super+M/G/H/slash
+# app launchers. Ship signal-desktop + obsidian from [extra] so those
+# keybindings work day-one without a bundle install prompt.
+signal-desktop
+obsidian
