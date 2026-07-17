@@ -28,29 +28,36 @@
   .stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
   .stage .bg {
     position: absolute; inset: 0; background-size: cover; background-position: center;
-    background-image: linear-gradient(180deg, rgba(15,17,22,0.35), rgba(15,17,22,0.55)),
+    background-image: linear-gradient(180deg, rgba(15,17,22,0.25), rgba(15,17,22,0.45)),
                       url("../../static/img/screenshots/01-desktop.png");
     filter: saturate(1.05);
   }
 
   /* waybar */
   .waybar {
-    position: absolute; top: 12px; left: 12px; right: 12px; height: 32px;
-    background: rgba(22,23,29,0.72); backdrop-filter: blur(12px);
+    position: absolute; top: 14px; left: 14px; right: 14px; height: 34px;
+    background: rgba(22,23,29,0.72); backdrop-filter: blur(14px);
     border-radius: 10px; border: 1px solid var(--border);
-    display: flex; align-items: center; padding: 0 14px;
+    display: flex; align-items: center; padding: 0 16px;
     font-size: 13px; color: var(--dim);
     box-shadow: 0 4px 14px rgba(0,0,0,0.35);
   }
   .waybar .ws { display: flex; gap: 6px; margin-right: auto; }
-  .waybar .ws span { min-width: 22px; height: 18px; padding: 0 6px; border-radius: 6px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--dim); font-family: var(--font-mono); }
+  .waybar .ws span { min-width: 22px; height: 20px; padding: 0 7px; border-radius: 6px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--dim); font-family: var(--font-mono); }
   .waybar .ws span.on { background: var(--accent); color: #0b0d12; font-weight: 700; }
   .waybar .ws span.has { color: var(--ink); }
   .waybar .clock { color: var(--ink); font-weight: 500; }
-  .waybar .status { margin-left: auto; display: flex; gap: 12px; font-size: 12px; }
+  .waybar .status { margin-left: auto; display: flex; gap: 14px; font-size: 12px; }
   .waybar .status .chip { color: var(--dim); }
   .waybar .status .chip.hot { color: var(--accent); }
   .waybar .status .chip.play { color: var(--spotify); }
+
+  /* watermark V (bottom-right) */
+  .watermark {
+    position: absolute; bottom: 40px; right: 44px; width: 120px; height: 120px;
+    opacity: 0.85; pointer-events: none;
+  }
+  .watermark svg { width: 100%; height: 100%; }
 
   /* window chrome */
   .win {
@@ -64,8 +71,8 @@
   }
   .win.focused { border-color: var(--border-hi); box-shadow: 0 0 0 1px var(--border-hi), var(--shadow); }
   .win .titlebar {
-    height: 34px; background: var(--panel-2); border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; padding: 0 12px; gap: 10px;
+    height: 36px; background: var(--panel-2); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 14px; gap: 12px;
     color: var(--dim); font-size: 12px;
   }
   .win .titlebar .dots { display: flex; gap: 6px; }
@@ -74,9 +81,9 @@
   .win .titlebar .dot.y { background: #febc2e; }
   .win .titlebar .dot.g { background: #28c840; }
   .win .titlebar .name { color: var(--dim); font-family: var(--font-mono); }
-  .win .body { flex: 1; padding: 18px 20px; font-family: var(--font-mono); font-size: 15px; line-height: 1.55; overflow: hidden; color: var(--ink); background: var(--panel); }
+  .win .body { flex: 1; padding: 18px 22px; font-family: var(--font-mono); font-size: 15px; line-height: 1.6; overflow: hidden; color: var(--ink); background: var(--panel); }
   .win .body pre { margin: 0; white-space: pre-wrap; }
-  .win.compact .body { padding: 12px 14px; font-size: 12px; }
+  .win.compact .body { padding: 12px 14px; font-size: 12px; line-height: 1.5; }
 
   .prompt { color: var(--accent-2); }
   .cmd    { color: var(--ink); }
@@ -91,114 +98,99 @@
   .num    { color: #e5c07b; }
   .op     { color: #7dcfff; }
   .type   { color: #7aa2f7; }
+  .you    { color: #4fd1c5; }
+  .claude { color: #bb9af7; }
   .cursor { display: inline-block; width: 9px; height: 18px; background: var(--accent); margin-left: 2px; vertical-align: -3px; animation: blink 1s steps(1) infinite; }
   @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
-  /* walker launcher */
-  .walker {
-    position: absolute; top: 240px; left: 50%; transform: translateX(-50%);
-    width: 720px; background: rgba(22,23,29,0.92); backdrop-filter: blur(16px);
-    border: 1px solid var(--border-hi); border-radius: 14px;
-    box-shadow: var(--shadow); padding: 14px;
-    color: var(--ink); font-family: var(--font-sans);
-  }
-  .walker .search { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); font-size: 20px; }
-  .walker .search .prefix { color: var(--dim); }
-  .walker .search .q { color: var(--accent); font-weight: 500; }
-  .walker .results { margin-top: 12px; }
-  .walker .result { padding: 10px 14px; border-radius: 8px; display: flex; align-items: center; gap: 12px; font-size: 15px; }
-  .walker .result.on { background: rgba(79,209,197,0.14); }
-  .walker .icon { width: 22px; height: 22px; border-radius: 6px; background: var(--panel-3); display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--accent); font-weight: 700; }
-  .walker .result .name { color: var(--ink); }
-  .walker .result .desc { color: var(--dim); margin-left: auto; font-size: 13px; }
-
   /* chromium browser */
   .browser { display: flex; flex-direction: column; background: var(--panel); border-radius: 12px; overflow: hidden; }
-  .browser .tabs { height: 38px; background: #101116; display: flex; align-items: flex-end; padding: 0 8px; gap: 4px; border-bottom: 1px solid var(--border); }
-  .browser .tab { height: 30px; padding: 0 14px; border-radius: 8px 8px 0 0; background: transparent; color: var(--dim); font-size: 12px; display: flex; align-items: center; gap: 8px; }
+  .browser .tabs { height: 40px; background: #101116; display: flex; align-items: flex-end; padding: 0 10px; gap: 5px; border-bottom: 1px solid var(--border); }
+  .browser .tab { height: 32px; padding: 0 16px; border-radius: 8px 8px 0 0; background: transparent; color: var(--dim); font-size: 12px; display: flex; align-items: center; gap: 10px; }
   .browser .tab.active { background: var(--panel-2); color: var(--ink); }
   .browser .tab .fav { width: 14px; height: 14px; border-radius: 3px; background: var(--accent); }
-  .browser .tab.active .fav { background: var(--accent-3); }
-  .browser .toolbar { height: 44px; background: var(--panel-2); display: flex; align-items: center; padding: 0 12px; gap: 10px; border-bottom: 1px solid var(--border); }
-  .browser .toolbar .nav { display: flex; gap: 6px; color: var(--dim); font-size: 18px; }
-  .browser .toolbar .url { flex: 1; height: 30px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 0 12px; display: flex; align-items: center; color: var(--dim); font-family: var(--font-mono); font-size: 13px; }
+  .browser .tab.active .fav { background: #d97706; }
+  .browser .toolbar { height: 46px; background: var(--panel-2); display: flex; align-items: center; padding: 0 14px; gap: 12px; border-bottom: 1px solid var(--border); }
+  .browser .toolbar .nav { display: flex; gap: 8px; color: var(--dim); font-size: 18px; }
+  .browser .toolbar .url { flex: 1; height: 32px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 0 14px; display: flex; align-items: center; color: var(--dim); font-family: var(--font-mono); font-size: 13px; }
   .browser .toolbar .url .host { color: var(--ink); }
   .browser .toolbar .url .path { color: var(--dim); }
-  .browser .content { flex: 1; background: #0d1017; padding: 32px 40px; font-family: var(--font-sans); color: var(--ink); overflow: hidden; }
-  .gh { color: var(--ink); font-family: var(--font-sans); }
-  .gh .repo-head { display: flex; align-items: baseline; gap: 12px; padding-bottom: 18px; border-bottom: 1px solid #30363d; margin-bottom: 20px; }
-  .gh .repo-head .owner { color: #58a6ff; font-size: 22px; font-weight: 500; }
-  .gh .repo-head .slash { color: var(--dim); font-size: 22px; }
-  .gh .repo-head .repo { color: #58a6ff; font-size: 22px; font-weight: 700; }
-  .gh .repo-head .badge { margin-left: auto; padding: 2px 10px; border: 1px solid #30363d; border-radius: 100px; color: var(--dim); font-size: 12px; }
-  .gh .repo-desc { color: var(--dim); font-size: 15px; margin-bottom: 24px; line-height: 1.5; }
-  .gh .repo-meta { display: flex; gap: 20px; font-size: 13px; color: var(--dim); margin-bottom: 20px; }
-  .gh .repo-meta .m .n { color: var(--ink); font-weight: 600; margin-right: 4px; }
-  .gh .readme-head { font-size: 14px; color: var(--dim); padding: 10px 16px; background: #161b22; border: 1px solid #30363d; border-bottom: 0; border-radius: 8px 8px 0 0; }
-  .gh .readme { border: 1px solid #30363d; border-radius: 0 0 8px 8px; padding: 24px 28px; background: #0d1017; }
-  .gh .readme h1 { font-size: 30px; font-weight: 700; margin: 0 0 12px; color: var(--ink); letter-spacing: -0.02em; }
-  .gh .readme .tag { display: inline-block; padding: 3px 10px; margin-right: 6px; background: #161b22; border: 1px solid #30363d; border-radius: 20px; font-size: 12px; color: #58a6ff; }
-  .gh .readme p { color: #c9d1d9; font-size: 15px; line-height: 1.6; margin: 14px 0; }
-  .gh .readme h2 { font-size: 20px; font-weight: 600; margin: 24px 0 10px; padding-bottom: 6px; border-bottom: 1px solid #21262d; color: var(--ink); }
-  .gh .readme pre.code { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px 18px; font-family: var(--font-mono); font-size: 13px; color: #c9d1d9; margin: 12px 0; }
+  .browser .toolbar .url .lock { color: var(--accent); margin-right: 8px; }
+  .browser .content { flex: 1; background: #0d1017; padding: 30px 44px; font-family: var(--font-sans); color: var(--ink); overflow: hidden; }
 
-  /* spotify */
-  .spotify-app { display: flex; background: #000; border-radius: 12px; overflow: hidden; font-family: var(--font-sans); }
-  .spotify-side { width: 260px; background: #000; padding: 22px 16px; display: flex; flex-direction: column; gap: 14px; }
-  .spotify-side .logo { color: #fff; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
-  .spotify-side .row { display: flex; align-items: center; gap: 12px; color: #b3b3b3; font-size: 14px; padding: 6px 8px; border-radius: 4px; }
+  /* docs.rs page */
+  .drs { color: #c9d1d9; }
+  .drs .crumbs { color: #8b949e; font-size: 13px; margin-bottom: 20px; }
+  .drs .crumbs a { color: #58a6ff; }
+  .drs h1 { font-size: 36px; font-weight: 600; margin: 0 0 6px; letter-spacing: -0.02em; color: #f0f6fc; }
+  .drs .ver { color: #8b949e; font-size: 15px; margin-bottom: 4px; }
+  .drs .desc { color: #8b949e; font-size: 15px; line-height: 1.6; margin-bottom: 22px; max-width: 90ch; }
+  .drs h2 { font-size: 22px; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #21262d; color: #f0f6fc; font-weight: 600; }
+  .drs .item { padding: 8px 0; border-top: 1px solid #21262d; font-size: 14px; display: flex; gap: 14px; align-items: baseline; }
+  .drs .item .sig { color: #58a6ff; font-family: var(--font-mono); flex: 0 0 auto; min-width: 220px; }
+  .drs .item .doc { color: #8b949e; font-family: var(--font-sans); }
+  .drs code { background: #161b22; padding: 2px 6px; border-radius: 4px; color: #7ee787; font-family: var(--font-mono); font-size: 0.88em; }
+  .drs pre.code { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px 20px; font-family: var(--font-mono); font-size: 13px; color: #c9d1d9; margin: 12px 0; line-height: 1.6; }
+
+  /* spotify inside window */
+  .spotify-app { display: flex; background: #000; height: 100%; font-family: var(--font-sans); }
+  .spotify-side { width: 280px; background: #000; padding: 24px 18px; display: flex; flex-direction: column; gap: 14px; }
+  .spotify-side .logo { color: #fff; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px; }
+  .spotify-side .row { display: flex; align-items: center; gap: 12px; color: #b3b3b3; font-size: 14px; padding: 8px 10px; border-radius: 4px; }
   .spotify-side .row.on { color: #fff; background: #1a1a1a; }
   .spotify-side .row .ic { width: 22px; height: 22px; background: #333; border-radius: 4px; }
   .spotify-side .sep { border-top: 1px solid #282828; margin: 10px 0; }
-  .spotify-side .pl { color: #b3b3b3; font-size: 13px; padding: 3px 8px; }
-  .spotify-main { flex: 1; background: linear-gradient(180deg, #1f3a5b 0%, #121212 22%); padding: 26px 30px; color: var(--ink); }
+  .spotify-side .pl { color: #b3b3b3; font-size: 13px; padding: 4px 10px; }
+  .spotify-side .pl.on { color: #fff; }
+  .spotify-main { flex: 1; background: linear-gradient(180deg, #1f3a5b 0%, #121212 26%); padding: 30px 34px; color: var(--ink); position: relative; }
   .spotify-main .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; color: var(--dim); font-size: 14px; }
   .spotify-main .now-title { font-size: 12px; letter-spacing: 0.14em; color: #b3b3b3; text-transform: uppercase; }
-  .spotify-main h1 { font-size: 76px; font-weight: 900; margin: 6px 0 12px; letter-spacing: -0.03em; }
-  .spotify-main .sub { color: #b3b3b3; font-size: 14px; margin-bottom: 22px; }
-  .spotify-main .tracks { color: #b3b3b3; font-size: 13px; }
-  .spotify-main .tr { display: grid; grid-template-columns: 30px 1fr 120px 60px; gap: 16px; padding: 8px 6px; border-radius: 6px; align-items: center; }
+  .spotify-main h1 { font-size: 80px; font-weight: 900; margin: 8px 0 14px; letter-spacing: -0.03em; color: #fff; }
+  .spotify-main .sub { color: #b3b3b3; font-size: 14px; margin-bottom: 26px; }
+  .spotify-main .tracks { color: #b3b3b3; font-size: 14px; }
+  .spotify-main .tr { display: grid; grid-template-columns: 30px 1fr 160px 60px; gap: 18px; padding: 9px 6px; border-radius: 6px; align-items: center; }
   .spotify-main .tr.on { background: rgba(255,255,255,0.05); color: var(--ink); }
   .spotify-main .tr .n { text-align: right; }
   .spotify-main .tr .tt { color: var(--ink); }
   .spotify-main .tr.on .tt { color: var(--spotify); }
-  .spotify-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 78px; background: #181818; border-top: 1px solid #282828; display: flex; align-items: center; padding: 0 18px; font-family: var(--font-sans); }
-  .spotify-bar .cover { width: 54px; height: 54px; border-radius: 4px; background: linear-gradient(135deg, #4c1d95, #1e40af); flex: 0 0 auto; }
-  .spotify-bar .np { margin-left: 12px; display: flex; flex-direction: column; }
-  .spotify-bar .np .t { color: var(--ink); font-size: 14px; }
+  .spotify-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 84px; background: #181818; border-top: 1px solid #282828; display: flex; align-items: center; padding: 0 20px; font-family: var(--font-sans); }
+  .spotify-bar .cover { width: 60px; height: 60px; border-radius: 4px; background: linear-gradient(135deg, #4c1d95, #1e40af); flex: 0 0 auto; }
+  .spotify-bar .np { margin-left: 14px; display: flex; flex-direction: column; }
+  .spotify-bar .np .t { color: var(--ink); font-size: 15px; }
   .spotify-bar .np .a { color: #b3b3b3; font-size: 12px; }
-  .spotify-bar .controls { margin: 0 auto; display: flex; align-items: center; gap: 20px; color: #b3b3b3; font-size: 22px; }
-  .spotify-bar .controls .play { width: 34px; height: 34px; background: #fff; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; }
-  .spotify-bar .rt { display: flex; gap: 14px; color: #b3b3b3; font-size: 18px; }
+  .spotify-bar .controls { margin: 0 auto; display: flex; align-items: center; gap: 22px; color: #b3b3b3; font-size: 22px; }
+  .spotify-bar .controls .play { width: 36px; height: 36px; background: #fff; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; }
+  .spotify-bar .rt { display: flex; gap: 16px; color: #b3b3b3; font-size: 18px; }
 
   /* neovim */
   .nvim { display: flex; flex-direction: column; background: #1a1b26; border-radius: 12px; overflow: hidden; font-family: var(--font-mono); }
-  .nvim .tabline { height: 30px; background: #16161e; display: flex; padding: 0 8px; align-items: center; gap: 6px; font-size: 12px; color: var(--dim); border-bottom: 1px solid #292e42; }
-  .nvim .tabline .tab { padding: 4px 12px; border-radius: 4px 4px 0 0; }
+  .nvim .tabline { height: 32px; background: #16161e; display: flex; padding: 0 10px; align-items: center; gap: 8px; font-size: 12px; color: var(--dim); border-bottom: 1px solid #292e42; }
+  .nvim .tabline .tab { padding: 5px 14px; border-radius: 4px 4px 0 0; }
   .nvim .tabline .tab.on { background: #1a1b26; color: var(--accent); border: 1px solid #292e42; border-bottom: 0; }
-  .nvim .code { flex: 1; padding: 14px 18px; font-size: 14px; line-height: 1.55; color: #c0caf5; overflow: hidden; }
-  .nvim .code .ln { color: #3b4261; margin-right: 14px; user-select: none; display: inline-block; width: 32px; text-align: right; }
+  .nvim .code { flex: 1; padding: 16px 22px; font-size: 14px; line-height: 1.6; color: #c0caf5; overflow: hidden; }
+  .nvim .code .ln { color: #3b4261; margin-right: 16px; user-select: none; display: inline-block; width: 32px; text-align: right; }
   .nvim .code .ln.cur { color: var(--accent-2); }
-  .nvim .status { height: 26px; background: #16161e; display: flex; align-items: center; padding: 0 14px; gap: 12px; font-size: 12px; color: #7982a9; border-top: 1px solid #292e42; }
-  .nvim .status .mode { padding: 2px 10px; background: var(--accent); color: #0b0d12; font-weight: 700; border-radius: 3px; letter-spacing: 0.06em; }
+  .nvim .status { height: 28px; background: #16161e; display: flex; align-items: center; padding: 0 16px; gap: 14px; font-size: 12px; color: #7982a9; border-top: 1px solid #292e42; }
+  .nvim .status .mode { padding: 2px 12px; background: var(--accent); color: #0b0d12; font-weight: 700; border-radius: 3px; letter-spacing: 0.06em; }
   .nvim .status .file { color: var(--ink); }
   .nvim .status .git { color: var(--accent-3); }
   .nvim .status .right { margin-left: auto; }
-  .nvim .lsp-hint { display: inline-block; margin-left: 12px; color: var(--dimmer); font-style: italic; }
+  .nvim .lsp-hint { display: inline-block; margin-left: 14px; color: var(--dimmer); font-style: italic; }
 
-  /* caption overlay */
+  /* caption */
   .caption {
-    position: absolute; bottom: 64px; left: 50%; transform: translateX(-50%);
-    background: rgba(11,13,18,0.82); backdrop-filter: blur(14px);
+    position: absolute; bottom: 68px; left: 50%; transform: translateX(-50%);
+    background: rgba(11,13,18,0.85); backdrop-filter: blur(14px);
     border: 1px solid var(--border-hi); border-radius: 14px;
-    padding: 18px 32px; text-align: center;
-    color: var(--ink); font-family: var(--font-sans); font-size: 22px; letter-spacing: -0.01em;
-    box-shadow: var(--shadow); max-width: 80%;
+    padding: 18px 34px; text-align: center;
+    color: var(--ink); font-family: var(--font-sans); font-size: 24px; letter-spacing: -0.01em;
+    box-shadow: var(--shadow); max-width: 82%;
   }
-  .caption .kbd { display: inline-block; padding: 2px 10px; margin: 0 3px; background: rgba(79,209,197,0.14); border: 1px solid var(--border-hi); border-radius: 6px; font-family: var(--font-mono); font-size: 18px; color: var(--accent); }
+  .caption .kbd { display: inline-block; padding: 3px 12px; margin: 0 3px; background: rgba(79,209,197,0.14); border: 1px solid var(--border-hi); border-radius: 6px; font-family: var(--font-mono); font-size: 19px; color: var(--accent); }
   .caption .accent { color: var(--accent); font-weight: 500; }
+  .caption .small { font-size: 15px; color: var(--dim); display: block; margin-top: 4px; }
 
-  /* final logo card */
+  /* logo card outro */
   .card {
     position: absolute; inset: 0; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
@@ -210,7 +202,7 @@
   .card .url  { margin-top: 12px; font-family: var(--font-mono); font-size: 26px; color: var(--accent); letter-spacing: 0; }
   .card .tag  { margin-top: 26px; color: var(--dim); font-size: 20px; }
 
-  /* per-scene visibility */
+  /* scene visibility */
   .scene { display: none; }
   body[data-scene="1"] #scene1,
   body[data-scene="2"] #scene2,
@@ -218,178 +210,280 @@
   body[data-scene="4"] #scene4,
   body[data-scene="5"] #scene5,
   body[data-scene="6"] #scene6,
-  body[data-scene="7"] #scene7 { display: block; }
+  body[data-scene="7"] #scene7,
+  body[data-scene="8"] #scene8 { display: block; }
+
+  /* watermark V — shared piece for scene 1 desktop beauty shot */
+  .watermark-svg .stroke-l { fill: rgba(245,246,250,0.35); }
+  .watermark-svg .stroke-r { fill: rgba(79,209,197,0.85); }
+  .watermark-svg .caret { fill: rgba(79,209,197,0.95); }
 </style>
 </head>
 <body>
 
-<!-- SCENE 1 · desktop intro -->
+<!-- SCENE 1 · pure desktop beauty (no caption, no windows) -->
 <div id="scene1" class="scene stage">
-  <div class="bg"></div>
+  <div class="bg" style="background-image: linear-gradient(180deg, rgba(15,17,22,0.10), rgba(15,17,22,0.20)), url('../../static/img/screenshots/01-desktop.png');"></div>
   <div class="waybar">
     <div class="ws"><span class="on">1</span><span>2</span><span>3</span><span>4</span></div>
-    <div class="clock">Thu 17 Jul · 09:42</div>
-    <div class="status"><span class="chip">wifi</span><span class="chip">100%</span><span class="chip hot">ollama</span></div>
+    <div class="clock">Thu 17 Jul · 09:41</div>
+    <div class="status">
+      <span class="chip">wifi · home</span>
+      <span class="chip">battery 100%</span>
+      <span class="chip hot">ollama · idle</span>
+      <span class="chip hot">claude · ready</span>
+    </div>
   </div>
-  <div class="caption">
-    <span class="accent">vinOS</span> — the OS for developers in the agentic era
+  <div class="watermark">
+    <svg class="watermark-svg" viewBox="0 0 256 256">
+      <g transform="translate(128,124)">
+        <path class="stroke-l" d="M -70,-70 L 0,70 L -22,70 L -92,-70 Z"/>
+        <path class="stroke-r" d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z"/>
+        <rect class="caret" x="28" y="54" width="30" height="16"/>
+      </g>
+    </svg>
   </div>
 </div>
 
-<!-- SCENE 2 · walker launcher -->
+<!-- SCENE 2 · user prompts Claude in terminal -->
 <div id="scene2" class="scene stage">
   <div class="bg"></div>
   <div class="waybar">
     <div class="ws"><span class="on">1</span><span>2</span><span>3</span><span>4</span></div>
-    <div class="clock">Thu 17 Jul · 09:42</div>
-    <div class="status"><span class="chip">wifi</span><span class="chip">100%</span><span class="chip hot">ollama</span></div>
+    <div class="clock">Thu 17 Jul · 09:41</div>
+    <div class="status">
+      <span class="chip has">foot</span>
+      <span class="chip hot">claude · listening</span>
+    </div>
   </div>
-  <div class="walker">
-    <div class="search"><span class="prefix">›</span><span class="q">chromium</span><span class="cursor"></span></div>
-    <div class="results">
-      <div class="result on"><span class="icon">C</span><span class="name">Chromium</span><span class="desc">Super+B</span></div>
-      <div class="result"><span class="icon">S</span><span class="name">Spotify</span><span class="desc">Super+M</span></div>
-      <div class="result"><span class="icon">N</span><span class="name">Neovim</span><span class="desc">Super+N</span></div>
-      <div class="result"><span class="icon">A</span><span class="name">vinos-ai chat</span><span class="desc">Super+A</span></div>
+  <div class="win focused" style="left: 120px; top: 90px; width: 1680px; height: 900px;">
+    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~ · claude</div></div>
+    <div class="body" style="font-size: 17px; line-height: 1.65;">
+<pre><span class="prompt">$ </span><span class="cmd">claude</span>
+<span class="dim">Claude Code · Opus 4.7 · project: ~</span>
+
+<span class="you">You</span> — start me a coding session.
+Build a Rust HTTP scraper for hn.algolia.com. Open
+the docs I'll need, scaffold the project, and put on
+focus music while I work.
+
+<span class="claude">Claude</span> — On it. Here's the plan:
+
+  <span class="accent" style="color:#4fd1c5">→</span> opening <span class="kw">Chromium</span> → docs.rs/reqwest
+  <span class="accent" style="color:#4fd1c5">→</span> scaffolding <span class="kw">~/scrapers/hn</span> with cargo
+  <span class="accent" style="color:#4fd1c5">→</span> writing <span class="kw">src/main.rs</span> in Neovim
+  <span class="accent" style="color:#4fd1c5">→</span> cueing <span class="kw">Spotify</span> · Late Night Coding
+  <span class="accent" style="color:#4fd1c5">→</span> running <span class="kw">cargo build</span> in a split
+
+<span class="claude">Claude</span> — executing…<span class="cursor"></span>
+</pre>
     </div>
   </div>
   <div class="caption">
-    <span class="kbd">Super</span><span class="kbd">Space</span> — walker: apps, agents, files, calc
+    One prompt. <span class="accent">The agent takes it from there.</span>
   </div>
 </div>
 
-<!-- SCENE 3 · Chromium open (Super+B) -->
+<!-- SCENE 3 · Chromium opens (docs.rs) -->
 <div id="scene3" class="scene stage">
   <div class="bg"></div>
   <div class="waybar">
-    <div class="ws"><span class="on">1</span><span>2</span><span>3</span><span>4</span></div>
-    <div class="clock">Thu 17 Jul · 09:42</div>
-    <div class="status"><span class="chip has">chromium</span><span class="chip hot">ollama</span></div>
+    <div class="ws"><span>1</span><span class="on">2</span><span>3</span><span>4</span></div>
+    <div class="clock">Thu 17 Jul · 09:41</div>
+    <div class="status">
+      <span class="chip has">chromium</span>
+      <span class="chip has">foot</span>
+      <span class="chip hot">claude · working</span>
+    </div>
   </div>
-  <div class="win focused browser" style="left: 120px; top: 100px; width: 1680px; height: 900px;">
+  <div class="win focused browser" style="left: 100px; top: 90px; width: 1720px; height: 900px;">
     <div class="tabs">
-      <div class="tab active"><span class="fav"></span>vinpatel/vinos — GitHub</div>
-      <div class="tab"><span class="fav"></span>Hyprland Wiki</div>
-      <div class="tab"><span class="fav"></span>Anthropic Docs</div>
+      <div class="tab active"><span class="fav"></span>reqwest — Rust</div>
+      <div class="tab"><span class="fav"></span>tokio — async runtime</div>
+      <div class="tab"><span class="fav"></span>hn.algolia.com/api</div>
+      <div class="tab"><span class="fav"></span>serde_json</div>
     </div>
     <div class="toolbar">
       <div class="nav">← → ↻</div>
-      <div class="url"><span class="host">github.com</span><span class="path">/vinpatel/vinos</span></div>
+      <div class="url"><span class="lock">🔒</span><span class="host">docs.rs</span><span class="path">/reqwest/latest/reqwest/</span></div>
     </div>
     <div class="content">
-      <div class="gh">
-        <div class="repo-head">
-          <span class="owner">vinpatel</span><span class="slash">/</span><span class="repo">vinos</span>
-          <span class="badge">Public</span>
-        </div>
-        <p class="repo-desc">A secure, agent-native Arch layer — Claude Code + local LLMs, one keystroke away.</p>
-        <div class="repo-meta">
-          <div class="m"><span class="n">1.2k</span>stars</div>
-          <div class="m"><span class="n">83</span>forks</div>
-          <div class="m"><span class="n">v1.1.0</span>latest release</div>
-          <div class="m"><span class="n">MIT</span>license</div>
-        </div>
-        <div class="readme-head">📄  README.md</div>
-        <div class="readme">
-          <h1>vinOS</h1>
-          <span class="tag">arch</span><span class="tag">hyprland</span><span class="tag">wayland</span><span class="tag">t2</span><span class="tag">nvidia</span>
-          <p>A curated layer on stock Arch — 246 packages base, 88 <code>vinos-*</code> bins, 8 opt-in bundles. Flash the ISO, boot, log in. Claude Code and a local LLM are one keystroke away.</p>
-          <h2>Quick start</h2>
-          <pre class="code">$ curl -fsSL https://vinos.computer/boot.sh | bash</pre>
-        </div>
+      <div class="drs">
+        <div class="crumbs"><a>reqwest</a> · <a>0.12.9</a> · Crate reqwest source · [<a>−</a>]</div>
+        <h1>Crate reqwest</h1>
+        <div class="ver">source · [−]</div>
+        <p class="desc">Higher level HTTP client library. Provides an ergonomic, batteries-included async and blocking API for making HTTP requests with JSON, forms, cookies, and streaming support. Built on <code>hyper</code>, <code>tokio</code>, and <code>rustls</code>.</p>
+        <h2>Structs</h2>
+        <div class="item"><span class="sig">Client</span><span class="doc">An asynchronous <code>Client</code> to make requests with.</span></div>
+        <div class="item"><span class="sig">ClientBuilder</span><span class="doc">A <code>ClientBuilder</code> can be used to create a <code>Client</code> with custom configuration.</span></div>
+        <div class="item"><span class="sig">RequestBuilder</span><span class="doc">A builder to construct the properties of a <code>Request</code>.</span></div>
+        <div class="item"><span class="sig">Response</span><span class="doc">A Response to a submitted <code>Request</code>.</span></div>
+        <h2>Example</h2>
+        <pre class="code">use reqwest::Client;
+let body = Client::new()
+    .get("https://hn.algolia.com/api/v1/search")
+    .query(&[("tags", "front_page")])
+    .send().await?
+    .json::&lt;serde_json::Value&gt;().await?;</pre>
       </div>
     </div>
   </div>
   <div class="caption">
-    <span class="kbd">Super</span><span class="kbd">B</span> — Chromium
+    <span class="accent">Claude opened Chromium</span> — docs pinned, tabs stacked
   </div>
 </div>
 
-<!-- SCENE 4 · Neovim open (Super+N) -->
+<!-- SCENE 4 · Neovim opens (scaffolded scraper) -->
 <div id="scene4" class="scene stage">
   <div class="bg"></div>
   <div class="waybar">
-    <div class="ws"><span>1</span><span class="on">2</span><span>3</span><span>4</span></div>
-    <div class="clock">Thu 17 Jul · 09:43</div>
-    <div class="status"><span class="chip has">nvim</span><span class="chip hot">LSP · rust-analyzer</span></div>
+    <div class="ws"><span>1</span><span>2</span><span class="on">3</span><span>4</span></div>
+    <div class="clock">Thu 17 Jul · 09:41</div>
+    <div class="status">
+      <span class="chip has">chromium</span>
+      <span class="chip has">nvim</span>
+      <span class="chip hot">LSP · rust-analyzer</span>
+      <span class="chip hot">claude · writing</span>
+    </div>
   </div>
-  <div class="win focused nvim" style="left: 120px; top: 100px; width: 1680px; height: 900px;">
+  <div class="win focused nvim" style="left: 100px; top: 90px; width: 1720px; height: 900px;">
     <div class="tabline">
       <div class="tab on">main.rs</div>
       <div class="tab">Cargo.toml</div>
-      <div class="tab">lib.rs</div>
-      <div class="tab" style="margin-left:auto;color:var(--dimmer)">~/agents/scraper</div>
+      <div class="tab" style="margin-left:auto;color:var(--dimmer)">~/scrapers/hn · claude scaffolded 8s ago</div>
     </div>
-    <div class="code">
-<pre><span class="ln">  1</span><span class="kw">use</span> std::sync::Arc;
-<span class="ln">  2</span><span class="kw">use</span> tokio::{net::TcpListener, sync::Mutex};
+    <div class="code" style="font-size: 16px;">
+<pre><span class="ln">  1</span><span class="kw">use</span> reqwest::Client;
+<span class="ln">  2</span><span class="kw">use</span> serde::Deserialize;
 <span class="ln">  3</span><span class="kw">use</span> anyhow::Result;
 <span class="ln">  4</span>
-<span class="ln">  5</span><span class="muted">/// Streams tokens from an Ollama-backed local model to any HTTP client.</span>
-<span class="ln">  6</span><span class="muted">/// Falls back to Claude via <code>ANTHROPIC_API_KEY</code> when set.</span>
-<span class="ln">  7</span><span class="kw">pub struct</span> <span class="type">AgentBridge</span> {
-<span class="ln">  8</span>    <span class="fn">local</span>:  <span class="type">Arc</span>&lt;<span class="type">Mutex</span>&lt;<span class="type">OllamaClient</span>&gt;&gt;,
-<span class="ln">  9</span>    <span class="fn">remote</span>: <span class="type">Option</span>&lt;<span class="type">ClaudeClient</span>&gt;,
-<span class="ln"> 10</span>    <span class="fn">metrics</span>: <span class="type">MetricsSink</span>,
-<span class="ln"> 11</span>}
-<span class="ln"> 12</span>
-<span class="ln"> 13</span><span class="kw">impl</span> <span class="type">AgentBridge</span> {
-<span class="ln"> 14</span>    <span class="kw">pub async fn</span> <span class="fn">stream</span>(<span class="op">&amp;</span>self, prompt: <span class="op">&amp;</span><span class="type">str</span>) <span class="op">-&gt;</span> <span class="type">Result</span>&lt;<span class="type">TokenStream</span>&gt; {
-<span class="ln"> 15</span>        <span class="kw">if let</span> Some(claude) <span class="op">=</span> <span class="op">&amp;</span>self.remote {
-<span class="ln"> 16</span>            <span class="kw">return</span> claude.<span class="fn">stream</span>(prompt).<span class="fn">await</span>;
-<span class="ln"> 17</span>        }
-<span class="ln"> 18</span>        <span class="kw">let</span> mut local <span class="op">=</span> self.local.<span class="fn">lock</span>().<span class="fn">await</span>;
-<span class="ln"> 19</span>        local.<span class="fn">generate</span>(prompt, <span class="str">"llama3.2"</span>).<span class="fn">await</span>
-<span class="ln"> 20</span>    }
-<span class="ln cur"> 21</span>    <span class="cursor"></span>
-<span class="ln"> 22</span>    <span class="kw">pub fn</span> <span class="fn">healthy</span>(<span class="op">&amp;</span>self) <span class="op">-&gt;</span> <span class="type">bool</span> {
-<span class="ln"> 23</span>        self.metrics.<span class="fn">last_error</span>().<span class="fn">is_none</span>()<span class="lsp-hint">  ← rust-analyzer: fn healthy(&amp;self) -&gt; bool</span>
-<span class="ln"> 24</span>    }
-<span class="ln"> 25</span>}
+<span class="ln">  5</span><span class="muted">/// One entry from the Hacker News Algolia front-page endpoint.</span>
+<span class="ln">  6</span><span class="kw">#[</span><span class="fn">derive</span><span class="kw">(</span><span class="type">Deserialize</span>, <span class="type">Debug</span><span class="kw">)]</span>
+<span class="ln">  7</span><span class="kw">struct</span> <span class="type">HnHit</span> {
+<span class="ln">  8</span>    <span class="fn">title</span>:  <span class="type">String</span>,
+<span class="ln">  9</span>    <span class="fn">url</span>:    <span class="type">Option</span>&lt;<span class="type">String</span>&gt;,
+<span class="ln"> 10</span>    <span class="fn">points</span>: <span class="type">u32</span>,
+<span class="ln"> 11</span>    <span class="fn">author</span>: <span class="type">String</span>,
+<span class="ln"> 12</span>}
+<span class="ln"> 13</span>
+<span class="ln"> 14</span><span class="kw">#[</span><span class="fn">tokio</span>::<span class="fn">main</span><span class="kw">]</span>
+<span class="ln"> 15</span><span class="kw">async fn</span> <span class="fn">main</span>() <span class="op">-&gt;</span> <span class="type">Result</span>&lt;()&gt; {
+<span class="ln"> 16</span>    <span class="kw">let</span> res <span class="op">=</span> Client::<span class="fn">new</span>()
+<span class="ln"> 17</span>        .<span class="fn">get</span>(<span class="str">"https://hn.algolia.com/api/v1/search"</span>)
+<span class="ln"> 18</span>        .<span class="fn">query</span>(&amp;[(<span class="str">"tags"</span>, <span class="str">"front_page"</span>), (<span class="str">"hitsPerPage"</span>, <span class="str">"10"</span>)])
+<span class="ln"> 19</span>        .<span class="fn">send</span>().<span class="fn">await</span>?
+<span class="ln"> 20</span>        .<span class="fn">json</span>::&lt;serde_json::<span class="type">Value</span>&gt;().<span class="fn">await</span>?;
+<span class="ln"> 21</span>
+<span class="ln"> 22</span>    <span class="kw">let</span> hits: <span class="type">Vec</span>&lt;<span class="type">HnHit</span>&gt; <span class="op">=</span> res[<span class="str">"hits"</span>].<span class="fn">as_array</span>().<span class="fn">unwrap</span>().<span class="fn">iter</span>()
+<span class="ln"> 23</span>        .<span class="fn">filter_map</span>(|h| serde_json::<span class="fn">from_value</span>(h.<span class="fn">clone</span>()).<span class="fn">ok</span>())
+<span class="ln"> 24</span>        .<span class="fn">collect</span>();
+<span class="ln"> 25</span>
+<span class="ln"> 26</span>    <span class="kw">for</span> hit <span class="kw">in</span> hits.<span class="fn">iter</span>().<span class="fn">take</span>(<span class="num">10</span>) {
+<span class="ln"> 27</span>        <span class="fn">println!</span>(<span class="str">"{:&gt;4} · {}"</span>, hit.points, hit.title);
+<span class="ln"> 28</span>    }
+<span class="ln cur"> 29</span>    <span class="kw">Ok</span>(())<span class="cursor"></span>
+<span class="ln"> 30</span>}
 </pre>
     </div>
     <div class="status">
       <span class="mode">NORMAL</span>
-      <span class="file">main.rs</span>
-      <span class="git">✎  main · +42 −8</span>
-      <span class="right">rust · utf-8 · unix · 21:0</span>
+      <span class="file">~/scrapers/hn/src/main.rs</span>
+      <span class="git">✎  claude · +29 lines · saved</span>
+      <span class="right">rust · utf-8 · unix · 29:5</span>
     </div>
   </div>
   <div class="caption">
-    <span class="kbd">Super</span><span class="kbd">N</span> — Neovim, LSP-ready
+    <span class="accent">Claude scaffolded Neovim</span> — 29 lines, saved, LSP happy
   </div>
 </div>
 
-<!-- SCENE 5 · Spotify open (Super+M) -->
+<!-- SCENE 5 · vinos-ai local (llama3.2) chat streaming — the OTHER AI -->
 <div id="scene5" class="scene stage">
   <div class="bg"></div>
   <div class="waybar">
-    <div class="ws"><span>1</span><span>2</span><span class="on">3</span><span>4</span></div>
-    <div class="clock">Thu 17 Jul · 09:44</div>
-    <div class="status"><span class="chip play">▶  Nightcall · Kavinsky</span><span class="chip hot">ollama</span></div>
+    <div class="ws"><span>1</span><span>2</span><span>3</span><span class="on">4</span></div>
+    <div class="clock">Thu 17 Jul · 09:42</div>
+    <div class="status">
+      <span class="chip has">chromium</span>
+      <span class="chip has">nvim</span>
+      <span class="chip hot">ollama · streaming · llama3.2</span>
+      <span class="chip hot">claude · done</span>
+    </div>
   </div>
-  <div class="win focused" style="left: 120px; top: 100px; width: 1680px; height: 900px; background: #000; border-radius: 12px; overflow: hidden; position: absolute;">
+  <div class="win focused" style="left: 120px; top: 90px; width: 1680px; height: 900px;">
+    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~ · vinos-ai chat</div></div>
+    <div class="body" style="font-size: 17px; line-height: 1.65;">
+<pre><span class="prompt">$ </span><span class="cmd">vinos-ai chat</span>
+<span class="dim">vinos-ai · </span><span class="ok">local</span><span class="dim"> · model </span><span class="kw">llama3.2:latest</span><span class="dim"> · 100% offline · your machine only</span>
+
+<span class="you">›</span> <span class="cmd">explain the reqwest .query() call in main.rs, quickly</span>
+
+<span class="dim">llama3.2</span> · <span class="muted">first token 42 ms · streaming 87 t/s</span>
+
+The <span class="kw">.query()</span> call takes a slice of <span class="type">(&amp;str, &amp;str)</span> pairs and
+URL-encodes them onto the request path. So
+
+  <span class="str">.query(&amp;[("tags", "front_page"), ("hitsPerPage", "10")])</span>
+
+becomes
+
+  <span class="str">?tags=front_page&amp;hitsPerPage=10</span>
+
+Two nice things about this API:
+
+  <span class="accent" style="color:#4fd1c5">→</span> <span class="ok">Compile-time typed</span> — anything that impls <span class="type">Serialize</span> works,
+    so you could pass a struct instead of tuples once your query
+    grows past three or four parameters.
+
+  <span class="accent" style="color:#4fd1c5">→</span> <span class="ok">Escaping is free</span> — no manual <span class="kw">urlencoding::encode()</span>
+    dance. Spaces, colons, plus-signs all handled.
+
+If you need repeated keys (rare in HN's API but common elsewhere),
+just add the pair twice: <span class="kw">[("t", "rust"), ("t", "async")]</span>.
+
+<span class="you">›</span> <span class="cursor"></span>
+</pre>
+    </div>
+  </div>
+  <div class="caption">
+    <span class="accent">Local AI</span> — llama3.2 running on your machine, no cloud, no telemetry
+  </div>
+</div>
+
+<!-- SCENE 6 · Spotify — Claude cued the music -->
+<div id="scene6" class="scene stage">
+  <div class="bg"></div>
+  <div class="waybar">
+    <div class="ws"><span>1</span><span>2</span><span>3</span><span class="on">4</span></div>
+    <div class="clock">Thu 17 Jul · 09:41</div>
+    <div class="status">
+      <span class="chip has">chromium</span>
+      <span class="chip has">nvim</span>
+      <span class="chip play">▶  Nightcall · Kavinsky</span>
+      <span class="chip hot">claude · done</span>
+    </div>
+  </div>
+  <div class="win focused" style="left: 100px; top: 90px; width: 1720px; height: 900px; background: #000; overflow: hidden;">
     <div class="titlebar" style="background:#000;border-bottom:1px solid #282828;"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name" style="color:#b3b3b3;">Spotify</div></div>
-    <div style="flex:1;position:relative;display:flex;">
-      <div class="spotify-app" style="flex:1;height:100%;">
+    <div style="flex:1;position:relative;">
+      <div class="spotify-app">
         <div class="spotify-side">
           <div class="logo">Spotify</div>
           <div class="row on"><span class="ic"></span>Home</div>
           <div class="row"><span class="ic"></span>Search</div>
           <div class="row"><span class="ic"></span>Your Library</div>
           <div class="sep"></div>
-          <div class="row"><span class="ic" style="background:linear-gradient(135deg,#450af5,#c4efd9)"></span>Liked Songs</div>
+          <div class="pl on">▶  Late Night Coding</div>
           <div class="pl">Focus · Deep Work</div>
-          <div class="pl">Late Night Coding</div>
           <div class="pl">Synthwave Essentials</div>
-          <div class="pl">Discover Weekly</div>
           <div class="pl">Chillhop Beats</div>
+          <div class="pl">Piano for Concentration</div>
         </div>
         <div class="spotify-main">
-          <div class="topbar">←  →  <span style="margin-left:auto;">Upgrade</span></div>
+          <div class="topbar">←  →  <span style="margin-left:auto;">Playing on <span style="color:var(--spotify)">vinos</span></span></div>
           <div class="now-title">PLAYLIST</div>
           <h1>Late Night Coding</h1>
-          <div class="sub">42 songs · 3 hr 18 min · synthwave · lofi · ambient</div>
+          <div class="sub">42 songs · 3 hr 18 min · <span style="color:var(--spotify)">cued by claude · 09:41</span></div>
           <div class="tracks">
             <div class="tr on"><span class="n">1</span><span class="tt">Nightcall — <span class="dim">Kavinsky</span></span><span>Outrun</span><span>4:16</span></div>
             <div class="tr"><span class="n">2</span><span class="tt">Midnight City — <span class="dim">M83</span></span><span>Hurry Up</span><span>4:03</span></div>
@@ -401,147 +495,158 @@
       </div>
       <div class="spotify-bar">
         <div class="cover"></div>
-        <div class="np"><div class="t">Nightcall</div><div class="a">Kavinsky</div></div>
+        <div class="np"><div class="t">Nightcall</div><div class="a">Kavinsky · Outrun</div></div>
         <div class="controls">⤴  ⏮  <span class="play">▶</span>  ⏭  ⤵</div>
         <div class="rt">⇄  ◧  ♪  ⇱</div>
       </div>
     </div>
   </div>
   <div class="caption">
-    <span class="kbd">Super</span><span class="kbd">M</span> — Spotify · pipewire routed
+    <span class="accent">Claude cued Spotify</span> — pipewire routed, background lit
   </div>
 </div>
 
-<!-- SCENE 6 · Four tiles = delivery -->
-<div id="scene6" class="scene stage">
+<!-- SCENE 7 · Full delivery — 4 tiles, one workspace -->
+<div id="scene7" class="scene stage">
   <div class="bg"></div>
   <div class="waybar">
     <div class="ws"><span>1</span><span>2</span><span>3</span><span class="on">4</span></div>
-    <div class="clock">Thu 17 Jul · 09:45</div>
+    <div class="clock">Thu 17 Jul · 09:42</div>
     <div class="status">
-      <span class="chip has">chromium</span>
+      <span class="chip has">chromium · 4 tabs</span>
       <span class="chip has">nvim</span>
-      <span class="chip play">▶ Nightcall</span>
-      <span class="chip hot">claude · streaming</span>
+      <span class="chip has">foot · cargo</span>
+      <span class="chip play">▶  Nightcall</span>
+      <span class="chip hot">claude · idle · 6.4s</span>
     </div>
   </div>
 
-  <!-- Top-left: chromium mini -->
-  <div class="win compact" style="left: 60px; top: 100px; width: 900px; height: 470px;">
-    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">chromium — Hyprland Wiki</div></div>
+  <!-- Top-left: chromium docs -->
+  <div class="win compact" style="left: 60px; top: 90px; width: 900px; height: 470px;">
+    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">chromium — docs.rs/reqwest</div></div>
     <div class="body" style="padding: 0; background: #0d1017;">
       <div class="browser" style="height: 100%;">
         <div class="toolbar" style="height: 32px;">
           <div class="nav" style="font-size:14px;">← → ↻</div>
-          <div class="url" style="height:22px;font-size:11px;"><span class="host">wiki.hypr.land</span><span class="path">/Configuring/Binds/</span></div>
+          <div class="url" style="height:22px;font-size:11px;"><span class="lock">🔒</span><span class="host">docs.rs</span><span class="path">/reqwest/latest/</span></div>
         </div>
-        <div class="content" style="padding: 18px 22px; font-size: 12px;">
-          <div class="gh">
-            <h1 style="font-size:20px;font-weight:700;margin:0 0 8px;color:var(--ink);">Configuring binds</h1>
-            <p style="color:#c9d1d9;font-size:12px;line-height:1.6;margin:6px 0;">Hyprland binds are declared in <code style="color:#7dcfff">hyprland.conf</code> using the <code>bind = MOD, KEY, DISPATCHER, ARG</code> form. Modifiers stack with a space; leading commas are placeholders for the empty modifier set.</p>
-            <pre class="code" style="font-size:11px;padding:10px 12px;margin:8px 0;"><span style="color:#7dcfff;">bind</span> = SUPER, RETURN, exec, foot
-<span style="color:#7dcfff;">bind</span> = SUPER, A,      exec, vinos-ai chat
-<span style="color:#7dcfff;">bind</span> = SUPER SHIFT, A, exec, claude
-<span style="color:#7dcfff;">bind</span> = SUPER, SPACE,  exec, walker</pre>
-            <p style="color:#c9d1d9;font-size:12px;margin:6px 0;">See <span style="color:#58a6ff;">Dispatchers</span> for the full list, including <code style="color:#7dcfff">exec</code>, <code style="color:#7dcfff">killactive</code>, <code style="color:#7dcfff">togglefloating</code>, and <code style="color:#7dcfff">movetoworkspace</code>.</p>
+        <div class="content" style="padding: 16px 22px; font-size: 12px;">
+          <div class="drs">
+            <h1 style="font-size:20px;margin:0 0 6px;">Crate reqwest</h1>
+            <div class="ver" style="font-size:11px;">source · [−]</div>
+            <p class="desc" style="font-size:11px;margin-bottom:14px;">Higher level HTTP client library — async, blocking, JSON, cookies, streaming.</p>
+            <h2 style="font-size:14px;margin:12px 0 8px;">Structs</h2>
+            <div class="item" style="font-size:11px;padding:4px 0;"><span class="sig" style="min-width:140px;">Client</span><span class="doc">Async <code>Client</code> for requests.</span></div>
+            <div class="item" style="font-size:11px;padding:4px 0;"><span class="sig" style="min-width:140px;">ClientBuilder</span><span class="doc">Configure a client.</span></div>
+            <div class="item" style="font-size:11px;padding:4px 0;"><span class="sig" style="min-width:140px;">Response</span><span class="doc">A response body.</span></div>
+            <pre class="code" style="font-size:10px;padding:8px 10px;margin:8px 0;line-height:1.5;">Client::new()
+  .get("https://hn.algolia.com/api/v1/search")
+  .send().await?</pre>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Top-right: nvim mini -->
-  <div class="win compact focused" style="left: 980px; top: 100px; width: 880px; height: 470px;">
-    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">nvim main.rs</div></div>
+  <!-- Top-right: nvim -->
+  <div class="win compact focused" style="left: 980px; top: 90px; width: 880px; height: 470px;">
+    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">nvim ~/scrapers/hn/src/main.rs</div></div>
     <div class="body" style="padding:0;">
       <div class="nvim" style="height:100%;background:#1a1b26;">
-        <div class="code" style="font-size:11px;padding:10px 14px;">
-<pre><span class="ln">  6</span><span class="kw">pub async fn</span> <span class="fn">stream</span>(&amp;<span class="kw">self</span>, prompt: &amp;<span class="type">str</span>) <span class="op">-&gt;</span> <span class="type">Result</span>&lt;<span class="type">Tokens</span>&gt; {
-<span class="ln">  7</span>    <span class="kw">if let</span> Some(claude) <span class="op">=</span> &amp;<span class="kw">self</span>.remote {
-<span class="ln">  8</span>        <span class="kw">return</span> claude.<span class="fn">stream</span>(prompt).<span class="fn">await</span>;
-<span class="ln">  9</span>    }
-<span class="ln"> 10</span>    <span class="kw">let</span> mut local <span class="op">=</span> <span class="kw">self</span>.local.<span class="fn">lock</span>().<span class="fn">await</span>;
-<span class="ln"> 11</span>    local.<span class="fn">generate</span>(prompt, <span class="str">"llama3.2"</span>).<span class="fn">await</span>
-<span class="ln"> 12</span>}
-<span class="ln"> 13</span>
-<span class="ln"> 14</span><span class="muted">/// Health probe called by the waybar module every 5s.</span>
-<span class="ln"> 15</span><span class="kw">pub fn</span> <span class="fn">healthy</span>(&amp;<span class="kw">self</span>) <span class="op">-&gt;</span> <span class="type">bool</span> {
-<span class="ln cur"> 16</span>    <span class="kw">self</span>.metrics.<span class="fn">last_error</span>().<span class="fn">is_none</span>()<span class="cursor"></span>
-<span class="ln"> 17</span>}
+        <div class="code" style="font-size:11px;padding:10px 14px;line-height:1.55;">
+<pre><span class="ln"> 14</span><span class="kw">#[</span><span class="fn">tokio</span>::<span class="fn">main</span><span class="kw">]</span>
+<span class="ln"> 15</span><span class="kw">async fn</span> <span class="fn">main</span>() <span class="op">-&gt;</span> <span class="type">Result</span>&lt;()&gt; {
+<span class="ln"> 16</span>    <span class="kw">let</span> res <span class="op">=</span> Client::<span class="fn">new</span>()
+<span class="ln"> 17</span>        .<span class="fn">get</span>(<span class="str">"https://hn.algolia.com/api/v1/search"</span>)
+<span class="ln"> 18</span>        .<span class="fn">query</span>(&amp;[(<span class="str">"tags"</span>, <span class="str">"front_page"</span>)])
+<span class="ln"> 19</span>        .<span class="fn">send</span>().<span class="fn">await</span>?
+<span class="ln"> 20</span>        .<span class="fn">json</span>::&lt;serde_json::<span class="type">Value</span>&gt;().<span class="fn">await</span>?;
+<span class="ln"> 21</span>
+<span class="ln"> 22</span>    <span class="kw">let</span> hits: <span class="type">Vec</span>&lt;<span class="type">HnHit</span>&gt; <span class="op">=</span> res[<span class="str">"hits"</span>].<span class="fn">as_array</span>()
+<span class="ln"> 23</span>        .<span class="fn">unwrap</span>().<span class="fn">iter</span>()
+<span class="ln"> 24</span>        .<span class="fn">filter_map</span>(|h| serde_json::<span class="fn">from_value</span>(h.<span class="fn">clone</span>()).<span class="fn">ok</span>())
+<span class="ln"> 25</span>        .<span class="fn">collect</span>();
+<span class="ln"> 26</span>
+<span class="ln"> 27</span>    <span class="kw">for</span> hit <span class="kw">in</span> hits.<span class="fn">iter</span>().<span class="fn">take</span>(<span class="num">10</span>) {
+<span class="ln"> 28</span>        <span class="fn">println!</span>(<span class="str">"{:&gt;4} · {}"</span>, hit.points, hit.title);
+<span class="ln cur"> 29</span>    }<span class="cursor"></span>
 </pre>
         </div>
-        <div class="status" style="height:22px;font-size:11px;padding:0 12px;">
-          <span class="mode" style="padding:1px 8px;font-size:10px;">INSERT</span>
+        <div class="status" style="height:22px;font-size:10px;padding:0 12px;">
+          <span class="mode" style="padding:1px 8px;font-size:10px;">NORMAL</span>
           <span class="file">main.rs</span>
-          <span class="git">✎  +42 −8</span>
-          <span class="right">16:9</span>
+          <span class="git">✎  saved</span>
+          <span class="right">29:5</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Bottom-left: spotify mini -->
+  <!-- Bottom-left: spotify -->
   <div class="win compact" style="left: 60px; top: 590px; width: 900px; height: 410px;">
     <div class="titlebar" style="background:#000;border-bottom:1px solid #282828;"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name" style="color:#b3b3b3;">Spotify — Late Night Coding</div></div>
     <div class="body" style="padding:0;background:#000;">
       <div style="display:flex;height:100%;position:relative;">
-        <div style="width:140px;background:#000;padding:12px 8px;display:flex;flex-direction:column;gap:6px;">
-          <div style="color:#fff;font-size:14px;font-weight:700;margin-bottom:6px;font-family:var(--font-sans);">Spotify</div>
+        <div style="width:150px;background:#000;padding:14px 10px;display:flex;flex-direction:column;gap:6px;">
+          <div style="color:#fff;font-size:14px;font-weight:700;margin-bottom:8px;font-family:var(--font-sans);">Spotify</div>
           <div style="color:#fff;font-size:11px;padding:4px 6px;border-radius:4px;background:#1a1a1a;font-family:var(--font-sans);">Home</div>
           <div style="color:#b3b3b3;font-size:11px;padding:4px 6px;font-family:var(--font-sans);">Search</div>
           <div style="color:#b3b3b3;font-size:11px;padding:4px 6px;font-family:var(--font-sans);">Library</div>
+          <div style="height:1px;background:#282828;margin:6px 0;"></div>
+          <div style="color:#fff;font-size:11px;padding:2px 6px;font-family:var(--font-sans);">▶ Late Night Coding</div>
         </div>
-        <div style="flex:1;background:linear-gradient(180deg,#1f3a5b 0%, #121212 40%);padding:14px 18px;color:#fff;font-family:var(--font-sans);">
+        <div style="flex:1;background:linear-gradient(180deg,#1f3a5b 0%, #121212 40%);padding:14px 20px;color:#fff;font-family:var(--font-sans);">
           <div style="font-size:10px;letter-spacing:0.14em;color:#b3b3b3;text-transform:uppercase;">PLAYLIST</div>
-          <div style="font-size:34px;font-weight:900;margin:4px 0 6px;letter-spacing:-0.03em;">Late Night Coding</div>
-          <div style="color:#b3b3b3;font-size:11px;margin-bottom:14px;">42 songs · synthwave · lofi</div>
-          <div style="font-size:11px;color:var(--spotify);background:rgba(29,185,84,0.10);padding:6px 10px;border-radius:4px;font-family:var(--font-sans);">▶  Nightcall — Kavinsky</div>
-          <div style="font-size:11px;color:#b3b3b3;padding:5px 10px;font-family:var(--font-sans);">    Midnight City — M83</div>
-          <div style="font-size:11px;color:#b3b3b3;padding:5px 10px;font-family:var(--font-sans);">    Neon Lights — Kraftwerk</div>
+          <div style="font-size:32px;font-weight:900;margin:4px 0 6px;letter-spacing:-0.03em;">Late Night Coding</div>
+          <div style="color:#b3b3b3;font-size:11px;margin-bottom:12px;">42 songs · cued by claude</div>
+          <div style="font-size:11px;color:var(--spotify);background:rgba(29,185,84,0.10);padding:5px 10px;border-radius:4px;font-family:var(--font-sans);">▶  Nightcall — Kavinsky</div>
+          <div style="font-size:11px;color:#b3b3b3;padding:4px 10px;font-family:var(--font-sans);">    Midnight City — M83</div>
+          <div style="font-size:11px;color:#b3b3b3;padding:4px 10px;font-family:var(--font-sans);">    Neon Lights — Kraftwerk</div>
         </div>
         <div style="position:absolute;left:0;right:0;bottom:0;height:44px;background:#181818;border-top:1px solid #282828;display:flex;align-items:center;padding:0 10px;font-family:var(--font-sans);">
           <div style="width:32px;height:32px;border-radius:3px;background:linear-gradient(135deg,#4c1d95,#1e40af);"></div>
-          <div style="margin-left:10px;"><div style="color:#fff;font-size:11px;">Nightcall</div><div style="color:#b3b3b3;font-size:10px;">Kavinsky</div></div>
+          <div style="margin-left:10px;"><div style="color:#fff;font-size:11px;">Nightcall</div><div style="color:#b3b3b3;font-size:10px;">Kavinsky · Outrun</div></div>
           <div style="margin:0 auto;display:flex;align-items:center;gap:12px;color:#b3b3b3;font-size:14px;">⏮ <span style="width:22px;height:22px;background:#fff;color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;">▶</span> ⏭</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Bottom-right: vinos-ai + claude chat -->
+  <!-- Bottom-right: terminal running cargo -->
   <div class="win compact" style="left: 980px; top: 590px; width: 880px; height: 410px;">
-    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~/agents · claude</div></div>
-    <div class="body" style="font-size:12px;padding:14px 16px;">
-<pre><span class="prompt">$ </span><span class="cmd">claude</span>
-<span class="dim">Claude Code · Opus 4.7 · project: agents/scraper</span>
+    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~/scrapers/hn · cargo run</div></div>
+    <div class="body" style="font-size:12px;padding:14px 16px;line-height:1.55;">
+<pre><span class="prompt">$ </span><span class="cmd">cargo run</span>
+   <span class="ok">Compiling</span> hn-scraper v0.1.0 (~/scrapers/hn)
+   <span class="ok">Compiling</span> reqwest v0.12.9
+   <span class="ok">Compiling</span> tokio v1.42.0
+    <span class="ok">Finished</span> `dev` profile [unoptimized + debuginfo] in <span class="num">3.2s</span>
+     <span class="ok">Running</span> `target/debug/hn-scraper`
 
-<span class="accent" style="color:#4fd1c5">You</span> — write me a healthcheck for AgentBridge
+ <span class="num">427</span> · Show HN: I built a distributed key-value store in Zig
+ <span class="num">318</span> · Postgres 17 released
+ <span class="num">294</span> · Why we replaced Redis with SQLite
+ <span class="num">281</span> · Ask HN: What are you working on this month?
+ <span class="num">263</span> · The end of Moore's Law and what comes next
+ <span class="num">204</span> · A minimal terminal editor written in 400 lines
+ <span class="num">198</span> · Show HN: vinOS — Arch that boots your agents in 15 minutes
+ <span class="num">176</span> · The case for LLM inference at the edge
+ <span class="num">142</span> · A Rust primer for Python engineers
+ <span class="num">128</span> · How we cut our AWS bill by 74%
 
-<span class="accent" style="color:#bb9af7">Claude</span> — Adding <span class="kw">healthy()</span> to <span class="kw">main.rs</span>. Also
-wiring it to the waybar so we can see live status
-next to the clock.
-
-<span class="muted">──────────── diff ────────────</span>
-<span class="ok">+ pub fn healthy(&amp;self) -&gt; bool {</span>
-<span class="ok">+     self.metrics.last_error().is_none()</span>
-<span class="ok">+ }</span>
-<span class="muted">──────────────────────────────</span>
-
-<span class="dim">Applied · src/main.rs (+3 lines)</span>
-<span class="dim">Waybar module: /etc/xdg/waybar/modules/agent.jsonc (+8)</span>
-
-<span class="accent" style="color:#bb9af7">Claude</span> — Rebuild + reload waybar? <span class="cursor"></span>
+<span class="prompt">$ </span><span class="cursor"></span>
 </pre>
     </div>
   </div>
 
   <div class="caption">
-    Browser · Editor · Music · Agents — <span class="accent">one workspace, one keystroke each</span>
+    Browser · Editor · Music · Cargo — <span class="accent">one workspace, one prompt.</span>
+    <span class="small">This is what "agent-native" means.</span>
   </div>
 </div>
 
-<!-- SCENE 7 · outro logo -->
-<div id="scene7" class="scene stage">
+<!-- SCENE 8 · outro -->
+<div id="scene8" class="scene stage">
   <div class="card">
     <svg viewBox="0 0 256 256">
       <defs>
@@ -558,7 +663,7 @@ next to the clock.
     </svg>
     <div class="name">vin<span style="color:#4fd1c5;font-family:Georgia,serif;font-style:italic">OS</span></div>
     <div class="url">vinos.computer</div>
-    <div class="tag">Flash · boot · fifteen minutes to <span class="accent" style="color:#4fd1c5">your</span> agents.</div>
+    <div class="tag">Flash · boot · your agents <span class="accent" style="color:#4fd1c5">wake with you</span>.</div>
   </div>
 </div>
 

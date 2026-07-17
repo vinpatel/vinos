@@ -14,9 +14,9 @@ FRAMES="$HERE/frames"
 OUT_VIDEO="$SITE/static/video/vinos-demo.mp4"
 OUT_POSTER="$SITE/static/img/demo-poster.jpg"
 
-SCENES=(1 2 3 4 5 6 7)
-PER_SCENE=3.0        # seconds each scene is on screen
-CROSSFADE=0.5        # seconds of crossfade between scenes
+SCENES=(1 2 3 4 5 6 7 8)
+PER_SCENE=2.7        # seconds each scene is on screen
+CROSSFADE=0.4        # seconds of crossfade between scenes
 FPS=30
 
 command -v chromium >/dev/null 2>&1 || { echo "chromium required" >&2; exit 1; }
