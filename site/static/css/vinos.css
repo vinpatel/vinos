@@ -30,9 +30,9 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 /* ══════════════════════════ N9 nav ══════════════════════════ */
 
 .nav-edge { display: flex; justify-content: space-between; align-items: center; padding: var(--space-md) var(--page-gutter); max-width: var(--page-max); margin: 0 auto; gap: var(--space-md); }
-.nav-edge .wordmark { display: inline-flex; align-items: center; gap: 0.55rem; font-family: var(--font-display); font-size: var(--text-xl); letter-spacing: -0.01em; line-height: 1; font-style: normal; color: var(--color-ink); }
+.nav-edge .wordmark { display: inline-flex; align-items: center; gap: 0.7rem; font-family: var(--font-display); font-size: var(--text-2xl); letter-spacing: -0.01em; line-height: 1; font-style: normal; color: var(--color-ink); }
 .nav-edge .wordmark em { font-style: normal; color: var(--color-accent); }
-.nav-edge .brand-mark { display: block; width: 26px; height: 26px; }
+.nav-edge .brand-mark { display: block; width: 40px; height: 40px; }
 .nav-edge .brand-mark .stroke-l { fill: var(--color-ink); }
 .nav-edge .brand-mark .stroke-r { fill: var(--color-accent); }
 .nav-edge .brand-mark .brand-caret { fill: var(--color-accent); animation: caret-blink 1.15s steps(1, end) infinite; }
