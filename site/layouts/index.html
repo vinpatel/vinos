@@ -338,38 +338,46 @@
 
     <div class="table-wrap">
       <table class="spec">
-        <caption>Default keybindings · <code>/etc/hypr/hyprland.conf</code></caption>
+        <caption>Default keybindings · <code>~/.config/hypr/hyprland.conf</code></caption>
         <thead>
           <tr><th scope="col">chord</th><th scope="col">action</th><th scope="col">runs</th></tr>
         </thead>
         <tbody>
           <tr class="group-row"><td colspan="3">agents</td></tr>
-          <tr><th scope="row"><kbd>Super</kbd>+<kbd>A</kbd></th><td>Local AI chat</td><td><code>vinos-ai-chat</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>A</kbd></th><td>Local AI chat</td><td><code>vinos-ai chat</code></td></tr>
           <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd></th><td>Claude Code in project</td><td><code>claude</code></td></tr>
 
           <tr class="group-row"><td colspan="3">launch</td></tr>
           <tr><th scope="row"><kbd>Super</kbd>+<kbd>Space</kbd></th><td>App / file / calc launcher</td><td><code>walker</code></td></tr>
           <tr><th scope="row"><kbd>Super</kbd>+<kbd>Return</kbd></th><td>Terminal</td><td><code>foot</code></td></tr>
-          <tr><th scope="row"><kbd>Super</kbd>+<kbd>B</kbd></th><td>Browser</td><td><code>xdg-open</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>B</kbd></th><td>Browser</td><td><code>chromium</code></td></tr>
           <tr><th scope="row"><kbd>Super</kbd>+<kbd>E</kbd></th><td>File manager</td><td><code>nautilus</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>N</kbd></th><td>Editor</td><td><code>foot -e nvim</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>T</kbd></th><td>System monitor</td><td><code>foot -e btop</code></td></tr>
 
           <tr class="group-row"><td colspan="3">vinos</td></tr>
           <tr><th scope="row"><kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>O</kbd></th><td>vinOS menu (hub)</td><td><code>vinos-menu</code></td></tr>
           <tr><th scope="row"><kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>W</kbd></th><td>Wi-Fi picker</td><td><code>vinos-launch-wifi</code></td></tr>
-          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>T</kbd></th><td>Live theme switch</td><td><code>vinos-theme</code></td></tr>
-          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>L</kbd></th><td>Lock screen</td><td><code>hyprlock</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>B</kbd></th><td>Bluetooth picker</td><td><code>vinos-launch-bluetooth</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>U</kbd></th><td>Audio picker</td><td><code>vinos-launch-audio</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>T</kbd></th><td>Live theme switch</td><td><code>vinos-theme --pick</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Ctrl</kbd>+<kbd>S</kbd></th><td>System doctor</td><td><code>vinos-doctor</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>L</kbd></th><td>Lock screen</td><td><code>hyprlock</code></td></tr>
 
           <tr class="group-row"><td colspan="3">screen</td></tr>
-          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>3</kbd></th><td>Screenshot region</td><td><code>grim | satty</code></td></tr>
-          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd></th><td>Screenshot full</td><td><code>grim</code></td></tr>
-          <tr><th scope="row"><kbd>Super</kbd>+<kbd>P</kbd></th><td>Color picker</td><td><code>hyprpicker</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>P</kbd></th><td>Screenshot region &amp; annotate</td><td><code>grim | slurp | satty</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd></th><td>Screenshot region → clipboard</td><td><code>grim | slurp | wl-copy</code></td></tr>
+          <tr><th scope="row"><kbd>PrintScreen</kbd></th><td>Screenshot region → clipboard</td><td><code>grim | slurp | wl-copy</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd></th><td>Color picker</td><td><code>hyprpicker -a</code></td></tr>
 
           <tr class="group-row"><td colspan="3">windows</td></tr>
-          <tr><th scope="row"><kbd>Super</kbd>+<kbd>H</kbd>/<kbd>J</kbd>/<kbd>K</kbd>/<kbd>L</kbd></th><td>Move focus (vim keys)</td><td>hyprland</td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Q</kbd></th><td>Close window</td><td>hyprland</td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd></th><td>Fullscreen</td><td>hyprland</td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>V</kbd></th><td>Toggle float / tile</td><td>hyprland</td></tr>
           <tr><th scope="row"><kbd>Super</kbd>+<kbd>1</kbd>…<kbd>9</kbd></th><td>Switch workspace</td><td>hyprland</td></tr>
-          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd></th><td>Close window</td><td>hyprland</td></tr>
-          <tr><th scope="row"><kbd>Super</kbd>+<kbd>F</kbd></th><td>Fullscreen</td><td>hyprland</td></tr>
-          <tr><th scope="row"><kbd>Super</kbd>+<kbd>K</kbd></th><td>Show all bindings</td><td><code>vinos-keys</code></td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>…<kbd>9</kbd></th><td>Move window to workspace</td><td>hyprland</td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd></th><td>Exit Hyprland</td><td>hyprland</td></tr>
+          <tr><th scope="row"><kbd>Super</kbd>+<kbd>K</kbd></th><td>Show cheat sheet</td><td><code>vinos-cheatsheet</code></td></tr>
         </tbody>
       </table>
     </div>
