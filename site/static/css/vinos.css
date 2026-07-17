@@ -234,6 +234,31 @@ kbd { font-size: 0.82em; padding: 0.15em 0.45em; border: var(--rule-hair) solid 
 .foot-dense .col a:hover { border-bottom-color: var(--color-ink); }
 .foot-dense .sep { color: var(--color-rule-strong); padding: 0 0.35rem; }
 
+/* Human footer — grouped columns, real links, no spec-sheet slop. */
+.foot { margin-top: var(--space-4xl); padding: var(--space-2xl) 0 var(--space-xl); border-top: var(--rule-hair) solid var(--color-rule); }
+.foot-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr); gap: clamp(2rem, 5vw, 5rem); align-items: start; }
+.foot-brand { display: flex; flex-direction: column; gap: var(--space-md); }
+.foot-mark { display: inline-flex; align-items: center; gap: 0.6rem; color: var(--color-ink); font-family: var(--font-display); font-size: var(--text-xl); letter-spacing: -0.01em; font-style: normal; }
+.foot-mark svg { width: 36px; height: 36px; }
+.foot-mark .stroke-l { fill: var(--color-ink); }
+.foot-mark .stroke-r, .foot-mark .brand-caret { fill: var(--color-accent); }
+.foot-mark em { font-style: normal; color: var(--color-accent); }
+.foot-line { max-width: 40ch; font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.6; color: var(--color-ink-2); margin: 0; }
+.foot-line a { color: var(--color-ink); border-bottom: var(--rule-hair) solid var(--color-rule-strong); }
+.foot-line a:hover { border-bottom-color: var(--color-ink); }
+.foot-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 3rem); }
+.foot-col h4 { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-muted); font-weight: 500; margin: 0 0 var(--space-md); }
+.foot-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-sm); }
+.foot-col a { font-family: var(--font-body); font-size: var(--text-md); color: var(--color-ink); text-decoration: none; border-bottom: 0; padding-bottom: 1px; border-bottom: 1px solid transparent; transition: border-color var(--dur-fast) var(--ease-out); }
+.foot-col a:hover { border-bottom-color: var(--color-ink); }
+.foot-bottom { margin-top: var(--space-2xl); padding-top: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--color-muted); letter-spacing: 0.02em; display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
+.foot-bottom .foot-sep { color: var(--color-rule-strong); padding: 0 0.5rem; }
+
+@media (max-width: 48rem) {
+  .foot-grid { grid-template-columns: 1fr; gap: var(--space-xl); }
+  .foot-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-lg); }
+}
+
 /* ══════════════════════════ reveal (opacity only, ≤150ms) ══════════════════════════ */
 
 .reveal { opacity: 0; transition: opacity var(--dur-med) var(--ease-out); }
@@ -265,7 +290,7 @@ kbd { font-size: 0.82em; padding: 0.15em 0.45em; border: var(--rule-hair) solid 
    Width capped by (available vh × 16/9) so the whole hero (nav + title + video)
    stays within one viewport height on any laptop. */
 .hero-video { margin: 0; padding: 0; position: relative; width: 100vw; margin-left: calc(50% - 50vw); max-width: 100vw; }
-.hero-video video { display: block; width: min(100%, calc((100vh - 180px) * 16 / 9), 1720px); margin: 0 auto; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border: var(--rule-hair) solid var(--color-rule-strong); border-radius: var(--radius-lg); background: var(--color-panel); box-shadow: 0 30px 80px rgba(10, 11, 16, 0.20), 0 6px 20px rgba(10, 11, 16, 0.10); }
+.hero-video video { display: block; width: min(100%, calc((100vh - 220px) * 16 / 9), 1720px); margin: 0 auto; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border: var(--rule-hair) solid var(--color-rule-strong); border-radius: var(--radius-lg); background: var(--color-panel); box-shadow: 0 30px 80px rgba(10, 11, 16, 0.20), 0 6px 20px rgba(10, 11, 16, 0.10); }
 .hero-video figcaption { margin-top: var(--space-sm); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); letter-spacing: 0.02em; text-align: center; }
 .hero-video-big video { border-radius: var(--radius-lg); }
 .hero-footroom { display: flex; flex-direction: column; gap: var(--space-sm); align-items: flex-start; margin-top: var(--space-xs); }

@@ -1,7 +1,56 @@
-<footer class="foot-dense" role="contentinfo">
+<footer class="foot" role="contentinfo">
   <div class="page">
-    <p class="col">
-      <span>vinOS v{{ .Site.Params.version }}</span><span class="sep">·</span>a secure, agent-native Arch layer by Vin Patel<span class="sep">·</span>arch linux base<span class="sep">·</span>rolling<span class="sep">·</span>hyprland 0.55+<span class="sep">·</span>wayland<span class="sep">·</span>iwd<span class="sep">·</span>pipewire<span class="sep">·</span>2.33 GB ISO<span class="sep">·</span>246 packages<span class="sep">·</span>88 <code>vinos-*</code> bins<span class="sep">·</span>8 opt-in bundles<span class="sep">·</span>5 themes<span class="sep">·</span><span>MIT licensed</span><span class="sep">·</span><a href="{{ .Site.Params.github }}" target="_blank" rel="noopener">github.com/vinpatel/vinos</a><span class="sep">·</span><a href="https://github.com/vinpatel/vinos/blob/main/ATTRIBUTIONS.md" target="_blank" rel="noopener">attributions</a><span class="sep">·</span><a href="https://github.com/vinpatel/vinos/blob/main/LICENSE" target="_blank" rel="noopener">LICENSE</a><span class="sep">·</span>built with hugo<span class="sep">·</span>type: instrument serif + geist + geist mono<span class="sep">·</span>© 2026 vin patel<span class="sep">·</span><span>vinos.computer</span>
-    </p>
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="foot-mark" href="{{ "/" | relURL }}" aria-label="vinOS home">
+          <svg viewBox="0 0 256 256" width="36" height="36" aria-hidden="true" focusable="false">
+            <g transform="translate(128,124)">
+              <path class="stroke-l" d="M -70,-70 L 0,70 L -22,70 L -92,-70 Z"/>
+              <path class="stroke-r" d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z"/>
+              <rect class="brand-caret" x="28" y="54" width="30" height="16"/>
+            </g>
+          </svg>
+          <span>vin<em>OS</em></span>
+        </a>
+        <p class="foot-line">
+          Made in the open by <a href="https://github.com/vinpatel" target="_blank" rel="noopener">Vin Patel</a>
+          because the MacBook Apple stopped caring about still had a lot of life left.
+        </p>
+      </div>
+
+      <nav class="foot-nav" aria-label="footer">
+        <div class="foot-col">
+          <h4>Get it</h4>
+          <ul>
+            <li><a href="{{ .Site.Params.github }}/releases/latest" target="_blank" rel="noopener">Download the ISO</a></li>
+            <li><a href="{{ "install/" | relURL }}">Install guide</a></li>
+            <li><a href="{{ "bundles/" | relURL }}">What's inside</a></li>
+          </ul>
+        </div>
+        <div class="foot-col">
+          <h4>Get involved</h4>
+          <ul>
+            <li><a href="{{ .Site.Params.github }}" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="{{ .Site.Params.github }}/discussions" target="_blank" rel="noopener">Discussions</a></li>
+            <li><a href="{{ .Site.Params.github }}/issues/new?template=hardware-report.yml" target="_blank" rel="noopener">Report your hardware</a></li>
+          </ul>
+        </div>
+        <div class="foot-col">
+          <h4>Fine print</h4>
+          <ul>
+            <li><a href="{{ .Site.Params.github }}/blob/main/LICENSE" target="_blank" rel="noopener">MIT license</a></li>
+            <li><a href="{{ .Site.Params.github }}/blob/main/ATTRIBUTIONS.md" target="_blank" rel="noopener">Attributions</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div class="foot-bottom">
+      <span>© 2026 Vin Patel</span>
+      <span class="foot-sep">·</span>
+      <span>vinos.computer</span>
+      <span class="foot-sep">·</span>
+      <span>v{{ .Site.Params.version }}</span>
+    </div>
   </div>
 </footer>
