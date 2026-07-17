@@ -1,9 +1,0 @@
-{
-  "date": "2026-07-16",
-  "framework": "Hugo",
-  "font_stack": "Geist + Geist Mono + Instrument Serif (Google Fonts, via baseof.html)",
-  "palette_source": "OKLCH tokens (tokens.css, Hallmark-managed, Almanac theme)",
-  "motion_library": "none (plain CSS, three named primitives: counter-tick, underline-slide, opacity-fade)",
-  "spacing_scale": "4-pt scale, semantic tokens (--space-3xs..4xl)",
-  "notes": "First Hallmark run for this project. Prior CSS was 1154-line monolith with hex + ad-hoc transitions; replaced by tokens.css + rewritten vinos.css referencing tokens by name only."
-}

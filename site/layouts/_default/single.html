@@ -1,11 +1,6 @@
 {{ define "main" }}
-<div class="page">
-  <article class="doc section prose measure">
-    <header class="section-head">
-      <h2>{{ .Title }}</h2>
-      {{ with .Description }}<p class="section-lede">{{ . }}</p>{{ end }}
-    </header>
-    {{ .Content }}
-  </article>
-</div>
+<article class="doc-content">
+  <h1>{{ .Title }}</h1>
+  {{ .Content }}
+</article>
 {{ end }}
