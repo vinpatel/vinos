@@ -24,6 +24,13 @@ _die()  { printf '\033[1;31mvinos-ai:\033[0m %s\n' "$*" >&2; exit 1; }
 _log()  { printf '\033[1;34mvinos-ai:\033[0m %s\n' "$*"; }
 
 _needs_ai_bundle() {
+  # Fire a desktop notification so the message survives when we're
+  # launched from a keybinding into a terminal that closes on exit.
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send -a "vinOS AI" -i dialog-information -u normal \
+      "AI bundle not installed" \
+      "Press Super+Ctrl+O → install ai, or run: vinos-install-ai" || true
+  fi
   cat >&2 <<EOF
 vinos-ai: the AI toolchain isn't installed yet.
 Install the ai bundle:
@@ -33,6 +40,13 @@ Install the ai bundle:
 That pulls ollama, claude-code, aichat, python-{openai,anthropic,torch},
 open-webui, and — if you have an NVIDIA GPU — CUDA + nvidia-container-toolkit.
 EOF
+  # Keep the terminal open long enough for the user to read this.
+  # When invoked from a shell, they can Ctrl-C out; from a keybinding-
+  # launched terminal, this stops the window from vanishing instantly.
+  if [[ -t 0 && -t 1 ]]; then
+    printf '\nPress Enter to close…' >&2
+    read -r _ || true
+  fi
   exit 1
 }
 
