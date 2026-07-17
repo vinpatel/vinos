@@ -1,17 +1,4 @@
-<header class="site-header">
-  <a href="{{ .Site.Home.RelPermalink }}" class="brand" aria-label="vinOS home">
-    <svg class="brand-mark" viewBox="0 0 256 256" width="32" height="32" aria-hidden="true">
-      <g transform="translate(128,124)">
-        <path d="M -70,-70 L 0,70 L -22,70 L -92,-70 Z" fill="#4fd1c5"/>
-        <path d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z"    fill="#0f1116"/>
-        <rect class="brand-caret" x="28" y="54" width="30" height="16" fill="#4fd1c5"/>
-      </g>
-    </svg>
-    <span class="brand-name">vinOS</span>
-  </a>
-  <nav class="site-nav">
-    {{ range .Site.Menus.main }}
-      <a href="{{ if hasPrefix .URL "http" }}{{ .URL }}{{ else }}{{ .URL | relURL }}{{ end }}"{{ if hasPrefix .URL "http" }} target="_blank" rel="noopener"{{ end }}>{{ .Name }}</a>
-    {{ end }}
-  </nav>
+<header class="nav-edge" role="banner">
+  <a class="wordmark" href="{{ "/" | relURL }}">vin<em>OS</em></a>
+  <a class="cta-outline" href="{{ .Site.Params.github }}/releases/latest" target="_blank" rel="noopener">Download ISO</a>
 </header>

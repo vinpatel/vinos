@@ -1,16 +1,18 @@
 {{ define "main" }}
-<article class="doc-content">
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
-  <ul class="doc-list">
-    {{ range .Pages.ByTitle }}
-    <li>
-      <a href="{{ .Permalink }}">
-        <strong>{{ .Title }}</strong>
-        {{ with .Description }}<span class="muted small">— {{ . }}</span>{{ end }}
-      </a>
-    </li>
+<div class="page">
+  <article class="doc section prose measure">
+    <header class="section-head">
+      <h2>{{ .Title }}</h2>
+      {{ with .Description }}<p class="section-lede">{{ . }}</p>{{ end }}
+    </header>
+    {{ .Content }}
+    {{ with .Pages }}
+    <ul class="doc-list">
+      {{ range .ByTitle }}
+      <li><a href="{{ .Permalink }}"><strong>{{ .Title }}</strong>{{ with .Description }} — <span class="muted">{{ . }}</span>{{ end }}</a></li>
+      {{ end }}
+    </ul>
     {{ end }}
-  </ul>
-</article>
+  </article>
+</div>
 {{ end }}
