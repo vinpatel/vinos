@@ -1,47 +1,50 @@
 {{ define "main" }}
 <div class="page">
 
-  {{/* ═══════════════════════ HERO · H4 stat ═══════════════════════ */}}
-  <section class="hero hero-wrap" aria-labelledby="hero-heading">
-    <svg class="hero-glyph" viewBox="0 0 256 256" aria-hidden="true" focusable="false">
-      <g transform="translate(128,124)">
-        <path class="stroke-l" d="M -70,-70 L 0,70 L -22,70 L -92,-70 Z"/>
-        <path class="stroke-r" d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z"/>
-        <rect class="hero-caret" x="28" y="54" width="30" height="16"/>
-      </g>
-    </svg>
+  {{/* ═══════════════════════ HERO · H4 stat + inline demo ═══════════════════════ */}}
+  <section class="hero hero-wrap hero-split" aria-labelledby="hero-heading">
+    <div class="hero-copy">
+      <div class="hero-figure-row">
+        <p class="hero-figure tnum" aria-label="fifteen minutes">
+          15<span class="unit">min</span><span class="dot">.</span>
+        </p>
+      </div>
 
-    <div class="hero-figure-row">
-      <p class="hero-figure tnum" aria-label="fifteen minutes">
-        15<span class="unit">min</span><span class="dot">.</span>
+      <h1 id="hero-heading" class="hero-headline">
+        From a flashed USB to Claude Code, <span class="accent">one keystroke away.</span>
+      </h1>
+
+      <p class="hero-lede measure">
+        vinOS is a curated layer on stock Arch Linux — every driver, every config,
+        an AI stack that answers <kbd>Super</kbd>+<kbd>A</kbd>. Boot the ISO, run the
+        installer, log in. That's it.
       </p>
+
+      <div class="hero-meta">
+        <span class="chip emph">v{{ .Site.Params.version }}</span>
+        <span class="chip">x86_64 UEFI</span>
+        <span class="chip">Apple T2</span>
+        <span class="chip">NVIDIA</span>
+        <span class="chip">2.33 GB</span>
+      </div>
+
+      <div class="hero-actions">
+        <a href="{{ .Site.Params.github }}/releases/latest" class="btn-primary" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download the ISO
+        </a>
+        <a href="{{ "install/" | relURL }}" class="link-ghost">Read the install guide →</a>
+      </div>
     </div>
 
-    <h1 id="hero-heading" class="hero-headline">
-      From a flashed USB to Claude Code, <span class="accent">one keystroke away.</span>
-    </h1>
-
-    <p class="hero-lede measure">
-      vinOS is a curated layer on stock Arch Linux — every driver, every config,
-      an AI stack that answers <kbd>Super</kbd>+<kbd>A</kbd>. Boot the ISO, run the
-      installer, log in. That's it.
-    </p>
-
-    <div class="hero-meta">
-      <span class="chip emph">v{{ .Site.Params.version }}</span>
-      <span class="chip">x86_64 UEFI</span>
-      <span class="chip">Apple T2</span>
-      <span class="chip">NVIDIA</span>
-      <span class="chip">2.33 GB</span>
-    </div>
-
-    <div class="hero-actions">
-      <a href="{{ .Site.Params.github }}/releases/latest" class="btn-primary" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download the ISO
-      </a>
-      <a href="{{ "install/" | relURL }}" class="link-ghost">Read the install guide →</a>
-    </div>
+    <figure class="hero-video" id="shot-demo" aria-labelledby="hero-heading">
+      <video
+        src="{{ "video/vinos-demo.mp4" | relURL }}"
+        poster="{{ "img/demo-poster.jpg" | relURL }}"
+        autoplay muted loop playsinline preload="metadata"
+        aria-label="vinOS in action — launcher, local AI chat, Claude Code, three tiled windows, one workspace"></video>
+      <figcaption>15&nbsp;s · launcher → local AI → Claude Code → three tiled panes.</figcaption>
+    </figure>
   </section>
 
   {{/* ═══════════════════════ T4 supporting stat strip ═══════════════════════ */}}
@@ -94,19 +97,7 @@
     </div>
   </section>
 
-  {{/* ═══════════════════════ DEMO VIDEO · agent flow ═══════════════════════ */}}
-  <section class="section">
-    <figure class="shot demo-video" id="shot-demo">
-      <video
-        src="{{ "video/vinos-demo.mp4" | relURL }}"
-        poster="{{ "img/demo-poster.jpg" | relURL }}"
-        autoplay muted loop playsinline preload="metadata"
-        aria-label="vinOS in action — launcher, local AI chat, Claude Code, three tiled windows, one workspace"></video>
-      <figcaption>Fifteen seconds. Launcher → local AI → Claude Code → three tiled panes. This is Super+A on a real vinOS session.</figcaption>
-    </figure>
-  </section>
-
-  {{/* ═══════════════════════ SCREENSHOT · fallback still ═══════════════════════ */}}
+  {{/* ═══════════════════════ SCREENSHOT · desktop still ═══════════════════════ */}}
   <section class="section">
     <figure class="shot" id="shot-desktop">
       <img src="{{ "img/screenshots/01-desktop.png" | relURL }}"
