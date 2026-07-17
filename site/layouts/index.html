@@ -94,12 +94,24 @@
     </div>
   </section>
 
-  {{/* ═══════════════════════ SCREENSHOT · F5 annotated ═══════════════════════ */}}
+  {{/* ═══════════════════════ DEMO VIDEO · agent flow ═══════════════════════ */}}
+  <section class="section">
+    <figure class="shot demo-video" id="shot-demo">
+      <video
+        src="{{ "video/vinos-demo.mp4" | relURL }}"
+        poster="{{ "img/demo-poster.jpg" | relURL }}"
+        autoplay muted loop playsinline preload="metadata"
+        aria-label="vinOS in action — launcher, local AI chat, Claude Code, three tiled windows, one workspace"></video>
+      <figcaption>Fifteen seconds. Launcher → local AI → Claude Code → three tiled panes. This is Super+A on a real vinOS session.</figcaption>
+    </figure>
+  </section>
+
+  {{/* ═══════════════════════ SCREENSHOT · fallback still ═══════════════════════ */}}
   <section class="section">
     <figure class="shot" id="shot-desktop">
       <img src="{{ "img/screenshots/01-desktop.png" | relURL }}"
            alt="vinOS Hyprland desktop — waybar top, dark wallpaper, foot terminal, walker launcher visible"
-           loading="eager"
+           loading="lazy"
            onerror="document.getElementById('shot-desktop').classList.add('missing')" />
       <figcaption>Straight off the live ISO. Hyprland 0.55 · waybar · tokyo-night. No wallpaper picker, no setup wizard.</figcaption>
     </figure>

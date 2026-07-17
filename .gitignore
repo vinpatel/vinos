@@ -6,4 +6,7 @@ iso/aur.failed
 site/public/
 site/resources/
 .claude/
+.agents/
+skills-lock.json
 site/static/img/screenshots/*-serial.log
+site/tools/demo/frames/
