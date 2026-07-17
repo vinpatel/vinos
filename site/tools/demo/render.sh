@@ -14,8 +14,8 @@ FRAMES="$HERE/frames"
 OUT_VIDEO="$SITE/static/video/vinos-demo.mp4"
 OUT_POSTER="$SITE/static/img/demo-poster.jpg"
 
-SCENES=(1 2 3 4 5 6 7 8)
-PER_SCENE=2.7        # seconds each scene is on screen
+SCENES=(1 2 3 4 5 6 7)
+PER_SCENE=3.2        # seconds each scene is on screen (dense scenes need reading time)
 CROSSFADE=0.4        # seconds of crossfade between scenes
 FPS=30
 

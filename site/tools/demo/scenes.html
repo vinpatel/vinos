@@ -11,13 +11,14 @@
     --accent:     #4fd1c5;
     --accent-2:   #33ccff;
     --accent-3:   #bb9af7;
+    --accent-4:   #ff9e64;
     --spotify:    #1db954;
     --panel:      #16171d;
     --panel-2:    #1a1b26;
     --panel-3:    #24283b;
     --panel-4:    #2f334d;
     --border:     rgba(255,255,255,0.10);
-    --border-hi:  rgba(79,209,197,0.45);
+    --border-hi:  rgba(79,209,197,0.55);
     --shadow:     0 30px 80px rgba(0,0,0,0.55), 0 6px 20px rgba(0,0,0,0.35);
     --font-mono:  "JetBrains Mono","Fira Code","Cascadia Code","SF Mono",Menlo,Consolas,monospace;
     --font-sans:  ui-sans-serif,system-ui,-apple-system,"Segoe UI","Helvetica Neue",sans-serif;
@@ -35,55 +36,49 @@
 
   /* waybar */
   .waybar {
-    position: absolute; top: 14px; left: 14px; right: 14px; height: 34px;
-    background: rgba(22,23,29,0.72); backdrop-filter: blur(14px);
+    position: absolute; top: 14px; left: 14px; right: 14px; height: 36px;
+    background: rgba(22,23,29,0.78); backdrop-filter: blur(14px);
     border-radius: 10px; border: 1px solid var(--border);
-    display: flex; align-items: center; padding: 0 16px;
+    display: flex; align-items: center; padding: 0 18px;
     font-size: 13px; color: var(--dim);
     box-shadow: 0 4px 14px rgba(0,0,0,0.35);
   }
-  .waybar .ws { display: flex; gap: 6px; margin-right: auto; }
-  .waybar .ws span { min-width: 22px; height: 20px; padding: 0 7px; border-radius: 6px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--dim); font-family: var(--font-mono); }
+  .waybar .ws { display: flex; gap: 8px; margin-right: auto; }
+  .waybar .ws span { min-width: 26px; height: 22px; padding: 0 8px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--dim); font-family: var(--font-mono); }
   .waybar .ws span.on { background: var(--accent); color: #0b0d12; font-weight: 700; }
-  .waybar .ws span.has { color: var(--ink); }
+  .waybar .ws span.has { color: var(--ink); background: rgba(79,209,197,0.10); }
   .waybar .clock { color: var(--ink); font-weight: 500; }
-  .waybar .status { margin-left: auto; display: flex; gap: 14px; font-size: 12px; }
+  .waybar .status { margin-left: auto; display: flex; gap: 14px; font-size: 12px; align-items: center; }
   .waybar .status .chip { color: var(--dim); }
   .waybar .status .chip.hot { color: var(--accent); }
   .waybar .status .chip.play { color: var(--spotify); }
+  .waybar .status .chip.claude { color: var(--accent-3); }
+  .waybar .status .chip.ollama { color: var(--accent-4); }
 
-  /* watermark V (bottom-right) */
-  .watermark {
-    position: absolute; bottom: 40px; right: 44px; width: 120px; height: 120px;
-    opacity: 0.85; pointer-events: none;
-  }
+  /* watermark V */
+  .watermark { position: absolute; bottom: 40px; right: 44px; width: 120px; height: 120px; opacity: 0.85; pointer-events: none; }
   .watermark svg { width: 100%; height: 100%; }
+  .watermark .stroke-l { fill: rgba(245,246,250,0.35); }
+  .watermark .stroke-r { fill: rgba(79,209,197,0.85); }
+  .watermark .caret { fill: rgba(79,209,197,0.95); }
 
   /* window chrome */
   .win {
-    position: absolute;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    overflow: hidden;
+    position: absolute; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: var(--shadow); overflow: hidden;
     display: flex; flex-direction: column;
   }
   .win.focused { border-color: var(--border-hi); box-shadow: 0 0 0 1px var(--border-hi), var(--shadow); }
-  .win .titlebar {
-    height: 36px; background: var(--panel-2); border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; padding: 0 14px; gap: 12px;
-    color: var(--dim); font-size: 12px;
-  }
-  .win .titlebar .dots { display: flex; gap: 6px; }
-  .win .titlebar .dot { width: 11px; height: 11px; border-radius: 50%; }
-  .win .titlebar .dot.r { background: #ff5f57; }
-  .win .titlebar .dot.y { background: #febc2e; }
-  .win .titlebar .dot.g { background: #28c840; }
-  .win .titlebar .name { color: var(--dim); font-family: var(--font-mono); }
-  .win .body { flex: 1; padding: 18px 22px; font-family: var(--font-mono); font-size: 15px; line-height: 1.6; overflow: hidden; color: var(--ink); background: var(--panel); }
+  .win .tb { height: 32px; background: var(--panel-2); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 12px; gap: 10px; color: var(--dim); font-size: 11px; }
+  .win .tb .dots { display: flex; gap: 5px; }
+  .win .tb .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .win .tb .dot.r { background: #ff5f57; }
+  .win .tb .dot.y { background: #febc2e; }
+  .win .tb .dot.g { background: #28c840; }
+  .win .tb .name { color: var(--dim); font-family: var(--font-mono); }
+  .win .body { flex: 1; padding: 14px 16px; font-family: var(--font-mono); font-size: 13px; line-height: 1.55; overflow: hidden; color: var(--ink); background: var(--panel); }
   .win .body pre { margin: 0; white-space: pre-wrap; }
-  .win.compact .body { padding: 12px 14px; font-size: 12px; line-height: 1.5; }
 
   .prompt { color: var(--accent-2); }
   .cmd    { color: var(--ink); }
@@ -100,97 +95,131 @@
   .type   { color: #7aa2f7; }
   .you    { color: #4fd1c5; }
   .claude { color: #bb9af7; }
-  .cursor { display: inline-block; width: 9px; height: 18px; background: var(--accent); margin-left: 2px; vertical-align: -3px; animation: blink 1s steps(1) infinite; }
+  .ollama { color: #ff9e64; }
+  .aichat { color: #7aa2f7; }
+  .cursor { display: inline-block; width: 8px; height: 15px; background: var(--accent); margin-left: 2px; vertical-align: -2px; animation: blink 1s steps(1) infinite; }
   @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
-  /* chromium browser */
-  .browser { display: flex; flex-direction: column; background: var(--panel); border-radius: 12px; overflow: hidden; }
-  .browser .tabs { height: 40px; background: #101116; display: flex; align-items: flex-end; padding: 0 10px; gap: 5px; border-bottom: 1px solid var(--border); }
-  .browser .tab { height: 32px; padding: 0 16px; border-radius: 8px 8px 0 0; background: transparent; color: var(--dim); font-size: 12px; display: flex; align-items: center; gap: 10px; }
+  /* chromium */
+  .browser { display: flex; flex-direction: column; background: var(--panel); }
+  .browser .tabs { height: 30px; background: #101116; display: flex; align-items: flex-end; padding: 0 8px; gap: 4px; border-bottom: 1px solid var(--border); }
+  .browser .tab { height: 24px; padding: 0 10px; border-radius: 6px 6px 0 0; background: transparent; color: var(--dim); font-size: 10px; display: flex; align-items: center; gap: 6px; }
   .browser .tab.active { background: var(--panel-2); color: var(--ink); }
-  .browser .tab .fav { width: 14px; height: 14px; border-radius: 3px; background: var(--accent); }
+  .browser .tab .fav { width: 10px; height: 10px; border-radius: 2px; background: var(--accent); }
   .browser .tab.active .fav { background: #d97706; }
-  .browser .toolbar { height: 46px; background: var(--panel-2); display: flex; align-items: center; padding: 0 14px; gap: 12px; border-bottom: 1px solid var(--border); }
-  .browser .toolbar .nav { display: flex; gap: 8px; color: var(--dim); font-size: 18px; }
-  .browser .toolbar .url { flex: 1; height: 32px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 0 14px; display: flex; align-items: center; color: var(--dim); font-family: var(--font-mono); font-size: 13px; }
+  .browser .toolbar { height: 34px; background: var(--panel-2); display: flex; align-items: center; padding: 0 10px; gap: 8px; border-bottom: 1px solid var(--border); }
+  .browser .toolbar .nav { color: var(--dim); font-size: 13px; }
+  .browser .toolbar .url { flex: 1; height: 22px; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; display: flex; align-items: center; color: var(--dim); font-family: var(--font-mono); font-size: 10px; }
   .browser .toolbar .url .host { color: var(--ink); }
-  .browser .toolbar .url .path { color: var(--dim); }
-  .browser .toolbar .url .lock { color: var(--accent); margin-right: 8px; }
-  .browser .content { flex: 1; background: #0d1017; padding: 30px 44px; font-family: var(--font-sans); color: var(--ink); overflow: hidden; }
-
-  /* docs.rs page */
-  .drs { color: #c9d1d9; }
-  .drs .crumbs { color: #8b949e; font-size: 13px; margin-bottom: 20px; }
-  .drs .crumbs a { color: #58a6ff; }
-  .drs h1 { font-size: 36px; font-weight: 600; margin: 0 0 6px; letter-spacing: -0.02em; color: #f0f6fc; }
-  .drs .ver { color: #8b949e; font-size: 15px; margin-bottom: 4px; }
-  .drs .desc { color: #8b949e; font-size: 15px; line-height: 1.6; margin-bottom: 22px; max-width: 90ch; }
-  .drs h2 { font-size: 22px; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #21262d; color: #f0f6fc; font-weight: 600; }
-  .drs .item { padding: 8px 0; border-top: 1px solid #21262d; font-size: 14px; display: flex; gap: 14px; align-items: baseline; }
-  .drs .item .sig { color: #58a6ff; font-family: var(--font-mono); flex: 0 0 auto; min-width: 220px; }
-  .drs .item .doc { color: #8b949e; font-family: var(--font-sans); }
-  .drs code { background: #161b22; padding: 2px 6px; border-radius: 4px; color: #7ee787; font-family: var(--font-mono); font-size: 0.88em; }
-  .drs pre.code { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px 20px; font-family: var(--font-mono); font-size: 13px; color: #c9d1d9; margin: 12px 0; line-height: 1.6; }
-
-  /* spotify inside window */
-  .spotify-app { display: flex; background: #000; height: 100%; font-family: var(--font-sans); }
-  .spotify-side { width: 280px; background: #000; padding: 24px 18px; display: flex; flex-direction: column; gap: 14px; }
-  .spotify-side .logo { color: #fff; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px; }
-  .spotify-side .row { display: flex; align-items: center; gap: 12px; color: #b3b3b3; font-size: 14px; padding: 8px 10px; border-radius: 4px; }
-  .spotify-side .row.on { color: #fff; background: #1a1a1a; }
-  .spotify-side .row .ic { width: 22px; height: 22px; background: #333; border-radius: 4px; }
-  .spotify-side .sep { border-top: 1px solid #282828; margin: 10px 0; }
-  .spotify-side .pl { color: #b3b3b3; font-size: 13px; padding: 4px 10px; }
-  .spotify-side .pl.on { color: #fff; }
-  .spotify-main { flex: 1; background: linear-gradient(180deg, #1f3a5b 0%, #121212 26%); padding: 30px 34px; color: var(--ink); position: relative; }
-  .spotify-main .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; color: var(--dim); font-size: 14px; }
-  .spotify-main .now-title { font-size: 12px; letter-spacing: 0.14em; color: #b3b3b3; text-transform: uppercase; }
-  .spotify-main h1 { font-size: 80px; font-weight: 900; margin: 8px 0 14px; letter-spacing: -0.03em; color: #fff; }
-  .spotify-main .sub { color: #b3b3b3; font-size: 14px; margin-bottom: 26px; }
-  .spotify-main .tracks { color: #b3b3b3; font-size: 14px; }
-  .spotify-main .tr { display: grid; grid-template-columns: 30px 1fr 160px 60px; gap: 18px; padding: 9px 6px; border-radius: 6px; align-items: center; }
-  .spotify-main .tr.on { background: rgba(255,255,255,0.05); color: var(--ink); }
-  .spotify-main .tr .n { text-align: right; }
-  .spotify-main .tr .tt { color: var(--ink); }
-  .spotify-main .tr.on .tt { color: var(--spotify); }
-  .spotify-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 84px; background: #181818; border-top: 1px solid #282828; display: flex; align-items: center; padding: 0 20px; font-family: var(--font-sans); }
-  .spotify-bar .cover { width: 60px; height: 60px; border-radius: 4px; background: linear-gradient(135deg, #4c1d95, #1e40af); flex: 0 0 auto; }
-  .spotify-bar .np { margin-left: 14px; display: flex; flex-direction: column; }
-  .spotify-bar .np .t { color: var(--ink); font-size: 15px; }
-  .spotify-bar .np .a { color: #b3b3b3; font-size: 12px; }
-  .spotify-bar .controls { margin: 0 auto; display: flex; align-items: center; gap: 22px; color: #b3b3b3; font-size: 22px; }
-  .spotify-bar .controls .play { width: 36px; height: 36px; background: #fff; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; }
-  .spotify-bar .rt { display: flex; gap: 16px; color: #b3b3b3; font-size: 18px; }
+  .browser .toolbar .url .lock { color: var(--accent); margin-right: 6px; }
+  .browser .content { flex: 1; background: #0d1017; padding: 14px 18px; font-family: var(--font-sans); color: var(--ink); overflow: hidden; font-size: 11px; }
+  .drs h1 { font-size: 18px; margin: 0 0 4px; color: #f0f6fc; font-weight: 600; letter-spacing: -0.01em; }
+  .drs .ver { color: #8b949e; font-size: 10px; margin-bottom: 8px; }
+  .drs .desc { color: #8b949e; font-size: 11px; line-height: 1.6; margin-bottom: 12px; }
+  .drs h2 { font-size: 13px; margin: 12px 0 6px; padding-bottom: 4px; border-bottom: 1px solid #21262d; color: #f0f6fc; }
+  .drs .item { padding: 4px 0; border-top: 1px solid #21262d; font-size: 11px; display: flex; gap: 10px; }
+  .drs .item .sig { color: #58a6ff; font-family: var(--font-mono); flex: 0 0 auto; min-width: 130px; }
+  .drs .item .doc { color: #8b949e; }
+  .drs code { background: #161b22; padding: 1px 4px; border-radius: 3px; color: #7ee787; font-family: var(--font-mono); font-size: 0.9em; }
+  .drs pre.code { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px 10px; font-family: var(--font-mono); font-size: 10px; color: #c9d1d9; margin: 8px 0; line-height: 1.5; }
 
   /* neovim */
-  .nvim { display: flex; flex-direction: column; background: #1a1b26; border-radius: 12px; overflow: hidden; font-family: var(--font-mono); }
-  .nvim .tabline { height: 32px; background: #16161e; display: flex; padding: 0 10px; align-items: center; gap: 8px; font-size: 12px; color: var(--dim); border-bottom: 1px solid #292e42; }
-  .nvim .tabline .tab { padding: 5px 14px; border-radius: 4px 4px 0 0; }
+  .nvim { display: flex; flex-direction: column; background: #1a1b26; }
+  .nvim .tabline { height: 26px; background: #16161e; display: flex; padding: 0 8px; align-items: center; gap: 6px; font-size: 10px; color: var(--dim); border-bottom: 1px solid #292e42; }
+  .nvim .tabline .tab { padding: 3px 10px; border-radius: 3px 3px 0 0; }
   .nvim .tabline .tab.on { background: #1a1b26; color: var(--accent); border: 1px solid #292e42; border-bottom: 0; }
-  .nvim .code { flex: 1; padding: 16px 22px; font-size: 14px; line-height: 1.6; color: #c0caf5; overflow: hidden; }
-  .nvim .code .ln { color: #3b4261; margin-right: 16px; user-select: none; display: inline-block; width: 32px; text-align: right; }
+  .nvim .code { flex: 1; padding: 10px 14px; font-size: 11px; line-height: 1.55; color: #c0caf5; overflow: hidden; }
+  .nvim .code .ln { color: #3b4261; margin-right: 12px; user-select: none; display: inline-block; width: 26px; text-align: right; }
   .nvim .code .ln.cur { color: var(--accent-2); }
-  .nvim .status { height: 28px; background: #16161e; display: flex; align-items: center; padding: 0 16px; gap: 14px; font-size: 12px; color: #7982a9; border-top: 1px solid #292e42; }
-  .nvim .status .mode { padding: 2px 12px; background: var(--accent); color: #0b0d12; font-weight: 700; border-radius: 3px; letter-spacing: 0.06em; }
+  .nvim .status { height: 22px; background: #16161e; display: flex; align-items: center; padding: 0 12px; gap: 10px; font-size: 10px; color: #7982a9; border-top: 1px solid #292e42; }
+  .nvim .status .mode { padding: 1px 8px; background: var(--accent); color: #0b0d12; font-weight: 700; border-radius: 3px; letter-spacing: 0.06em; font-size: 10px; }
   .nvim .status .file { color: var(--ink); }
   .nvim .status .git { color: var(--accent-3); }
   .nvim .status .right { margin-left: auto; }
-  .nvim .lsp-hint { display: inline-block; margin-left: 14px; color: var(--dimmer); font-style: italic; }
+
+  /* spotify (compact) */
+  .sp { display: flex; height: 100%; font-family: var(--font-sans); background: #000; position: relative; }
+  .sp .side { width: 130px; background: #000; padding: 12px 10px; display: flex; flex-direction: column; gap: 5px; font-size: 10px; }
+  .sp .side .logo { color: #fff; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .sp .side .r { color: #b3b3b3; padding: 3px 6px; border-radius: 3px; }
+  .sp .side .r.on { color: #fff; background: #1a1a1a; }
+  .sp .main { flex: 1; background: linear-gradient(180deg,#1f3a5b 0%, #121212 40%); padding: 12px 16px; color: #fff; font-family: var(--font-sans); }
+  .sp .main .now { font-size: 9px; letter-spacing: 0.14em; color: #b3b3b3; text-transform: uppercase; }
+  .sp .main h1 { font-size: 28px; font-weight: 900; margin: 4px 0 4px; letter-spacing: -0.03em; }
+  .sp .main .sub { color: #b3b3b3; font-size: 10px; margin-bottom: 10px; }
+  .sp .main .t { font-size: 10px; padding: 4px 8px; }
+  .sp .main .t.on { color: var(--spotify); background: rgba(29,185,84,0.10); border-radius: 3px; }
+  .sp .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 42px; background: #181818; border-top: 1px solid #282828; display: flex; align-items: center; padding: 0 10px; font-family: var(--font-sans); }
+  .sp .bar .c { width: 30px; height: 30px; border-radius: 3px; background: linear-gradient(135deg,#4c1d95,#1e40af); flex: 0 0 auto; }
+  .sp .bar .np { margin-left: 10px; }
+  .sp .bar .np .t { color: #fff; font-size: 10px; }
+  .sp .bar .np .a { color: #b3b3b3; font-size: 9px; }
+  .sp .bar .ctl { margin: 0 auto; display: flex; align-items: center; gap: 10px; color: #b3b3b3; font-size: 13px; }
+  .sp .bar .ctl .play { width: 22px; height: 22px; background: #fff; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 900; }
+
+  /* btop mock */
+  .btop .body { background: #0b0e14; padding: 12px 14px; font-family: var(--font-mono); font-size: 11px; color: #c0caf5; line-height: 1.5; }
+  .btop .bar { height: 8px; background: #1a1b26; border-radius: 2px; overflow: hidden; margin: 3px 0 8px; }
+  .btop .bar > span { display: block; height: 100%; background: linear-gradient(90deg, #4fd1c5, #33ccff, #bb9af7); }
+  .btop .h { color: #7dcfff; font-weight: 700; margin-bottom: 4px; }
+  .btop .pct { color: #ff9e64; }
 
   /* caption */
   .caption {
-    position: absolute; bottom: 68px; left: 50%; transform: translateX(-50%);
-    background: rgba(11,13,18,0.85); backdrop-filter: blur(14px);
+    position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+    background: rgba(11,13,18,0.86); backdrop-filter: blur(14px);
     border: 1px solid var(--border-hi); border-radius: 14px;
-    padding: 18px 34px; text-align: center;
-    color: var(--ink); font-family: var(--font-sans); font-size: 24px; letter-spacing: -0.01em;
+    padding: 16px 32px; text-align: center;
+    color: var(--ink); font-family: var(--font-sans); font-size: 22px; letter-spacing: -0.01em;
     box-shadow: var(--shadow); max-width: 82%;
   }
-  .caption .kbd { display: inline-block; padding: 3px 12px; margin: 0 3px; background: rgba(79,209,197,0.14); border: 1px solid var(--border-hi); border-radius: 6px; font-family: var(--font-mono); font-size: 19px; color: var(--accent); }
+  .caption .kbd { display: inline-block; padding: 2px 10px; margin: 0 3px; background: rgba(79,209,197,0.14); border: 1px solid var(--border-hi); border-radius: 6px; font-family: var(--font-mono); font-size: 17px; color: var(--accent); }
   .caption .accent { color: var(--accent); font-weight: 500; }
-  .caption .small { font-size: 15px; color: var(--dim); display: block; margin-top: 4px; }
+  .caption .small { font-size: 14px; color: var(--dim); display: block; margin-top: 4px; }
+  .caption .ws-tag { display: inline-block; padding: 3px 10px; margin-right: 10px; background: var(--accent); color: #0b0d12; font-weight: 700; border-radius: 6px; font-size: 15px; letter-spacing: 0.04em; font-family: var(--font-mono); }
 
-  /* logo card outro */
+  /* overview scene (Hyprland-style workspace overview) */
+  .overview {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(30,40,60,0.55), rgba(10,11,16,0.85)),
+                url("../../static/img/screenshots/01-desktop.png");
+    background-size: cover; background-position: center;
+    backdrop-filter: blur(6px);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    padding: 100px 70px 200px;
+    align-items: center;
+  }
+  .ws-thumb {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0b0d12;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .ws-thumb.on { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,209,197,0.28), 0 20px 60px rgba(0,0,0,0.6); }
+  .ws-thumb .lbl { position: absolute; top: 8px; left: 8px; padding: 3px 10px; background: rgba(11,13,18,0.85); border-radius: 6px; font-family: var(--font-mono); font-size: 12px; color: var(--accent); font-weight: 600; z-index: 5; letter-spacing: 0.04em; }
+  .ws-thumb .lbl .n { color: var(--ink); margin-right: 6px; }
+  .ws-thumb .mini { position: absolute; background: var(--panel); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; font-family: var(--font-mono); font-size: 6px; color: var(--ink); }
+  .ws-thumb .mini .h { height: 8px; background: var(--panel-2); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 4px; gap: 3px; color: var(--dim); font-size: 5px; }
+  .ws-thumb .mini .h::before { content: "●●●"; letter-spacing: -1px; color: #ff5f57; }
+  .ws-thumb .mini .b { padding: 4px 5px; overflow: hidden; }
+  .ws-thumb .mini.focused { border-color: var(--border-hi); }
+
+  /* scene visibility */
+  .scene { display: none; }
+  body[data-scene="1"] #scene1,
+  body[data-scene="2"] #scene2,
+  body[data-scene="3"] #scene3,
+  body[data-scene="4"] #scene4,
+  body[data-scene="5"] #scene5,
+  body[data-scene="6"] #scene6,
+  body[data-scene="7"] #scene7 { display: block; }
+
+  /* outro logo */
   .card {
     position: absolute; inset: 0; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
@@ -201,41 +230,25 @@
   .card .name { font-size: 92px; font-weight: 700; letter-spacing: -0.045em; margin-top: 24px; }
   .card .url  { margin-top: 12px; font-family: var(--font-mono); font-size: 26px; color: var(--accent); letter-spacing: 0; }
   .card .tag  { margin-top: 26px; color: var(--dim); font-size: 20px; }
-
-  /* scene visibility */
-  .scene { display: none; }
-  body[data-scene="1"] #scene1,
-  body[data-scene="2"] #scene2,
-  body[data-scene="3"] #scene3,
-  body[data-scene="4"] #scene4,
-  body[data-scene="5"] #scene5,
-  body[data-scene="6"] #scene6,
-  body[data-scene="7"] #scene7,
-  body[data-scene="8"] #scene8 { display: block; }
-
-  /* watermark V — shared piece for scene 1 desktop beauty shot */
-  .watermark-svg .stroke-l { fill: rgba(245,246,250,0.35); }
-  .watermark-svg .stroke-r { fill: rgba(79,209,197,0.85); }
-  .watermark-svg .caret { fill: rgba(79,209,197,0.95); }
 </style>
 </head>
 <body>
 
-<!-- SCENE 1 · pure desktop beauty (no caption, no windows) -->
+<!-- SCENE 1 · Pure desktop beauty -->
 <div id="scene1" class="scene stage">
-  <div class="bg" style="background-image: linear-gradient(180deg, rgba(15,17,22,0.10), rgba(15,17,22,0.20)), url('../../static/img/screenshots/01-desktop.png');"></div>
+  <div class="bg" style="background-image: linear-gradient(180deg, rgba(15,17,22,0.10), rgba(15,17,22,0.22)), url('../../static/img/screenshots/01-desktop.png');"></div>
   <div class="waybar">
     <div class="ws"><span class="on">1</span><span>2</span><span>3</span><span>4</span></div>
     <div class="clock">Thu 17 Jul · 09:41</div>
     <div class="status">
       <span class="chip">wifi · home</span>
-      <span class="chip">battery 100%</span>
-      <span class="chip hot">ollama · idle</span>
-      <span class="chip hot">claude · ready</span>
+      <span class="chip">100%</span>
+      <span class="chip ollama">ollama · idle</span>
+      <span class="chip claude">claude · ready</span>
     </div>
   </div>
   <div class="watermark">
-    <svg class="watermark-svg" viewBox="0 0 256 256">
+    <svg viewBox="0 0 256 256">
       <g transform="translate(128,124)">
         <path class="stroke-l" d="M -70,-70 L 0,70 L -22,70 L -92,-70 Z"/>
         <path class="stroke-r" d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z"/>
@@ -245,119 +258,126 @@
   </div>
 </div>
 
-<!-- SCENE 2 · user prompts Claude in terminal -->
+<!-- SCENE 2 · The prompt -->
 <div id="scene2" class="scene stage">
   <div class="bg"></div>
   <div class="waybar">
     <div class="ws"><span class="on">1</span><span>2</span><span>3</span><span>4</span></div>
     <div class="clock">Thu 17 Jul · 09:41</div>
     <div class="status">
-      <span class="chip has">foot</span>
-      <span class="chip hot">claude · listening</span>
+      <span class="chip">wifi</span>
+      <span class="chip ollama">ollama · warming up</span>
+      <span class="chip claude">claude · listening</span>
     </div>
   </div>
-  <div class="win focused" style="left: 120px; top: 90px; width: 1680px; height: 900px;">
-    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~ · claude</div></div>
-    <div class="body" style="font-size: 17px; line-height: 1.65;">
+  <div class="win focused" style="left: 260px; top: 130px; width: 1400px; height: 820px;">
+    <div class="tb"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~ · claude</div></div>
+    <div class="body" style="font-size: 16px; line-height: 1.65;">
 <pre><span class="prompt">$ </span><span class="cmd">claude</span>
 <span class="dim">Claude Code · Opus 4.7 · project: ~</span>
 
-<span class="you">You</span> — start me a coding session.
-Build a Rust HTTP scraper for hn.algolia.com. Open
-the docs I'll need, scaffold the project, and put on
-focus music while I work.
+<span class="you">You</span> — hey. I want to ship a Rust HN scraper today.
+Set up my workspaces: dev triad on 1, agents on 2,
+music + monitoring on 3. Focus playlist please.
 
-<span class="claude">Claude</span> — On it. Here's the plan:
+<span class="claude">Claude</span> — Got it. Spinning up now:
 
-  <span class="accent" style="color:#4fd1c5">→</span> opening <span class="kw">Chromium</span> → docs.rs/reqwest
-  <span class="accent" style="color:#4fd1c5">→</span> scaffolding <span class="kw">~/scrapers/hn</span> with cargo
-  <span class="accent" style="color:#4fd1c5">→</span> writing <span class="kw">src/main.rs</span> in Neovim
-  <span class="accent" style="color:#4fd1c5">→</span> cueing <span class="kw">Spotify</span> · Late Night Coding
-  <span class="accent" style="color:#4fd1c5">→</span> running <span class="kw">cargo build</span> in a split
+  <span class="accent" style="color:#4fd1c5">workspace 1 · dev</span>
+    → chromium → docs.rs/reqwest, hn.algolia.com/api
+    → nvim ~/scrapers/hn/src/main.rs
+    → foot · cargo build --watch
+
+  <span class="accent" style="color:#4fd1c5">workspace 2 · agents</span>
+    → claude in project (edits + review)
+    → vinos-ai local · llama3.2 (fast Q&amp;A)
+    → aichat · qwen2.5-coder (test runner)
+
+  <span class="accent" style="color:#4fd1c5">workspace 3 · flow</span>
+    → spotify · Late Night Coding
+    → vinos-doctor (system green)
+    → btop (live metrics)
 
 <span class="claude">Claude</span> — executing…<span class="cursor"></span>
 </pre>
     </div>
   </div>
   <div class="caption">
-    One prompt. <span class="accent">The agent takes it from there.</span>
+    One prompt. <span class="accent">Three workspaces spin up.</span>
   </div>
 </div>
 
-<!-- SCENE 3 · Chromium opens (docs.rs) -->
+<!-- SCENE 3 · Workspace 1: DEV TRIAD (chromium + neovim + terminal) -->
 <div id="scene3" class="scene stage">
   <div class="bg"></div>
   <div class="waybar">
-    <div class="ws"><span>1</span><span class="on">2</span><span>3</span><span>4</span></div>
-    <div class="clock">Thu 17 Jul · 09:41</div>
+    <div class="ws"><span class="on">1</span><span class="has">2</span><span class="has">3</span><span>4</span></div>
+    <div class="clock">Thu 17 Jul · 09:42</div>
     <div class="status">
       <span class="chip has">chromium</span>
+      <span class="chip has">nvim</span>
       <span class="chip has">foot</span>
-      <span class="chip hot">claude · working</span>
+      <span class="chip ollama">ollama · idle</span>
+      <span class="chip claude">claude · working</span>
     </div>
   </div>
-  <div class="win focused browser" style="left: 100px; top: 90px; width: 1720px; height: 900px;">
-    <div class="tabs">
-      <div class="tab active"><span class="fav"></span>reqwest — Rust</div>
-      <div class="tab"><span class="fav"></span>tokio — async runtime</div>
-      <div class="tab"><span class="fav"></span>hn.algolia.com/api</div>
-      <div class="tab"><span class="fav"></span>serde_json</div>
-    </div>
-    <div class="toolbar">
-      <div class="nav">← → ↻</div>
-      <div class="url"><span class="lock">🔒</span><span class="host">docs.rs</span><span class="path">/reqwest/latest/reqwest/</span></div>
-    </div>
-    <div class="content">
-      <div class="drs">
-        <div class="crumbs"><a>reqwest</a> · <a>0.12.9</a> · Crate reqwest source · [<a>−</a>]</div>
-        <h1>Crate reqwest</h1>
-        <div class="ver">source · [−]</div>
-        <p class="desc">Higher level HTTP client library. Provides an ergonomic, batteries-included async and blocking API for making HTTP requests with JSON, forms, cookies, and streaming support. Built on <code>hyper</code>, <code>tokio</code>, and <code>rustls</code>.</p>
-        <h2>Structs</h2>
-        <div class="item"><span class="sig">Client</span><span class="doc">An asynchronous <code>Client</code> to make requests with.</span></div>
-        <div class="item"><span class="sig">ClientBuilder</span><span class="doc">A <code>ClientBuilder</code> can be used to create a <code>Client</code> with custom configuration.</span></div>
-        <div class="item"><span class="sig">RequestBuilder</span><span class="doc">A builder to construct the properties of a <code>Request</code>.</span></div>
-        <div class="item"><span class="sig">Response</span><span class="doc">A Response to a submitted <code>Request</code>.</span></div>
-        <h2>Example</h2>
-        <pre class="code">use reqwest::Client;
+
+  <!-- Left half: chromium docs -->
+  <div class="win" style="left: 24px; top: 74px; width: 940px; height: 950px;">
+    <div class="tb"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">chromium — docs.rs/reqwest</div></div>
+    <div class="body" style="padding: 0;">
+      <div class="browser" style="height:100%;">
+        <div class="tabs">
+          <div class="tab active"><span class="fav"></span>reqwest — Rust</div>
+          <div class="tab"><span class="fav"></span>tokio</div>
+          <div class="tab"><span class="fav"></span>hn.algolia</div>
+          <div class="tab"><span class="fav"></span>serde_json</div>
+        </div>
+        <div class="toolbar">
+          <div class="nav">← → ↻</div>
+          <div class="url"><span class="lock">🔒</span><span class="host">docs.rs</span>/reqwest/latest/reqwest/</div>
+        </div>
+        <div class="content">
+          <div class="drs">
+            <h1>Crate reqwest</h1>
+            <div class="ver">0.12.9 · source · [−]</div>
+            <p class="desc">Higher level HTTP client library. Provides an ergonomic, batteries-included async and blocking API for making HTTP requests with JSON, forms, cookies, and streaming support. Built on <code>hyper</code>, <code>tokio</code>, and <code>rustls</code>.</p>
+            <h2>Structs</h2>
+            <div class="item"><span class="sig">Client</span><span class="doc">An async <code>Client</code> to make requests with.</span></div>
+            <div class="item"><span class="sig">ClientBuilder</span><span class="doc">A builder to configure a <code>Client</code>.</span></div>
+            <div class="item"><span class="sig">RequestBuilder</span><span class="doc">Build the properties of a <code>Request</code>.</span></div>
+            <div class="item"><span class="sig">Response</span><span class="doc">A submitted <code>Response</code>.</span></div>
+            <h2>Example</h2>
+            <pre class="code">use reqwest::Client;
 let body = Client::new()
     .get("https://hn.algolia.com/api/v1/search")
     .query(&[("tags", "front_page")])
     .send().await?
     .json::&lt;serde_json::Value&gt;().await?;</pre>
+            <h2>Functions</h2>
+            <div class="item"><span class="sig">get(url) → Result</span><span class="doc">Shortcut for a GET.</span></div>
+            <div class="item"><span class="sig">post(url) → Builder</span><span class="doc">Shortcut for a POST.</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="caption">
-    <span class="accent">Claude opened Chromium</span> — docs pinned, tabs stacked
-  </div>
-</div>
 
-<!-- SCENE 4 · Neovim opens (scaffolded scraper) -->
-<div id="scene4" class="scene stage">
-  <div class="bg"></div>
-  <div class="waybar">
-    <div class="ws"><span>1</span><span>2</span><span class="on">3</span><span>4</span></div>
-    <div class="clock">Thu 17 Jul · 09:41</div>
-    <div class="status">
-      <span class="chip has">chromium</span>
-      <span class="chip has">nvim</span>
-      <span class="chip hot">LSP · rust-analyzer</span>
-      <span class="chip hot">claude · writing</span>
-    </div>
-  </div>
-  <div class="win focused nvim" style="left: 100px; top: 90px; width: 1720px; height: 900px;">
-    <div class="tabline">
-      <div class="tab on">main.rs</div>
-      <div class="tab">Cargo.toml</div>
-      <div class="tab" style="margin-left:auto;color:var(--dimmer)">~/scrapers/hn · claude scaffolded 8s ago</div>
-    </div>
-    <div class="code" style="font-size: 16px;">
+  <!-- Right top: neovim -->
+  <div class="win focused" style="left: 980px; top: 74px; width: 916px; height: 620px;">
+    <div class="tb"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">nvim ~/scrapers/hn/src/main.rs</div></div>
+    <div class="body" style="padding:0;">
+      <div class="nvim" style="height:100%;">
+        <div class="tabline">
+          <div class="tab on">main.rs</div>
+          <div class="tab">Cargo.toml</div>
+          <div class="tab" style="margin-left:auto;color:var(--dimmer)">~/scrapers/hn · claude scaffolded 8s ago</div>
+        </div>
+        <div class="code">
 <pre><span class="ln">  1</span><span class="kw">use</span> reqwest::Client;
 <span class="ln">  2</span><span class="kw">use</span> serde::Deserialize;
 <span class="ln">  3</span><span class="kw">use</span> anyhow::Result;
 <span class="ln">  4</span>
-<span class="ln">  5</span><span class="muted">/// One entry from the Hacker News Algolia front-page endpoint.</span>
+<span class="ln">  5</span><span class="muted">/// One entry from the HN Algolia front-page endpoint.</span>
 <span class="ln">  6</span><span class="kw">#[</span><span class="fn">derive</span><span class="kw">(</span><span class="type">Deserialize</span>, <span class="type">Debug</span><span class="kw">)]</span>
 <span class="ln">  7</span><span class="kw">struct</span> <span class="type">HnHit</span> {
 <span class="ln">  8</span>    <span class="fn">title</span>:  <span class="type">String</span>,
@@ -378,275 +398,476 @@ let body = Client::new()
 <span class="ln"> 23</span>        .<span class="fn">filter_map</span>(|h| serde_json::<span class="fn">from_value</span>(h.<span class="fn">clone</span>()).<span class="fn">ok</span>())
 <span class="ln"> 24</span>        .<span class="fn">collect</span>();
 <span class="ln"> 25</span>
-<span class="ln"> 26</span>    <span class="kw">for</span> hit <span class="kw">in</span> hits.<span class="fn">iter</span>().<span class="fn">take</span>(<span class="num">10</span>) {
+<span class="ln cur"> 26</span>    <span class="kw">for</span> hit <span class="kw">in</span> hits.<span class="fn">iter</span>().<span class="fn">take</span>(<span class="num">10</span>) {<span class="cursor"></span>
 <span class="ln"> 27</span>        <span class="fn">println!</span>(<span class="str">"{:&gt;4} · {}"</span>, hit.points, hit.title);
 <span class="ln"> 28</span>    }
-<span class="ln cur"> 29</span>    <span class="kw">Ok</span>(())<span class="cursor"></span>
-<span class="ln"> 30</span>}
-</pre>
-    </div>
-    <div class="status">
-      <span class="mode">NORMAL</span>
-      <span class="file">~/scrapers/hn/src/main.rs</span>
-      <span class="git">✎  claude · +29 lines · saved</span>
-      <span class="right">rust · utf-8 · unix · 29:5</span>
-    </div>
-  </div>
-  <div class="caption">
-    <span class="accent">Claude scaffolded Neovim</span> — 29 lines, saved, LSP happy
-  </div>
-</div>
-
-<!-- SCENE 5 · vinos-ai local (llama3.2) chat streaming — the OTHER AI -->
-<div id="scene5" class="scene stage">
-  <div class="bg"></div>
-  <div class="waybar">
-    <div class="ws"><span>1</span><span>2</span><span>3</span><span class="on">4</span></div>
-    <div class="clock">Thu 17 Jul · 09:42</div>
-    <div class="status">
-      <span class="chip has">chromium</span>
-      <span class="chip has">nvim</span>
-      <span class="chip hot">ollama · streaming · llama3.2</span>
-      <span class="chip hot">claude · done</span>
-    </div>
-  </div>
-  <div class="win focused" style="left: 120px; top: 90px; width: 1680px; height: 900px;">
-    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~ · vinos-ai chat</div></div>
-    <div class="body" style="font-size: 17px; line-height: 1.65;">
-<pre><span class="prompt">$ </span><span class="cmd">vinos-ai chat</span>
-<span class="dim">vinos-ai · </span><span class="ok">local</span><span class="dim"> · model </span><span class="kw">llama3.2:latest</span><span class="dim"> · 100% offline · your machine only</span>
-
-<span class="you">›</span> <span class="cmd">explain the reqwest .query() call in main.rs, quickly</span>
-
-<span class="dim">llama3.2</span> · <span class="muted">first token 42 ms · streaming 87 t/s</span>
-
-The <span class="kw">.query()</span> call takes a slice of <span class="type">(&amp;str, &amp;str)</span> pairs and
-URL-encodes them onto the request path. So
-
-  <span class="str">.query(&amp;[("tags", "front_page"), ("hitsPerPage", "10")])</span>
-
-becomes
-
-  <span class="str">?tags=front_page&amp;hitsPerPage=10</span>
-
-Two nice things about this API:
-
-  <span class="accent" style="color:#4fd1c5">→</span> <span class="ok">Compile-time typed</span> — anything that impls <span class="type">Serialize</span> works,
-    so you could pass a struct instead of tuples once your query
-    grows past three or four parameters.
-
-  <span class="accent" style="color:#4fd1c5">→</span> <span class="ok">Escaping is free</span> — no manual <span class="kw">urlencoding::encode()</span>
-    dance. Spaces, colons, plus-signs all handled.
-
-If you need repeated keys (rare in HN's API but common elsewhere),
-just add the pair twice: <span class="kw">[("t", "rust"), ("t", "async")]</span>.
-
-<span class="you">›</span> <span class="cursor"></span>
-</pre>
-    </div>
-  </div>
-  <div class="caption">
-    <span class="accent">Local AI</span> — llama3.2 running on your machine, no cloud, no telemetry
-  </div>
-</div>
-
-<!-- SCENE 6 · Spotify — Claude cued the music -->
-<div id="scene6" class="scene stage">
-  <div class="bg"></div>
-  <div class="waybar">
-    <div class="ws"><span>1</span><span>2</span><span>3</span><span class="on">4</span></div>
-    <div class="clock">Thu 17 Jul · 09:41</div>
-    <div class="status">
-      <span class="chip has">chromium</span>
-      <span class="chip has">nvim</span>
-      <span class="chip play">▶  Nightcall · Kavinsky</span>
-      <span class="chip hot">claude · done</span>
-    </div>
-  </div>
-  <div class="win focused" style="left: 100px; top: 90px; width: 1720px; height: 900px; background: #000; overflow: hidden;">
-    <div class="titlebar" style="background:#000;border-bottom:1px solid #282828;"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name" style="color:#b3b3b3;">Spotify</div></div>
-    <div style="flex:1;position:relative;">
-      <div class="spotify-app">
-        <div class="spotify-side">
-          <div class="logo">Spotify</div>
-          <div class="row on"><span class="ic"></span>Home</div>
-          <div class="row"><span class="ic"></span>Search</div>
-          <div class="row"><span class="ic"></span>Your Library</div>
-          <div class="sep"></div>
-          <div class="pl on">▶  Late Night Coding</div>
-          <div class="pl">Focus · Deep Work</div>
-          <div class="pl">Synthwave Essentials</div>
-          <div class="pl">Chillhop Beats</div>
-          <div class="pl">Piano for Concentration</div>
-        </div>
-        <div class="spotify-main">
-          <div class="topbar">←  →  <span style="margin-left:auto;">Playing on <span style="color:var(--spotify)">vinos</span></span></div>
-          <div class="now-title">PLAYLIST</div>
-          <h1>Late Night Coding</h1>
-          <div class="sub">42 songs · 3 hr 18 min · <span style="color:var(--spotify)">cued by claude · 09:41</span></div>
-          <div class="tracks">
-            <div class="tr on"><span class="n">1</span><span class="tt">Nightcall — <span class="dim">Kavinsky</span></span><span>Outrun</span><span>4:16</span></div>
-            <div class="tr"><span class="n">2</span><span class="tt">Midnight City — <span class="dim">M83</span></span><span>Hurry Up</span><span>4:03</span></div>
-            <div class="tr"><span class="n">3</span><span class="tt">Neon Lights — <span class="dim">Kraftwerk</span></span><span>Computer World</span><span>8:52</span></div>
-            <div class="tr"><span class="n">4</span><span class="tt">Genesis — <span class="dim">Justice</span></span><span>Cross</span><span>3:55</span></div>
-            <div class="tr"><span class="n">5</span><span class="tt">Turbo Killer — <span class="dim">Carpenter Brut</span></span><span>Trilogy</span><span>4:20</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="spotify-bar">
-        <div class="cover"></div>
-        <div class="np"><div class="t">Nightcall</div><div class="a">Kavinsky · Outrun</div></div>
-        <div class="controls">⤴  ⏮  <span class="play">▶</span>  ⏭  ⤵</div>
-        <div class="rt">⇄  ◧  ♪  ⇱</div>
-      </div>
-    </div>
-  </div>
-  <div class="caption">
-    <span class="accent">Claude cued Spotify</span> — pipewire routed, background lit
-  </div>
-</div>
-
-<!-- SCENE 7 · Full delivery — 4 tiles, one workspace -->
-<div id="scene7" class="scene stage">
-  <div class="bg"></div>
-  <div class="waybar">
-    <div class="ws"><span>1</span><span>2</span><span>3</span><span class="on">4</span></div>
-    <div class="clock">Thu 17 Jul · 09:42</div>
-    <div class="status">
-      <span class="chip has">chromium · 4 tabs</span>
-      <span class="chip has">nvim</span>
-      <span class="chip has">foot · cargo</span>
-      <span class="chip play">▶  Nightcall</span>
-      <span class="chip hot">claude · idle · 6.4s</span>
-    </div>
-  </div>
-
-  <!-- Top-left: chromium docs -->
-  <div class="win compact" style="left: 60px; top: 90px; width: 900px; height: 470px;">
-    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">chromium — docs.rs/reqwest</div></div>
-    <div class="body" style="padding: 0; background: #0d1017;">
-      <div class="browser" style="height: 100%;">
-        <div class="toolbar" style="height: 32px;">
-          <div class="nav" style="font-size:14px;">← → ↻</div>
-          <div class="url" style="height:22px;font-size:11px;"><span class="lock">🔒</span><span class="host">docs.rs</span><span class="path">/reqwest/latest/</span></div>
-        </div>
-        <div class="content" style="padding: 16px 22px; font-size: 12px;">
-          <div class="drs">
-            <h1 style="font-size:20px;margin:0 0 6px;">Crate reqwest</h1>
-            <div class="ver" style="font-size:11px;">source · [−]</div>
-            <p class="desc" style="font-size:11px;margin-bottom:14px;">Higher level HTTP client library — async, blocking, JSON, cookies, streaming.</p>
-            <h2 style="font-size:14px;margin:12px 0 8px;">Structs</h2>
-            <div class="item" style="font-size:11px;padding:4px 0;"><span class="sig" style="min-width:140px;">Client</span><span class="doc">Async <code>Client</code> for requests.</span></div>
-            <div class="item" style="font-size:11px;padding:4px 0;"><span class="sig" style="min-width:140px;">ClientBuilder</span><span class="doc">Configure a client.</span></div>
-            <div class="item" style="font-size:11px;padding:4px 0;"><span class="sig" style="min-width:140px;">Response</span><span class="doc">A response body.</span></div>
-            <pre class="code" style="font-size:10px;padding:8px 10px;margin:8px 0;line-height:1.5;">Client::new()
-  .get("https://hn.algolia.com/api/v1/search")
-  .send().await?</pre>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Top-right: nvim -->
-  <div class="win compact focused" style="left: 980px; top: 90px; width: 880px; height: 470px;">
-    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">nvim ~/scrapers/hn/src/main.rs</div></div>
-    <div class="body" style="padding:0;">
-      <div class="nvim" style="height:100%;background:#1a1b26;">
-        <div class="code" style="font-size:11px;padding:10px 14px;line-height:1.55;">
-<pre><span class="ln"> 14</span><span class="kw">#[</span><span class="fn">tokio</span>::<span class="fn">main</span><span class="kw">]</span>
-<span class="ln"> 15</span><span class="kw">async fn</span> <span class="fn">main</span>() <span class="op">-&gt;</span> <span class="type">Result</span>&lt;()&gt; {
-<span class="ln"> 16</span>    <span class="kw">let</span> res <span class="op">=</span> Client::<span class="fn">new</span>()
-<span class="ln"> 17</span>        .<span class="fn">get</span>(<span class="str">"https://hn.algolia.com/api/v1/search"</span>)
-<span class="ln"> 18</span>        .<span class="fn">query</span>(&amp;[(<span class="str">"tags"</span>, <span class="str">"front_page"</span>)])
-<span class="ln"> 19</span>        .<span class="fn">send</span>().<span class="fn">await</span>?
-<span class="ln"> 20</span>        .<span class="fn">json</span>::&lt;serde_json::<span class="type">Value</span>&gt;().<span class="fn">await</span>?;
-<span class="ln"> 21</span>
-<span class="ln"> 22</span>    <span class="kw">let</span> hits: <span class="type">Vec</span>&lt;<span class="type">HnHit</span>&gt; <span class="op">=</span> res[<span class="str">"hits"</span>].<span class="fn">as_array</span>()
-<span class="ln"> 23</span>        .<span class="fn">unwrap</span>().<span class="fn">iter</span>()
-<span class="ln"> 24</span>        .<span class="fn">filter_map</span>(|h| serde_json::<span class="fn">from_value</span>(h.<span class="fn">clone</span>()).<span class="fn">ok</span>())
-<span class="ln"> 25</span>        .<span class="fn">collect</span>();
-<span class="ln"> 26</span>
-<span class="ln"> 27</span>    <span class="kw">for</span> hit <span class="kw">in</span> hits.<span class="fn">iter</span>().<span class="fn">take</span>(<span class="num">10</span>) {
-<span class="ln"> 28</span>        <span class="fn">println!</span>(<span class="str">"{:&gt;4} · {}"</span>, hit.points, hit.title);
-<span class="ln cur"> 29</span>    }<span class="cursor"></span>
 </pre>
         </div>
-        <div class="status" style="height:22px;font-size:10px;padding:0 12px;">
-          <span class="mode" style="padding:1px 8px;font-size:10px;">NORMAL</span>
+        <div class="status">
+          <span class="mode">NORMAL</span>
           <span class="file">main.rs</span>
-          <span class="git">✎  saved</span>
-          <span class="right">29:5</span>
+          <span class="git">✎  claude · +29 · saved</span>
+          <span class="right">26:9  rust · utf-8</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Bottom-left: spotify -->
-  <div class="win compact" style="left: 60px; top: 590px; width: 900px; height: 410px;">
-    <div class="titlebar" style="background:#000;border-bottom:1px solid #282828;"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name" style="color:#b3b3b3;">Spotify — Late Night Coding</div></div>
-    <div class="body" style="padding:0;background:#000;">
-      <div style="display:flex;height:100%;position:relative;">
-        <div style="width:150px;background:#000;padding:14px 10px;display:flex;flex-direction:column;gap:6px;">
-          <div style="color:#fff;font-size:14px;font-weight:700;margin-bottom:8px;font-family:var(--font-sans);">Spotify</div>
-          <div style="color:#fff;font-size:11px;padding:4px 6px;border-radius:4px;background:#1a1a1a;font-family:var(--font-sans);">Home</div>
-          <div style="color:#b3b3b3;font-size:11px;padding:4px 6px;font-family:var(--font-sans);">Search</div>
-          <div style="color:#b3b3b3;font-size:11px;padding:4px 6px;font-family:var(--font-sans);">Library</div>
-          <div style="height:1px;background:#282828;margin:6px 0;"></div>
-          <div style="color:#fff;font-size:11px;padding:2px 6px;font-family:var(--font-sans);">▶ Late Night Coding</div>
-        </div>
-        <div style="flex:1;background:linear-gradient(180deg,#1f3a5b 0%, #121212 40%);padding:14px 20px;color:#fff;font-family:var(--font-sans);">
-          <div style="font-size:10px;letter-spacing:0.14em;color:#b3b3b3;text-transform:uppercase;">PLAYLIST</div>
-          <div style="font-size:32px;font-weight:900;margin:4px 0 6px;letter-spacing:-0.03em;">Late Night Coding</div>
-          <div style="color:#b3b3b3;font-size:11px;margin-bottom:12px;">42 songs · cued by claude</div>
-          <div style="font-size:11px;color:var(--spotify);background:rgba(29,185,84,0.10);padding:5px 10px;border-radius:4px;font-family:var(--font-sans);">▶  Nightcall — Kavinsky</div>
-          <div style="font-size:11px;color:#b3b3b3;padding:4px 10px;font-family:var(--font-sans);">    Midnight City — M83</div>
-          <div style="font-size:11px;color:#b3b3b3;padding:4px 10px;font-family:var(--font-sans);">    Neon Lights — Kraftwerk</div>
-        </div>
-        <div style="position:absolute;left:0;right:0;bottom:0;height:44px;background:#181818;border-top:1px solid #282828;display:flex;align-items:center;padding:0 10px;font-family:var(--font-sans);">
-          <div style="width:32px;height:32px;border-radius:3px;background:linear-gradient(135deg,#4c1d95,#1e40af);"></div>
-          <div style="margin-left:10px;"><div style="color:#fff;font-size:11px;">Nightcall</div><div style="color:#b3b3b3;font-size:10px;">Kavinsky · Outrun</div></div>
-          <div style="margin:0 auto;display:flex;align-items:center;gap:12px;color:#b3b3b3;font-size:14px;">⏮ <span style="width:22px;height:22px;background:#fff;color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;">▶</span> ⏭</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bottom-right: terminal running cargo -->
-  <div class="win compact" style="left: 980px; top: 590px; width: 880px; height: 410px;">
-    <div class="titlebar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~/scrapers/hn · cargo run</div></div>
-    <div class="body" style="font-size:12px;padding:14px 16px;line-height:1.55;">
-<pre><span class="prompt">$ </span><span class="cmd">cargo run</span>
+  <!-- Right bottom: terminal cargo -->
+  <div class="win" style="left: 980px; top: 704px; width: 916px; height: 320px;">
+    <div class="tb"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~/scrapers/hn · cargo watch</div></div>
+    <div class="body" style="font-size:12px; padding: 12px 14px;">
+<pre><span class="prompt">$ </span><span class="cmd">cargo watch -x run</span>
+<span class="muted">[Running 'cargo run']</span>
    <span class="ok">Compiling</span> hn-scraper v0.1.0 (~/scrapers/hn)
    <span class="ok">Compiling</span> reqwest v0.12.9
    <span class="ok">Compiling</span> tokio v1.42.0
-    <span class="ok">Finished</span> `dev` profile [unoptimized + debuginfo] in <span class="num">3.2s</span>
+    <span class="ok">Finished</span> `dev` profile in <span class="num">3.2s</span>
      <span class="ok">Running</span> `target/debug/hn-scraper`
-
  <span class="num">427</span> · Show HN: I built a distributed key-value store in Zig
  <span class="num">318</span> · Postgres 17 released
  <span class="num">294</span> · Why we replaced Redis with SQLite
  <span class="num">281</span> · Ask HN: What are you working on this month?
  <span class="num">263</span> · The end of Moore's Law and what comes next
- <span class="num">204</span> · A minimal terminal editor written in 400 lines
- <span class="num">198</span> · Show HN: vinOS — Arch that boots your agents in 15 minutes
- <span class="num">176</span> · The case for LLM inference at the edge
- <span class="num">142</span> · A Rust primer for Python engineers
- <span class="num">128</span> · How we cut our AWS bill by 74%
+<span class="muted">[Finished running. Watching for changes…]</span><span class="cursor"></span>
+</pre>
+    </div>
+  </div>
+
+  <div class="caption">
+    <span class="ws-tag">1 · dev</span>Chromium docs · Neovim + LSP · <code>cargo watch</code> — <span class="accent">one workspace, three tiles</span>
+  </div>
+</div>
+
+<!-- SCENE 4 · Workspace 2: AGENT ARMY (3 agents in parallel) -->
+<div id="scene4" class="scene stage">
+  <div class="bg"></div>
+  <div class="waybar">
+    <div class="ws"><span class="has">1</span><span class="on">2</span><span class="has">3</span><span>4</span></div>
+    <div class="clock">Thu 17 Jul · 09:42</div>
+    <div class="status">
+      <span class="chip claude">claude · streaming</span>
+      <span class="chip ollama">llama3.2 · streaming</span>
+      <span class="chip claude">qwen2.5-coder · testing</span>
+      <span class="chip">3 agents active</span>
+    </div>
+  </div>
+
+  <!-- Left: Claude Code -->
+  <div class="win focused" style="left: 24px; top: 74px; width: 620px; height: 950px;">
+    <div class="tb"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~/scrapers/hn · claude</div></div>
+    <div class="body" style="font-size:12px; padding:14px 16px;">
+<pre><span class="prompt">$ </span><span class="cmd">claude</span>
+<span class="dim">Claude Code · Opus 4.7 · project: hn</span>
+
+<span class="you">You</span> — review the scraper. Any correctness
+concerns? Add pagination if it's clean.
+
+<span class="claude">Claude</span> — Reading src/main.rs · Cargo.toml · README
+
+Three notes:
+
+  <span class="accent" style="color:#4fd1c5">1</span> <span class="warn">unwrap on as_array()</span> — the API can
+    return {"hits":[]} on rate-limit. Swap for
+    <span class="kw">ok_or_else</span> with a typed error.
+
+  <span class="accent" style="color:#4fd1c5">2</span> <span class="warn">no timeout on the client</span> — the
+    default is 30s. HN can hang; I'd set 10.
+
+  <span class="accent" style="color:#4fd1c5">3</span> pagination is a one-line change: add
+    <span class="kw">("page", "N")</span> and loop until hits is empty.
+
+Applying all three:
+
+<span class="muted">──────── diff · src/main.rs ────────</span>
+<span class="ok">+ let client = Client::builder()</span>
+<span class="ok">+     .timeout(Duration::from_secs(10))</span>
+<span class="ok">+     .build()?;</span>
+<span class="ok">+ </span>
+<span class="ok">+ for page in 0..u32::MAX {</span>
+<span class="ok">+     let res = client.get(URL)</span>
+<span class="ok">+         .query(&amp;[("page", &amp;page.to_string())])</span>
+<span class="ok">+         .send().await?</span>
+<span class="ok">+         .json::&lt;Value&gt;().await?;</span>
+<span class="ok">+     let hits = res["hits"].as_array()</span>
+<span class="ok">+         .ok_or_else(|| anyhow!("no hits"))?;</span>
+<span class="ok">+     if hits.is_empty() { break }</span>
+<span class="err">-     .query(&amp;[("hitsPerPage", "10")])</span>
+<span class="muted">──────────────────────────────────</span>
+
+<span class="dim">Applied · main.rs · +14 −1 · saved</span>
+
+<span class="claude">Claude</span> — writing tests…<span class="cursor"></span>
+</pre>
+    </div>
+  </div>
+
+  <!-- Middle: vinos-ai local llama3.2 -->
+  <div class="win" style="left: 660px; top: 74px; width: 620px; height: 470px;">
+    <div class="tb"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~ · vinos-ai chat</div></div>
+    <div class="body" style="font-size:11px; padding:12px 14px;">
+<pre><span class="prompt">$ </span><span class="cmd">vinos-ai chat</span>
+<span class="dim">vinos-ai · </span><span class="ok">local</span><span class="dim"> · llama3.2 · offline</span>
+
+<span class="you">›</span> what's the diff between as_array
+    and get(0)? quick.
+
+<span class="ollama">llama3.2</span> · <span class="muted">42ms · 87 t/s</span>
+
+Both return <span class="type">Option</span>&lt;&amp;<span class="type">Value</span>&gt; on a Value that's
+a JSON array, but:
+
+  <span class="accent" style="color:#4fd1c5">→</span> <span class="kw">as_array()</span> gives you the whole slice
+    (<span class="type">&amp;Vec</span>&lt;<span class="type">Value</span>&gt;), None if not an array.
+  <span class="accent" style="color:#4fd1c5">→</span> <span class="kw">get(0)</span> returns the first element only,
+    None if empty or out of bounds.
+
+Use <span class="kw">as_array</span> to iterate. Use <span class="kw">get(i)</span> when
+you know the index up front.
+
+<span class="you">›</span> <span class="cmd">how do i handle rate limits without a</span>
+    <span class="cmd">crate?</span>
+
+<span class="ollama">llama3.2</span> · <span class="muted">reading…</span> <span class="cursor"></span>
+</pre>
+    </div>
+  </div>
+
+  <!-- Middle bottom: aichat qwen2.5-coder test runner -->
+  <div class="win" style="left: 660px; top: 554px; width: 620px; height: 470px;">
+    <div class="tb"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~/scrapers/hn · aichat</div></div>
+    <div class="body" style="font-size:11px; padding:12px 14px;">
+<pre><span class="prompt">$ </span><span class="cmd">aichat --model ollama:qwen2.5-coder:7b \</span>
+<span class="cmd">    --shell "run the tests"</span>
+
+<span class="aichat">qwen2.5-coder</span> · <span class="muted">planning shell action…</span>
+
+I'll run: <span class="kw">cargo test --nocapture -- --test-threads=1</span>
+
+<span class="dim">──────── output ────────</span>
+   <span class="ok">Compiling</span> hn-scraper v0.1.0
+    <span class="ok">Finished</span> `test` profile in <span class="num">2.8s</span>
+     <span class="ok">Running</span> unittests src/main.rs
+
+running <span class="num">4</span> tests
+test tests::parses_hit           <span class="ok">... ok</span>
+test tests::handles_empty_page   <span class="ok">... ok</span>
+test tests::respects_timeout     <span class="ok">... ok</span>
+test tests::pagination_loops     <span class="ok">... ok</span>
+
+test result: <span class="ok">ok</span>. <span class="num">4</span> passed; 0 failed
+<span class="dim">─────────────────────────</span>
+
+<span class="aichat">qwen2.5-coder</span> — all green. want a
+benchmark too?<span class="cursor"></span>
+</pre>
+    </div>
+  </div>
+
+  <!-- Right: aggregate agent monitor + logs -->
+  <div class="win" style="left: 1296px; top: 74px; width: 600px; height: 950px;">
+    <div class="tb"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">agents · live monitor</div></div>
+    <div class="body" style="font-size:11px; padding:14px 16px;">
+<pre><span class="dim">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="accent" style="color:#bb9af7">▲</span> <span class="claude">claude · Opus 4.7</span>
+  project    hn-scraper
+  tokens     <span class="num">1,247</span> in  ·  <span class="num">3,102</span> out
+  latency    <span class="num">89</span> ms/token
+  status     <span class="ok">streaming edit</span>
+  action     applying 3 fixes to main.rs
+
+<span class="dim">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="accent" style="color:#ff9e64">■</span> <span class="ollama">ollama · llama3.2:3b</span>
+  runtime    <span class="ok">local · GPU</span>
+  memory     <span class="num">2.0 GB</span>
+  latency    <span class="num">11</span> ms/token
+  status     <span class="ok">streaming Q&amp;A</span>
+  session    reqwest deep-dive
+
+<span class="dim">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="accent" style="color:#7aa2f7">◆</span> <span class="aichat">aichat · qwen2.5-coder:7b</span>
+  runtime    <span class="ok">local · GPU</span>
+  memory     <span class="num">4.7 GB</span>
+  latency    <span class="num">18</span> ms/token
+  status     <span class="ok">shell agent</span>
+  action     ran cargo test · <span class="ok">4/4 passed</span>
+
+<span class="dim">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="dim">local models loaded</span>
+  llama3.2:3b            <span class="ok">▶</span>  <span class="num">2.0 GB</span>
+  qwen2.5-coder:7b       <span class="ok">▶</span>  <span class="num">4.7 GB</span>
+  nomic-embed-text:v1.5  <span class="dim">·</span>  <span class="num">274 MB</span>
+  llava:7b               <span class="dim">·</span>  <span class="num">4.5 GB</span>
+
+<span class="dim">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="dim">privacy</span>
+  outbound   <span class="ok">claude only  ✓ opt-in</span>
+  local      <span class="ok">3 models  ✓ offline</span>
+  telemetry  <span class="ok">none</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="caption">
+    <span class="ws-tag">2 · agents</span><span class="claude">Claude Code</span> · <span class="ollama">llama3.2</span> · <span class="aichat">qwen2.5-coder</span> — <span class="accent">three agents, one workspace</span>
+  </div>
+</div>
+
+<!-- SCENE 5 · Workspace 3: FLOW (spotify + doctor + btop + waybar full) -->
+<div id="scene5" class="scene stage">
+  <div class="bg"></div>
+  <div class="waybar">
+    <div class="ws"><span class="has">1</span><span class="has">2</span><span class="on">3</span><span>4</span></div>
+    <div class="clock">Thu 17 Jul · 09:43</div>
+    <div class="status">
+      <span class="chip play">▶  Nightcall · Kavinsky</span>
+      <span class="chip">CPU 24%</span>
+      <span class="chip">RAM 6.8/32G</span>
+      <span class="chip claude">all systems green</span>
+    </div>
+  </div>
+
+  <!-- Left: Spotify -->
+  <div class="win" style="left: 24px; top: 74px; width: 940px; height: 950px;">
+    <div class="tb" style="background:#000;border-bottom:1px solid #282828;"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name" style="color:#b3b3b3;">Spotify — Late Night Coding</div></div>
+    <div class="body" style="padding:0;background:#000;">
+      <div class="sp">
+        <div class="side">
+          <div class="logo">Spotify</div>
+          <div class="r on">Home</div>
+          <div class="r">Search</div>
+          <div class="r">Library</div>
+          <div style="height:1px;background:#282828;margin:6px 0;"></div>
+          <div class="r" style="color:#fff;background:rgba(29,185,84,0.10);">▶ Late Night Coding</div>
+          <div class="r">Focus · Deep Work</div>
+          <div class="r">Synthwave</div>
+          <div class="r">Chillhop Beats</div>
+          <div class="r">Piano for Concentration</div>
+        </div>
+        <div class="main">
+          <div style="display:flex;color:var(--dim);font-size:11px;margin-bottom:20px;">←  →  <span style="margin-left:auto;color:var(--spotify);">Playing on vinos</span></div>
+          <div class="now">PLAYLIST</div>
+          <h1>Late Night Coding</h1>
+          <div class="sub">42 songs · 3 hr 18 min · <span style="color:var(--spotify)">cued by claude</span></div>
+          <div class="t on">▶  Nightcall — Kavinsky · 4:16</div>
+          <div class="t">   Midnight City — M83 · 4:03</div>
+          <div class="t">   Neon Lights — Kraftwerk · 8:52</div>
+          <div class="t">   Genesis — Justice · 3:55</div>
+          <div class="t">   Turbo Killer — Carpenter Brut · 4:20</div>
+          <div class="t">   Nightdrive — Perturbator · 6:12</div>
+          <div class="t">   Roads — Portishead · 5:02</div>
+        </div>
+        <div class="bar">
+          <div class="c"></div>
+          <div class="np"><div class="t">Nightcall</div><div class="a">Kavinsky · Outrun</div></div>
+          <div class="ctl">⏮ <span class="play">▶</span> ⏭</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right top: vinos-doctor -->
+  <div class="win" style="left: 980px; top: 74px; width: 916px; height: 470px;">
+    <div class="tb"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">vin@vinos:~ · vinos-doctor</div></div>
+    <div class="body" style="font-size:12px; padding:12px 14px; line-height:1.55;">
+<pre><span class="prompt">$ </span><span class="cmd">vinos-doctor</span>
+<span class="accent" style="color:#4fd1c5">→</span> kernel                <span class="ok">ok</span>   linux 6.11.7-arch1-1
+<span class="accent" style="color:#4fd1c5">→</span> hardware profile      <span class="ok">ok</span>   t2mac (MBP15,4)
+<span class="accent" style="color:#4fd1c5">→</span> iwd                   <span class="ok">ok</span>   -47dBm  home
+<span class="accent" style="color:#4fd1c5">→</span> hyprland session      <span class="ok">ok</span>   0.55.0
+<span class="accent" style="color:#4fd1c5">→</span> greetd + tuigreet     <span class="ok">ok</span>   autologin off
+<span class="accent" style="color:#4fd1c5">→</span> audio (pipewire)      <span class="ok">ok</span>   1.4.9  wireplumber
+<span class="accent" style="color:#4fd1c5">→</span> t2 firmware           <span class="ok">ok</span>   apple-bcm 0.1-4
+<span class="accent" style="color:#4fd1c5">→</span> touchbar (tiny-dfr)   <span class="ok">ok</span>
+<span class="accent" style="color:#4fd1c5">→</span> gpu                   <span class="ok">ok</span>   AMD 5300M amdgpu
+<span class="accent" style="color:#4fd1c5">→</span> ollama                <span class="ok">ok</span>   3 models loaded
+<span class="accent" style="color:#4fd1c5">→</span> claude-code           <span class="ok">ok</span>   0.9.2
+<span class="accent" style="color:#4fd1c5">→</span> updates               <span class="ok">ok</span>   system up-to-date
+
+<span class="ok">all good.</span> <span class="dim">12 checks · 0 errors · 2 optional</span>
 
 <span class="prompt">$ </span><span class="cursor"></span>
 </pre>
     </div>
   </div>
 
+  <!-- Right bottom: btop -->
+  <div class="win btop" style="left: 980px; top: 554px; width: 916px; height: 470px;">
+    <div class="tb"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="name">btop — system monitor</div></div>
+    <div class="body">
+<pre style="font-size:11px;line-height:1.5;margin:0;"><span class="h">┌─ CPU · Intel i7-9750H · 12 cores ────────────────┐</span>
+    Core 0  <span class="pct">■■■■■■■■■</span><span class="dim">·············</span> <span class="ok">36%</span>   Core 6  <span class="pct">■■■■</span><span class="dim">··················</span> <span class="ok">15%</span>
+    Core 1  <span class="pct">■■■■■■■■■■■■■</span><span class="dim">·········</span> <span class="warn">54%</span>   Core 7  <span class="pct">■■■</span><span class="dim">···················</span> <span class="ok">12%</span>
+    Core 2  <span class="pct">■■■■■■■</span><span class="dim">···············</span> <span class="ok">29%</span>   Core 8  <span class="pct">■■■</span><span class="dim">···················</span> <span class="ok">12%</span>
+    Core 3  <span class="pct">■■■■■■■■■■■■■■■■</span><span class="dim">······</span> <span class="warn">67%</span>   Core 9  <span class="pct">■■</span><span class="dim">····················</span> <span class="ok">8%</span>
+    Core 4  <span class="pct">■■■■■</span><span class="dim">·················</span> <span class="ok">18%</span>   Core 10 <span class="pct">■■</span><span class="dim">····················</span> <span class="ok">7%</span>
+    Core 5  <span class="pct">■■■■■■</span><span class="dim">················</span> <span class="ok">22%</span>   Core 11 <span class="pct">■</span><span class="dim">·····················</span> <span class="ok">5%</span>
+
+<span class="h">┌─ Memory · 32 GB ─────────────────────────────────┐</span>
+    Used     <span class="pct">■■■■■</span><span class="dim">·······················</span>   6.8 GB / 32 GB   <span class="ok">21%</span>
+    Cached   <span class="pct">■■■</span><span class="dim">·························</span>  4.1 GB           <span class="ok">13%</span>
+    Free                                          21.1 GB
+
+<span class="h">┌─ Network · wlan0 ────────────────────────────────┐</span>
+    ↓  <span class="ok">1.2 MB/s</span>   ↑  <span class="ok">312 KB/s</span>   claude token stream
+
+<span class="h">┌─ Top processes ──────────────────────────────────┐</span>
+    <span class="dim">PID</span>    <span class="dim">NAME</span>          <span class="dim">CPU%</span>   <span class="dim">MEM</span>
+    2847   claude          <span class="warn">42%</span>   380 MB
+    2311   ollama          <span class="warn">28%</span>   2.1 GB
+    2109   chromium        <span class="ok">14%</span>   612 MB
+    2554   nvim            <span class="ok">2%</span>    48 MB
+    2802   spotify         <span class="ok">3%</span>    220 MB
+</pre>
+    </div>
+  </div>
+
   <div class="caption">
-    Browser · Editor · Music · Cargo — <span class="accent">one workspace, one prompt.</span>
-    <span class="small">This is what "agent-native" means.</span>
+    <span class="ws-tag">3 · flow</span>Music, health, live metrics — <span class="accent">the OS working with you</span>
   </div>
 </div>
 
-<!-- SCENE 8 · outro -->
-<div id="scene8" class="scene stage">
+<!-- SCENE 6 · Bird's-eye overview: all 3 workspaces at once (hyprland-style) -->
+<div id="scene6" class="scene stage">
+  <div class="overview">
+
+    <!-- WS 1 THUMBNAIL: dev -->
+    <div class="ws-thumb">
+      <div class="lbl"><span class="n">1</span>dev</div>
+      <div class="mini" style="left:5%;top:12%;width:44%;height:82%;">
+        <div class="h" style="color:#a9b1d6;">docs.rs/reqwest</div>
+        <div class="b" style="color:#c9d1d9;">
+          <div style="font-size:9px;font-weight:700;">Crate reqwest</div>
+          <div style="color:#8b949e;font-size:5.5px;line-height:1.3;margin-top:2px;">HTTP client — async, JSON, cookies.</div>
+          <div style="color:#7ee787;background:#161b22;padding:2px 3px;border-radius:2px;margin-top:3px;font-size:5px;">Client::new().get(URL)</div>
+          <div style="color:#58a6ff;margin-top:3px;font-size:5.5px;">Client · ClientBuilder · Response</div>
+        </div>
+      </div>
+      <div class="mini focused" style="left:52%;top:12%;width:44%;height:48%;background:#1a1b26;">
+        <div class="h" style="color:#4fd1c5;">nvim main.rs</div>
+        <div class="b" style="color:#c0caf5;font-size:5px;line-height:1.4;">
+          <div><span style="color:#bb9af7;">use</span> reqwest::Client;</div>
+          <div><span style="color:#bb9af7;">use</span> serde::Deserialize;</div>
+          <div>&nbsp;</div>
+          <div><span style="color:#bb9af7;">#[tokio::main]</span></div>
+          <div><span style="color:#bb9af7;">async fn</span> <span style="color:#33ccff;">main</span>() -&gt; Result&lt;()&gt; {</div>
+          <div>&nbsp;&nbsp;<span style="color:#bb9af7;">let</span> res = Client::<span style="color:#33ccff;">new</span>()</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;.<span style="color:#33ccff;">get</span>(<span style="color:#98c379;">"https://..."</span>)</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;.<span style="color:#33ccff;">send</span>().<span style="color:#33ccff;">await</span>?;</div>
+        </div>
+      </div>
+      <div class="mini" style="left:52%;top:63%;width:44%;height:31%;">
+        <div class="h" style="color:#a9b1d6;">cargo watch</div>
+        <div class="b" style="color:#c0caf5;font-size:5.5px;line-height:1.4;">
+          <div style="color:#98c379;">Compiling hn-scraper</div>
+          <div style="color:#98c379;">Finished in 3.2s</div>
+          <div><span style="color:#e5c07b;">427</span> · Show HN: distributed KV in Zig</div>
+          <div><span style="color:#e5c07b;">318</span> · Postgres 17 released</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WS 2 THUMBNAIL: agents -->
+    <div class="ws-thumb on">
+      <div class="lbl"><span class="n">2</span>agents</div>
+      <div class="mini focused" style="left:4%;top:10%;width:30%;height:84%;">
+        <div class="h" style="color:#bb9af7;">claude · Opus 4.7</div>
+        <div class="b" style="color:#c9d1d9;font-size:5.5px;line-height:1.4;">
+          <div style="color:#bb9af7;">Claude — 3 fixes</div>
+          <div style="color:#98c379;">+ timeout(10s)</div>
+          <div style="color:#98c379;">+ ok_or_else</div>
+          <div style="color:#98c379;">+ pagination</div>
+          <div>&nbsp;</div>
+          <div style="color:#8b949e;">applied · saved</div>
+        </div>
+      </div>
+      <div class="mini" style="left:36%;top:10%;width:30%;height:40%;">
+        <div class="h" style="color:#ff9e64;">llama3.2 · local</div>
+        <div class="b" style="color:#c9d1d9;font-size:5.5px;line-height:1.4;">
+          <div style="color:#ff9e64;">llama · 87 t/s</div>
+          <div>as_array → whole slice</div>
+          <div>get(0) → first only</div>
+          <div style="color:#8b949e;">offline · 2.0 GB</div>
+        </div>
+      </div>
+      <div class="mini" style="left:36%;top:52%;width:30%;height:42%;">
+        <div class="h" style="color:#7aa2f7;">qwen · coder</div>
+        <div class="b" style="color:#c9d1d9;font-size:5.5px;line-height:1.4;">
+          <div style="color:#7aa2f7;">shell agent</div>
+          <div>cargo test</div>
+          <div style="color:#98c379;">4/4 passed ✓</div>
+          <div style="color:#8b949e;">4.7 GB local</div>
+        </div>
+      </div>
+      <div class="mini" style="left:68%;top:10%;width:28%;height:84%;">
+        <div class="h" style="color:#4fd1c5;">agents · monitor</div>
+        <div class="b" style="color:#c9d1d9;font-size:5.5px;line-height:1.4;">
+          <div style="color:#bb9af7;">▲ claude</div>
+          <div>  1247 in · 3102 out</div>
+          <div>&nbsp;</div>
+          <div style="color:#ff9e64;">■ llama3.2</div>
+          <div>  local · GPU</div>
+          <div>&nbsp;</div>
+          <div style="color:#7aa2f7;">◆ qwen coder</div>
+          <div>  4/4 tests ✓</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WS 3 THUMBNAIL: flow -->
+    <div class="ws-thumb">
+      <div class="lbl"><span class="n">3</span>flow</div>
+      <div class="mini" style="left:4%;top:10%;width:46%;height:84%;background:#000;">
+        <div class="h" style="background:#000;color:#b3b3b3;">Spotify</div>
+        <div class="b" style="background:linear-gradient(180deg,#1f3a5b,#121212 60%);padding:5px 6px;">
+          <div style="color:#b3b3b3;font-size:5px;letter-spacing:0.1em;">PLAYLIST</div>
+          <div style="color:#fff;font-size:11px;font-weight:900;line-height:1;margin:2px 0;">Late Night<br>Coding</div>
+          <div style="color:#1db954;font-size:5px;margin-top:3px;">▶ Nightcall — Kavinsky</div>
+          <div style="color:#b3b3b3;font-size:5px;">   Midnight City — M83</div>
+          <div style="color:#b3b3b3;font-size:5px;">   Neon Lights — Kraftwerk</div>
+        </div>
+      </div>
+      <div class="mini" style="left:52%;top:10%;width:44%;height:40%;">
+        <div class="h" style="color:#a9b1d6;">vinos-doctor</div>
+        <div class="b" style="color:#c0caf5;font-size:5px;line-height:1.4;">
+          <div><span style="color:#4fd1c5;">→</span> kernel <span style="color:#98c379;">ok</span></div>
+          <div><span style="color:#4fd1c5;">→</span> iwd <span style="color:#98c379;">ok</span></div>
+          <div><span style="color:#4fd1c5;">→</span> ollama <span style="color:#98c379;">ok</span></div>
+          <div><span style="color:#4fd1c5;">→</span> claude-code <span style="color:#98c379;">ok</span></div>
+          <div style="color:#98c379;margin-top:2px;">all green · 12/12</div>
+        </div>
+      </div>
+      <div class="mini" style="left:52%;top:52%;width:44%;height:42%;">
+        <div class="h" style="color:#7dcfff;">btop</div>
+        <div class="b" style="color:#c0caf5;font-size:5px;line-height:1.4;">
+          <div>CPU  <span style="color:#4fd1c5;">■■■■■■</span><span style="color:#3b4261;">·····</span>  24%</div>
+          <div>RAM  <span style="color:#4fd1c5;">■■■■</span><span style="color:#3b4261;">·······</span>  21%</div>
+          <div>NET  ↓ 1.2 MB/s</div>
+          <div style="margin-top:2px;color:#e5c07b;">claude · 42%</div>
+          <div style="color:#ff9e64;">ollama · 28%</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="waybar">
+    <div class="ws"><span class="has">1</span><span class="on">2</span><span class="has">3</span><span>4</span></div>
+    <div class="clock">Thu 17 Jul · 09:44</div>
+    <div class="status">
+      <span class="chip claude">3 agents · running</span>
+      <span class="chip play">▶  music</span>
+      <span class="chip has">10 windows</span>
+      <span class="chip hot">workspace overview</span>
+    </div>
+  </div>
+  <div class="caption">
+    Ten windows · three agents · three workspaces —
+    <span class="accent">everything you're working on, at once.</span>
+  </div>
+</div>
+
+<!-- SCENE 7 · Logo outro -->
+<div id="scene7" class="scene stage">
   <div class="card">
     <svg viewBox="0 0 256 256">
       <defs>
@@ -663,7 +884,7 @@ just add the pair twice: <span class="kw">[("t", "rust"), ("t", "async")]</span>
     </svg>
     <div class="name">vin<span style="color:#4fd1c5;font-family:Georgia,serif;font-style:italic">OS</span></div>
     <div class="url">vinos.computer</div>
-    <div class="tag">Flash · boot · your agents <span class="accent" style="color:#4fd1c5">wake with you</span>.</div>
+    <div class="tag">Flash · boot · your agents <span style="color:#4fd1c5;font-weight:500">wake with you</span>.</div>
   </div>
 </div>
 
