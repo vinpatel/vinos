@@ -1,6 +1,6 @@
 baseURL = "https://vinos.computer/"
 locale = "en-us"
-title = "vinOS — your old hardware, your agents, your models"
+title = "vinOS — build your agents on hardware you own"
 enableRobotsTXT = true
 enableGitInfo = false
 # No external theme — we ship layouts/ + static/ ourselves.
