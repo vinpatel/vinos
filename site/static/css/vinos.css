@@ -101,6 +101,44 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 .prose a { color: var(--color-accent); border-bottom: var(--rule-hair) solid currentColor; }
 .prose a:hover { color: var(--color-ink); }
 
+/* ══════════════════════════ cost callout — receipt-style ══════════════════════════ */
+
+.cost-callout { margin: var(--space-2xl) 0 var(--space-lg); background: #0f1116; border-radius: var(--radius-lg); border: 1px solid rgba(255,255,255,0.08); overflow: hidden; box-shadow: 0 24px 60px rgba(10,11,16,0.18), 0 4px 12px rgba(10,11,16,0.08); color: #f5f6fa; font-family: var(--font-mono); }
+.cost-callout-head { display: flex; align-items: baseline; gap: var(--space-md); padding: var(--space-md) var(--space-xl) var(--space-sm); border-bottom: 1px solid rgba(255,255,255,0.08); background: #16171d; }
+.cost-callout-tag { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.16em; color: #4fd1c5; }
+.cost-callout-cmd { color: #a9b1d6; font-size: var(--text-sm); background: transparent; border: 0; padding: 0; }
+.cost-callout-cmd::before { content: ""; }
+.cost-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: var(--text-sm); }
+.cost-table thead th, .cost-table tbody td, .cost-table tfoot th, .cost-table tfoot td { padding: var(--space-sm) var(--space-md); text-align: left; }
+.cost-table thead th { color: #565f89; font-weight: 500; letter-spacing: 0.02em; border-bottom: 1px solid rgba(255,255,255,0.10); padding-block: var(--space-md); font-size: var(--text-xs); text-transform: none; }
+.cost-table thead th:first-child { padding-left: var(--space-xl); }
+.cost-table thead th:last-child { padding-right: var(--space-xl); }
+.cost-table thead th .col-name { display: block; color: #f5f6fa; font-size: var(--text-sm); }
+.cost-table thead th .col-note { display: block; margin-top: 3px; color: #565f89; font-size: 11px; letter-spacing: 0.04em; }
+.cost-table thead th:nth-child(2), .cost-table thead th:nth-child(3), .cost-table tbody td:nth-child(2), .cost-table tbody td:nth-child(3), .cost-table tfoot td { text-align: right; font-variant-numeric: tabular-nums; }
+.cost-table tbody td { color: #f5f6fa; border-top: 1px dashed rgba(255,255,255,0.08); }
+.cost-table tbody td:first-child { padding-left: var(--space-xl); color: #a9b1d6; }
+.cost-table tbody td:last-child { padding-right: var(--space-xl); }
+.cost-table tbody tr:first-child td { border-top: 0; }
+.cost-table .c-frontier { color: #e5c07b; }
+.cost-table .c-local    { color: #4fd1c5; }
+.cost-table tfoot th, .cost-table tfoot td { border-top: 1px solid rgba(255,255,255,0.18); padding-block: var(--space-md); font-size: var(--text-md); }
+.cost-table tfoot th { color: #565f89; padding-left: var(--space-xl); font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; font-size: var(--text-2xs); }
+.cost-table tfoot td:last-child { padding-right: var(--space-xl); }
+.cost-table tfoot .c-local strong { color: #4fd1c5; font-weight: 700; }
+.cost-callout-foot { margin: 0; padding: var(--space-md) var(--space-xl) var(--space-xs); font-family: var(--font-body); font-size: var(--text-md); line-height: 1.55; color: #c0c5d7; border-top: 1px solid rgba(255,255,255,0.06); }
+.cost-callout-foot em { font-family: var(--font-display); font-style: italic; color: #f5f6fa; font-size: 1.05em; margin-right: 4px; }
+.cost-callout-fine { margin: 0; padding: 0 var(--space-xl) var(--space-md); font-family: var(--font-mono); font-size: var(--text-xs); color: #565f89; letter-spacing: 0.01em; line-height: 1.6; }
+.cost-callout-fine code { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #a9b1d6; }
+@media (max-width: 40rem) {
+  .cost-callout-head { flex-direction: column; align-items: flex-start; gap: 4px; padding: var(--space-sm) var(--space-md); }
+  .cost-table thead th:first-child, .cost-table tbody td:first-child, .cost-table tfoot th { padding-left: var(--space-md); }
+  .cost-table thead th:last-child, .cost-table tbody td:last-child, .cost-table tfoot td:last-child { padding-right: var(--space-md); }
+  .cost-table { font-size: var(--text-xs); }
+  .cost-table thead th .col-note { display: none; }
+  .cost-callout-foot, .cost-callout-fine { padding-left: var(--space-md); padding-right: var(--space-md); }
+}
+
 /* ══════════════════════════ inline code + kbd ══════════════════════════ */
 
 code, kbd { font-family: var(--font-mono); }

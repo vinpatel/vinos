@@ -77,6 +77,56 @@
         judgment, not busywork.</em>
       </p>
     </div>
+
+    <aside class="cost-callout" aria-labelledby="cost-callout-title">
+      <header class="cost-callout-head">
+        <span class="cost-callout-tag">do the math</span>
+        <code class="cost-callout-cmd" id="cost-callout-title">$ vinos-ai costs --last-week</code>
+      </header>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th scope="col">a real week, three real jobs</th>
+            <th scope="col"><span class="col-name">frontier</span><span class="col-note">Claude Opus 4.7</span></th>
+            <th scope="col"><span class="col-name">local</span><span class="col-note">Ollama · your GPU</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>refactor · 300-line Rust file</td>
+            <td class="c-frontier">$0.20</td>
+            <td class="c-local">$0.00</td>
+          </tr>
+          <tr>
+            <td>summarize · 100-page PDF</td>
+            <td class="c-frontier">$1.65</td>
+            <td class="c-local">$0.00</td>
+          </tr>
+          <tr>
+            <td>extract · structured data from 500 emails</td>
+            <td class="c-frontier">$1.50</td>
+            <td class="c-local">$0.00</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">weekly total</th>
+            <td class="c-frontier">$3.35</td>
+            <td class="c-local"><strong>$0.00</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+      <p class="cost-callout-foot">
+        <em>vinOS routed all three to your metal.</em>
+        Scale that up by a year of grunt work and the ownership pays for itself.
+        Reserve the API for the judgment calls worth paying for.
+      </p>
+      <p class="cost-callout-fine">
+        Numbers use public Claude Opus 4.7 rates ($15/M input · $75/M output)
+        × typical token counts. Your workload will vary — <code>vinos-ai costs</code>
+        prints the real ledger from your last week of prompts.
+      </p>
+    </aside>
   </section>
 
   {{/* ═══════════════════════ OLD HARDWARE · emotional hook ═══════════════════════ */}}
