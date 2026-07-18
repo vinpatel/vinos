@@ -35,6 +35,13 @@ file_permissions=(
 # call on the live ISO fails with "Permission denied". Regression fix
 # 2026-07-18. profiledef.sh is sourced from iso/profile/ so ../../bin
 # resolves to the repo bin/ directory.
+#
+# NOTE: only set perms on the REAL files under /usr/share/vinos/bin/.
+# The /usr/local/bin/vinos-* entries are symlinks — mkarchiso's
+# _set_permissions resolves them via realpath, which fails ("Outside
+# of valid path") because the symlink target /usr/share/vinos/... is
+# absolute and doesn't exist on the build host. Symlinks inherit perms
+# from their target at access time on Linux, so this is fine.
 _vinos_profile_dir="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 _vinos_repo_bin="${_vinos_profile_dir}/../../bin"
 if [[ -d "$_vinos_repo_bin" ]]; then
@@ -42,7 +49,6 @@ if [[ -d "$_vinos_repo_bin" ]]; then
     [[ -f "$_vinos_bin" ]] || continue
     _vinos_name="$(basename "$_vinos_bin")"
     file_permissions["/usr/share/vinos/bin/$_vinos_name"]="0:0:755"
-    file_permissions["/usr/local/bin/$_vinos_name"]="0:0:755"
   done
   unset _vinos_bin _vinos_name
 fi
