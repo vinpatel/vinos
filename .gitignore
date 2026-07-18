@@ -10,3 +10,10 @@ site/resources/
 skills-lock.json
 site/static/img/screenshots/*-serial.log
 site/tools/demo/frames/
+
+# Private planning files — never re-commit these. Scrubbed from history
+# 2026-07-18 (git-filter-repo). Local copies live in ~/vinos-planning/.
+CLAUDE.md
+DECISIONS.md
+VINOS_SPEC.md
+VINOS_ISO_SPEC.md
