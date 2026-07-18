@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# vinos:summary=Toggle Omarchy features between enabled and disabled
+# vinos:summary=Toggle vinOS features between enabled and disabled
 # vinos:args=[--enabled-notification <text>] [--disabled-notification <text>] <flag-name>
 
 ENABLED_NOTIFICATION=""

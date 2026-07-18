@@ -6,7 +6,7 @@ whichever matches your situation:
 - **Path A** — Flash the vinOS ISO to USB, boot, run one command from the
   live desktop. Zero prior Arch knowledge needed. Detects hardware
   automatically. See [Path A — single ISO](#path-a-single-iso-recommended).
-- **Path B** — You already have Arch (or Omarchy, EndeavourOS, etc.)
+- **Path B** — You already have Arch (or EndeavourOS, CachyOS, Manjaro, etc.)
   running. One `curl | bash` layers vinOS on top. See [Path B — on
   existing Arch](#path-b-on-existing-arch).
 - **T2 Mac path** — On 2018-2020 T2 Macs, use the community
@@ -41,7 +41,7 @@ sudo vinos-install-disk --disk /dev/nvme0n1 --user vin --hostname vinos-mbp --ye
 
 ## Path B — On existing Arch
 
-If you already have Arch running (or Omarchy, EndeavourOS, CachyOS, Manjaro):
+If you already have Arch running (or EndeavourOS, CachyOS, Manjaro):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/vinpatel/vinos/main/boot.sh | bash

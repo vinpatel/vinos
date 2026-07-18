@@ -66,7 +66,7 @@ wev                       # then press Super; you should see keycode 133 (Super_
 ```
 
 If `wev` shows nothing when you press Super **and you're in QEMU**,
-your host WM (Omarchy Hyprland on the outside) is stealing the key
+your host WM (an outer Hyprland session) is stealing the key
 before QEMU sees it. Grab the keyboard in QEMU:
 
 - GTK display: **Ctrl+Alt+G** (or View → Grab Keyboard)

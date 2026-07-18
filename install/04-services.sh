@@ -136,7 +136,7 @@ systemctl_enable acpid
 systemctl_enable power-profiles-daemon
 systemctl_enable bolt
 
-# hid_apple fnmode=2 — omarchy parity. Makes Apple/Lofree keyboards
+# hid_apple fnmode=2 — Apple keyboard convention. Makes Apple/Lofree keyboards
 # treat the F-row as F-keys by default (media keys behind fn). The
 # module only loads when Apple HID hardware is present, so this file
 # is a harmless no-op on non-Apple systems.
@@ -147,7 +147,7 @@ printf 'options hid_apple fnmode=2\n' > "$_hid_tmp"
 _sudo install -Dm 0644 "$_hid_tmp" "$_modp/vinos-hid-apple.conf"
 rm -f "$_hid_tmp"
 
-# Unmount FUSE mounts before suspend/hibernate — omarchy parity. Fixes
+# Unmount FUSE mounts before suspend/hibernate — well-known gvfsd fix. Fixes
 # the "suspend silently fails" class of bug caused by gvfsd-fuse mounts
 # blocking the kernel process-freeze on wake. Universal (harmless on
 # systems that never mount FUSE).

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# vinos:summary=Finish the installation of Omarchy with items that can only be done after logging in.
+# vinos:summary=Finish the installation of vinOS with items that can only be done after logging in.
 # vinos:requires-sudo=true
 
 set -e

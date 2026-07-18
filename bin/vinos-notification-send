@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# vinos:summary=Send a desktop notification with Omarchy glyph and body spacing
+# vinos:summary=Send a desktop notification with a vinOS glyph and body spacing
 # vinos:args=<glyph> <headline> [description] [notify-send options]
 # vinos:examples=vinos notification send "󰔛" "Reminder" "5 minutes are up" -u critical
 

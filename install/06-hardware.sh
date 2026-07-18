@@ -100,7 +100,7 @@ PACCONF
     _sudo sed -i -E 's/^MODULES=\( +/MODULES=(/' "$_mki"
   fi
 
-  # T2 USB/Bluetooth stack — omarchy parity. apple-bce carries the T2
+  # T2 USB/Bluetooth stack — linux-t2 conventions. apple-bce carries the T2
   # USB tunnel + audio + touchpad; hci_bcm4377 is the T2 Bluetooth
   # radio; hid_apple / hid_generic / usbhid / xhci_* give the internal
   # keyboard + external USB devices from early boot (before udev).
@@ -126,7 +126,7 @@ PACCONF
   _sudo install -d -m 0755 "$_modp"
   _t2_mp_tmp="$(mktemp)"
   cat > "$_t2_mp_tmp" <<'BRCMCONF'
-# T2 MacBook Wi-Fi connectivity workaround (omarchy parity).
+# T2 MacBook Wi-Fi connectivity workaround (linux-t2 project recipe).
 # Without this the T2 brcmfmac driver disassociates repeatedly on
 # 5GHz APs — mask the broken firmware features it can't handle.
 options brcmfmac feature_disable=0x82000

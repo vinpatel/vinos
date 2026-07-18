@@ -41,7 +41,7 @@ spotify
 1password
 1password-cli
 
-# Omarchy-parity: AUR-only utilities on the base tier.
+# Convenience AUR-only utilities on the base tier.
 # tzupdate     — auto-set system timezone from IP (live boot + laptops).
 # ttf-ia-writer — designer serif "iA Writer" font family (base polish).
 tzupdate
