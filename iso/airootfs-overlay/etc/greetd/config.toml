@@ -2,14 +2,18 @@
 # Hyprland with no prompt. The disk installer replaces this file with
 # the prompt-based /etc/greetd/config.toml that install/02-desktop.sh
 # writes, using the username you choose during install.
+#
+# Hyprland >=0.44 warns "started without start-hyprland" unless launched
+# via a session manager. We use uwsm (Universal Wayland Session Manager,
+# already in packages.x86_64) with the hyprland-uwsm.desktop entry.
 
 [terminal]
 vt = 1
 
 [default_session]
-command = "Hyprland"
+command = "uwsm start hyprland-uwsm.desktop"
 user = "vinos"
 
 [initial_session]
-command = "Hyprland"
+command = "uwsm start hyprland-uwsm.desktop"
 user = "vinos"

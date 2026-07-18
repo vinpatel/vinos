@@ -80,14 +80,16 @@ fi
 log "02-desktop: writing /etc/greetd/config.toml (tuigreet → Hyprland)"
 _conf="$(mktemp)"
 cat > "$_conf" <<'TOML'
-# vinOS greetd — installer-mode default: tuigreet prompts, launches Hyprland.
+# vinOS greetd — installer-mode default: tuigreet prompts, launches Hyprland
+# via uwsm (Universal Wayland Session Manager) so Hyprland >=0.44 doesn't
+# emit the "started without start-hyprland" warning banner.
 # The live ISO overrides this with an autologin variant at build time
 # (iso/airootfs-overlay/etc/greetd/config.toml).
 [terminal]
 vt = 1
 
 [default_session]
-command = "tuigreet --time --remember --cmd Hyprland"
+command = "tuigreet --time --remember --cmd 'uwsm start hyprland-uwsm.desktop'"
 user = "greeter"
 TOML
 _dest="$(_rootpath /etc/greetd/config.toml)"
