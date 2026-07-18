@@ -29,3 +29,21 @@ file_permissions=(
   ["/etc/sudoers.d/10-vinos-wheel"]="0:0:440"
   ["/usr/lib/vinos/t2-brcmfmac-firmware.sh"]="0:0:755"
 )
+
+# Auto-populate 0:0:755 for every vinos-* wrapper we ship. Without this,
+# archiso repacks them as 0644 in the squashfs and every `vinos-doctor`
+# call on the live ISO fails with "Permission denied". Regression fix
+# 2026-07-18. profiledef.sh is sourced from iso/profile/ so ../../bin
+# resolves to the repo bin/ directory.
+_vinos_profile_dir="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+_vinos_repo_bin="${_vinos_profile_dir}/../../bin"
+if [[ -d "$_vinos_repo_bin" ]]; then
+  for _vinos_bin in "$_vinos_repo_bin"/vinos-*; do
+    [[ -f "$_vinos_bin" ]] || continue
+    _vinos_name="$(basename "$_vinos_bin")"
+    file_permissions["/usr/share/vinos/bin/$_vinos_name"]="0:0:755"
+    file_permissions["/usr/local/bin/$_vinos_name"]="0:0:755"
+  done
+  unset _vinos_bin _vinos_name
+fi
+unset _vinos_profile_dir _vinos_repo_bin
