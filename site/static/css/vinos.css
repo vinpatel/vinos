@@ -246,6 +246,7 @@ kbd { font-size: 0.82em; padding: 0.15em 0.45em; border: var(--rule-hair) solid 
 .foot-line { max-width: 40ch; font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.6; color: var(--color-ink-2); margin: 0; }
 .foot-line a { color: var(--color-ink); border-bottom: var(--rule-hair) solid var(--color-rule-strong); }
 .foot-line a:hover { border-bottom-color: var(--color-ink); }
+.foot-line .foot-accent { color: var(--color-accent); font-weight: 500; }
 .foot-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 3rem); }
 .foot-col h4 { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-muted); font-weight: 500; margin: 0 0 var(--space-md); }
 .foot-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-sm); }
