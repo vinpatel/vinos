@@ -1,14 +1,14 @@
 baseURL = "https://vinos.computer/"
 locale = "en-us"
-title = "vinOS — build your agents on hardware you own"
+title = "vinOS — an agentic OS for founders, innovators, and thinkers"
 enableRobotsTXT = true
 enableGitInfo = false
 # No external theme — we ship layouts/ + static/ ourselves.
 
 [params]
-  description   = "vinOS — the OS for agent operators. Turn the laptop Apple forgot into a private AI machine. Local models do the 80%, Claude fills the gap. Fifteen minutes from USB to a working agent."
-  tagline       = "the OS for agent operators"
-  promise       = "Flash a USB. Boot. In fifteen minutes your MacBook, ThinkPad, or dusty desktop is running local LLMs and Claude Code — one keystroke away."
+  description   = "vinOS — an agentic OS for founders, innovators, and thinkers. Local LLMs and Claude Code, one keystroke away. Runs on any x86_64 laptop, workstation, or server — including OEM-preloaded machines."
+  tagline       = "an agentic OS for founders, innovators, and thinkers"
+  promise       = "Flash a USB. Boot. In fifteen minutes you're running local LLMs and Claude Code — one keystroke away. On any x86_64 machine."
   installCmd    = "curl -fsSL https://raw.githubusercontent.com/vinpatel/vinos/main/boot.sh | bash"
   github        = "https://github.com/vinpatel/vinos"
   isoURL        = "https://archive.org/details/vinos-1.1.0-x86_64"
