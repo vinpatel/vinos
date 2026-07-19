@@ -259,9 +259,50 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 .model-table tbody td:nth-child(6) { font-family: var(--font-mono); font-weight: 700; white-space: nowrap; color: var(--color-ok); position: relative; }
 .model-cost-vs { display: block; color: var(--color-muted); font-family: var(--font-mono); font-size: 10px; margin-top: 4px; letter-spacing: 0.02em; font-weight: 400; }
 
-/* ---- Top-pick row — subtle accent left border + star before model name ---- */
-.model-table tbody tr.model-top-pick td:first-child { border-left-color: var(--color-accent); background: linear-gradient(90deg, rgba(217,119,6,0.05) 0%, transparent 60%); }
-.model-table tbody tr.model-top-pick td:first-child strong::before { content: "★ "; color: var(--color-accent); font-size: 0.85em; margin-right: 2px; }
+/* ---- Rank badges — numeric position (1-N) per category ---- */
+.model-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--color-muted);
+  background: var(--color-paper-2);
+  border: var(--rule-hair) solid var(--color-rule-strong);
+  margin-right: 12px;
+  vertical-align: middle;
+  flex-shrink: 0;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.model-rank.gold {
+  color: #78350f;
+  background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
+  border-color: #d97706;
+  box-shadow: 0 2px 8px rgba(217,119,6,0.25);
+}
+.model-rank.silver {
+  color: #4b5563;
+  background: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 100%);
+  border-color: #9ca3af;
+}
+.model-rank.bronze {
+  color: #7c2d12;
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+  border-color: #c2410c;
+}
+.model-table tbody tr:hover .model-rank { transform: scale(1.08); }
+
+/* ---- Model cell (first td) — align rank + name inline ---- */
+.model-table tbody td:first-child { display: table-cell; }
+.model-table tbody td:first-child strong { vertical-align: middle; }
+
+/* ---- Top-pick row (rank 1) — subtle accent left border + slight bg gradient ---- */
+.model-table tbody tr.model-top-pick td:first-child { border-left-color: var(--color-accent); background: linear-gradient(90deg, rgba(217,119,6,0.04) 0%, transparent 60%); }
 .model-table tbody tr.model-top-pick .model-score-val { color: var(--color-accent); }
 
 /* ---- Get it cell — terminal-style pull command ---- */
