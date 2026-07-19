@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-  <!-- vinOS mark — "Prompt V" with blinking cursor -->
+  <!-- vinOS mark — teal left stroke, dark right stroke (for light bg), blinking teal caret. -->
   <g transform="translate(128,124)">
     <path d="M -70,-70 L 0,70 L -22,70 L -92,-70 Z" fill="#4fd1c5"/>
-    <path d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z" fill="#e6e8eb"/>
+    <path d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z" fill="#1a1d23"/>
     <rect x="28" y="54" width="30" height="16" fill="#4fd1c5">
       <!-- terminal-style hard blink: on 0.6s, off 0.6s -->
       <animate attributeName="opacity"
