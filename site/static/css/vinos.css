@@ -1,6 +1,7 @@
-/* Hallmark · macrostructure: Stat-Led · tone: editorial · anchor hue: warm-rust
- * theme: Almanac  ·  paper-band: light  ·  display-style: classical-serif  ·  accent-hue: warm
- * nav: N9 edge-aligned  ·  footer: Ft4 dense colophon  ·  hero: H4 stat  ·  section-head: S2 hanging
+/* Hallmark · macrostructure: Marquee Hero · tone: editorial · anchor hue: teal
+ * theme: vinOS (custom · logo-aligned) · paper-band: light · display-style: classical-serif · accent-hue: teal
+ * palette drawn from V mark: teal #4fd1c5 + cool-charcoal #1a1d23 · surfaces in the same cool family
+ * nav: N9 edge-aligned  ·  footer: Ft3 grouped-links  ·  hero: H1 marquee (video-first)  ·  section-head: S2 hanging
  * pre-emit critique: P5 H5 E5 S5 R5 V5
  * contrast: pass (40–41)  ·  slop: pass (42–45)  ·  honest: pass (46)  ·  chrome: pass (47)
  * tokens: pass (48)  ·  responsive: pass (49)  ·  icons: pass (30)  ·  mobile: pass (34, 49, 50–57)
@@ -198,10 +199,10 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 .model-quickstart-row code { background: transparent; border: 0; padding: 0; font-family: var(--font-mono); font-size: var(--text-sm); color: inherit; }
 
 /* ---- Category jump-nav (sticky on scroll) ---- */
-.model-catnav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: var(--space-2xl) 0 var(--space-lg); padding: var(--space-md) var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); border-bottom: var(--rule-hair) solid var(--color-rule); background: rgba(247,242,232,0.92); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 10; margin-inline: calc(var(--space-md) * -1); }
+.model-catnav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: var(--space-2xl) 0 var(--space-lg); padding: var(--space-md) var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); border-bottom: var(--rule-hair) solid var(--color-rule); background: rgba(242,244,247,0.92); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 10; margin-inline: calc(var(--space-md) * -1); }
 .model-catnav-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--color-muted); margin-right: var(--space-2xs); }
 .model-catnav a { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-ink); padding: 5px 12px; border: var(--rule-hair) solid var(--color-rule-strong); border-radius: 100px; text-decoration: none; letter-spacing: 0.02em; transition: all var(--dur-fast) var(--ease-out); }
-.model-catnav a:hover { color: var(--color-accent); border-color: var(--color-accent); background: rgba(217,119,6,0.04); }
+.model-catnav a:hover { color: var(--color-accent); border-color: var(--color-accent); background: rgba(20,184,166,0.05); }
 
 /* ---- Section headings gain a rule + number ---- */
 .audience-page .audience-section > h2 { counter-increment: model-section; position: relative; padding-top: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); }
@@ -227,7 +228,7 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 .model-table tbody td:last-child { padding-right: var(--space-lg); }
 .model-table tbody tr:first-child td { border-top: 0; }
 .model-table tbody tr { transition: background var(--dur-fast) var(--ease-out); }
-.model-table tbody tr:hover { background: rgba(217,119,6,0.03); }
+.model-table tbody tr:hover { background: rgba(20,184,166,0.04); }
 .model-table tbody tr:hover td:first-child { border-left-color: var(--color-accent); }
 
 /* ---- Model cell (first column) ---- */
@@ -302,7 +303,7 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 .model-table tbody td:first-child strong { vertical-align: middle; }
 
 /* ---- Top-pick row (rank 1) — subtle accent left border + slight bg gradient ---- */
-.model-table tbody tr.model-top-pick td:first-child { border-left-color: var(--color-accent); background: linear-gradient(90deg, rgba(217,119,6,0.04) 0%, transparent 60%); }
+.model-table tbody tr.model-top-pick td:first-child { border-left-color: var(--color-accent); background: linear-gradient(90deg, rgba(20,184,166,0.05) 0%, transparent 60%); }
 .model-table tbody tr.model-top-pick .model-score-val { color: var(--color-accent); }
 
 /* ---- Get it cell — terminal-style pull command ---- */

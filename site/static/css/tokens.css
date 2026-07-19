@@ -1,38 +1,40 @@
-/* Hallmark · theme: Almanac
- * paper-band: light  ·  display-style: classical-serif  ·  accent-hue: warm
+/* Hallmark · theme: vinOS (custom · logo-aligned)
+ * paper-band: light  ·  display-style: classical-serif  ·  accent-hue: teal
+ * Palette drawn from the V mark: teal #4fd1c5 → accent, cool-charcoal #1a1d23 → ink.
+ * Surfaces + neutrals sit in the same cool family (hue ~260) so the logo reads native.
  * All values OKLCH; token names semantic, not chromatic.
  */
 
 :root {
-  /* — surfaces — */
-  --color-paper:        oklch(96% 0.014 82);
-  --color-paper-2:      oklch(93% 0.016 82);
-  --color-paper-3:      oklch(89% 0.018 82);
+  /* — surfaces (near-white, faintest cool cast to seat the teal + charcoal logo) — */
+  --color-paper:        oklch(96% 0.004 260);
+  --color-paper-2:      oklch(93% 0.006 260);
+  --color-paper-3:      oklch(89% 0.008 260);
 
-  /* — ink & neutrals — */
-  --color-ink:          oklch(19% 0.010 60);
-  --color-ink-hover:    oklch(28% 0.010 60);
-  --color-ink-2:        oklch(30% 0.010 62);
-  --color-muted:        oklch(42% 0.010 65);
-  --color-neutral:      oklch(58% 0.010 70);
-  --color-rule:         oklch(82% 0.012 82);
-  --color-rule-strong:  oklch(72% 0.012 78);
+  /* — ink & neutrals (matched to logo dark #1a1d23) — */
+  --color-ink:          oklch(21% 0.014 264);
+  --color-ink-hover:    oklch(28% 0.014 264);
+  --color-ink-2:        oklch(32% 0.012 262);
+  --color-muted:        oklch(45% 0.010 260);
+  --color-neutral:      oklch(60% 0.010 260);
+  --color-rule:         oklch(82% 0.008 250);
+  --color-rule-strong:  oklch(72% 0.008 250);
 
-  /* — accent (warm rust; used sparingly, ≤3% viewport) — */
-  --color-accent:       oklch(52% 0.19 40);
-  --color-accent-2:     oklch(58% 0.18 42);
-  --color-focus:        oklch(58% 0.19 40);
+  /* — accent (teal, matches V logo hue; used sparingly, ≤3% viewport) — */
+  --color-accent:       oklch(52% 0.11 186);
+  --color-accent-2:     oklch(58% 0.10 186);
+  --color-focus:        oklch(58% 0.11 186);
 
-  /* — semantic — */
+  /* — semantic (ok / warn keep their chromatic identities; off cooled to fit) — */
   --color-ok:           oklch(52% 0.14 145);
   --color-warn:         oklch(66% 0.15 75);
-  --color-off:          oklch(56% 0.02 60);
+  --color-off:          oklch(56% 0.02 260);
 
-  /* — dark panel (for terminal blocks; not a mode switch) — */
-  --color-panel:        oklch(22% 0.012 60);
-  --color-panel-ink:    oklch(92% 0.010 82);
-  --color-panel-rule:   oklch(32% 0.014 60);
-  --color-panel-muted:  oklch(74% 0.014 65);
+  /* — dark panel (matches logo charcoal — terminal blocks read as brand-native) — */
+  --color-panel:        oklch(21% 0.014 264);
+  --color-panel-ink:    oklch(92% 0.008 250);
+  --color-panel-rule:   oklch(32% 0.014 264);
+  --color-panel-muted:  oklch(74% 0.012 260);
 
   /* — typography — */
   --font-display:  "Instrument Serif", "Iowan Old Style", Georgia, serif;
