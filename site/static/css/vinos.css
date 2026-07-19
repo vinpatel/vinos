@@ -33,9 +33,8 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 .nav-edge .wordmark { display: inline-flex; align-items: center; gap: 0.7rem; font-family: var(--font-display); font-size: var(--text-2xl); letter-spacing: -0.01em; line-height: 1; font-style: normal; color: var(--color-ink); }
 .nav-edge .wordmark em { font-style: normal; color: var(--color-accent); }
 .nav-edge .brand-mark { display: block; width: 40px; height: 40px; }
-.nav-edge .brand-mark .stroke-l { fill: var(--color-ink); }
-.nav-edge .brand-mark .stroke-r { fill: var(--color-accent); }
-.nav-edge .brand-mark .brand-caret { fill: var(--color-accent); animation: caret-blink 1.15s steps(1, end) infinite; }
+/* Colors + blink live inside the SVG asset itself (site/static/img/vinos-mark.svg)
+   so the brand stays consistent across site, README, screencasts, and video outros. */
 .nav-edge .nav-actions { display: inline-flex; align-items: center; gap: var(--space-2xs); }
 .nav-edge .cta-sponsor { font-family: var(--font-body); font-size: var(--text-sm); line-height: 1; padding: var(--space-2xs) var(--space-sm); border-radius: 100px; color: var(--color-accent); border: var(--rule-thin) solid var(--color-accent); transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); white-space: nowrap; display: inline-flex; align-items: center; gap: 0.35rem; }
 .nav-edge .cta-sponsor:hover { background: var(--color-accent); color: var(--color-paper); }
@@ -447,9 +446,7 @@ kbd { font-size: 0.82em; padding: 0.15em 0.45em; border: var(--rule-hair) solid 
 .foot-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr); gap: clamp(2rem, 5vw, 5rem); align-items: start; }
 .foot-brand { display: flex; flex-direction: column; gap: var(--space-md); }
 .foot-mark { display: inline-flex; align-items: center; gap: 0.6rem; color: var(--color-ink); font-family: var(--font-display); font-size: var(--text-xl); letter-spacing: -0.01em; font-style: normal; }
-.foot-mark svg { width: 36px; height: 36px; }
-.foot-mark .stroke-l { fill: var(--color-ink); }
-.foot-mark .stroke-r, .foot-mark .brand-caret { fill: var(--color-accent); }
+.foot-mark img { width: 36px; height: 36px; display: block; }
 .foot-mark em { font-style: normal; color: var(--color-accent); }
 .foot-line { max-width: 40ch; font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.6; color: var(--color-ink-2); margin: 0; }
 .foot-line a { color: var(--color-ink); border-bottom: var(--rule-hair) solid var(--color-rule-strong); }
