@@ -1,11 +1,29 @@
-# vinOS — the OS for developers in the agentic era
+# vinOS — an agentic OS for founders, innovators, and thinkers
 
 **Boot to a working Claude Code + local LLM setup in 90 seconds.**
 
-vinOS is a secure, agent-native Arch Linux layer by Vin Patel — the desktop
+vinOS is an open-source agentic Arch Linux layer by Vin Patel — the desktop
 Arch experience with Claude Code, Ollama, and a curated Hyprland
 config already wired up. `Super+A` opens a local LLM. `Super+Shift+A`
-opens Claude Code. Runs on any Arch install.
+opens Claude Code. Runs on any x86_64 machine.
+
+## 💛 Sponsor this project
+
+vinOS is solo-maintained and MIT licensed. If it saves you a subscription
+fee or a weekend of setup, please consider supporting the work:
+
+- **[GitHub Sponsors →](https://github.com/sponsors/vinpatel)** — recurring, 0% platform fee
+- **[OpenCollective →](https://opencollective.com/vinos)** — transparent, corporate-friendly, 10% platform fee
+- **[Website →](https://vinos.computer)** — download the ISO, read the story
+
+Sponsors fund real-hardware verification (Framework · StarLabs · older ThinkPads
+· MacBooks), infrastructure (archive.org hosting, CI runners), and roadmap
+work (fleet management, agent snapshots, safety layers). Every dollar routes
+to making vinOS work on more hardware for more people.
+
+**For OEMs and enterprise deployments:** `hello@vinos.computer`.
+
+---
 
 ## Install
 

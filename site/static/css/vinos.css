@@ -36,6 +36,13 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 .nav-edge .brand-mark .stroke-l { fill: var(--color-ink); }
 .nav-edge .brand-mark .stroke-r { fill: var(--color-accent); }
 .nav-edge .brand-mark .brand-caret { fill: var(--color-accent); animation: caret-blink 1.15s steps(1, end) infinite; }
+.nav-edge .nav-actions { display: inline-flex; align-items: center; gap: var(--space-2xs); }
+.nav-edge .cta-sponsor { font-family: var(--font-body); font-size: var(--text-sm); line-height: 1; padding: var(--space-2xs) var(--space-sm); border-radius: 100px; color: var(--color-accent); border: var(--rule-thin) solid var(--color-accent); transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); white-space: nowrap; display: inline-flex; align-items: center; gap: 0.35rem; }
+.nav-edge .cta-sponsor:hover { background: var(--color-accent); color: var(--color-paper); }
+.nav-edge .cta-sponsor .cta-sponsor-heart { font-size: 1.05em; line-height: 1; }
+@media (max-width: 32rem) {
+  .nav-edge .cta-sponsor { display: none; }  /* header space-tight — footer still has both links */
+}
 .nav-edge .cta-outline { font-family: var(--font-body); font-size: var(--text-sm); line-height: 1; padding: var(--space-2xs) var(--space-sm); border: var(--rule-thin) solid var(--color-ink); border-radius: var(--radius-sm); transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); white-space: nowrap; }
 .nav-edge .cta-outline:hover { background: var(--color-ink); color: var(--color-paper); }
 .nav-edge .cta-outline:active { background: var(--color-ink-hover); }
@@ -247,7 +254,8 @@ kbd { font-size: 0.82em; padding: 0.15em 0.45em; border: var(--rule-hair) solid 
 .foot-line a { color: var(--color-ink); border-bottom: var(--rule-hair) solid var(--color-rule-strong); }
 .foot-line a:hover { border-bottom-color: var(--color-ink); }
 .foot-line .foot-accent { color: var(--color-accent); font-weight: 500; }
-.foot-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 3rem); }
+.foot-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(1.25rem, 2.4vw, 2.5rem); }
+.foot-col-sponsor h4 { color: var(--color-accent); }
 .foot-col h4 { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-muted); font-weight: 500; margin: 0 0 var(--space-md); }
 .foot-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-sm); }
 .foot-col a { font-family: var(--font-body); font-size: var(--text-md); color: var(--color-ink); text-decoration: none; border-bottom: 0; padding-bottom: 1px; border-bottom: 1px solid transparent; transition: border-color var(--dur-fast) var(--ease-out); }
