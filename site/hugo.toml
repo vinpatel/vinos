@@ -36,15 +36,25 @@ enableGitInfo = false
   url        = "/install/"
   weight     = 10
 [[menu.main]]
-  identifier = "docs"
-  name       = "Docs"
-  url        = "/docs/"
+  identifier = "use-cases"
+  name       = "Use cases"
+  url        = "/for/"
+  weight     = 15
+[[menu.main]]
+  identifier = "models"
+  name       = "Models"
+  url        = "/models/"
   weight     = 20
 [[menu.main]]
   identifier = "bundles"
   name       = "Bundles"
   url        = "/bundles/"
   weight     = 30
+[[menu.main]]
+  identifier = "docs"
+  name       = "Docs"
+  url        = "/docs/"
+  weight     = 35
 [[menu.main]]
   identifier = "github"
   name       = "GitHub"

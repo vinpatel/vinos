@@ -187,6 +187,46 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
   .audience-hero { padding-block: var(--space-md) var(--space-lg); }
 }
 
+/* /models/ picker page */
+.model-quickstart { display: flex; flex-direction: column; gap: var(--space-2xs); background: var(--color-panel); border-radius: var(--radius-md); padding: var(--space-md) var(--space-lg); font-family: var(--font-mono); font-size: var(--text-sm); }
+.model-quickstart-row { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-2xs) 0; border-bottom: 1px dashed rgba(255,255,255,0.08); color: #c0caf5; }
+.model-quickstart-row:last-child { border-bottom: 0; }
+.model-quickstart-row.highlight { color: #4fd1c5; }
+.model-quickstart-tag { flex: 0 0 auto; width: 220px; font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.10em; color: #a9b1d6; }
+.model-quickstart-row.highlight .model-quickstart-tag { color: #4fd1c5; }
+.model-quickstart-row code { background: transparent; border: 0; padding: 0; font-family: var(--font-mono); font-size: var(--text-sm); color: inherit; }
+
+.model-legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-sm) var(--space-xl); font-family: var(--font-body); font-size: var(--text-md); color: var(--color-ink-2); line-height: 1.55; }
+.model-legend > div { padding-left: 0; }
+.model-legend strong { color: var(--color-ink); }
+.model-legend em { font-family: var(--font-display); font-style: italic; color: var(--color-ink); font-size: 1.02em; }
+
+.model-cat-lede { font-family: var(--font-body); font-size: var(--text-md); color: var(--color-ink-2); line-height: 1.55; max-width: 60ch; margin-bottom: var(--space-md); }
+.model-table-wrap { overflow-x: auto; margin: var(--space-md) 0 var(--space-xl); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-md); }
+.model-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: var(--text-sm); background: var(--color-paper); }
+.model-table thead th { text-align: left; padding: var(--space-sm) var(--space-md); font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.10em; color: var(--color-muted); border-bottom: var(--rule-thin) solid var(--color-ink); font-weight: 500; white-space: nowrap; }
+.model-table tbody td { padding: var(--space-md); vertical-align: top; border-bottom: var(--rule-hair) solid var(--color-rule); line-height: 1.55; color: var(--color-ink); }
+.model-table tbody tr:last-child td { border-bottom: 0; }
+.model-table tbody tr:hover { background: var(--color-paper-2); }
+.model-table td strong { color: var(--color-ink); font-weight: 600; }
+.model-table td a { color: var(--color-accent); font-family: var(--font-mono); font-size: var(--text-2xs); text-decoration: none; letter-spacing: 0.02em; }
+.model-table td a:hover { text-decoration: underline; }
+.model-table td code { display: inline-block; background: var(--color-panel); color: #4fd1c5; padding: 3px 8px; border-radius: 4px; font-family: var(--font-mono); font-size: var(--text-xs); border: 0; user-select: all; white-space: nowrap; }
+.model-license-note { color: var(--color-muted); font-family: var(--font-mono); font-size: var(--text-2xs); }
+
+.model-usage { display: flex; flex-direction: column; gap: var(--space-2xs); background: var(--color-panel); border-radius: var(--radius-md); padding: var(--space-md) var(--space-lg); }
+.model-usage-row { display: flex; align-items: baseline; gap: var(--space-md); padding: var(--space-2xs) 0; border-bottom: 1px dashed rgba(255,255,255,0.08); }
+.model-usage-row:last-child { border-bottom: 0; }
+.model-usage-cmd { flex: 0 0 auto; min-width: 220px; font-family: var(--font-mono); color: #4fd1c5; font-size: var(--text-sm); }
+.model-usage-desc { color: #c0caf5; font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.55; }
+.model-usage-desc code { background: transparent; color: #ff9e64; border: 0; padding: 0; }
+
+@media (max-width: 60rem) {
+  .model-legend { grid-template-columns: 1fr; }
+  .model-quickstart-tag { width: 140px; font-size: 10px; }
+  .model-usage-cmd { min-width: 160px; }
+}
+
 /* homepage "For your team" strip → routes to /for/* audience pages */
 .for-strip { margin-top: var(--space-2xl); padding-top: var(--space-xl); border-top: var(--rule-hair) solid var(--color-rule); }
 .for-strip-lede { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-muted); margin-bottom: var(--space-md); }
