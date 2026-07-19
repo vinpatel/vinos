@@ -19,6 +19,11 @@ enableGitInfo = false
   accent2       = "#bb9af7"
 
 [markup]
+  # /for/*.md pages use inline HTML for the audience-page layout —
+  # goldmark strips raw HTML by default (unsafe=false). Turn it back
+  # on so those templates render.
+  [markup.goldmark.renderer]
+    unsafe = true
   [markup.highlight]
     style        = "github-dark"
     lineNos      = false
