@@ -187,46 +187,97 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
   .audience-hero { padding-block: var(--space-md) var(--space-lg); }
 }
 
-/* /models/ picker page */
-.model-quickstart { display: flex; flex-direction: column; gap: var(--space-2xs); background: var(--color-panel); border-radius: var(--radius-md); padding: var(--space-md) var(--space-lg); font-family: var(--font-mono); font-size: var(--text-sm); }
-.model-quickstart-row { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-2xs) 0; border-bottom: 1px dashed rgba(255,255,255,0.08); color: #c0caf5; }
+/* ══════════════════════════ /models/ picker page ══════════════════════════ */
+
+/* ---- Quickstart panel (dark terminal) ---- */
+.model-quickstart { display: flex; flex-direction: column; gap: 2px; background: #0f1116; border-radius: var(--radius-md); padding: var(--space-md) var(--space-lg); font-family: var(--font-mono); font-size: var(--text-sm); border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 4px 16px rgba(10,11,16,0.08); }
+.model-quickstart-row { display: flex; align-items: center; gap: var(--space-md); padding: 10px 0; border-bottom: 1px dashed rgba(255,255,255,0.06); color: #c0caf5; }
 .model-quickstart-row:last-child { border-bottom: 0; }
-.model-quickstart-row.highlight { color: #4fd1c5; }
-.model-quickstart-tag { flex: 0 0 auto; width: 220px; font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.10em; color: #a9b1d6; }
+.model-quickstart-row.highlight { color: #4fd1c5; background: linear-gradient(90deg, rgba(79,209,197,0.06) 0%, transparent 100%); margin: 0 calc(var(--space-lg) * -1); padding-left: var(--space-lg); padding-right: var(--space-lg); border-left: 3px solid #4fd1c5; }
+.model-quickstart-tag { flex: 0 0 auto; width: 220px; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: #7982a9; }
 .model-quickstart-row.highlight .model-quickstart-tag { color: #4fd1c5; }
 .model-quickstart-row code { background: transparent; border: 0; padding: 0; font-family: var(--font-mono); font-size: var(--text-sm); color: inherit; }
 
-.model-legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-sm) var(--space-xl); font-family: var(--font-body); font-size: var(--text-md); color: var(--color-ink-2); line-height: 1.55; }
-.model-legend > div { padding-left: 0; }
-.model-legend strong { color: var(--color-ink); }
-.model-legend em { font-family: var(--font-display); font-style: italic; color: var(--color-ink); font-size: 1.02em; }
+/* ---- Category jump-nav ---- */
+.model-catnav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: var(--space-2xl) 0 var(--space-lg); padding: var(--space-md) 0; border-top: var(--rule-hair) solid var(--color-rule); border-bottom: var(--rule-hair) solid var(--color-rule); }
+.model-catnav-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--color-muted); margin-right: var(--space-2xs); }
+.model-catnav a { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-ink); padding: 5px 12px; border: var(--rule-hair) solid var(--color-rule-strong); border-radius: 100px; text-decoration: none; letter-spacing: 0.02em; transition: all var(--dur-fast) var(--ease-out); }
+.model-catnav a:hover { color: var(--color-accent); border-color: var(--color-accent); background: rgba(217,119,6,0.04); }
+
+/* ---- Section headings gain a rule + number ---- */
+.audience-page .audience-section > h2 { counter-increment: model-section; position: relative; padding-top: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); }
+#general h2::before, #coding h2::before, #reasoning h2::before, #small h2::before, #vision h2::before, #embeddings h2::before, #function-calling h2::before, #moe h2::before, #uncensored h2::before { content: counter(model-section, decimal-leading-zero) " · "; font-family: var(--font-mono); font-weight: 400; color: var(--color-muted); font-size: 0.62em; letter-spacing: 0.05em; margin-right: var(--space-2xs); vertical-align: 0.15em; }
+.audience-page { counter-reset: model-section; }
+/* First 3 sections don't get numbers (quickstart / saving / catnav are helpers, not categories) */
+#general h2 { counter-set: model-section 1; }
 
 .model-cat-lede { font-family: var(--font-body); font-size: var(--text-md); color: var(--color-ink-2); line-height: 1.55; max-width: 60ch; margin-bottom: var(--space-md); }
-.model-table-wrap { overflow-x: auto; margin: var(--space-md) 0 var(--space-xl); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-md); }
-.model-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: var(--text-sm); background: var(--color-paper); }
-.model-table thead th { text-align: left; padding: var(--space-sm) var(--space-md); font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.10em; color: var(--color-muted); border-bottom: var(--rule-thin) solid var(--color-ink); font-weight: 500; white-space: nowrap; }
-.model-table tbody td { padding: var(--space-md); vertical-align: top; border-bottom: var(--rule-hair) solid var(--color-rule); line-height: 1.55; color: var(--color-ink); }
-.model-table tbody tr:last-child td { border-bottom: 0; }
-.model-table tbody tr:hover { background: var(--color-paper-2); }
-.model-table td strong { color: var(--color-ink); font-weight: 600; }
-.model-table td a { color: var(--color-accent); font-family: var(--font-mono); font-size: var(--text-2xs); text-decoration: none; letter-spacing: 0.02em; }
-.model-table td a:hover { text-decoration: underline; }
-.model-table td code { display: inline-block; background: var(--color-panel); color: #4fd1c5; padding: 3px 8px; border-radius: 4px; font-family: var(--font-mono); font-size: var(--text-xs); border: 0; user-select: all; white-space: nowrap; }
-.model-license-note { color: var(--color-muted); font-family: var(--font-mono); font-size: var(--text-2xs); }
-.model-cost-vs { display: block; color: var(--color-muted); font-family: var(--font-mono); font-size: var(--text-2xs); margin-top: 2px; letter-spacing: 0.01em; }
-.model-table td:nth-child(5) { color: var(--color-ok); font-family: var(--font-mono); font-weight: 500; white-space: nowrap; }
 
-.model-usage { display: flex; flex-direction: column; gap: var(--space-2xs); background: var(--color-panel); border-radius: var(--radius-md); padding: var(--space-md) var(--space-lg); }
-.model-usage-row { display: flex; align-items: baseline; gap: var(--space-md); padding: var(--space-2xs) 0; border-bottom: 1px dashed rgba(255,255,255,0.08); }
+/* ---- Table shell ---- */
+.model-table-wrap { overflow-x: auto; margin: var(--space-md) 0 var(--space-xl); background: var(--color-paper); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-md); box-shadow: 0 2px 8px rgba(10,11,16,0.04); }
+.model-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: var(--text-sm); background: var(--color-paper); }
+
+/* ---- Table header (dark strip) ---- */
+.model-table thead th { text-align: left; padding: 14px var(--space-md); font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em; color: #7982a9; background: #0f1116; border-bottom: 2px solid #4fd1c5; font-weight: 500; white-space: nowrap; vertical-align: middle; }
+.model-table thead th:first-child { padding-left: var(--space-lg); }
+.model-table thead th:last-child { padding-right: var(--space-lg); }
+
+/* ---- Table rows ---- */
+.model-table tbody td { padding: var(--space-md); vertical-align: top; border-top: var(--rule-hair) solid var(--color-rule); line-height: 1.55; color: var(--color-ink); }
+.model-table tbody td:first-child { padding-left: var(--space-lg); border-left: 3px solid transparent; }
+.model-table tbody td:last-child { padding-right: var(--space-lg); }
+.model-table tbody tr:first-child td { border-top: 0; }
+.model-table tbody tr { transition: background var(--dur-fast) var(--ease-out); }
+.model-table tbody tr:hover { background: rgba(217,119,6,0.03); }
+.model-table tbody tr:hover td:first-child { border-left-color: var(--color-accent); }
+
+/* ---- Model cell (first column) ---- */
+.model-table td strong { color: var(--color-ink); font-weight: 700; display: inline-block; font-size: var(--text-md); letter-spacing: -0.005em; }
+.model-table td a { color: var(--color-muted); font-family: var(--font-mono); font-size: 10px; text-decoration: none; letter-spacing: 0.04em; text-transform: uppercase; }
+.model-table td a:hover { color: var(--color-accent); }
+
+/* ---- Sizes cell (second column) ---- */
+.model-table tbody td:nth-child(2) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-ink-2); white-space: nowrap; }
+
+/* ---- Best for cell (third column) ---- */
+.model-table tbody td:nth-child(3) { color: var(--color-ink-2); max-width: 36ch; }
+
+/* ---- License chip (was .model-license-note) ---- */
+.model-license-note { display: inline-block; margin-top: 6px; padding: 2px 10px; background: var(--color-paper-2); border: var(--rule-hair) solid var(--color-rule-strong); border-radius: 100px; font-family: var(--font-mono); font-size: 10px; color: var(--color-muted); letter-spacing: 0.04em; vertical-align: middle; white-space: nowrap; }
+/* License color coding by content match — subtle */
+.model-license-note[class]:where(*)  { }  /* placeholder for future explicit variants */
+
+/* ---- RAM cell (fourth column) ---- */
+.model-table tbody td:nth-child(4) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); white-space: nowrap; }
+
+/* ---- Cost cell (fifth column) ---- */
+.model-table tbody td:nth-child(5) { font-family: var(--font-mono); font-weight: 700; white-space: nowrap; color: var(--color-ok); position: relative; }
+.model-table tbody td:nth-child(5)::first-line { color: var(--color-ok); }
+.model-cost-vs { display: block; color: var(--color-muted); font-family: var(--font-mono); font-size: 10px; margin-top: 4px; letter-spacing: 0.02em; font-weight: 400; }
+
+/* ---- Get it cell — terminal-style pull command ---- */
+.model-table tbody td:last-child { white-space: nowrap; }
+.model-table td code { display: inline-flex; align-items: center; gap: 6px; background: #0f1116; color: #4fd1c5; padding: 6px 12px; border-radius: 6px; font-family: var(--font-mono); font-size: var(--text-xs); border: 1px solid rgba(79,209,197,0.20); user-select: all; white-space: nowrap; cursor: pointer; transition: all var(--dur-fast) var(--ease-out); }
+.model-table td code::before { content: "$"; color: #565f89; font-weight: 400; }
+.model-table td code:hover { border-color: #4fd1c5; background: #16171d; box-shadow: 0 0 0 3px rgba(79,209,197,0.08); }
+
+/* ---- "How to use" panel + saving panel ---- */
+.model-usage { display: flex; flex-direction: column; gap: 2px; background: #0f1116; border-radius: var(--radius-md); padding: var(--space-md) var(--space-lg); border: 1px solid rgba(255,255,255,0.06); }
+.model-usage-row { display: flex; align-items: baseline; gap: var(--space-md); padding: 10px 0; border-bottom: 1px dashed rgba(255,255,255,0.06); }
 .model-usage-row:last-child { border-bottom: 0; }
 .model-usage-cmd { flex: 0 0 auto; min-width: 220px; font-family: var(--font-mono); color: #4fd1c5; font-size: var(--text-sm); }
 .model-usage-desc { color: #c0caf5; font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.55; }
 .model-usage-desc code { background: transparent; color: #ff9e64; border: 0; padding: 0; }
 
+/* ---- Responsive: mobile cards below ~60rem ---- */
 @media (max-width: 60rem) {
-  .model-legend { grid-template-columns: 1fr; }
-  .model-quickstart-tag { width: 140px; font-size: 10px; }
+  .model-quickstart-tag { width: 130px; font-size: 9px; }
   .model-usage-cmd { min-width: 160px; }
+  .model-catnav a { padding: 4px 10px; font-size: 11px; }
+  .model-table thead th { padding: 10px; }
+  .model-table tbody td { padding: 10px; }
+  .model-table tbody td:first-child, .model-table thead th:first-child { padding-left: var(--space-md); }
+  .model-table tbody td:last-child, .model-table thead th:last-child { padding-right: var(--space-md); }
 }
 
 /* homepage "For your team" strip → routes to /for/* audience pages */

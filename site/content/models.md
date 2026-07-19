@@ -85,7 +85,21 @@ type: "for"
   </p>
 </section>
 
-<section class="audience-section">
+<nav class="model-catnav" aria-label="Model categories">
+  <span class="model-catnav-label">Jump to:</span>
+  <a href="#general">General &amp; instruct</a>
+  <a href="#coding">Coding</a>
+  <a href="#reasoning">Reasoning</a>
+  <a href="#small">Small / edge</a>
+  <a href="#vision">Vision</a>
+  <a href="#embeddings">Embeddings</a>
+  <a href="#function-calling">Function-calling</a>
+  <a href="#moe">MoE</a>
+  <a href="#uncensored">Uncensored</a>
+  <a href="#how-to-use">How to use</a>
+</nav>
+
+<section class="audience-section" id="general">
   <h2>General chat &amp; instruct</h2>
   <p class="model-cat-lede">Day-to-day <kbd>Super</kbd>+<kbd>A</kbd> chat, drafting, summarizing, extraction, structured tasks.</p>
   <div class="model-table-wrap">
@@ -117,7 +131,7 @@ type: "for"
   </div>
 </section>
 
-<section class="audience-section">
+<section class="audience-section" id="coding">
   <h2>Coding assistants</h2>
   <p class="model-cat-lede">Wire into <code>vinos-ai code</code> or your editor. Fill-in-the-middle, refactor, explain.</p>
   <div class="model-table-wrap">
@@ -139,7 +153,7 @@ type: "for"
   </div>
 </section>
 
-<section class="audience-section">
+<section class="audience-section" id="reasoning">
   <h2>Reasoning specialists</h2>
   <p class="model-cat-lede">Chain-of-thought native. Slower per token, deeper answers. Great for math, planning, multi-step problems.</p>
   <div class="model-table-wrap">
@@ -156,7 +170,7 @@ type: "for"
   </div>
 </section>
 
-<section class="audience-section">
+<section class="audience-section" id="small">
   <h2>Small / edge (≤ 4B parameters)</h2>
   <p class="model-cat-lede">Old laptops, low-RAM boxes, background daemons, edge devices. Instant streaming, modest capability.</p>
   <div class="model-table-wrap">
@@ -177,7 +191,7 @@ type: "for"
   </div>
 </section>
 
-<section class="audience-section">
+<section class="audience-section" id="vision">
   <h2>Vision &amp; multimodal</h2>
   <p class="model-cat-lede">Pass an image (screenshot, chart, document scan) with the prompt.</p>
   <div class="model-table-wrap">
@@ -196,7 +210,7 @@ type: "for"
   </div>
 </section>
 
-<section class="audience-section">
+<section class="audience-section" id="embeddings">
   <h2>Embeddings</h2>
   <p class="model-cat-lede">Text → vectors for search, RAG, semantic dedup. Fast, small, no chat.</p>
   <div class="model-table-wrap">
@@ -215,7 +229,7 @@ type: "for"
   </div>
 </section>
 
-<section class="audience-section">
+<section class="audience-section" id="function-calling">
   <h2>Function-calling &amp; agent tuning</h2>
   <p class="model-cat-lede">Tuned specifically for tool-use, JSON output, and structured agent workflows.</p>
   <div class="model-table-wrap">
@@ -231,7 +245,7 @@ type: "for"
   </div>
 </section>
 
-<section class="audience-section">
+<section class="audience-section" id="moe">
   <h2>Mixture-of-Experts (MoE)</h2>
   <p class="model-cat-lede">Sparse — activates only a fraction of parameters per token. High capability, moderate active compute.</p>
   <div class="model-table-wrap">
@@ -247,7 +261,7 @@ type: "for"
   </div>
 </section>
 
-<section class="audience-section">
+<section class="audience-section" id="uncensored">
   <h2>Uncensored / research</h2>
   <p class="model-cat-lede">Alignment removed for research, red-teaming, or specific unrestricted workflows. <strong>Not for production without your own guardrails.</strong></p>
   <div class="model-table-wrap">
@@ -264,7 +278,7 @@ type: "for"
   </div>
 </section>
 
-<section class="audience-section">
+<section class="audience-section" id="how-to-use">
   <h2>How to use these on vinOS.</h2>
   <p style="max-width: 60ch; color: var(--color-ink-2); font-size: var(--text-md); line-height: 1.55;">
     Once the <code>ai</code> bundle is installed (<code>vinos-install ai</code>), Ollama is already running. Then:
