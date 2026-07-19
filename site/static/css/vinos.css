@@ -245,6 +245,7 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 .model-table tbody td.model-score { text-align: right; padding-right: 20px; white-space: nowrap; }
 .model-score-val { display: block; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; color: var(--color-ink); line-height: 1; font-style: normal; letter-spacing: -0.02em; }
 .model-score-bench { display: block; margin-top: 3px; font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-muted); }
+.model-score-secondary { display: block; margin-top: 4px; font-family: var(--font-mono); font-size: 10px; color: var(--color-ink-2); letter-spacing: 0.02em; font-weight: 500; opacity: 0.78; }
 
 /* ---- Best for cell (4th column) ---- */
 .model-table tbody td:nth-child(4) { color: var(--color-ink-2); max-width: 32ch; }
