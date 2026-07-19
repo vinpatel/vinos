@@ -213,6 +213,8 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 .model-table td a:hover { text-decoration: underline; }
 .model-table td code { display: inline-block; background: var(--color-panel); color: #4fd1c5; padding: 3px 8px; border-radius: 4px; font-family: var(--font-mono); font-size: var(--text-xs); border: 0; user-select: all; white-space: nowrap; }
 .model-license-note { color: var(--color-muted); font-family: var(--font-mono); font-size: var(--text-2xs); }
+.model-cost-vs { display: block; color: var(--color-muted); font-family: var(--font-mono); font-size: var(--text-2xs); margin-top: 2px; letter-spacing: 0.01em; }
+.model-table td:nth-child(5) { color: var(--color-ok); font-family: var(--font-mono); font-weight: 500; white-space: nowrap; }
 
 .model-usage { display: flex; flex-direction: column; gap: var(--space-2xs); background: var(--color-panel); border-radius: var(--radius-md); padding: var(--space-md) var(--space-lg); }
 .model-usage-row { display: flex; align-items: baseline; gap: var(--space-md); padding: var(--space-2xs) 0; border-bottom: 1px dashed rgba(255,255,255,0.08); }
