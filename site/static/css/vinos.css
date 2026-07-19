@@ -198,8 +198,8 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 .model-quickstart-row.highlight .model-quickstart-tag { color: #4fd1c5; }
 .model-quickstart-row code { background: transparent; border: 0; padding: 0; font-family: var(--font-mono); font-size: var(--text-sm); color: inherit; }
 
-/* ---- Category jump-nav ---- */
-.model-catnav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: var(--space-2xl) 0 var(--space-lg); padding: var(--space-md) 0; border-top: var(--rule-hair) solid var(--color-rule); border-bottom: var(--rule-hair) solid var(--color-rule); }
+/* ---- Category jump-nav (sticky on scroll) ---- */
+.model-catnav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: var(--space-2xl) 0 var(--space-lg); padding: var(--space-md) var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); border-bottom: var(--rule-hair) solid var(--color-rule); background: rgba(247,242,232,0.92); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 10; margin-inline: calc(var(--space-md) * -1); }
 .model-catnav-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--color-muted); margin-right: var(--space-2xs); }
 .model-catnav a { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-ink); padding: 5px 12px; border: var(--rule-hair) solid var(--color-rule-strong); border-radius: 100px; text-decoration: none; letter-spacing: 0.02em; transition: all var(--dur-fast) var(--ease-out); }
 .model-catnav a:hover { color: var(--color-accent); border-color: var(--color-accent); background: rgba(217,119,6,0.04); }
@@ -236,24 +236,33 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 .model-table td a { color: var(--color-muted); font-family: var(--font-mono); font-size: 10px; text-decoration: none; letter-spacing: 0.04em; text-transform: uppercase; }
 .model-table td a:hover { color: var(--color-accent); }
 
-/* ---- Sizes cell (second column) ---- */
+/* ---- Sizes cell (2nd column) — sizes + context window + release date stacked ---- */
 .model-table tbody td:nth-child(2) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-ink-2); white-space: nowrap; }
+.model-ctx { display: block; margin-top: 4px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.02em; color: var(--color-muted); }
 
-/* ---- Best for cell (third column) ---- */
-.model-table tbody td:nth-child(3) { color: var(--color-ink-2); max-width: 36ch; }
+/* ---- Score cell (3rd column) — big value, small benchmark label ---- */
+.model-table thead th:nth-child(3) { text-align: right; padding-right: 20px; }
+.model-table tbody td.model-score { text-align: right; padding-right: 20px; white-space: nowrap; }
+.model-score-val { display: block; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; color: var(--color-ink); line-height: 1; font-style: normal; letter-spacing: -0.02em; }
+.model-score-bench { display: block; margin-top: 3px; font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-muted); }
 
-/* ---- License chip (was .model-license-note) ---- */
+/* ---- Best for cell (4th column) ---- */
+.model-table tbody td:nth-child(4) { color: var(--color-ink-2); max-width: 32ch; }
+
+/* ---- License chip (bottom of Best for cell) ---- */
 .model-license-note { display: inline-block; margin-top: 6px; padding: 2px 10px; background: var(--color-paper-2); border: var(--rule-hair) solid var(--color-rule-strong); border-radius: 100px; font-family: var(--font-mono); font-size: 10px; color: var(--color-muted); letter-spacing: 0.04em; vertical-align: middle; white-space: nowrap; }
-/* License color coding by content match — subtle */
-.model-license-note[class]:where(*)  { }  /* placeholder for future explicit variants */
 
-/* ---- RAM cell (fourth column) ---- */
-.model-table tbody td:nth-child(4) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); white-space: nowrap; }
+/* ---- RAM cell (5th column) ---- */
+.model-table tbody td:nth-child(5) { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-muted); white-space: nowrap; }
 
-/* ---- Cost cell (fifth column) ---- */
-.model-table tbody td:nth-child(5) { font-family: var(--font-mono); font-weight: 700; white-space: nowrap; color: var(--color-ok); position: relative; }
-.model-table tbody td:nth-child(5)::first-line { color: var(--color-ok); }
+/* ---- Cost cell (6th column) ---- */
+.model-table tbody td:nth-child(6) { font-family: var(--font-mono); font-weight: 700; white-space: nowrap; color: var(--color-ok); position: relative; }
 .model-cost-vs { display: block; color: var(--color-muted); font-family: var(--font-mono); font-size: 10px; margin-top: 4px; letter-spacing: 0.02em; font-weight: 400; }
+
+/* ---- Top-pick row — subtle accent left border + star before model name ---- */
+.model-table tbody tr.model-top-pick td:first-child { border-left-color: var(--color-accent); background: linear-gradient(90deg, rgba(217,119,6,0.05) 0%, transparent 60%); }
+.model-table tbody tr.model-top-pick td:first-child strong::before { content: "★ "; color: var(--color-accent); font-size: 0.85em; margin-right: 2px; }
+.model-table tbody tr.model-top-pick .model-score-val { color: var(--color-accent); }
 
 /* ---- Get it cell — terminal-style pull command ---- */
 .model-table tbody td:last-child { white-space: nowrap; }
