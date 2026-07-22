@@ -32,8 +32,12 @@
 
 <p align="center">
   <a href="https://vinos.computer">
-    <img src="site/static/img/demo-poster.jpg" alt="vinOS demo — click for the full site + video" width="820">
+    <img src="site/static/img/vinos-demo.gif" alt="vinOS — Hyprland desktop, vinos-menu hub, local AI, three-pane tiling" width="820">
   </a>
+</p>
+
+<p align="center">
+  <em>If this saves you a subscription — or a setup weekend — a ⭐ helps others find it.</em>
 </p>
 
 ---
@@ -69,25 +73,6 @@ Real frames from a boot of the shipping ISO. See [the site](https://vinos.comput
     <td align="center"><em>Hyprland tiling. One workspace, three panes.</em></td>
   </tr>
 </table>
-
-## 💛 Sponsor this project
-
-vinOS is solo-maintained and MIT licensed. If it saves you a subscription fee or a weekend of setup, please consider supporting the work:
-
-<p align="center">
-  <a href="https://github.com/sponsors/vinpatel"><img src="https://img.shields.io/badge/GitHub%20Sponsors-recurring%20%C2%B7%200%25%20fee-ff4d6d?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="GitHub Sponsors"></a>
-  &nbsp;
-  <a href="https://opencollective.com/vinos"><img src="https://img.shields.io/badge/OpenCollective-transparent%20%C2%B7%20invoice--ready-1F87FF?style=for-the-badge&logo=opencollective&logoColor=white" alt="OpenCollective"></a>
-</p>
-
-Sponsors fund:
-
-- **Real-hardware verification** — Framework, StarLabs, Tuxedo, older ThinkPads, MacBooks
-- **Infrastructure** — archive.org hosting, GitHub Actions runners, build machines
-- **Roadmap work** — fleet management, agent snapshots, audit/safety layers, offline docs
-- **Community support** — hardware reports, documentation, response time
-
-**For OEMs and enterprise deployments:** [`hello@vinos.computer`](mailto:hello@vinos.computer).
 
 ## Install
 
@@ -169,6 +154,25 @@ Read the bundle definitions: [`docs/BUNDLES.md`](docs/BUNDLES.md).
 Every script is Bash, shellcheck-clean, under ~80 lines. Config lives in `config/` and gets rsync'd to `~/.config/`. Forks live in `overlays/`.
 
 **Best first contribution:** [flash the ISO on a new hardware family and file a hardware report](https://github.com/vinpatel/vinos/issues/new?template=hardware-report.yml). Every report widens the compatibility matrix.
+
+## 💛 Sponsor this project
+
+vinOS is solo-maintained and MIT licensed. If it saves you a subscription fee or a weekend of setup, please consider supporting the work:
+
+<p align="center">
+  <a href="https://github.com/sponsors/vinpatel"><img src="https://img.shields.io/badge/GitHub%20Sponsors-recurring%20%C2%B7%200%25%20fee-ff4d6d?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="GitHub Sponsors"></a>
+  &nbsp;
+  <a href="https://opencollective.com/vinos"><img src="https://img.shields.io/badge/OpenCollective-transparent%20%C2%B7%20invoice--ready-1F87FF?style=for-the-badge&logo=opencollective&logoColor=white" alt="OpenCollective"></a>
+</p>
+
+Sponsors fund:
+
+- **Real-hardware verification** — Framework, StarLabs, Tuxedo, older ThinkPads, MacBooks
+- **Infrastructure** — archive.org hosting, GitHub Actions runners, build machines
+- **Roadmap work** — fleet management, agent snapshots, audit/safety layers, offline docs
+- **Community support** — hardware reports, documentation, response time
+
+**For OEMs and enterprise deployments:** [`hello@vinos.computer`](mailto:hello@vinos.computer).
 
 ## License
 

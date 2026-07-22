@@ -1,0 +1,104 @@
+name: Hardware report
+description: File a report so vinOS's compatibility matrix widens with real-world data.
+title: "[Hardware] <make/model> — <works | partial | broken>"
+labels: ["hardware-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for flashing vinOS on a new machine — every report widens the compatibility matrix in `docs/HARDWARE.md`.
+
+        Fill in what you know. Skip anything you don't. If you're on an Intel T2 Mac, please include the exact model identifier (e.g. `MacBookPro15,1`) — the T2 firmware differs subtly between models.
+
+  - type: input
+    id: machine
+    attributes:
+      label: Machine
+      description: Make + model + year. For Macs, include the identifier from `sysctl hw.model` (macOS) or the sticker.
+      placeholder: MacBook Pro 15" 2019 (MacBookPro15,3) — T2
+    validations:
+      required: true
+
+  - type: input
+    id: cpu
+    attributes:
+      label: CPU
+      placeholder: Intel Core i9-9880H
+    validations:
+      required: false
+
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU / discrete graphics
+      placeholder: AMD Radeon Pro 560X 4GB + Intel UHD 630
+    validations:
+      required: false
+
+  - type: input
+    id: iso-version
+    attributes:
+      label: vinOS ISO version
+      description: From `cat /etc/os-release` or the ISO filename.
+      placeholder: v1.1.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: overall
+    attributes:
+      label: Overall status
+      options:
+        - Works — everything usable
+        - Partial — usable with caveats
+        - Broken — does not boot or unusable
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: works
+    attributes:
+      label: What works
+      options:
+        - label: Boots to Hyprland
+        - label: Keyboard
+        - label: Trackpad / touchpad (incl. gestures)
+        - label: Wi-Fi
+        - label: Bluetooth
+        - label: Speakers
+        - label: Microphone
+        - label: Webcam
+        - label: Suspend / resume
+        - label: Battery reporting
+        - label: Brightness keys
+        - label: Volume keys
+        - label: External display (HDMI / DP / USB-C)
+        - label: Function keys / Touch Bar (T2 Macs)
+
+  - type: textarea
+    id: broken
+    attributes:
+      label: What's broken or partial
+      description: Be specific — "Wi-Fi drops every ~10 min", not just "Wi-Fi flaky".
+      placeholder: |
+        - Suspend resume fails to restore Wi-Fi — need to `sudo systemctl restart iwd`
+        - Touch Bar controls work, but escape key requires Fn+`
+    validations:
+      required: false
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: `vinos-doctor` output
+      description: Paste the full output. Redact anything sensitive.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: dmesg snippets, workarounds you applied, questions you have.
+    validations:
+      required: false
