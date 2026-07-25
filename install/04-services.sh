@@ -196,4 +196,17 @@ else
   log "04-services: vinos-firstboot staged (not enabled on live ISO)"
 fi
 
+# vinos-routine: templated user-scope service + timer. Not enabled at build
+# time — users opt into individual routines via `vinos-routine enable <name>`,
+# which writes a per-routine drop-in with the routine's OnCalendar.
+if [[ -f "$REPO/install/systemd/vinos-routine@.service" ]]; then
+  log "04-services: installing vinos-routine@ systemd user templates"
+  _sysd_user="$(_rootpath /etc/systemd/user)"
+  _sudo install -d -m 0755 "$_sysd_user"
+  _sudo install -Dm 0644 "$REPO/install/systemd/vinos-routine@.service" \
+                         "$_sysd_user/vinos-routine@.service"
+  _sudo install -Dm 0644 "$REPO/install/systemd/vinos-routine@.timer" \
+                         "$_sysd_user/vinos-routine@.timer"
+fi
+
 log "04-services: done"

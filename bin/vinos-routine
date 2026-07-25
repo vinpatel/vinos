@@ -1,0 +1,215 @@
+#!/usr/bin/env bash
+# vinos-routine — scheduled autonomous agents.
+#
+# Routines live in:
+#   ~/.vinos/routines/*.toml   (user, overrides system)
+#   /etc/vinos/routines/*.toml (system defaults, shipped in ISO)
+#
+# Outputs land in ~/.vinos/routines/state/<name>/YYYY-MM-DD-HHMM.md
+# Ledger (SQLite) at ~/.vinos/routines/state/ledger.db tracks tokens + cost.
+#
+# See docs/v2/vinos-routine-spec.md for the full spec.
+
+set -euo pipefail
+
+USER_ROUTINES="${VINOS_ROUTINES_USER:-$HOME/.vinos/routines}"
+SYS_ROUTINES="${VINOS_ROUTINES_SYS:-/etc/vinos/routines}"
+STATE_DIR="${VINOS_ROUTINES_STATE:-$HOME/.vinos/routines/state}"
+LEDGER_DB="$STATE_DIR/ledger.db"
+
+if [[ -t 1 ]]; then B=$'\033[1;34m'; R=$'\033[1;31m'; G=$'\033[1;32m'; D=$'\033[2m'; Z=$'\033[0m'
+else                B=''            R=''            G=''            D=''            Z=''
+fi
+_die() { printf '%svinos-routine:%s %s\n' "$R" "$Z" "$*" >&2; exit 1; }
+_log() { printf '%svinos-routine:%s %s\n' "$B" "$Z" "$*"; }
+_have() { command -v "$1" >/dev/null 2>&1; }
+
+_find_routine() {
+  local name="$1" dir
+  for dir in "$USER_ROUTINES" "$SYS_ROUTINES"; do
+    [[ -f "$dir/$name.toml" ]] && { echo "$dir/$name.toml"; return; }
+  done
+  return 1
+}
+
+_list_routines() {
+  {
+    [[ -d "$USER_ROUTINES" ]] && find "$USER_ROUTINES" -maxdepth 1 -name '*.toml' -printf '%f\n' 2>/dev/null
+    [[ -d "$SYS_ROUTINES" ]]  && find "$SYS_ROUTINES"  -maxdepth 1 -name '*.toml' -printf '%f\n' 2>/dev/null
+  } | sed 's/\.toml$//' | sort -u
+}
+
+cmd_list() {
+  printf '%-20s %-10s %-24s %s\n' NAME ENABLED "LAST RUN" SCHEDULE
+  local name enabled last_file last sched
+  while read -r name; do
+    [[ -z "$name" ]] && continue
+    if systemctl --user is-enabled "vinos-routine@${name}.timer" >/dev/null 2>&1; then
+      enabled="${G}yes${Z}"
+    else
+      enabled="${D}no${Z}"
+    fi
+    last_file=$(ls -1t "$STATE_DIR/$name/"*.md 2>/dev/null | head -1 || true)
+    last=${last_file:+"$(basename "$last_file" .md)"}
+    sched=$(_read_toml_field "$(_find_routine "$name" || true)" schedule oncalendar 2>/dev/null || true)
+    printf '%-20s %-19b %-24s %s\n' "$name" "$enabled" "${last:-never}" "$sched"
+  done < <(_list_routines)
+}
+
+# _read_toml_field <path> <section> <key> — bare-bones TOML reader (grep-based,
+# no nesting). Adequate for [section]\nkey = "value" pattern used in routines.
+_read_toml_field() {
+  local path="$1" section="$2" key="$3"
+  [[ -f "$path" ]] || return 1
+  awk -v s="[$section]" -v k="$key" '
+    $0 == s { in_s = 1; next }
+    /^\[/ && $0 != s { in_s = 0 }
+    in_s && $1 == k {
+      # strip: key = "value"  or  key = value
+      sub(/^[^=]*=[[:space:]]*/, "")
+      gsub(/^"|"$/, "")
+      print; exit
+    }
+  ' "$path"
+}
+
+cmd_run() {
+  local name="${1:-}"; [[ -n "$name" ]] || _die "usage: vinos-routine run <name>"
+  local path; path=$(_find_routine "$name") || _die "routine '$name' not found"
+  _log "running $name (config: $path)"
+  mkdir -p "$STATE_DIR/$name" "$(dirname "$LEDGER_DB")"
+  local out="$STATE_DIR/$name/$(date +%Y-%m-%d-%H%M).md"
+  VINOS_ROUTINE_OUTPUT="$out" VINOS_ROUTINE_LEDGER="$LEDGER_DB" \
+    python3 "$(_libexec_dir)/vinos-routine-run.py" "$path" || _die "run failed (see stderr)"
+  _log "output → $out"
+}
+
+_libexec_dir() {
+  # Ship next to the CLI: /usr/local/share/vinos/libexec (via 05-branding.sh)
+  # or repo/libexec/ during dev.
+  local d
+  for d in \
+      "/usr/local/share/vinos/libexec" \
+      "/usr/share/vinos/libexec" \
+      "$(cd "$(dirname "$(readlink -f "$0")")/../libexec" 2>/dev/null && pwd)"; do
+    [[ -f "$d/vinos-routine-run.py" ]] && { echo "$d"; return; }
+  done
+  _die "vinos-routine-run.py not found in known libexec dirs"
+}
+
+cmd_enable() {
+  local name="${1:-}"; [[ -n "$name" ]] || _die "usage: vinos-routine enable <name>"
+  local path; path=$(_find_routine "$name") || _die "routine '$name' not found"
+  local oncal; oncal=$(_read_toml_field "$path" schedule oncalendar)
+  [[ -n "$oncal" ]] || _die "routine '$name' has no [schedule].oncalendar"
+  # Write per-instance timer drop-in so systemd picks up this routine's cadence.
+  local dropin_dir="$HOME/.config/systemd/user/vinos-routine@${name}.timer.d"
+  mkdir -p "$dropin_dir"
+  cat > "$dropin_dir/schedule.conf" <<EOF
+[Timer]
+OnCalendar=
+OnCalendar=$oncal
+EOF
+  systemctl --user daemon-reload
+  systemctl --user enable --now "vinos-routine@${name}.timer"
+  _log "enabled — next run per: $oncal"
+}
+
+cmd_disable() {
+  local name="${1:-}"; [[ -n "$name" ]] || _die "usage: vinos-routine disable <name>"
+  systemctl --user disable --now "vinos-routine@${name}.timer" 2>/dev/null || true
+  _log "disabled $name"
+}
+
+cmd_logs() {
+  local name="${1:-}"; [[ -n "$name" ]] || _die "usage: vinos-routine logs <name> [--tail]"
+  shift
+  local extra=()
+  [[ "${1:-}" == "--tail" ]] && extra+=(-f)
+  journalctl --user -u "vinos-routine@${name}.service" "${extra[@]}"
+}
+
+cmd_cost() {
+  [[ -f "$LEDGER_DB" ]] || { echo "no runs yet — ledger empty"; return; }
+  _have sqlite3 || _die "sqlite3 not installed"
+  sqlite3 -header -column "$LEDGER_DB" "
+    SELECT substr(ts,1,16) AS ts, name, route, model,
+           input_tokens AS in_tok, output_tokens AS out_tok
+    FROM runs
+    ORDER BY ts DESC
+    LIMIT 20;"
+}
+
+cmd_edit() {
+  local name="${1:-}"; [[ -n "$name" ]] || _die "usage: vinos-routine edit <name>"
+  local path; path=$(_find_routine "$name") || {
+    # Not found — scaffold in user dir
+    mkdir -p "$USER_ROUTINES"
+    path="$USER_ROUTINES/$name.toml"
+    cat > "$path" <<EOF
+[routine]
+name = "$name"
+description = ""
+enabled = false
+
+[schedule]
+oncalendar = "daily"
+timezone = "local"
+
+[agent]
+route = "anthropic"
+model = "claude-sonnet-4-6"
+system = ""
+
+[output]
+type = "brief"
+title = "$name · {{date}}"
+
+[budget]
+max_tokens_per_run = 4000
+EOF
+    _log "scaffolded $path"
+  }
+  "${EDITOR:-nano}" "$path"
+}
+
+cmd_help() {
+  cat <<'EOF'
+vinos-routine — scheduled autonomous agents
+
+Usage:
+  vinos-routine list                    List routines with enabled + schedule status
+  vinos-routine run <name>              Run a routine now (ad-hoc)
+  vinos-routine enable <name>           Enable systemd user timer
+  vinos-routine disable <name>          Disable systemd user timer
+  vinos-routine logs <name> [--tail]    Show routine execution logs
+  vinos-routine cost                    Recent runs + token usage (last 20)
+  vinos-routine edit <name>             Open TOML in $EDITOR (scaffolds if new)
+  vinos-routine help                    This message
+
+Routines:
+  ~/.vinos/routines/*.toml   (user)
+  /etc/vinos/routines/*.toml (system defaults)
+
+Outputs → ~/.vinos/routines/state/<name>/YYYY-MM-DD-HHMM.md
+Ledger  → ~/.vinos/routines/state/ledger.db
+
+Anthropic API key from $ANTHROPIC_API_KEY or ~/.vinos/secrets/anthropic-key.
+Ollama route talks to http://localhost:11434 (start via `vinos-ai serve`).
+
+Spec: /usr/share/doc/vinos/vinos-routine-spec.md
+EOF
+}
+
+cmd="${1:-help}"; shift || true
+case "$cmd" in
+  list)    cmd_list ;;
+  run)     cmd_run "$@" ;;
+  enable)  cmd_enable "$@" ;;
+  disable) cmd_disable "$@" ;;
+  logs)    cmd_logs "$@" ;;
+  cost)    cmd_cost ;;
+  edit)    cmd_edit "$@" ;;
+  help|-h|--help) cmd_help ;;
+  *) _die "unknown command: $cmd (try 'vinos-routine help')" ;;
+esac

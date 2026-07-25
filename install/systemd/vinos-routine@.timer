@@ -1,0 +1,14 @@
+[Unit]
+Description=vinOS routine %i schedule
+Documentation=file:///usr/share/doc/vinos/vinos-routine-spec.md
+
+[Timer]
+# Placeholder — `vinos-routine enable <name>` writes a drop-in at
+# ~/.config/systemd/user/vinos-routine@<name>.timer.d/schedule.conf
+# that overrides OnCalendar with the routine's own cadence.
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

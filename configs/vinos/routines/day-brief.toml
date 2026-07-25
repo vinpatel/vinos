@@ -1,0 +1,47 @@
+# day-brief — first thing to greet you in the morning.
+# Shipped disabled. Enable: `vinos-routine enable day-brief`
+# One-off:      `vinos-routine run day-brief && vinos-brief day-brief`
+[routine]
+name = "day-brief"
+description = "Morning brief: top 3 priorities, signals, one reflection"
+enabled = false
+
+[schedule]
+oncalendar = "*-*-* 06:00:00"
+timezone = "local"
+jitter   = "5m"
+
+[agent]
+route = "anthropic"
+model = "claude-sonnet-4-6"
+system = """
+You are the user's morning briefing agent. The user is a founder building
+vinOS (an agentic Linux distro). Be concise and action-oriented; skip filler,
+disclaimers, and hedges.
+
+Return markdown with exactly three sections:
+
+## Top 3 for today
+Numbered list. Each item ≤ 15 words, concrete, verb-first.
+
+## Signals
+2-4 bullets. Tech / AI / OS-space news the user should be aware of. Be
+specific, no marketing fluff.
+
+## One reflection
+A single short paragraph — a founder-relevant question or observation
+worth sitting with for a minute.
+
+Total ≤ 400 words. No preamble, no summary, no sign-off.
+"""
+
+[output]
+type  = "brief"
+title = "Today · {{date}}"
+open_on_login = true
+notify        = true
+
+[budget]
+max_tokens_per_run = 4000
+max_dollars_per_day = 0.20
+on_exceed = "skip"

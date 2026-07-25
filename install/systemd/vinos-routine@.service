@@ -1,0 +1,15 @@
+[Unit]
+Description=vinOS routine %i
+Documentation=file:///usr/share/doc/vinos/vinos-routine-spec.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/vinos-routine run %i
+StandardOutput=journal
+StandardError=journal
+# Keep the environment small — pick up the Anthropic key from ~/.vinos/secrets/
+# or the user's shell env when triggered manually. Do NOT hard-fail if the key
+# is missing; the CLI emits an actionable error.
+Environment=HOME=%h

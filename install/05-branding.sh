@@ -74,6 +74,33 @@ for f in "$SHARE/bin/"vinos-*; do
   _sudo ln -sfn "/usr/share/vinos/bin/$(basename "$f")" "$LOCAL_BIN/$(basename "$f")"
 done
 
+# libexec/ — helper scripts (python, etc.) that vinos-* commands invoke.
+# Not on PATH. Currently: vinos-routine-run.py for the routine agent loop.
+if [[ -d "$REPO/libexec" ]]; then
+  log "05-branding: installing libexec/ → $SHARE/libexec/"
+  _sudo rsync -a "$REPO/libexec/" "$SHARE/libexec/"
+  _sudo chmod 0755 "$SHARE/libexec/"*
+fi
+
+# vinos-routine system defaults: shipped routine TOMLs. User routines live
+# in ~/.vinos/routines/ and take precedence.
+if [[ -d "$REPO/configs/vinos/routines" ]]; then
+  _routines_dst="$(_rootpath /etc/vinos/routines)"
+  log "05-branding: installing routines → /etc/vinos/routines"
+  _sudo install -d -m 0755 "$_routines_dst"
+  for _rt in "$REPO/configs/vinos/routines"/*.toml; do
+    [[ -f "$_rt" ]] || continue
+    _sudo install -Dm 0644 "$_rt" "$_routines_dst/$(basename "$_rt")"
+  done
+fi
+
+# vinos-routine spec doc — referenced by systemd unit Documentation= field
+# and the CLI's help output.
+if [[ -f "$REPO/docs/v2/vinos-routine-spec.md" ]]; then
+  _sudo install -Dm 0644 "$REPO/docs/v2/vinos-routine-spec.md" \
+                         "$(_rootpath /usr/share/doc/vinos/vinos-routine-spec.md)"
+fi
+
 log "05-branding: installing vinos Plymouth theme"
 # Rule 3: identity — the logo + caret splash is branding, so it lives
 # here. 02-desktop.sh installs the plymouth package and wires the hook;

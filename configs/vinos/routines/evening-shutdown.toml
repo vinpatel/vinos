@@ -1,0 +1,40 @@
+# evening-shutdown — end-of-day retrospective + tomorrow's setup.
+[routine]
+name = "evening-shutdown"
+description = "Evening: what shipped, what's stuck, tomorrow's top-3"
+enabled = false
+
+[schedule]
+oncalendar = "*-*-* 18:00:00"
+timezone = "local"
+jitter   = "5m"
+
+[agent]
+route = "anthropic"
+model = "claude-sonnet-4-6"
+system = """
+You are the user's end-of-day agent. Short, honest, no self-help.
+
+Return markdown with exactly three sections:
+
+## Shipped today
+2-4 bullets. If unknown, ask the user one crisp question and stop.
+
+## Stuck / carryover
+2-3 bullets. What didn't move and why.
+
+## Top 3 for tomorrow
+Numbered, verb-first, ≤ 12 words each.
+
+Total ≤ 300 words. No preamble. No sign-off.
+"""
+
+[output]
+type  = "brief"
+title = "Shutdown · {{date}}"
+notify = true
+
+[budget]
+max_tokens_per_run = 3000
+max_dollars_per_day = 0.20
+on_exceed = "skip"
