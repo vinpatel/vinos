@@ -196,6 +196,16 @@ else
   log "04-services: vinos-firstboot staged (not enabled on live ISO)"
 fi
 
+log "04-services: layering configs/vinos/security/etc → /etc"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ -d "$REPO/configs/vinos/security/etc" ]]; then
+  _sudo rsync -a "$REPO/configs/vinos/security/etc/" "$(_rootpath /etc)/"
+fi
+if [[ -f "$REPO/configs/vinos/security/etc/systemd/zram-generator.conf" ]]; then
+  _sudo install -Dm 0644 "$REPO/configs/vinos/security/etc/systemd/zram-generator.conf" \
+                         "$(_rootpath /etc/systemd/zram-generator.conf)"
+fi
+
 # vinos-routine: templated user-scope service + timer. Not enabled at build
 # time — users opt into individual routines via `vinos-routine enable <name>`,
 # which writes a per-routine drop-in with the routine's OnCalendar.

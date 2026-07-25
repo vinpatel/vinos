@@ -22,7 +22,10 @@ install_pkg \
   noto-fonts noto-fonts-emoji noto-fonts-cjk fontconfig \
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber \
   pavucontrol wiremix \
-  nautilus sushi nautilus-python gnome-disk-utility \
+  nautilus sushi nautilus-python gnome-disk-utility udiskie \
+  networkmanager papirus-icon-theme \
+  ufw apparmor firejail zram-generator \
+  linux-hardened linux-hardened-headers \
   gnome-calculator libqalculate \
   plymouth \
   hypridle hyprlock hyprpicker hyprsunset swayosd satty \
@@ -46,6 +49,11 @@ log "02-desktop: installing AUR apps (UX-critical only)"
 # hyprpm needs its git alternate; we install plugins post-boot with
 # vinos-hypr-plugins (see below).
 install_aur walker yaru-icon-theme bibata-cursor-theme
+
+# Omarchy 4.0.0.alpha uses a Lua-based Hyprland config parsed at runtime
+# by omarchy-shell (a quickshell script). Without quickshell-git the
+# vendored configs/omarchy/config/hypr/ tree is inert.
+install_aur quickshell-git
 
 # Optional Hyprland plugins via hyprpm. hyprpm ships with hyprland,
 # so no extra package needed. We install the beauty-pass plugins on
