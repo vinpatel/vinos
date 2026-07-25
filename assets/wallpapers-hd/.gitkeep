@@ -1,0 +1,5 @@
+# Curated HD wallpapers destined for /configs/vinos/brand/themes/<name>/backgrounds/
+# Drop .jpg / .png / .webp / .avif here, named per theme slot:
+#   void.jpg  console.jpg  aurora.jpg  mare.jpg  origin.jpg
+#   ochre.jpg canopy.jpg   flare.jpg   glacier.jpg  nebula.jpg
+# (or any custom names — the theme-build script picks up whatever is here.)
