@@ -1,0 +1,34 @@
+# Circuit — vinOS theme
+# Wallpaper source: assets/wallpapers-hd/a-chosen-soul-D_ivYIn4jWw-unsplash.jpg
+# Mode: dark. vinOS teal (#4EC1B8) is the family-signature accent.
+mode = "dark"
+
+accent           = "#4EC1B8"
+selection        = "#24344d"
+muted            = "#414868"
+
+background         = "#0a0e14"
+dark_background    = "#05070a"
+darker_background  = "#020304"
+lighter_background = "#141a24"
+
+foreground         = "#cbd5e8"
+dark_foreground    = "#7a869c"
+light_foreground   = "#cbd5e8"
+bright_foreground  = "#ffffff"
+
+red     = "#f7768e"
+yellow  = "#e0af68"
+orange  = "#ff9e64"
+green   = "#9ece6a"
+cyan    = "#7dcfff"
+blue    = "#7aa2f7"
+magenta = "#bb9af7"
+brown   = "#cfad6e"
+
+bright_red     = "#f7768e"
+bright_yellow  = "#e0af68"
+bright_green   = "#9ece6a"
+bright_cyan    = "#7dcfff"
+bright_blue    = "#7aa2f7"
+bright_magenta = "#bb9af7"

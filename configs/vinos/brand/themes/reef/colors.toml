@@ -1,0 +1,34 @@
+# Reef — vinOS theme
+# Wallpaper source: assets/wallpapers-hd/david-clode-xISv9EMQ1BY-unsplash.jpg
+# Mode: dark. vinOS teal (#4EC1B8) is the family-signature accent.
+mode = "dark"
+
+accent           = "#4EC1B8"
+selection        = "#1a2e20"
+muted            = "#2a3e30"
+
+background         = "#0a1410"
+dark_background    = "#050c08"
+darker_background  = "#020604"
+lighter_background = "#14221c"
+
+foreground         = "#ebdbb2"
+dark_foreground    = "#928374"
+light_foreground   = "#ebdbb2"
+bright_foreground  = "#fbf1c7"
+
+red     = "#fb4934"
+yellow  = "#fabd2f"
+orange  = "#fe8019"
+green   = "#b8bb26"
+cyan    = "#4EC1B8"
+blue    = "#83a598"
+magenta = "#d3869b"
+brown   = "#d65d0e"
+
+bright_red     = "#fb4934"
+bright_yellow  = "#fabd2f"
+bright_green   = "#b8bb26"
+bright_cyan    = "#4EC1B8"
+bright_blue    = "#83a598"
+bright_magenta = "#d3869b"

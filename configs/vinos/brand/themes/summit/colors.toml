@@ -1,0 +1,34 @@
+# Summit — vinOS theme
+# Wallpaper source: assets/wallpapers-hd/eugene-ga-infssQ2tjeM-unsplash.jpg
+# Mode: light. vinOS teal (#4EC1B8) is the family-signature accent.
+mode = "light"
+
+accent           = "#179299"
+selection        = "#d8dbe4"
+muted            = "#acb0be"
+
+background         = "#eff1f5"
+dark_background    = "#e6e9ef"
+darker_background  = "#d8dde4"
+lighter_background = "#f9fafd"
+
+foreground         = "#4c4f69"
+dark_foreground    = "#7c7f93"
+light_foreground   = "#4c4f69"
+bright_foreground  = "#1e1e2e"
+
+red     = "#d20f39"
+yellow  = "#df8e1d"
+orange  = "#fe640b"
+green   = "#40a02b"
+cyan    = "#179299"
+blue    = "#1e66f5"
+magenta = "#ea76cb"
+brown   = "#8c6a3a"
+
+bright_red     = "#d20f39"
+bright_yellow  = "#df8e1d"
+bright_green   = "#40a02b"
+bright_cyan    = "#179299"
+bright_blue    = "#1e66f5"
+bright_magenta = "#ea76cb"

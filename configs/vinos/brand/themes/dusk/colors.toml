@@ -1,0 +1,34 @@
+# Dusk — vinOS theme
+# Wallpaper source: assets/wallpapers-hd/pascal-debrunner-V7EgUtCnvLY-unsplash.jpg
+# Mode: dark. vinOS teal (#4EC1B8) is the family-signature accent.
+mode = "dark"
+
+accent           = "#4EC1B8"
+selection        = "#202430"
+muted            = "#2c3040"
+
+background         = "#0c0e14"
+dark_background    = "#070810"
+darker_background  = "#03040a"
+lighter_background = "#16181f"
+
+foreground         = "#d0d4dc"
+dark_foreground    = "#6a7380"
+light_foreground   = "#d0d4dc"
+bright_foreground  = "#f8fafc"
+
+red     = "#d97757"
+yellow  = "#e0a468"
+orange  = "#e28860"
+green   = "#7fa878"
+cyan    = "#4EC1B8"
+blue    = "#7a90b0"
+magenta = "#a884a0"
+brown   = "#8f705a"
+
+bright_red     = "#d97757"
+bright_yellow  = "#e0a468"
+bright_green   = "#7fa878"
+bright_cyan    = "#4EC1B8"
+bright_blue    = "#7a90b0"
+bright_magenta = "#a884a0"

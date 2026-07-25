@@ -54,15 +54,16 @@ if [[ -d "$REPO/assets/wallpapers" ]]; then
   done
 fi
 
-# void is the default first-boot vinOS theme (Hubble Deep Field wallpaper,
-# near-black + teal signature). Overridable via VINOS_THEME= env before
-# install.sh / iso/build.sh. Legacy names ("aurora" pre-v2, "Void" v2.0.2
-# TitleCase) auto-migrate to the current lowercase "void". Theme dir names
-# are lowercase-kebab to match Omarchy convention (see 03-configs.sh:47).
-# 10 vinOS themes live at /usr/share/omarchy/themes/ alongside Omarchy's.
-_active_theme="${VINOS_THEME:-void}"
+# cosmos is the default first-boot vinOS theme (Milky Way over an alpine
+# lake, by Pascal Debrunner via Unsplash — deep, atmospheric, showcases
+# the agentic OS story). Overridable via VINOS_THEME= env before
+# install.sh / iso/build.sh. Legacy theme names (v1: aurora/daybreak;
+# v2.0.2: TitleCase Void; v2.0.3: lowercase void) auto-migrate to cosmos.
+# All 10 vinOS themes live at /usr/share/omarchy/themes/ alongside
+# Omarchy's, using lowercase-kebab names to match convention.
+_active_theme="${VINOS_THEME:-cosmos}"
 case "$_active_theme" in
-  aurora|Aurora|Void) _active_theme="void" ;;
+  aurora|Aurora|Void|void|daybreak|polar-night) _active_theme="cosmos" ;;
 esac
 _active_theme="$(printf '%s' "$_active_theme" | tr 'A-Z' 'a-z')"
 _sudo ln -sfn "/usr/share/omarchy/themes/${_active_theme}/wallpaper.png" "$SHARE/wallpaper.png"

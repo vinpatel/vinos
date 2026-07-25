@@ -1,0 +1,34 @@
+# Crater — vinOS theme
+# Wallpaper source: assets/wallpapers-hd/nasa-E7q00J_8N7A-unsplash.jpg
+# Mode: dark. vinOS teal (#4EC1B8) is the family-signature accent.
+mode = "dark"
+
+accent           = "#4EC1B8"
+selection        = "#4a2818"
+muted            = "#5a3820"
+
+background         = "#180c06"
+dark_background    = "#0e0704"
+darker_background  = "#060302"
+lighter_background = "#241812"
+
+foreground         = "#f0dfd0"
+dark_foreground    = "#b0937a"
+light_foreground   = "#f0dfd0"
+bright_foreground  = "#fffaef"
+
+red     = "#dc6a4a"
+yellow  = "#e8b060"
+orange  = "#f08050"
+green   = "#8ab07a"
+cyan    = "#4EC1B8"
+blue    = "#7a94a8"
+magenta = "#b48eaa"
+brown   = "#a06848"
+
+bright_red     = "#dc6a4a"
+bright_yellow  = "#e8b060"
+bright_green   = "#8ab07a"
+bright_cyan    = "#4EC1B8"
+bright_blue    = "#7a94a8"
+bright_magenta = "#b48eaa"

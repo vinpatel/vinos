@@ -1,0 +1,34 @@
+# Egret — vinOS theme
+# Wallpaper source: assets/wallpapers-hd/david-clode-pWDUJYt0faU-unsplash.jpg
+# Mode: dark. vinOS teal (#4EC1B8) is the family-signature accent.
+mode = "dark"
+
+accent           = "#4EC1B8"
+selection        = "#1e1e22"
+muted            = "#2a2a2f"
+
+background         = "#0a0a0c"
+dark_background    = "#050506"
+darker_background  = "#020203"
+lighter_background = "#16161a"
+
+foreground         = "#efefe8"
+dark_foreground    = "#8a8a80"
+light_foreground   = "#efefe8"
+bright_foreground  = "#ffffff"
+
+red     = "#d47070"
+yellow  = "#e0b060"
+orange  = "#e89060"
+green   = "#78ba6a"
+cyan    = "#4EC1B8"
+blue    = "#8ab0c8"
+magenta = "#b48ea8"
+brown   = "#8f6a5a"
+
+bright_red     = "#d47070"
+bright_yellow  = "#e0b060"
+bright_green   = "#78ba6a"
+bright_cyan    = "#4EC1B8"
+bright_blue    = "#8ab0c8"
+bright_magenta = "#b48ea8"

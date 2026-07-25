@@ -206,6 +206,34 @@ if [[ -f "$REPO/configs/vinos/security/etc/systemd/zram-generator.conf" ]]; then
                          "$(_rootpath /etc/systemd/zram-generator.conf)"
 fi
 
+# docker.service — enable for agentic flows. `vinos-routine` may spawn
+# sandboxed agents in containers; Docker.desktop launches lazydocker
+# TUI which needs a running dockerd. Users get non-root docker access
+# via the `docker` group membership block below.
+log "04-services: enabling docker.service"
+systemctl_enable docker
+
+# docker group — add uid 1000 (the vinos user) so `docker ps` etc. don't
+# require sudo. In VINOS_ROOT mode we patch /etc/group in the airootfs
+# skel; on installer mode we usermod the running user.
+if [[ -n "$VINOS_ROOT" ]]; then
+  _grp="$(_rootpath /etc/group)"
+  if [[ -f "$_grp" ]] && ! grep -q '^docker:' "$_grp"; then
+    # docker package normally creates the group post-install; pre-seed
+    # for airootfs so the skel entry is stable.
+    echo 'docker:x:966:vinos' | _sudo tee -a "$_grp" >/dev/null
+  elif [[ -f "$_grp" ]] && grep -q '^docker:' "$_grp" && ! grep '^docker:' "$_grp" | grep -q 'vinos'; then
+    _sudo sed -i -E 's/^(docker:[^:]*:[0-9]*:)(.*)$/\1\2,vinos/; s/,,/,/; s/:,/:/' "$_grp"
+  fi
+else
+  # Installer / runtime: add the current user (uid 1000) if present.
+  _u="$(getent passwd 1000 | cut -d: -f1)"
+  if [[ -n "$_u" ]] && getent group docker >/dev/null 2>&1; then
+    sudo usermod -aG docker "$_u" || warn "usermod docker failed for $_u"
+  fi
+  unset _u
+fi
+
 # vinos-routine: templated user-scope service + timer. Not enabled at build
 # time — users opt into individual routines via `vinos-routine enable <name>`,
 # which writes a per-routine drop-in with the routine's OnCalendar.

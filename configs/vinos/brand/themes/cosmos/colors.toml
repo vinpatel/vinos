@@ -1,0 +1,34 @@
+# Cosmos — vinOS theme
+# Wallpaper source: assets/wallpapers-hd/pascal-debrunner-HUYPJupBvwE-unsplash.jpg
+# Mode: dark. vinOS teal (#4EC1B8) is the family-signature accent.
+mode = "dark"
+
+accent           = "#4EC1B8"
+selection        = "#2e344c"
+muted            = "#4c566a"
+
+background         = "#0e1220"
+dark_background    = "#060a14"
+darker_background  = "#02040a"
+lighter_background = "#1a1e30"
+
+foreground         = "#d8dee9"
+dark_foreground    = "#7a86a0"
+light_foreground   = "#d8dee9"
+bright_foreground  = "#eceff4"
+
+red     = "#bf616a"
+yellow  = "#ebcb8b"
+orange  = "#d08770"
+green   = "#a3be8c"
+cyan    = "#4EC1B8"
+blue    = "#81a1c1"
+magenta = "#b48ead"
+brown   = "#8f6a5a"
+
+bright_red     = "#bf616a"
+bright_yellow  = "#ebcb8b"
+bright_green   = "#a3be8c"
+bright_cyan    = "#4EC1B8"
+bright_blue    = "#81a1c1"
+bright_magenta = "#b48ead"

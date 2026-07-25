@@ -38,7 +38,8 @@ install_pkg \
   alsa-firmware alsa-ucm-conf alsa-utils sof-firmware \
   power-profiles-daemon thermald acpid bolt \
   ffmpegthumbnailer gvfs-mtp gvfs-nfs gvfs-smb \
-  zram-generator kernel-modules-hook
+  zram-generator kernel-modules-hook \
+  docker docker-compose dua-cli
 
 log "02-desktop: installing AUR apps (UX-critical only)"
 # I11 pivot: spotify/obsidian/1password/localsend live in bundles now.
@@ -49,6 +50,12 @@ log "02-desktop: installing AUR apps (UX-critical only)"
 # hyprpm needs its git alternate; we install plugins post-boot with
 # vinos-hypr-plugins (see below).
 install_aur walker yaru-icon-theme bibata-cursor-theme
+
+# Agentic-flow tools: docker for sandboxed agent runs, lazydocker as the
+# TUI vendored omarchy Docker.desktop launches. dua-cli for the Disk Usage
+# launcher (both apps were shipping desktop entries but the underlying
+# binaries were missing).
+install_aur lazydocker
 
 # Omarchy 4.0.0.alpha uses a Lua-based Hyprland config parsed at runtime
 # by omarchy-shell (a quickshell script). Without quickshell-git the

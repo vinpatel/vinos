@@ -157,12 +157,15 @@ fi
 #   current/theme/          real directory (copy of themes/<name>/), NOT a symlink
 #   current/theme.name      plain text file with the theme name
 #   current/background      symlink → a specific PNG file
-# Default theme is "void" (lowercase, matching the installed dir name).
-# Source dir in the repo is "Void" (TitleCase) so we look up by that.
-_default_theme="void"
-_vinos_src_theme="Void"
-# Prefer the vinOS themes tree (10 4K NASA-sourced themes); fall back to
-# a vendored Omarchy theme if for some reason Void isn't shipped.
+# Default theme is "cosmos" — Milky Way over an alpine lake (Pascal
+# Debrunner via Unsplash). Deep, atmospheric, showcases the agentic OS
+# story. Source and installed dir names are both lowercase now (no
+# case-mapping needed — the theme-rebuild moved the family to
+# lowercase-native naming).
+_default_theme="cosmos"
+_vinos_src_theme="cosmos"
+# Prefer the vinOS themes tree; fall back to a vendored Omarchy theme if
+# for some reason cosmos isn't shipped.
 if [[ ! -d "$VINOS_THEMES_SRC/$_vinos_src_theme" ]] && [[ ! -d "$OMARCHY_SRC/themes/tokyo-night" ]]; then
   _default_theme="tokyo-night"
   _vinos_src_theme=""
@@ -190,20 +193,14 @@ printf '%s\n' "$_default_theme" | _sudo tee "$skel_state/theme.name" >/dev/null
 # PNG in backgrounds/, else the theme root wallpaper.png. Symlink target MUST
 # be RELATIVE — /etc/skel gets copied to /home/vinos on first boot, so an
 # absolute build-time path would break the moment the ISO boots.
-# Backgrounds/*.jpg filenames use the SOURCE theme name (TitleCase for
-# vinOS themes), so probe with $_vinos_src_theme first, then the runtime
-# name (Omarchy themes use lowercase filenames matching the dir name).
-_bg_probe_names=()
-[[ -n "$_vinos_src_theme" ]] && _bg_probe_names+=("$_vinos_src_theme")
-_bg_probe_names+=("$_default_theme")
+# backgrounds/<name>.jpg + <name>-branded.jpg — both vinOS + Omarchy
+# themes now use lowercase-matching-dir-name filenames.
 _bg_rel=""
-for _bpn in "${_bg_probe_names[@]}"; do
-  for _candidate in \
-      "theme/backgrounds/${_bpn}-branded.jpg" \
-      "theme/backgrounds/${_bpn}.jpg" \
-      "theme/wallpaper.png"; do
-    if [[ -f "$skel_state/$_candidate" ]]; then _bg_rel="$_candidate"; break 2; fi
-  done
+for _candidate in \
+    "theme/backgrounds/${_default_theme}-branded.jpg" \
+    "theme/backgrounds/${_default_theme}.jpg" \
+    "theme/wallpaper.png"; do
+  if [[ -f "$skel_state/$_candidate" ]]; then _bg_rel="$_candidate"; break; fi
 done
 if [[ -z "$_bg_rel" ]]; then
   # First backgrounds/*.(jpg|png) as relative path
@@ -268,7 +265,7 @@ done
 log "03-configs: pre-warmed theme-selector cache with $_prewarm_count previews in /etc/skel"
 
 unset _default_theme _vinos_src_theme _bg_rel _first_bg _candidate skel_state \
-      _bg_probe_names _bpn _themes_root_build _skel_cache _skel_previews \
+      _themes_root_build _skel_cache _skel_previews \
       _fast_sig_tmp _tp _tn _prev _pn _first _ext _prewarm_count
 
 # applications/ lands in /usr/local/share/applications/ instead of

@@ -51,7 +51,10 @@ dkms
 dmidecode
 dmraid
 dnsmasq
+docker
+docker-compose
 dosfstools
+dua-cli
 dust
 e2fsprogs
 edk2-shell
@@ -122,6 +125,7 @@ kernel-modules-hook
 kitty-terminfo
 kvantum
 kvantum-qt5
+lazydocker
 lazygit
 ldns
 less

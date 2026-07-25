@@ -1,0 +1,34 @@
+# Bloom — vinOS theme
+# Wallpaper source: assets/wallpapers-hd/natalie-kinnear-a39dZ_gddHA-unsplash.jpg
+# Mode: light. vinOS teal (#4EC1B8) is the family-signature accent.
+mode = "light"
+
+accent           = "#2AA198"
+selection        = "#d8d0b8"
+muted            = "#b4ac94"
+
+background         = "#f0ede0"
+dark_background    = "#e4dfd0"
+darker_background  = "#d4cebe"
+lighter_background = "#faf6ea"
+
+foreground         = "#3b3a24"
+dark_foreground    = "#6a6a58"
+light_foreground   = "#3b3a24"
+bright_foreground  = "#1a1a10"
+
+red     = "#c85450"
+yellow  = "#d4a020"
+orange  = "#eb7d3c"
+green   = "#6b9c3f"
+cyan    = "#2AA198"
+blue    = "#4d84c8"
+magenta = "#a06090"
+brown   = "#8c6a3a"
+
+bright_red     = "#c85450"
+bright_yellow  = "#d4a020"
+bright_green   = "#6b9c3f"
+bright_cyan    = "#2AA198"
+bright_blue    = "#4d84c8"
+bright_magenta = "#a06090"
