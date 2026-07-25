@@ -1,0 +1,33 @@
+# Flare — vinOS theme
+# Mode: dark. vinOS teal (#4EC1B8) is the signature accent across the family.
+mode = "dark"
+
+accent           = "#4EC1B8"
+selection        = "#1A2C4A"
+muted            = "#2A3E5E"
+
+background        = "#050C1A"
+dark_background   = "#02060E"
+darker_background = "#010306"
+lighter_background = "#0D1830"
+
+foreground        = "#E4EAF2"
+dark_foreground   = "#8898B4"
+light_foreground  = "#E4EAF2"
+bright_foreground = "#FAFDFF"
+
+red     = "#E8845A"
+yellow  = "#E8B060"
+orange  = "#E89568"
+green   = "#7ABF9A"
+cyan    = "#4EC1B8"
+blue    = "#5AAAE8"
+magenta = "#B48EDD"
+brown   = "#5F5A82"
+
+bright_red     = "#E8845A"
+bright_yellow  = "#E8B060"
+bright_green   = "#7ABF9A"
+bright_cyan    = "#4EC1B8"
+bright_blue    = "#5AAAE8"
+bright_magenta = "#B48EDD"

@@ -1,0 +1,10 @@
+# vinOS T2 — kernel command-line additions merged into the archiso
+# bootloader (syslinux + grub + systemd-boot) at build time.
+#
+# cfg80211.ieee80211_regdom=US   — matches iwd default; without this Wi-Fi
+#                                    stays parked in world-locked mode.
+# nowatchdog                     — the T2 watchdog produces false positives
+#                                    that reboot the box mid-install.
+# tsc=reliable                   — T2 Macs occasionally get TSC-invalid
+#                                    stalls without this hint.
+cfg80211.ieee80211_regdom=US nowatchdog tsc=reliable

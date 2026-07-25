@@ -1,0 +1,33 @@
+# Origin — vinOS theme
+# Mode: dark. vinOS teal (#4EC1B8) is the signature accent across the family.
+mode = "dark"
+
+accent           = "#4EC1B8"
+selection        = "#1A3452"
+muted            = "#2C4368"
+
+background        = "#08111C"
+dark_background   = "#040A14"
+darker_background = "#02060E"
+lighter_background = "#12213A"
+
+foreground        = "#E4EAF2"
+dark_foreground   = "#8898B0"
+light_foreground  = "#E4EAF2"
+bright_foreground = "#FAFDFF"
+
+red     = "#C46A6A"
+yellow  = "#E8B060"
+orange  = "#E89868"
+green   = "#7ABF6A"
+cyan    = "#4EC1B8"
+blue    = "#5A9CE8"
+magenta = "#B48EDD"
+brown   = "#5F6A82"
+
+bright_red     = "#C46A6A"
+bright_yellow  = "#E8B060"
+bright_green   = "#7ABF6A"
+bright_cyan    = "#4EC1B8"
+bright_blue    = "#5A9CE8"
+bright_magenta = "#B48EDD"

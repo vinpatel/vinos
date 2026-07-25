@@ -1,0 +1,26 @@
+;; vinOS Mac muscle-memory — kanata keyboard remap.
+;;
+;; On Mac keyboards Linux sees:
+;;   ⌘ (Cmd)  → keycode 125 (Meta / "lmet")
+;;   ⌥ (Opt)  → keycode 56  (Alt  / "lalt")
+;;   fn       → keycode 464 (fn, model-specific)
+;;
+;; Mac users expect Cmd to do what Ctrl does on Linux. This mapping swaps
+;; Cmd and Ctrl so ⌘+C copies, ⌘+V pastes, ⌘+T opens a new tab, etc.
+;; Terminal apps that expect literal Ctrl (Ctrl+C = SIGINT) are handled
+;; by keeping the right-hand Ctrl unchanged.
+
+(defcfg
+  process-unmapped-keys yes
+)
+
+(defsrc
+  lctl lmet lalt        ralt rmet rctl
+)
+
+(deflayer mac-default
+  ;; Left cluster: swap Cmd (lmet) ↔ Ctrl (lctl)
+  lmet lctl lalt
+  ;; Right cluster: keep as-is so Ctrl+C still sends SIGINT in the terminal
+  ralt rmet rctl
+)

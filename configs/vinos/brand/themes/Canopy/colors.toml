@@ -1,0 +1,33 @@
+# Canopy — vinOS theme
+# Mode: dark. vinOS teal (#4EC1B8) is the signature accent across the family.
+mode = "dark"
+
+accent           = "#4EC1B8"
+selection        = "#1A2E20"
+muted            = "#2A3E30"
+
+background        = "#0A140E"
+dark_background   = "#050E08"
+darker_background = "#020604"
+lighter_background = "#152218"
+
+foreground        = "#DFE9E2"
+dark_foreground   = "#889888"
+light_foreground  = "#DFE9E2"
+bright_foreground = "#FAFEF6"
+
+red     = "#C4785A"
+yellow  = "#D4B45E"
+orange  = "#E0985A"
+green   = "#8ABF6A"
+cyan    = "#4EC1B8"
+blue    = "#89B4A4"
+magenta = "#B4AE8D"
+brown   = "#5F6A4A"
+
+bright_red     = "#C4785A"
+bright_yellow  = "#D4B45E"
+bright_green   = "#8ABF6A"
+bright_cyan    = "#4EC1B8"
+bright_blue    = "#89B4A4"
+bright_magenta = "#B4AE8D"

@@ -1,0 +1,13 @@
+[Unit]
+Description=vinOS kanata (Mac muscle-memory keymap)
+Documentation=file:///usr/share/vinos/mac/README.md
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/kanata -c /etc/vinos/kanata/vinos.kbd
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

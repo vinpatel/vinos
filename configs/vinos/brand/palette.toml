@@ -1,0 +1,25 @@
+# vinOS palette — v2.0
+# Extends the site's post-2026-07-19 brand pass. Source of truth for
+# wallpaper generation, plymouth/sddm/greetd themes, and any shell UI.
+
+[light]
+primary    = "#2AA198"   # teal (logo mark)
+ink        = "#1E2A2E"   # cool-charcoal
+accent     = "#89B4C4"   # softer teal
+background = "#FAFAF7"   # warm off-white
+surface    = "#F1EFEA"   # panel background
+muted      = "#6B7A80"   # secondary text
+
+[dark]
+primary    = "#4EC1B8"   # teal (slightly brighter for dark mode)
+ink        = "#E6ECEE"   # near-white
+accent     = "#89B4C4"
+background = "#0F1518"   # near-black
+surface    = "#1A2226"   # elevated surface
+muted      = "#8A9AA0"
+
+[semantic]
+success = "#7ABF6A"
+warning = "#D4A45E"
+danger  = "#C46A6A"
+info    = "#89B4C4"

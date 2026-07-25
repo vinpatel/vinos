@@ -1,0 +1,33 @@
+# Ochre — vinOS theme
+# Mode: dark. vinOS teal (#4EC1B8) is the signature accent across the family.
+mode = "dark"
+
+accent           = "#4EC1B8"
+selection        = "#4A2E1E"
+muted            = "#5A3E28"
+
+background        = "#140A06"
+dark_background   = "#0E0704"
+darker_background = "#080402"
+lighter_background = "#241812"
+
+foreground        = "#F4E8DE"
+dark_foreground   = "#B0937A"
+light_foreground  = "#F4E8DE"
+bright_foreground = "#FEFAF2"
+
+red     = "#E8845A"
+yellow  = "#E8B060"
+orange  = "#E89540"
+green   = "#8AB07A"
+cyan    = "#4EC1B8"
+blue    = "#89A0B4"
+magenta = "#B48EAD"
+brown   = "#8A5A3E"
+
+bright_red     = "#E8845A"
+bright_yellow  = "#E8B060"
+bright_green   = "#8AB07A"
+bright_cyan    = "#4EC1B8"
+bright_blue    = "#89A0B4"
+bright_magenta = "#B48EAD"

@@ -1,0 +1,4 @@
+[vinOS-default]
+title=vinOS default policy
+description=Deny incoming, allow outgoing. Matches macOS's default posture.
+ports=

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  vinOS default wallpaper — v2.0
+  Original work. Palette from configs/vinos/brand/palette.toml.
+
+  Composition: a soft diagonal gradient from cool-charcoal to near-black,
+  with a subtle teal glow radiating from the lower-right (the "signature
+  mark" corner). No text, no logo, no branding overlay — the mark lives
+  on the login screen, not the wallpaper.
+
+  Rendered at 3840x2160 (4K) with vector scaling for any display.
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 3840 2160"
+     width="3840" height="2160"
+     preserveAspectRatio="xMidYMid slice">
+
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#1E2A2E"/>
+      <stop offset="55%"  stop-color="#131C1F"/>
+      <stop offset="100%" stop-color="#0F1518"/>
+    </linearGradient>
+
+    <radialGradient id="glow" cx="82%" cy="78%" r="55%">
+      <stop offset="0%"   stop-color="#2AA198" stop-opacity="0.22"/>
+      <stop offset="45%"  stop-color="#2AA198" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#2AA198" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="rim" cx="12%" cy="18%" r="60%">
+      <stop offset="0%"   stop-color="#89B4C4" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#89B4C4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="3840" height="2160" fill="url(#base)"/>
+  <rect width="3840" height="2160" fill="url(#glow)"/>
+  <rect width="3840" height="2160" fill="url(#rim)"/>
+</svg>

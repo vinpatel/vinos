@@ -1,0 +1,23 @@
+# vinOS default font set.
+# All packages here MUST be SIL OFL 1.1 or Apache 2.0 licensed.
+# Verified against the AUR/official license fields as of 2026-07-22.
+#
+# Format: one pacman package name per line, comments allowed with '#'.
+
+# Monospace — primary terminal + code font
+ttf-jetbrains-mono
+ttf-jetbrains-mono-nerd
+
+# UI sans — primary interface font
+inter-font
+
+# IBM Plex — alternative UI pairing (Sans + Mono)
+ttf-ibm-plex
+
+# Fira Code — programmer's fallback
+ttf-fira-code
+ttf-fira-sans
+
+# Emoji + icon fallbacks
+noto-fonts-emoji
+ttf-nerd-fonts-symbols
