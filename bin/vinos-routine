@@ -33,27 +33,58 @@ _find_routine() {
 }
 
 _list_routines() {
+  # Args: [scope]  where scope ∈ "" (all) | "user" | "project"
+  local scope="${1:-}"
+  if [[ "$scope" == "project" ]]; then
+    # Project-scoped routines live one level down: ~/.vinos/routines/<project>/*.toml
+    [[ -d "$USER_ROUTINES" ]] && \
+      find "$USER_ROUTINES" -mindepth 2 -maxdepth 2 -name '*.toml' \
+        -printf '%P\n' 2>/dev/null | sed 's/\.toml$//' | sort -u
+    return
+  fi
   {
     [[ -d "$USER_ROUTINES" ]] && find "$USER_ROUTINES" -maxdepth 1 -name '*.toml' -printf '%f\n' 2>/dev/null
-    [[ -d "$SYS_ROUTINES" ]]  && find "$SYS_ROUTINES"  -maxdepth 1 -name '*.toml' -printf '%f\n' 2>/dev/null
+    if [[ "$scope" != "user" ]]; then
+      [[ -d "$SYS_ROUTINES" ]] && find "$SYS_ROUTINES" -maxdepth 1 -name '*.toml' -printf '%f\n' 2>/dev/null
+      # Project-scoped routines shown as "<project>/<name>"
+      [[ -d "$USER_ROUTINES" ]] && \
+        find "$USER_ROUTINES" -mindepth 2 -maxdepth 2 -name '*.toml' -printf '%P\n' 2>/dev/null
+    fi
   } | sed 's/\.toml$//' | sort -u
 }
 
 cmd_list() {
-  printf '%-20s %-10s %-24s %s\n' NAME ENABLED "LAST RUN" SCHEDULE
-  local name enabled last_file last sched
-  while read -r name; do
+  # Optional: --scope=project restricts to routines under
+  # ~/.vinos/routines/<project>/*.toml (loaded from .vinos/routines.yaml).
+  local scope=""
+  case "${1:-}" in
+    --scope=project) scope="project" ;;
+    --scope=user)    scope="user" ;;
+    --scope=*)       _die "unknown --scope value (want project|user)" ;;
+  esac
+
+  printf '%-30s %-10s %-24s %s\n' NAME ENABLED "LAST RUN" SCHEDULE
+  local name enabled last_file last sched path
+  while IFS= read -r name; do
     [[ -z "$name" ]] && continue
-    if systemctl --user is-enabled "vinos-routine@${name}.timer" >/dev/null 2>&1; then
+    # skip the project-name column marker "<project>/<routine>" resolution
+    if [[ "$name" == */* ]]; then
+      path="$USER_ROUTINES/$name.toml"
+      local svc_name="${name##*/}"
+    else
+      path=$(_find_routine "$name" 2>/dev/null || true)
+      local svc_name="$name"
+    fi
+    if systemctl --user is-enabled "vinos-routine@${svc_name}.timer" >/dev/null 2>&1; then
       enabled="${G}yes${Z}"
     else
       enabled="${D}no${Z}"
     fi
-    last_file=$(ls -1t "$STATE_DIR/$name/"*.md 2>/dev/null | head -1 || true)
+    last_file=$(ls -1t "$STATE_DIR/$svc_name/"*.md 2>/dev/null | head -1 || true)
     last=${last_file:+"$(basename "$last_file" .md)"}
-    sched=$(_read_toml_field "$(_find_routine "$name" || true)" schedule oncalendar 2>/dev/null || true)
-    printf '%-20s %-19b %-24s %s\n' "$name" "$enabled" "${last:-never}" "$sched"
-  done < <(_list_routines)
+    sched=$(_read_toml_field "$path" schedule oncalendar 2>/dev/null || true)
+    printf '%-30s %-19b %-24s %s\n' "$name" "$enabled" "${last:-never}" "$sched"
+  done < <(_list_routines "$scope")
 }
 
 # _read_toml_field <path> <section> <key> — bare-bones TOML reader (grep-based,
@@ -173,23 +204,44 @@ EOF
   "${EDITOR:-nano}" "$path"
 }
 
+cmd_load() {
+  # Delegate to the Python loader. Pass all args through verbatim.
+  local libexec; libexec=$(_libexec_dir)
+  [[ -f "$libexec/vinos-routine-load.py" ]] || \
+    _die "vinos-routine-load.py not found in $libexec"
+  python3 "$libexec/vinos-routine-load.py" load "$@"
+}
+
+cmd_unload() {
+  local libexec; libexec=$(_libexec_dir)
+  [[ -f "$libexec/vinos-routine-load.py" ]] || \
+    _die "vinos-routine-load.py not found in $libexec"
+  python3 "$libexec/vinos-routine-load.py" unload "$@"
+}
+
 cmd_help() {
   cat <<'EOF'
 vinos-routine — scheduled autonomous agents
 
 Usage:
-  vinos-routine list                    List routines with enabled + schedule status
+  vinos-routine list [--scope=project|user]
+                                        List routines with enabled + schedule status
   vinos-routine run <name>              Run a routine now (ad-hoc)
   vinos-routine enable <name>           Enable systemd user timer
   vinos-routine disable <name>          Disable systemd user timer
   vinos-routine logs <name> [--tail]    Show routine execution logs
   vinos-routine cost                    Recent runs + token usage (last 20)
   vinos-routine edit <name>             Open TOML in $EDITOR (scaffolds if new)
+  vinos-routine load <path> [--dry-run --scope=project|user --force]
+                                        Install routines from .vinos/routines.yaml
+  vinos-routine unload <path> [--scope=project|user]
+                                        Remove routines this YAML installed
   vinos-routine help                    This message
 
 Routines:
-  ~/.vinos/routines/*.toml   (user)
-  /etc/vinos/routines/*.toml (system defaults)
+  ~/.vinos/routines/*.toml            (user, hand-authored)
+  ~/.vinos/routines/<project>/*.toml  (project-scoped, from `load`)
+  /etc/vinos/routines/*.toml          (system defaults, shipped in ISO)
 
 Outputs → ~/.vinos/routines/state/<name>/YYYY-MM-DD-HHMM.md
 Ledger  → ~/.vinos/routines/state/ledger.db
@@ -197,19 +249,23 @@ Ledger  → ~/.vinos/routines/state/ledger.db
 Anthropic API key from $ANTHROPIC_API_KEY or ~/.vinos/secrets/anthropic-key.
 Ollama route talks to http://localhost:11434 (start via `vinos-ai serve`).
 
-Spec: /usr/share/doc/vinos/vinos-routine-spec.md
+Specs:
+  /usr/share/doc/vinos/vinos-routine-spec.md
+  /usr/share/doc/vinos/vinos-routines-yaml-spec.md
 EOF
 }
 
 cmd="${1:-help}"; shift || true
 case "$cmd" in
-  list)    cmd_list ;;
+  list)    cmd_list "$@" ;;
   run)     cmd_run "$@" ;;
   enable)  cmd_enable "$@" ;;
   disable) cmd_disable "$@" ;;
   logs)    cmd_logs "$@" ;;
   cost)    cmd_cost ;;
   edit)    cmd_edit "$@" ;;
+  load)    cmd_load "$@" ;;
+  unload)  cmd_unload "$@" ;;
   help|-h|--help) cmd_help ;;
   *) _die "unknown command: $cmd (try 'vinos-routine help')" ;;
 esac

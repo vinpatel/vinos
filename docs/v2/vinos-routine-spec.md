@@ -105,6 +105,75 @@ they want.
 | `research-recap` | 22:00 nightly | Reads new saved articles/PDFs in `~/Reading`, generates connections + spaced-repetition cards |
 | `evening-shutdown` | 18:00 daily | Summarizes what you shipped today, drafts tomorrow's top-3, files a git note |
 
+## Tools (v2.0.5)
+
+The runtime exposes two tools to the agent, both **whitelist-enforced by the
+runtime, not the model**. The routine declares what's available; the model
+picks from that list; the runtime refuses anything undeclared.
+
+### Declaring tools
+
+```toml
+[agent]
+tools = [
+  "read:~/inbox/*.eml",                    # glob (supports ~ + **/ + *)
+  "read:~/.vinos/routines/state/*/*.md",
+  "shell:gh api /notifications --paginate",
+  "shell:gcalcli agenda today",
+]
+network             = false   # default false — shell tools have no network
+shell_timeout_sec   = 30      # per-shell-call timeout, default 30s
+```
+
+Each entry is prefixed:
+
+- **`read:<glob>`** — declares a filesystem glob the agent may read via the
+  `read_files(glob)` tool. The `glob` argument the model passes MUST equal one
+  of the declared patterns verbatim — the model cannot invent new patterns.
+  Content per call is capped at ~500 KB total across all matched files (later
+  files truncated with `"truncated": true`).
+- **`shell:<cmd>`** — declares a shell command the agent may run via
+  `run_shell(command)`. The `command` argument MUST equal one of the declared
+  strings verbatim; the model cannot vary flags, add pipes, or rewrite args.
+
+### Sandbox — mandatory
+
+Every `shell:` call runs inside **`bwrap`** (bubblewrap) with:
+
+- Read-only bind: `/usr`, `/etc`, `/bin`, `/lib`, `/lib64`, `/sbin`, `$HOME`
+- `tmpfs` at `/tmp` (writable scratch, discarded per invocation)
+- `--unshare-pid`, `--unshare-ipc`, `--unshare-uts`, `--die-with-parent`
+- **No network** unless `[agent].network = true` (`--unshare-net` otherwise)
+- `--clearenv` — only `HOME`, `PATH`, `TERM`, `LANG` propagate;
+  `ANTHROPIC_API_KEY` is deliberately withheld unless `network = true`
+- Wall-clock timeout via `timeout <N>s` outside the sandbox
+
+**Fail-closed:** if `bwrap` is not installed on the host, the runtime logs a
+`WARN` and every `run_shell` call returns an error result. The runtime never
+executes shell commands without a sandbox. Package requirement: `bubblewrap`.
+
+### Loop
+
+The runtime drives a bounded tool-use loop (max **10 iterations** per run):
+
+1. Send messages + tool schemas → provider (Anthropic or Ollama)
+2. If the response has no tool calls → capture text, exit loop
+3. For each tool call: whitelist-check, execute, capture result
+4. Append `tool_result` blocks (Anthropic) or `role:"tool"` messages (Ollama)
+5. Loop
+
+For Ollama, the runtime uses the `/api/chat` `tools` field. If the local
+model doesn't support tools (older Llama, Gemma, etc.) it will return text
+with no `tool_calls` on the first turn — the runtime logs a WARN and returns
+the raw text response, so routines still produce output on tool-less models.
+
+### Ledger columns
+
+Two columns added (backwards-compat via `ALTER TABLE`; older rows stay valid):
+
+- `tool_calls` — integer count of tool invocations for the run
+- `tools_used` — JSON list of tool names invoked (e.g. `["read_files","run_shell","run_shell"]`)
+
 ## System boundaries (hard rules)
 
 1. **Never send outbound comms without explicit user confirmation.** Routines can
@@ -172,8 +241,7 @@ Runtime lifecycle:
 - `auto_send` outbound comms (v2.1, needs gpg opt-in flow)
 - Cross-machine sync of routine state (v2.2)
 - Web dashboard (v2.2)
-- bwrap sandbox for tools (v2.0.5 — MVP runs with `nsjail`-lite or just
-  cwd restriction; call this out as known limitation)
+- ~~bwrap sandbox for tools~~ — **shipped in v2.0.5** (see Tools section above)
 
 ## Open questions
 

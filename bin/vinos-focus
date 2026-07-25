@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+# vinos-focus — enter Do Not Disturb mode for N minutes.
+#
+# Usage:
+#   vinos-focus 25                   Focus for 25 minutes (default unit)
+#   vinos-focus 25m                  Same
+#   vinos-focus 90s                  Focus for 90 seconds
+#   vinos-focus 1h                   Focus for 1 hour
+#   vinos-focus 25 --task "spec v2"  Label the session in status file
+#   vinos-focus -h | --help          This help
+#
+# Mutes mako, optionally hides the waybar (if hyprctl is available),
+# writes a status file at ~/.vinos/focus/current, then auto-restores
+# when time is up. Ctrl-C restores immediately.
+
+set -euo pipefail
+
+if [[ -t 1 ]]; then B=$'\033[1;34m'; R=$'\033[1;31m'; G=$'\033[1;32m'; Y=$'\033[1;33m'; D=$'\033[2m'; Z=$'\033[0m'
+else                B=''            R=''            G=''            Y=''            D=''            Z=''
+fi
+_die()  { printf '%svinos-focus:%s %s\n' "$R" "$Z" "$*" >&2; exit 1; }
+_log()  { printf '%svinos-focus:%s %s\n' "$B" "$Z" "$*"; }
+_have() { command -v "$1" >/dev/null 2>&1; }
+
+DURATION=""
+TASK=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)  sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --task)     [[ $# -ge 2 ]] || _die "--task needs a value"
+                TASK="$2"; shift 2 ;;
+    *)          if [[ -z "$DURATION" ]]; then DURATION="$1"; shift
+                else _die "unknown arg: $1 (try --help)"; fi ;;
+  esac
+done
+
+[[ -n "$DURATION" ]] || _die "usage: vinos-focus <N>[s|m|h] [--task ...]"
+
+# Parse duration → seconds.
+case "$DURATION" in
+  *s) SECS=$(( ${DURATION%s} ));           HUMAN="${DURATION%s}s" ;;
+  *m) SECS=$(( ${DURATION%m} * 60 ));      HUMAN="${DURATION%m}m" ;;
+  *h) SECS=$(( ${DURATION%h} * 3600 ));    HUMAN="${DURATION%h}h" ;;
+  *)  SECS=$(( DURATION * 60 ));           HUMAN="${DURATION}m" ;;
+esac
+(( SECS > 0 )) || _die "duration must be > 0"
+
+STATE_DIR="$HOME/.vinos/focus"
+STATE_FILE="$STATE_DIR/current"
+mkdir -p "$STATE_DIR"
+
+_restore() {
+  # Idempotent: safe to call twice.
+  if _have makoctl; then
+    makoctl mode -r do-not-disturb 2>/dev/null || true
+  fi
+  if _have hyprctl && [[ -n "${WAYBAR_WAS_HIDDEN:-}" ]]; then
+    # Only unhide if we were the ones who hid it.
+    pkill -SIGUSR1 waybar 2>/dev/null || true
+  fi
+  rm -f "$STATE_FILE"
+  _log "focus ended — notifications restored"
+  if _have notify-send; then
+    notify-send -a "vinOS Focus" -i alarm-symbolic "Focus complete" \
+      "${TASK:+Task: $TASK · }You focused for $HUMAN." || true
+  fi
+}
+
+_on_interrupt() {
+  printf '\n'
+  _log "interrupted — restoring early"
+  _restore
+  exit 0
+}
+
+trap _on_interrupt INT TERM
+trap _restore EXIT
+
+# Engage.
+if _have makoctl; then
+  makoctl mode -a do-not-disturb 2>/dev/null || _log "mako mode set failed (mako not running?)"
+else
+  _log "makoctl not found — DND toggle skipped"
+fi
+
+WAYBAR_WAS_HIDDEN=""
+# Hyprland IPC hook: we don't want to fight the user's waybar config,
+# so this is intentionally light-touch — just note it's available.
+if _have hyprctl && pgrep -x waybar >/dev/null 2>&1; then
+  # Users can add a waybar SIGUSR1 handler to toggle; we don't force it.
+  # Leaving WAYBAR_WAS_HIDDEN empty means the EXIT trap won't touch it.
+  :
+fi
+
+end_ts=$(( $(date +%s) + SECS ))
+end_human=$(date -d "@$end_ts" '+%H:%M' 2>/dev/null || date -r "$end_ts" '+%H:%M' 2>/dev/null || echo "?")
+
+# Status file for other tools (waybar module, etc.) to read.
+{
+  printf 'started=%s\n' "$(date -Iseconds)"
+  printf 'ends=%s\n'    "$(date -d "@$end_ts" -Iseconds 2>/dev/null || date -r "$end_ts" -Iseconds 2>/dev/null || echo unknown)"
+  printf 'duration=%s\n' "$HUMAN"
+  printf 'task=%s\n'    "${TASK:-}"
+  printf 'pid=%s\n'     "$$"
+} > "$STATE_FILE"
+
+if [[ -n "$TASK" ]]; then
+  _log "focus: ${TASK} · until ${end_human} (${HUMAN})"
+else
+  _log "focus until ${end_human} (${HUMAN})"
+fi
+if _have notify-send; then
+  notify-send -a "vinOS Focus" -i alarm-symbolic "Focus started" \
+    "${TASK:+$TASK · }until $end_human" || true
+fi
+
+# Countdown loop — updates every second when interactive, every 30s otherwise.
+if [[ -t 1 ]]; then
+  while (( $(date +%s) < end_ts )); do
+    remain=$(( end_ts - $(date +%s) ))
+    printf '\r%s  focus %s  %02d:%02d remaining %s ' \
+      "$D" "$HUMAN" $((remain/60)) $((remain%60)) "$Z"
+    sleep 1
+  done
+  printf '\r%*s\r' 60 ''
+else
+  # Non-TTY (e.g. spawned by walker): just sleep in one shot.
+  sleep "$SECS"
+fi
+
+# Normal exit path — EXIT trap will call _restore.

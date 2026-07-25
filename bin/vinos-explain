@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# vinos-explain — pipe anything → plain-English explanation.
+#
+# Usage:
+#   cat script.sh   | vinos-explain
+#   curl -s api.url | vinos-explain
+#   man ls          | vinos-explain
+#   vinos-explain -h | --help
+#
+# Content-adaptive: if input looks like code (braces, indentation,
+# common language tokens) → "explain what this code does". Otherwise
+# → "summarize in plain English". Response capped at 80 words.
+# Force local model with:
+#   VINOS_ROUTE=ollama cat file | vinos-explain
+
+set -euo pipefail
+
+if [[ -t 1 ]]; then B=$'\033[1;34m'; R=$'\033[1;31m'; G=$'\033[1;32m'; Y=$'\033[1;33m'; D=$'\033[2m'; Z=$'\033[0m'
+else                B=''            R=''            G=''            Y=''            D=''            Z=''
+fi
+_die()  { printf '%svinos-explain:%s %s\n' "$R" "$Z" "$*" >&2; exit 1; }
+_log()  { printf '%svinos-explain:%s %s\n' "$B" "$Z" "$*"; }
+_have() { command -v "$1" >/dev/null 2>&1; }
+
+case "${1:-}" in
+  -h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  "")        ;;
+  *)         _die "unknown arg: $1 (try --help)" ;;
+esac
+
+if [[ -t 0 ]]; then
+  _die "pipe something in: cat file | vinos-explain"
+fi
+
+_have vinos-ai || _die "vinos-ai not found in PATH"
+
+# Cap stdin at 64KB — enough for most files, keeps model input reasonable.
+input=$(head -c 65536)
+[[ -n "$input" ]] || _die "no input on stdin"
+
+# Content sniff: does this look like code?
+_looks_like_code() {
+  local sample; sample=$(printf '%s' "$1" | head -c 4096)
+  # Signals: braces + semicolons, common keywords, hash-bang, indented lines.
+  if printf '%s' "$sample" | grep -qE '^#!/'; then return 0; fi
+  if printf '%s' "$sample" | grep -qE '(^|[^A-Za-z_])(def |function |func |class |import |from |const |let |var |package |fn |public |private |return |=>|#include)'; then return 0; fi
+  # Heuristic: at least 25% of non-blank lines start with whitespace, AND
+  # we see a decent brace/semicolon density.
+  local total indented braces
+  total=$(printf '%s' "$sample" | grep -c '[^[:space:]]' || true)
+  indented=$(printf '%s' "$sample" | grep -c '^[[:space:]]\{2,\}' || true)
+  braces=$(printf '%s' "$sample" | tr -cd '{};' | wc -c)
+  (( total > 0 )) || return 1
+  if (( indented * 4 >= total )) && (( braces >= 3 )); then return 0; fi
+  return 1
+}
+
+if _looks_like_code "$input"; then
+  sys="Explain what this code does. Focus on intent and side effects.
+Cap at 80 words. Plain English. No preamble."
+  _log "detected code — summarising behaviour"
+else
+  sys="Summarize this in plain English. Cap at 80 words. No preamble."
+  _log "summarising as prose"
+fi
+
+prompt="$sys
+
+--- INPUT ---
+$input"
+
+exec vinos-ai chat "$prompt"

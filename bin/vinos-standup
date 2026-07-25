@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# vinos-standup — plain-English daily standup from your git activity.
+#
+# Usage:
+#   vinos-standup                    Yesterday's activity (default)
+#   vinos-standup --yesterday        Same as default
+#   vinos-standup --week             Last 7 days
+#   vinos-standup --since <date>     Since a specific date (git --since format)
+#   vinos-standup -h | --help        This help
+#
+# Scans $VINOS_CODE_DIR (default ~/code/*) for git commits and, if `gh`
+# is available, closed GitHub PRs in the same window. Pipes the raw
+# activity to `vinos-ai chat` for a 4-bullet standup: yesterday |
+# today | blockers | one-liner. Force local model with:
+#   VINOS_ROUTE=ollama vinos-standup
+
+set -euo pipefail
+
+if [[ -t 1 ]]; then B=$'\033[1;34m'; R=$'\033[1;31m'; G=$'\033[1;32m'; Y=$'\033[1;33m'; D=$'\033[2m'; Z=$'\033[0m'
+else                B=''            R=''            G=''            Y=''            D=''            Z=''
+fi
+_die()  { printf '%svinos-standup:%s %s\n' "$R" "$Z" "$*" >&2; exit 1; }
+_log()  { printf '%svinos-standup:%s %s\n' "$B" "$Z" "$*"; }
+_have() { command -v "$1" >/dev/null 2>&1; }
+
+CODE_DIR="${VINOS_CODE_DIR:-$HOME/code}"
+SINCE="yesterday"
+LABEL="yesterday"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --yesterday)     SINCE="yesterday";   LABEL="yesterday";   shift ;;
+    --week)          SINCE="7 days ago";  LABEL="last 7 days"; shift ;;
+    --since)         [[ $# -ge 2 ]] || _die "--since needs a date"
+                     SINCE="$2"; LABEL="since $2"; shift 2 ;;
+    -h|--help)       sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *)               _die "unknown arg: $1 (try --help)" ;;
+  esac
+done
+
+_have vinos-ai || _die "vinos-ai not found in PATH"
+[[ -d "$CODE_DIR" ]] || _die "code dir not found: $CODE_DIR (set VINOS_CODE_DIR)"
+
+_log "collecting git activity from $CODE_DIR ($LABEL)"
+
+# Gather commits across every git repo one level under $CODE_DIR.
+activity=""
+shopt -s nullglob
+for repo in "$CODE_DIR"/*/; do
+  [[ -d "$repo/.git" ]] || continue
+  name=$(basename "$repo")
+  log=$(git -C "$repo" log --since="$SINCE" --author="$(git -C "$repo" config user.email 2>/dev/null || echo '.*')" \
+        --pretty=format:'  %h %s' 2>/dev/null || true)
+  if [[ -n "$log" ]]; then
+    activity+=$'\n['"$name"$']\n'"$log"$'\n'
+  fi
+done
+shopt -u nullglob
+
+# Closed GH PRs in same window (best effort, ignore auth failures).
+pr_block=""
+if _have gh; then
+  # Convert SINCE → ISO date for gh search.
+  since_iso=$(date -d "$SINCE" +%Y-%m-%d 2>/dev/null || echo "")
+  if [[ -n "$since_iso" ]]; then
+    prs=$(gh pr list --state closed --search "closed:>=$since_iso" \
+          --limit 30 --json title,repository,url \
+          --template '{{range .}}  {{.repository.name}}: {{.title}} ({{.url}}){{"\n"}}{{end}}' 2>/dev/null || true)
+    [[ -n "$prs" ]] && pr_block=$'\n[closed PRs]\n'"$prs"
+  fi
+fi
+
+if [[ -z "$activity" && -z "$pr_block" ]]; then
+  printf '%sno git or PR activity found in %s%s\n' "$Y" "$LABEL" "$Z"
+  exit 0
+fi
+
+raw="Git activity ($LABEL):${activity:-  (none)}${pr_block}"
+
+prompt="You are writing a concise daily engineering standup.
+Turn the raw activity below into exactly 4 markdown bullets in this order:
+- **Yesterday:** what shipped (one sentence)
+- **Today:** likely next step, inferred from momentum
+- **Blockers:** anything that looks stuck or open, or 'none'
+- **One-liner:** a plain-English single sentence a manager could paste
+
+Cap the whole response at 120 words. No preamble.
+
+--- RAW ACTIVITY ---
+$raw"
+
+_log "asking vinos-ai for a standup summary"
+exec vinos-ai chat "$prompt"

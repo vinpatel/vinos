@@ -61,6 +61,13 @@ vscode_pin() {
 
 # Watermark: composite the vinOS mono logo at 5% width, bottom-right,
 # ~55% opacity so it reads as a signature, not a stamp.
+#
+# Inset offsets are TUNED FOR COVER-CROP on non-16:9 displays. The
+# wallpaper is 3840x2160 (16:9); target display for vinOS is the T2
+# 15" MBP at 2880x1800 (16:10). Swaybg/hyprland cover-fill scales to
+# height and crops horizontally — 160px per side on the T2. A 48px
+# inset put the logo partly off-screen. Increased to 200px+80px so the
+# glyph survives cover-crop on all common ratios (16:10, 3:2, 4:3).
 watermark_wallpaper() {
   local src="$1" dst="$2" logo_variant="$3"
   local logo_svg
@@ -74,7 +81,7 @@ watermark_wallpaper() {
 
   magick "$src" \
     \( "$tmp_logo" -alpha set -channel A -evaluate multiply 0.55 +channel \) \
-    -gravity SouthEast -geometry +48+48 -composite \
+    -gravity SouthEast -geometry +200+80 -composite \
     -strip -quality 90 "$dst"
   rm -f "$tmp_logo"
 }

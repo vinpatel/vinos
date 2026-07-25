@@ -1,0 +1,115 @@
+# .vinos/routines.yaml — commit next to your code.
+#
+# Anyone who clones this repo can install the agents with:
+#   vinos-routine load .
+#
+# Routines land under ~/.vinos/routines/<project>/ (isolated) and are managed
+# by systemd user timers. Remove them with `vinos-routine unload .`.
+
+apiVersion: vinos.computer/v1
+kind: RoutineSet
+
+metadata:
+  project: startup-inc
+  owner: founders@startup.example
+  description: >
+    Founder-mode routines for the startup-inc monorepo — PR review triage,
+    inbox digest, and a Friday weekly review.
+
+# Merged into every routine below. Per-routine keys override.
+defaults:
+  agent:
+    route: anthropic
+    model: claude-sonnet-4-6
+    memory: session
+  budget:
+    max_tokens_per_run: 8000
+    max_dollars_per_day: 0.50
+    on_exceed: skip
+  output:
+    notify: true
+  # Informational — where this routine will run when we export to k8s.
+  docker: ghcr.io/vinpatel/vinos-routine:latest
+
+routines:
+
+  - name: pr-review
+    description: Summarise new PRs across our repos and flag what needs review.
+    schedule:
+      oncalendar: "*-*-* 09,13,17:00:00"
+      timezone: America/New_York
+      jitter: 3m
+    agent:
+      system: |
+        You are the founder's PR-review deputy for {{project}}. Read the
+        list of open PRs in the org and produce a concise triage note.
+
+        Return markdown with two sections:
+
+        ## Needs your review (top 3)
+        For each PR: `<repo>#<num> — <one-line why it needs you>`
+
+        ## Everything else
+        Bulleted list, `<repo>#<num> <title>` — no commentary.
+
+        Total ≤ 300 words. No preamble.
+      tools:
+        - "shell:gh pr list --state=open --json number,title,repository,updatedAt"
+        - "read:{{git_root}}/CODEOWNERS"
+      memory: session
+    output:
+      type: brief
+      title: "PRs · {{date}}"
+      open_on_login: false
+
+  - name: inbox-triage
+    description: Draft replies to unread email (never sends).
+    schedule:
+      oncalendar: hourly
+      timezone: local
+      jitter: 10m
+    agent:
+      # Local model — email content stays on-device.
+      route: ollama
+      model: llama3.2:3b
+      system: >
+        You triage the founder's inbox. For each unread message, propose a
+        one-line intent and a two-sentence draft reply. Never mark as read,
+        never send. Return markdown table.
+      tools:
+        - "shell:mbsync --list unread"
+        - "read:{{home}}/Mail/INBOX"
+      memory: session
+    output:
+      type: brief
+      title: "Inbox · {{date}}"
+
+  - name: weekly-review
+    description: Friday-evening synthesis — shipped work + next-week priorities.
+    schedule:
+      oncalendar: "Fri 17:30"
+      timezone: America/New_York
+    agent:
+      system: |
+        Weekly review for {{project}}. Read the git log for the last 7 days
+        across our repos, then produce:
+
+        ## Shipped this week
+        Bulleted highlights, verb-first, ≤ 10 words each.
+
+        ## Themes
+        2–3 sentences on what the week added up to.
+
+        ## Top 3 for next week
+        Numbered, concrete, verb-first.
+
+        ≤ 500 words. Markdown only.
+      tools:
+        - "shell:git -C {{git_root}} log --since=7.days --pretty='%h %s'"
+      memory: persistent
+    output:
+      type: brief
+      title: "Weekly · {{date}}"
+      open_on_login: true
+    budget:
+      max_tokens_per_run: 20000

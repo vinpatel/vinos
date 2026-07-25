@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+# vinos-fix — pipe an error → AI diagnostic + fix suggestion.
+#
+# Usage:
+#   some-command 2>&1 | vinos-fix
+#   cat error.log       | vinos-fix
+#   vinos-fix -h | --help
+#
+# Reads the error from stdin, adds your last ~10 shell commands as
+# context, and asks vinos-ai for a short cause + a specific fix
+# command in a fenced code block. Highlights the output with `bat`
+# or `pygmentize` when available. Force local model with:
+#   VINOS_ROUTE=ollama some-command 2>&1 | vinos-fix
+
+set -euo pipefail
+
+if [[ -t 1 ]]; then B=$'\033[1;34m'; R=$'\033[1;31m'; G=$'\033[1;32m'; Y=$'\033[1;33m'; D=$'\033[2m'; Z=$'\033[0m'
+else                B=''            R=''            G=''            Y=''            D=''            Z=''
+fi
+_die()  { printf '%svinos-fix:%s %s\n' "$R" "$Z" "$*" >&2; exit 1; }
+_log()  { printf '%svinos-fix:%s %s\n' "$B" "$Z" "$*"; }
+_have() { command -v "$1" >/dev/null 2>&1; }
+
+case "${1:-}" in
+  -h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  "")        ;;
+  *)         _die "unknown arg: $1 (try --help)" ;;
+esac
+
+if [[ -t 0 ]]; then
+  _die "pipe an error message: some-command 2>&1 | vinos-fix"
+fi
+
+_have vinos-ai || _die "vinos-ai not found in PATH"
+
+# Cap stdin at 32KB — errors rarely need more, and it keeps model input sane.
+err=$(head -c 32768)
+[[ -n "$err" ]] || _die "no input on stdin"
+
+# Detect shell + pull last ~10 history entries as context.
+_recent_history() {
+  local shell_name
+  shell_name=$(basename "${SHELL:-bash}")
+  case "$shell_name" in
+    fish)
+      local f="$HOME/.local/share/fish/fish_history"
+      [[ -r "$f" ]] || return 0
+      # fish_history is YAML-ish; grab last 10 `- cmd:` lines.
+      grep -E '^- cmd:' "$f" | tail -10 | sed 's/^- cmd: //'
+      ;;
+    zsh)
+      local f="${HISTFILE:-$HOME/.zsh_history}"
+      [[ -r "$f" ]] || return 0
+      # zsh format: `: 1234567890:0;the command`
+      tail -50 "$f" | sed -E 's/^: [0-9]+:[0-9]+;//' | tail -10
+      ;;
+    *)
+      local f="${HISTFILE:-$HOME/.bash_history}"
+      [[ -r "$f" ]] || return 0
+      tail -10 "$f"
+      ;;
+  esac
+}
+
+history_ctx=$(_recent_history 2>/dev/null || true)
+
+prompt="You are a UNIX/Linux troubleshooting assistant. You see the error output
+below. Respond in EXACTLY this format, nothing else:
+
+# Cause: <one line, ≤50 words>
+
+# Fix:
+\`\`\`bash
+<one specific command the user can run>
+\`\`\`
+
+If multiple commands are truly needed, put them all in one fenced block.
+No preamble, no explanations outside those two sections.
+
+--- RECENT SHELL HISTORY ---
+${history_ctx:-(unavailable)}
+
+--- ERROR OUTPUT ---
+$err"
+
+_log "asking vinos-ai for a diagnosis"
+out=$(vinos-ai chat "$prompt" 2>/dev/null || true)
+[[ -n "$out" ]] || _die "vinos-ai returned no output"
+
+# Try to highlight as markdown. Fall back to plain.
+if _have bat; then
+  printf '%s\n' "$out" | bat --language md --style plain --paging never --color always
+elif _have pygmentize; then
+  printf '%s\n' "$out" | pygmentize -l md 2>/dev/null || printf '%s\n' "$out"
+else
+  printf '%s\n' "$out"
+fi

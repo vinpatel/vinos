@@ -33,7 +33,25 @@ A single short paragraph — a founder-relevant question or observation
 worth sitting with for a minute.
 
 Total ≤ 400 words. No preamble, no summary, no sign-off.
+
+You have tools available for grounding: call read_files on the declared
+globs to see today's notes, and run_shell on the declared commands to
+pull calendar + GitHub context. Only call tools with the exact glob /
+command strings from the whitelist — the runtime will refuse anything
+else. Skip any tool whose output is empty or errors.
 """
+# v2.0.5: tools are whitelist-enforced. read: globs and shell: commands
+# must match verbatim from what the model calls; the runtime refuses
+# anything else. shell: commands run inside a bwrap sandbox with no
+# network unless [agent].network = true. Default shell timeout is 30s.
+tools = [
+  "read:~/Notes/today.md",
+  "read:~/.vinos/routines/state/day-brief/*.md",
+  "shell:gh api /notifications --paginate 2>/dev/null | head -c 8000",
+  "shell:test -x /usr/bin/gcalcli && gcalcli agenda today || echo 'gcalcli not installed'",
+]
+shell_timeout_sec = 20
+network = false
 
 [output]
 type  = "brief"
