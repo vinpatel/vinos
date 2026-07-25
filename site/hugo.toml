@@ -14,7 +14,7 @@ enableGitInfo = false
   isoURL        = "https://archive.org/details/vinos-1.1.0-x86_64"
   sponsorGH     = "https://github.com/sponsors/vinpatel"
   sponsorOC     = "https://opencollective.com/vinos"
-  version       = "1.1.0"
+  version       = "2.0.2"
   accent        = "#33ccff"
   accent2       = "#bb9af7"
 
