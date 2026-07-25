@@ -1,0 +1,14 @@
+{{/*
+  stat-card partial · big number + label
+  args (dict):
+    stats · slice of dicts { n, unit?, label, hint?, accent? }
+*/}}
+<div class="stat-row tnum" role="list">
+  {{ range .stats }}
+  <div class="stat-card" role="listitem">
+    <div class="stat-n{{ if .accent }} accent{{ end }}">{{ .n }}{{ with .unit }}<span class="unit">{{ . }}</span>{{ end }}</div>
+    <div class="stat-label">{{ .label }}</div>
+    {{ with .hint }}<div class="stat-hint">{{ . | safeHTML }}</div>{{ end }}
+  </div>
+  {{ end }}
+</div>

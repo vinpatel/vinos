@@ -1,12 +1,27 @@
-<header class="nav-edge" role="banner">
-  <a class="wordmark" href="{{ "/" | relURL }}" aria-label="vinOS home">
-    <img class="brand-mark" src="{{ "img/vinos-mark.svg" | relURL }}" width="60" height="60" alt="" aria-hidden="true">
-    <span class="wordmark-text">vin<em>OS</em></span>
-  </a>
-  <div class="nav-actions">
-    <a class="cta-sponsor" href="{{ .Site.Params.sponsorGH }}" target="_blank" rel="noopener" aria-label="Sponsor vinOS">
-      <span class="cta-sponsor-heart">♥</span> Sponsor
+{{- $current := .RelPermalink -}}
+<header class="site-header" role="banner">
+  <div class="site-header-inner">
+    <a class="site-brand" href="{{ "/" | relURL }}" aria-label="vinOS home">
+      <img src="{{ "img/vinos-mark-dark.svg" | relURL }}" width="28" height="28" alt="" aria-hidden="true">
+      <span>vin<em>OS</em></span>
     </a>
-    <a class="cta-outline" href="{{ .Site.Params.isoURL }}" target="_blank" rel="noopener">Download ISO</a>
+
+    <nav class="site-nav" aria-label="primary">
+      {{- range .Site.Menus.main -}}
+        {{- $ext := hasPrefix .URL "http" -}}
+        {{- $active := eq .URL $current -}}
+        {{- if ne .Identifier "github" -}}
+          <a href="{{ .URL | relURL }}"
+             {{ if $active }}class="is-current" aria-current="page"{{ end }}>{{ .Name }}</a>
+        {{- end -}}
+      {{- end -}}
+      <a class="site-nav-ext" href="{{ .Site.Params.github }}" target="_blank" rel="noopener" aria-label="vinOS on GitHub">
+        GitHub
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 17L17 7"/><path d="M8 7h9v9"/>
+        </svg>
+      </a>
+      <a class="site-nav-cta" href="{{ .Site.Params.sponsorGH }}" target="_blank" rel="noopener">Sponsor</a>
+    </nav>
   </div>
 </header>

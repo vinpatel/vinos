@@ -1,13 +1,14 @@
-/* Hallmark · macrostructure: Marquee Hero · tone: editorial · anchor hue: teal
- * theme: vinOS (custom · logo-aligned) · paper-band: light · display-style: classical-serif · accent-hue: teal
- * palette drawn from V mark: teal #4fd1c5 + cool-charcoal #1a1d23 · surfaces in the same cool family
- * nav: N9 edge-aligned  ·  footer: Ft3 grouped-links  ·  hero: H1 marquee (video-first)  ·  section-head: S2 hanging
- * pre-emit critique: P5 H5 E5 S5 R5 V5
- * contrast: pass (40–41)  ·  slop: pass (42–45)  ·  honest: pass (46)  ·  chrome: pass (47)
- * tokens: pass (48)  ·  responsive: pass (49)  ·  icons: pass (30)  ·  mobile: pass (34, 49, 50–57)
+/* vinOS legacy component sheet (Hallmark-derived)
+ * All rules here read from tokens.css. Tokens now resolve to the dark-first
+ * palette, so this sheet renders as the dark theme automatically.
+ * Any per-page dark polish lives in pages.css; components.css contains the
+ * new visual system (buttons, terminal, timeline, cost calc, router diagram, etc.).
  */
 
 @import url("tokens.css");
+@import url("base.css");
+@import url("components.css");
+@import url("pages.css");
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

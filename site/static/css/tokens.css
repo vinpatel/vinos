@@ -1,93 +1,173 @@
-/* Hallmark · theme: vinOS (custom · logo-aligned)
- * paper-band: light  ·  display-style: classical-serif  ·  accent-hue: teal
- * Palette drawn from the V mark: teal #4fd1c5 → accent, cool-charcoal #1a1d23 → ink.
- * Surfaces + neutrals sit in the same cool family (hue ~260) so the logo reads native.
- * All values OKLCH; token names semantic, not chromatic.
+/* vinOS design tokens — dark-first
+ * Palette anchored to the V mark: teal accent, cool-charcoal ink range.
+ * Semantic names only (bg-0..3, fg-0..2). Reference chromatic values
+ * are cool-charcoal on the neutral axis, hue ~230.
+ *
+ * Existing legacy classnames (--color-paper, --color-ink, ...) are
+ * aliased at the bottom so old rules in vinos.css keep working —
+ * they now read as dark surfaces + light ink instead of the reverse.
  */
 
 :root {
-  /* — surfaces (near-white, faintest cool cast to seat the teal + charcoal logo) — */
-  --color-paper:        oklch(96% 0.004 260);
-  --color-paper-2:      oklch(93% 0.006 260);
-  --color-paper-3:      oklch(89% 0.008 260);
+  color-scheme: dark;
 
-  /* — ink & neutrals (matched to logo dark #1a1d23) — */
-  --color-ink:          oklch(21% 0.014 264);
-  --color-ink-hover:    oklch(28% 0.014 264);
-  --color-ink-2:        oklch(32% 0.012 262);
-  --color-muted:        oklch(45% 0.010 260);
-  --color-neutral:      oklch(60% 0.010 260);
-  --color-rule:         oklch(82% 0.008 250);
-  --color-rule-strong:  oklch(72% 0.008 250);
+  /* ═════════ color · surfaces + text (dark-first) ═════════ */
+  --bg-0:   #0a0d12;   /* page canvas — deepest */
+  --bg-1:   #0f1319;   /* elevated card / terminal window body */
+  --bg-2:   #161b23;   /* row / panel */
+  --bg-3:   #1e252f;   /* hover / secondary surface */
+  --bg-4:   #2a323e;   /* borders as fills */
 
-  /* — accent (teal, matches V logo hue; used sparingly, ≤3% viewport) — */
-  --color-accent:       oklch(52% 0.11 186);
-  --color-accent-2:     oklch(58% 0.10 186);
-  --color-focus:        oklch(58% 0.11 186);
+  --fg-0:   #e6ecf5;   /* primary text */
+  --fg-1:   #b7c0cf;   /* secondary text */
+  --fg-2:   #7b8697;   /* muted meta text */
+  --fg-3:   #4b5768;   /* placeholder / disabled */
 
-  /* — semantic (ok / warn keep their chromatic identities; off cooled to fit) — */
-  --color-ok:           oklch(52% 0.14 145);
-  --color-warn:         oklch(66% 0.15 75);
-  --color-off:          oklch(56% 0.02 260);
+  --line:         #232a35;    /* hairline rule */
+  --line-strong:  #2f3846;    /* stronger rule */
 
-  /* — dark panel (matches logo charcoal — terminal blocks read as brand-native) — */
-  --color-panel:        oklch(21% 0.014 264);
-  --color-panel-ink:    oklch(92% 0.008 250);
-  --color-panel-rule:   oklch(32% 0.014 264);
-  --color-panel-muted:  oklch(74% 0.012 260);
+  /* ═════════ color · accent + semantic ═════════ */
+  --accent:      #33ccff;     /* teal-cyan · primary accent */
+  --accent-ink:  #062736;     /* text on accent fills */
+  --accent-2:    #bb9af7;     /* purple · sparingly (≤2% viewport) */
+  --success:     #6ad48a;
+  --warning:     #f0b76a;
+  --danger:      #f77373;
 
-  /* — typography — */
-  --font-display:  "Instrument Serif", "Iowan Old Style", Georgia, serif;
-  --font-body:     "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono:     "Geist Mono", ui-monospace, "JetBrains Mono", "SF Mono", Menlo, monospace;
+  /* ═════════ typography ═════════ */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas,
+               "Liberation Mono", monospace;
+  /* Legacy alias so vinos.css --font-display keeps rendering; we use the
+     sans stack for everything editorial in the new system. */
+  --font-display: var(--font-sans);
+  --font-body:    var(--font-sans);
 
-  --text-2xs:      0.75rem;
-  --text-xs:       0.8125rem;
-  --text-sm:       0.9375rem;
-  --text-md:       1.0625rem;
-  --text-lg:       1.25rem;
-  --text-xl:       1.5rem;
-  --text-2xl:      2rem;
-  --text-3xl:      2.75rem;
-  --text-4xl:      3.75rem;
-  --text-display-s: clamp(3.5rem, 8vw, 6rem);
-  --text-display:   clamp(5rem, 14vw, 11rem);
-  --text-figure:    clamp(7rem, 22vw, 18rem);
+  /* type scale · 1.25 modular */
+  --fs-xs:   0.75rem;   /* 12 */
+  --fs-sm:   0.8125rem; /* 13 */
+  --fs-md:   0.9375rem; /* 15 · body default */
+  --fs-lg:   1.0625rem; /* 17 */
+  --fs-xl:   1.375rem;  /* 22 */
+  --fs-2xl:  1.75rem;   /* 28 */
+  --fs-3xl:  2.375rem;  /* 38 */
+  --fs-4xl:  3.5rem;    /* 56 */
+  --fs-hero: clamp(2.5rem, 5.8vw, 4.5rem);
 
-  /* — spacing (4-pt scale, semantic) — */
-  --space-3xs:     0.25rem;
-  --space-2xs:     0.5rem;
-  --space-xs:      0.75rem;
-  --space-sm:      1rem;
-  --space-md:      1.5rem;
-  --space-lg:      2.25rem;
-  --space-xl:      3.5rem;
-  --space-2xl:     5rem;
-  --space-3xl:     7.5rem;
-  --space-4xl:     11rem;
+  --lh-tight: 1.15;
+  --lh-snug:  1.35;
+  --lh-body:  1.55;
+  --lh-prose: 1.65;
 
-  /* — rules & radii — */
+  --tracking-tight:  -0.02em;
+  --tracking-body:   -0.005em;
+  --tracking-eyebrow: 0.14em;
+
+  /* ═════════ space · 4-pt scale ═════════ */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  24px;
+  --sp-6:  32px;
+  --sp-7:  48px;
+  --sp-8:  64px;
+  --sp-9:  96px;
+
+  /* ═════════ radius ═════════ */
+  --r-1:  4px;
+  --r-2:  8px;
+  --r-3:  12px;
+  --r-4:  16px;
+  --r-full: 999px;
+
+  /* ═════════ shadow ═════════ */
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.35);
+  --shadow-2: 0 4px 14px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.20);
+  --shadow-3: 0 18px 40px rgba(0,0,0,0.45), 0 4px 10px rgba(0,0,0,0.25);
+  --glow-accent: 0 0 0 1px rgba(51,204,255,0.35), 0 0 24px rgba(51,204,255,0.18);
+
+  /* ═════════ motion ═════════ */
+  --dur-1: 100ms;
+  --dur-2: 200ms;
+  --dur-3: 300ms;
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:     cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ═════════ layout ═════════ */
+  --measure:      64ch;
+  --measure-wide: 88ch;
+  --page-max:     78rem;
+  --page-gutter:  clamp(1.25rem, 4vw, 2.75rem);
+
+  /* ═════════ compat aliases · keep legacy vinos.css alive ═════════
+   * Old palette drew from OKLCH light surfaces; we remap to dark
+   * so existing rules render correctly on the new canvas without edits.
+   */
+  --color-paper:        var(--bg-0);
+  --color-paper-2:      var(--bg-1);
+  --color-paper-3:      var(--bg-2);
+  --color-ink:          var(--fg-0);
+  --color-ink-hover:    var(--fg-1);
+  --color-ink-2:        var(--fg-1);
+  --color-muted:        var(--fg-2);
+  --color-neutral:      var(--fg-2);
+  --color-rule:         var(--line);
+  --color-rule-strong:  var(--line-strong);
+  --color-accent:       var(--accent);
+  --color-accent-2:     var(--accent-2);
+  --color-focus:        var(--accent);
+  --color-ok:           var(--success);
+  --color-warn:         var(--warning);
+  --color-off:          var(--fg-3);
+  --color-panel:        var(--bg-1);
+  --color-panel-ink:    var(--fg-0);
+  --color-panel-rule:   var(--line-strong);
+  --color-panel-muted:  var(--fg-2);
+
+  /* legacy sizes preserved for existing rules */
+  --text-2xs:      var(--fs-xs);
+  --text-xs:       var(--fs-sm);
+  --text-sm:       var(--fs-md);
+  --text-md:       var(--fs-lg);
+  --text-lg:       var(--fs-xl);
+  --text-xl:       var(--fs-2xl);
+  --text-2xl:      var(--fs-2xl);
+  --text-3xl:      var(--fs-3xl);
+  --text-4xl:      var(--fs-4xl);
+  --text-display-s: clamp(2.75rem, 6vw, 4.5rem);
+  --text-display:   clamp(3.5rem, 10vw, 8rem);
+  --text-figure:    clamp(5rem, 16vw, 12rem);
+
+  /* legacy space preserved */
+  --space-3xs:     var(--sp-1);
+  --space-2xs:     var(--sp-2);
+  --space-xs:      var(--sp-3);
+  --space-sm:      var(--sp-4);
+  --space-md:      var(--sp-5);
+  --space-lg:      var(--sp-6);
+  --space-xl:      var(--sp-7);
+  --space-2xl:     var(--sp-8);
+  --space-3xl:     var(--sp-9);
+  --space-4xl:     calc(var(--sp-9) * 1.4);
+
   --rule-hair:     1px;
-  --rule-thin:     1.5px;
-  --rule-thick:    3px;
-  --radius-sm:     4px;
-  --radius-md:     6px;
+  --rule-thin:     1px;
+  --rule-thick:    2px;
+  --radius-sm:     var(--r-1);
+  --radius-md:     var(--r-2);
+  --radius-lg:     var(--r-3);
 
-  /* — motion — */
-  --dur-fast:      120ms;
-  --dur-med:       240ms;
-  --dur-slow:      500ms;
-  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in:       cubic-bezier(0.4, 0, 1, 1);
-  --ease-in-out:   cubic-bezier(0.65, 0, 0.35, 1);
-
-  /* — layout — */
-  --measure:       62ch;
-  --measure-wide:  84ch;
-  --page-max:      74rem;
-  --page-gutter:   clamp(1.25rem, 4vw, 3rem);
+  --dur-fast:      var(--dur-1);
+  --dur-med:       var(--dur-2);
+  --dur-slow:      var(--dur-3);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root { --dur-fast: 0ms; --dur-med: 0ms; --dur-slow: 0ms; }
+  :root {
+    --dur-1: 0ms; --dur-2: 0ms; --dur-3: 0ms;
+    --dur-fast: 0ms; --dur-med: 0ms; --dur-slow: 0ms;
+  }
 }

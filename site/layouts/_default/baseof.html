@@ -6,25 +6,26 @@
   <title>{{ if not .IsHome }}{{ .Title }} · {{ end }}{{ .Site.Title }}</title>
   <meta name="description" content="{{ .Description | default .Site.Params.description }}">
 
-  <!-- Open Graph -->
+  {{/* Open Graph */}}
   <meta property="og:title"       content="{{ if not .IsHome }}{{ .Title }} · {{ end }}{{ .Site.Title }}">
   <meta property="og:description" content="{{ .Description | default .Site.Params.description }}">
   <meta property="og:type"        content="website">
   <meta property="og:url"         content="{{ .Permalink }}">
-  <meta property="og:image"       content="{{ .Site.BaseURL }}img/og.png">
-  <meta name="theme-color"        content="#f7f2e8">
+  <meta property="og:image"       content="{{ .Site.BaseURL }}img/github-social.png">
+  <meta name="theme-color"        content="#0a0d12">
+  <meta name="color-scheme"       content="dark">
 
   <link rel="icon" href="{{ "img/favicon.svg" | relURL }}" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif&display=swap" rel="stylesheet">
+
+  {{/* Single stylesheet — vinos.css imports tokens.css + base.css + components.css + pages.css */}}
   <link rel="stylesheet" href="{{ "css/vinos.css" | relURL }}">
 </head>
-<body>
+<body class="{{ if .IsHome }}home {{ end }}{{ with .Section }}sec-{{ . }} {{ end }}">
   {{ partial "header.html" . }}
-  <main>
+  <main id="main">
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}
+  {{ partial "copy-script.html" . }}
 </body>
 </html>

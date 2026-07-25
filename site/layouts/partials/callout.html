@@ -1,0 +1,19 @@
+{{/*
+  callout partial · note / warning / tip box
+  args (dict):
+    kind · "note" | "warning" | "tip"  (default "note")
+    icon · string (optional) — default per kind
+    body · string (required) — HTML body
+*/}}
+{{- $kind := .kind | default "note" -}}
+{{- $icon := .icon -}}
+{{- if not $icon -}}
+  {{- if eq $kind "warning" -}}{{- $icon = "!" -}}
+  {{- else if eq $kind "tip"    -}}{{- $icon = "★" -}}
+  {{- else                       -}}{{- $icon = "i" -}}
+  {{- end -}}
+{{- end -}}
+<aside class="callout {{ $kind }}" role="note">
+  <span class="callout-icon" aria-hidden="true">{{ $icon }}</span>
+  <div>{{ .body | safeHTML }}</div>
+</aside>

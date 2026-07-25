@@ -1,0 +1,16 @@
+{{/*
+  terminal partial · mock terminal window
+  args (dict):
+    title · string (optional) — title-bar text (defaults to "~ · foot")
+    body  · string (required) — HTML body (allow inline spans for coloring:
+                                 .prompt .cmd .out .dim .ok .warn .err)
+    caret · bool   (optional) — append blinking caret at end of body
+*/}}
+{{- $title := .title | default "~ · foot" -}}
+<div class="terminal" role="figure" aria-label="terminal preview">
+  <div class="terminal-head">
+    <span class="terminal-dots" aria-hidden="true"><span class="r"></span><span class="y"></span><span class="g"></span></span>
+    <span class="terminal-title">{{ $title }}</span>
+  </div>
+  <div class="terminal-body"><pre>{{ .body | safeHTML }}{{ if .caret }}<span class="cursor" aria-hidden="true"></span>{{ end }}</pre></div>
+</div>

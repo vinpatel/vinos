@@ -6,13 +6,70 @@ type: "for"
 ---
 
 <section class="audience-hero">
-  <span class="audience-eyebrow">local <span class="accent">models</span></span>
+  <span class="audience-eyebrow">local <span class="accent">models</span> + the 80/20 router</span>
   <h1>Pick a model. Copy the command. <span class="accent">You're running.</span></h1>
   <p class="audience-lede">
     vinOS ships Ollama. Every model below is a single <code>ollama pull</code>
     away — no config, no auth, no keys. <em>Runs on your GPU (or CPU).
     Nothing leaves the machine.</em> Marginal cost per prompt: your
-    electricity.
+    electricity. Routines default to a local pick from this catalog and
+    escalate to Claude only when they have to — see the router below.
+  </p>
+</section>
+
+<section class="audience-section" id="the-80-20-router">
+  <h2>The <span class="accent">80/20</span> router</h2>
+  <div class="prose measure">
+    <p>
+      Every vinOS routine picks a model per run. Set <code>route = "auto"</code>
+      in the routine's TOML and the runtime tries a <strong>local Ollama
+      model</strong> first — for summarization, extraction, drafting,
+      classification, small-scale reasoning. Roughly <strong>80% of routine
+      work never leaves your machine</strong>. The other 20% — deep reasoning,
+      big context, code that must actually be right — escalates to a
+      premium API (Claude Sonnet/Opus). Escalation happens when the local
+      model returns low confidence, when the task declares itself as
+      reasoning-heavy, or when the local model runs out of context.
+    </p>
+    <p>
+      <strong>The math on a typical founder day:</strong> 500 routine
+      runs/day (github-review three times × ~30 PRs, inbox-triage hourly
+      × ~15 emails, day-brief once, evening-shutdown once, ad-hoc
+      <code>vinos-ai</code> calls). <strong>20% escalate to Claude</strong>
+      at roughly <strong>$0.03 per premium call</strong> average
+      (Sonnet input+output, ~2k in / ~500 out). That's
+      <strong>$90/mo</strong> in Claude
+      spend. If you routed everything to Claude —
+      <strong>$450/mo</strong>.
+      <strong class="accent">Saved: ~$360/mo</strong>
+      per user, or roughly a MacBook every eighteen months.
+    </p>
+  </div>
+</section>
+
+<section class="audience-section">
+  <h2>Configure the router</h2>
+  <p style="max-width: 62ch; color: var(--color-ink-2); font-size: var(--text-md); line-height: 1.55; margin-bottom: var(--space-lg);">
+    Drop <code>route = "auto"</code> into the routine's <code>[agent]</code>
+    block and declare a <code>local_model</code>, a <code>premium_model</code>,
+    and an escalation policy. That's it.
+  </p>
+<pre><code class="language-toml">[agent]
+route         = "auto"                # anthropic | ollama | auto
+local_model   = "qwen2.5:7b"          # what runs the 80% case
+premium_model = "claude-sonnet-4-6"   # what runs the escalated 20%
+
+[agent.escalation]
+on_low_confidence   = true      # local returns "unsure" or confidence &lt; threshold
+on_reasoning_task   = true      # prompt tagged as reasoning-heavy
+on_context_overflow = true      # local hit its context limit
+max_escalations_per_run = 3     # cap runaway loops
+</code></pre>
+  <p class="small-print" style="margin-top: var(--space-md);">
+    Set <code>route = "ollama"</code> to force local-only (zero API spend).
+    Set <code>route = "anthropic"</code> when the routine's whole reason
+    for being is high-stakes judgment. Full field reference:
+    <a href="/spec/">routine spec</a>.
   </p>
 </section>
 

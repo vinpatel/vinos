@@ -1,0 +1,37 @@
+{{/*
+  cost-calculator partial · pure HTML/CSS receipt-style widget
+  Uses hugo.toml [params] for canonical numbers.
+  Static — no JS. Numbers are the ones stated in the marketing copy.
+*/}}
+<div class="cost-calc" role="figure" aria-label="80/20 router · monthly cost math">
+  <div class="cost-calc-head">
+    <span class="cost-calc-tag">$ 80/20 router</span>
+    <span>monthly cost · typical dev day</span>
+  </div>
+  <div class="cost-calc-body">
+    <div class="cost-calc-row">
+      <span class="cost-label">Routines per day</span>
+      <span class="cost-value">500</span>
+    </div>
+    <div class="cost-calc-row">
+      <span class="cost-label">Escalated to premium API</span>
+      <span class="cost-value">20%<span class="op">×</span>500<span class="op">=</span>100/day</span>
+    </div>
+    <div class="cost-calc-row">
+      <span class="cost-label">Average premium call cost</span>
+      <span class="cost-value">$0.03</span>
+    </div>
+    <div class="cost-calc-row">
+      <span class="cost-label">Days per month</span>
+      <span class="cost-value">30</span>
+    </div>
+  </div>
+  <div class="cost-calc-total">
+    <span class="cost-total-label">Monthly bill</span>
+    <span class="cost-total-premium" aria-label="all-premium cost">{{ .Site.Params.costMonthlyPremium }}</span>
+    <span class="cost-total-routed" aria-label="routed cost">{{ .Site.Params.costMonthlyRouted }}</span>
+  </div>
+  <div class="cost-calc-foot">
+    You keep <strong>{{ .Site.Params.costMonthlySaved }}/mo</strong>. Local model (Ollama) does the other 80% on your CPU/GPU — no key, no round-trip, no per-token cost.
+  </div>
+</div>

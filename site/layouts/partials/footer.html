@@ -1,60 +1,57 @@
-<footer class="foot" role="contentinfo">
+<footer class="site-footer" role="contentinfo">
   <div class="page">
-    <div class="foot-grid">
-      <div class="foot-brand">
-        <a class="foot-mark" href="{{ "/" | relURL }}" aria-label="vinOS home">
-          <img src="{{ "img/vinos-mark.svg" | relURL }}" width="36" height="36" alt="" aria-hidden="true">
+    <div class="site-footer-grid">
+      <div class="site-footer-brand">
+        <a class="site-footer-mark" href="{{ "/" | relURL }}" aria-label="vinOS home">
+          <img src="{{ "img/vinos-mark-dark.svg" | relURL }}" width="26" height="26" alt="" aria-hidden="true">
           <span>vin<em>OS</em></span>
         </a>
-        <p class="foot-line">
+        <p>
+          {{ .Site.Params.tagline | default "an agentic OS for founders, innovators, and thinkers" }}.
           Made in the open by <a href="https://github.com/vinpatel" target="_blank" rel="noopener">Vin Patel</a>.
-          An <span class="foot-accent">agentic OS</span> for the people who ship — founders,
-          innovators, thinkers. Runs on any x86_64 machine you can call yours.
         </p>
       </div>
 
-      <nav class="foot-nav" aria-label="footer">
-        <div class="foot-col">
-          <h4>Get it</h4>
-          <ul>
-            <li><a href="{{ .Site.Params.isoURL }}" target="_blank" rel="noopener">Download the ISO</a></li>
-            <li><a href="{{ "install/" | relURL }}">Install guide</a></li>
-            <li><a href="{{ "for/" | relURL }}">Use cases</a></li>
-            <li><a href="{{ "models/" | relURL }}">Local models</a></li>
-            <li><a href="{{ "bundles/" | relURL }}">Bundles</a></li>
-          </ul>
-        </div>
-        <div class="foot-col">
-          <h4>Get involved</h4>
-          <ul>
-            <li><a href="{{ .Site.Params.github }}" target="_blank" rel="noopener">GitHub</a></li>
-            <li><a href="{{ .Site.Params.github }}/discussions" target="_blank" rel="noopener">Discussions</a></li>
-            <li><a href="{{ .Site.Params.github }}/issues/new?template=hardware-report.yml" target="_blank" rel="noopener">Report your hardware</a></li>
-          </ul>
-        </div>
-        <div class="foot-col foot-col-sponsor">
-          <h4>Sponsor this work</h4>
-          <ul>
-            <li><a href="{{ .Site.Params.sponsorGH }}" target="_blank" rel="noopener">GitHub Sponsors ♥</a></li>
-            <li><a href="{{ .Site.Params.sponsorOC }}" target="_blank" rel="noopener">OpenCollective</a></li>
-          </ul>
-        </div>
-        <div class="foot-col">
-          <h4>Fine print</h4>
-          <ul>
-            <li><a href="{{ .Site.Params.github }}/blob/main/LICENSE" target="_blank" rel="noopener">MIT license</a></li>
-            <li><a href="{{ .Site.Params.github }}/blob/main/ATTRIBUTIONS.md" target="_blank" rel="noopener">Attributions</a></li>
-          </ul>
-        </div>
-      </nav>
+      <div class="site-footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="{{ "install/" | relURL }}">Install</a></li>
+          <li><a href="{{ "routines/" | relURL }}">Routines</a></li>
+          <li><a href="{{ "utilities/" | relURL }}">Utilities</a></li>
+          <li><a href="{{ "models/" | relURL }}">Models</a></li>
+          <li><a href="{{ "bundles/" | relURL }}">Bundles</a></li>
+          <li><a href="{{ "spec/" | relURL }}">Spec</a></li>
+        </ul>
+      </div>
+
+      <div class="site-footer-col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="{{ .Site.Params.github }}" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="{{ .Site.Params.github }}/discussions" target="_blank" rel="noopener">Discussions</a></li>
+          <li><a href="{{ .Site.Params.github }}/issues/new?template=hardware-report.yml" target="_blank" rel="noopener">Report hardware</a></li>
+          <li><a href="{{ "about/" | relURL }}">About</a></li>
+        </ul>
+      </div>
+
+      <div class="site-footer-col sponsors">
+        <h4>Support this work</h4>
+        <ul>
+          <li><a href="{{ .Site.Params.sponsorGH }}" target="_blank" rel="noopener">GitHub Sponsors</a></li>
+          <li><a href="{{ .Site.Params.sponsorOC }}" target="_blank" rel="noopener">Open Collective</a></li>
+          <li><a href="{{ .Site.Params.github }}/blob/main/LICENSE" target="_blank" rel="noopener">MIT license</a></li>
+        </ul>
+      </div>
     </div>
 
-    <div class="foot-bottom">
+    <div class="site-footer-bottom">
       <span>© 2026 Vin Patel</span>
-      <span class="foot-sep">·</span>
+      <span class="dot">·</span>
       <span>vinos.computer</span>
-      <span class="foot-sep">·</span>
+      <span class="dot">·</span>
       <span>v{{ .Site.Params.version }}</span>
+      <span class="dot">·</span>
+      <span>made <em>with</em> vinOS</span>
     </div>
   </div>
 </footer>

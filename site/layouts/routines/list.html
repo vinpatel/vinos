@@ -1,0 +1,56 @@
+{{ define "main" }}
+<div class="page routines-page">
+  <article class="doc" style="padding-top: var(--sp-7);">
+    <header class="section-head" style="margin-bottom: var(--sp-5);">
+      <div class="section-eyebrow">routines</div>
+      <h1 style="font-size: var(--fs-3xl); letter-spacing: -0.025em; max-width: 22ch;">{{ .Title | default "Starter routines" }}</h1>
+      {{ with .Description }}<p class="section-lede">{{ . }}</p>{{ else }}
+      <p class="section-lede">
+        Real agents wired to real schedules. Every one of these ships in the ISO,
+        disabled by default. Enable them one at a time.
+      </p>
+      {{ end }}
+    </header>
+
+    {{ if .Content }}
+    <div class="prose measure-wide" style="margin-bottom: var(--sp-6);">{{ .Content }}</div>
+    {{ end }}
+
+    {{/* If site has data/routines.yaml the content agent may add, render as grid.
+         Otherwise fall through to any child pages, or render nothing (content agent
+         may have placed the full copy in .Content already). */}}
+    {{ with .Site.Data.routines }}
+    <div class="routines-filter" role="group" aria-label="filter by category">
+      <span class="filter-label">show</span>
+      <button class="filter-chip is-active" type="button" data-filter="all">all</button>
+      {{ range (uniq (apply . "Get" "category")) }}
+      <button class="filter-chip" type="button" data-filter="{{ . }}">{{ . }}</button>
+      {{ end }}
+    </div>
+    <div class="routines-grid">
+      {{ range . }}
+      <article class="routine-card" data-category="{{ .category }}">
+        <span class="routine-schedule" title="{{ .schedule }}">▶ {{ .schedule_human | default .schedule }}</span>
+        <h3>{{ .name }}</h3>
+        <p>{{ .description }}</p>
+        <pre class="routine-install"><code>vinos-routine enable {{ .name }}</code></pre>
+      </article>
+      {{ end }}
+    </div>
+    {{ end }}
+
+    {{ with .Pages }}
+    <div class="routines-grid" style="margin-top: var(--sp-6);">
+      {{ range .ByTitle }}
+      <a class="routine-card" href="{{ .Permalink }}">
+        {{ with .Params.schedule }}<span class="routine-schedule">▶ {{ . }}</span>{{ end }}
+        <h3>{{ .Title }}</h3>
+        {{ with .Description }}<p>{{ . }}</p>{{ end }}
+        {{ with .Params.install }}<pre class="routine-install"><code>{{ . }}</code></pre>{{ end }}
+      </a>
+      {{ end }}
+    </div>
+    {{ end }}
+  </article>
+</div>
+{{ end }}

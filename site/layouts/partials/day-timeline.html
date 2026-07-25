@@ -1,0 +1,21 @@
+{{/*
+  day-timeline partial · vertical timeline of a routine day
+  args (dict):
+    events · slice of dicts { time, icon?, title, note? }
+                          (icon defaults to a single char based on position)
+*/}}
+{{- $events := .events -}}
+<div class="day-timeline" role="figure" aria-label="one vinOS day, six routines from 06:00 to 22:00">
+  <ol>
+    {{ range $i, $e := $events }}
+    <li>
+      <span class="tl-time">{{ .time }}</span>
+      <span class="tl-icon" aria-hidden="true">{{ .icon | default "·" }}</span>
+      <div class="tl-body">
+        <h4>{{ .title | safeHTML }}</h4>
+        {{ with .note }}<p>{{ . | safeHTML }}</p>{{ end }}
+      </div>
+    </li>
+    {{ end }}
+  </ol>
+</div>

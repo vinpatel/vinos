@@ -14,9 +14,13 @@ enableGitInfo = false
   isoURL        = "https://archive.org/details/vinos-1.1.0-x86_64"
   sponsorGH     = "https://github.com/sponsors/vinpatel"
   sponsorOC     = "https://opencollective.com/vinos"
-  version       = "2.0.2"
+  version       = "2.0.5"
   accent        = "#33ccff"
   accent2       = "#bb9af7"
+  # 80/20 router — headline economics used on /models/ and /routines/
+  costMonthlyPremium = "$450"
+  costMonthlyRouted  = "$90"
+  costMonthlySaved   = "$360"
 
 [markup]
   # /for/*.md pages use inline HTML for the audience-page layout —
@@ -36,27 +40,42 @@ enableGitInfo = false
   url        = "/install/"
   weight     = 10
 [[menu.main]]
-  identifier = "use-cases"
-  name       = "Use cases"
-  url        = "/for/"
+  identifier = "routines"
+  name       = "Routines"
+  url        = "/routines/"
   weight     = 15
+[[menu.main]]
+  identifier = "utilities"
+  name       = "Utilities"
+  url        = "/utilities/"
+  weight     = 20
 [[menu.main]]
   identifier = "models"
   name       = "Models"
   url        = "/models/"
-  weight     = 20
+  weight     = 25
 [[menu.main]]
   identifier = "bundles"
   name       = "Bundles"
   url        = "/bundles/"
   weight     = 30
 [[menu.main]]
+  identifier = "spec"
+  name       = "Spec"
+  url        = "/spec/"
+  weight     = 35
+[[menu.main]]
+  identifier = "about"
+  name       = "About"
+  url        = "/about/"
+  weight     = 38
+[[menu.main]]
   identifier = "docs"
   name       = "Docs"
   url        = "/docs/"
-  weight     = 35
+  weight     = 40
 [[menu.main]]
   identifier = "github"
   name       = "GitHub"
   url        = "https://github.com/vinpatel/vinos"
-  weight     = 40
+  weight     = 50

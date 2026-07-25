@@ -1,0 +1,72 @@
+{{/*
+  router-diagram partial · SVG showing 80/20 flow
+  prompt → local model (green 80%) → response
+                       or escalate → premium model (accent 20%) → response
+  Pure SVG, no JS. Prefers-reduced-motion respected via CSS.
+*/}}
+<div class="router-diagram" role="figure" aria-label="80/20 router · local vs premium model flow">
+  <svg viewBox="0 0 780 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+    <defs>
+      <marker id="rd-arrow-local" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="#6ad48a"/>
+      </marker>
+      <marker id="rd-arrow-premium" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="#33ccff"/>
+      </marker>
+    </defs>
+
+    <!-- prompt node -->
+    <g transform="translate(20,110)">
+      <rect x="0" y="0" width="140" height="52" rx="8" fill="#161b23" stroke="#2f3846"/>
+      <text x="70" y="24" text-anchor="middle" font-family="ui-monospace, JetBrains Mono, monospace" font-size="12" fill="#e6ecf5">prompt</text>
+      <text x="70" y="42" text-anchor="middle" font-family="ui-monospace, JetBrains Mono, monospace" font-size="10" fill="#7b8697">routine.yaml · agent</text>
+    </g>
+
+    <!-- router node -->
+    <g transform="translate(220,100)">
+      <rect x="0" y="0" width="150" height="70" rx="10" fill="#0f1319" stroke="#33ccff" stroke-width="1.2"/>
+      <text x="75" y="26" text-anchor="middle" font-family="ui-monospace, JetBrains Mono, monospace" font-size="12" fill="#33ccff">80/20 router</text>
+      <text x="75" y="46" text-anchor="middle" font-family="ui-monospace, JetBrains Mono, monospace" font-size="10" fill="#b7c0cf">route = "auto"</text>
+      <text x="75" y="60" text-anchor="middle" font-family="ui-monospace, JetBrains Mono, monospace" font-size="9" fill="#7b8697">complexity · tokens · rules</text>
+    </g>
+
+    <!-- prompt → router line -->
+    <line x1="160" y1="136" x2="220" y2="135" stroke="#2f3846" stroke-width="1.4" marker-end="url(#rd-arrow-local)" opacity="0.8"/>
+
+    <!-- local (80%) branch -->
+    <g>
+      <path d="M 370 118 Q 440 60 520 60" fill="none" stroke="#6ad48a" stroke-width="1.6" marker-end="url(#rd-arrow-local)"/>
+      <text x="440" y="40" font-family="ui-monospace, JetBrains Mono, monospace" font-size="10" fill="#6ad48a" text-anchor="middle">80% · local</text>
+      <g transform="translate(520,32)">
+        <rect x="0" y="0" width="160" height="56" rx="8" fill="#161b23" stroke="#6ad48a" stroke-opacity="0.5"/>
+        <text x="80" y="24" text-anchor="middle" font-family="ui-monospace, JetBrains Mono, monospace" font-size="12" fill="#e6ecf5">ollama · local model</text>
+        <text x="80" y="42" text-anchor="middle" font-family="ui-monospace, JetBrains Mono, monospace" font-size="10" fill="#7b8697">no key · no round-trip</text>
+      </g>
+    </g>
+
+    <!-- premium (20%) branch -->
+    <g>
+      <path d="M 370 152 Q 440 210 520 210" fill="none" stroke="#33ccff" stroke-width="1.6" marker-end="url(#rd-arrow-premium)"/>
+      <text x="440" y="234" font-family="ui-monospace, JetBrains Mono, monospace" font-size="10" fill="#33ccff" text-anchor="middle">20% · escalate</text>
+      <g transform="translate(520,182)">
+        <rect x="0" y="0" width="160" height="56" rx="8" fill="#161b23" stroke="#33ccff" stroke-opacity="0.5"/>
+        <text x="80" y="24" text-anchor="middle" font-family="ui-monospace, JetBrains Mono, monospace" font-size="12" fill="#e6ecf5">claude · frontier API</text>
+        <text x="80" y="42" text-anchor="middle" font-family="ui-monospace, JetBrains Mono, monospace" font-size="10" fill="#7b8697">metered · $0.03 avg</text>
+      </g>
+    </g>
+
+    <!-- response node -->
+    <g transform="translate(700,110)">
+      <rect x="-20" y="0" width="60" height="52" rx="8" fill="#161b23" stroke="#2f3846"/>
+      <text x="10" y="24" text-anchor="middle" font-family="ui-monospace, JetBrains Mono, monospace" font-size="12" fill="#e6ecf5">out</text>
+      <text x="10" y="42" text-anchor="middle" font-family="ui-monospace, JetBrains Mono, monospace" font-size="9" fill="#7b8697">stdout · ledger</text>
+    </g>
+  </svg>
+  <p class="rd-caption">
+    <strong style="color:#6ad48a">80% local (free)</strong>
+    &nbsp;·&nbsp;
+    <strong style="color:#33ccff">20% escalate ($0.03/call avg)</strong>
+    &nbsp;·&nbsp;
+    every call is logged in the SQLite ledger
+  </p>
+</div>

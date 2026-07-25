@@ -1,0 +1,48 @@
+{{/*
+  hero partial · reusable
+  args (dict):
+    eyebrow  · string (optional)  — small eyebrow text; supports `<em>accent</em>`
+    title    · string (required)  — headline; may include `<span class="accent">…</span>`
+    lede     · string (optional)  — one-paragraph subtitle; may include `<em>` and `<span class="accent">…</span>`
+    meta     · slice (optional)   — array of chip strings
+    ctaPrimary   · dict {label, url, target?, icon?}
+    ctaSecondary · dict {label, url, target?}
+    code     · string (optional)  — code snippet to render below actions
+    codeLang · string (optional)  — language label for the code block
+*/}}
+<section class="hero-block" aria-labelledby="hero-heading">
+  {{ with .eyebrow }}
+  <span class="hero-eyebrow"><span class="dot" aria-hidden="true"></span>{{ . | safeHTML }}</span>
+  {{ end }}
+
+  <h1 id="hero-heading">{{ .title | safeHTML }}</h1>
+
+  {{ with .lede }}
+  <p class="hero-lede measure">{{ . | safeHTML }}</p>
+  {{ end }}
+
+  {{ with .meta }}
+  <div class="hero-meta">
+    {{ range . }}<span class="chip">{{ . }}</span>{{ end }}
+  </div>
+  {{ end }}
+
+  {{ if or .ctaPrimary .ctaSecondary }}
+  <div class="hero-cta">
+    {{ with .ctaPrimary }}
+    <a href="{{ .url }}" class="btn primary" {{ with .target }}target="{{ . }}" rel="noopener"{{ end }}>
+      {{ .label }}
+    </a>
+    {{ end }}
+    {{ with .ctaSecondary }}
+    <a href="{{ .url }}" class="btn link" {{ with .target }}target="{{ . }}" rel="noopener"{{ end }}>{{ .label }}</a>
+    {{ end }}
+  </div>
+  {{ end }}
+
+  {{ with .code }}
+  <div class="hero-code">
+    {{ partial "code-block.html" (dict "code" . "lang" ($.codeLang | default "bash")) }}
+  </div>
+  {{ end }}
+</section>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" aria-hidden="true">
+  <!-- vinOS mark · dark-theme variant · teal left stroke, light right stroke, blinking teal caret -->
+  <g transform="translate(128,124)">
+    <path d="M -70,-70 L 0,70 L -22,70 L -92,-70 Z" fill="#33ccff"/>
+    <path d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z" fill="#e6ecf5"/>
+    <rect x="28" y="54" width="30" height="16" fill="#33ccff">
+      <animate attributeName="opacity"
+               values="1;1;0;0"
+               keyTimes="0;0.5;0.5;1"
+               dur="1.2s"
+               calcMode="discrete"
+               repeatCount="indefinite"/>
+    </rect>
+  </g>
+</svg>

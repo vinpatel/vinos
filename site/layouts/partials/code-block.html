@@ -1,0 +1,23 @@
+{{/*
+  code-block partial · styled code fence with copy button
+  args (dict):
+    code · string (required)
+    lang · string (optional) — language label displayed in header (e.g. "bash", "toml", "yaml")
+    file · string (optional) — filename displayed in header
+*/}}
+{{- $code := .code -}}
+{{- $lang := .lang | default "" -}}
+{{- $file := .file | default "" -}}
+<div class="code-block">
+  {{- if or $file $lang -}}
+  <div class="code-block-head">
+    {{ with $file }}<span class="code-block-file">{{ . }}</span>{{ end }}
+    {{ with $lang }}<span class="code-block-lang">{{ . }}</span>{{ end }}
+    <button type="button" class="code-block-copy" data-copy aria-label="Copy code">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      copy
+    </button>
+  </div>
+  {{- end -}}
+  <pre><code>{{ $code | safeHTML }}</code></pre>
+</div>

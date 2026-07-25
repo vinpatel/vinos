@@ -1,0 +1,33 @@
+{{ define "main" }}
+<div class="page">
+  <article class="doc" style="padding-top: var(--sp-7);">
+    <header class="section-head" style="margin-bottom: var(--sp-6);">
+      <div class="section-eyebrow">spec</div>
+      <h1 style="font-size: var(--fs-3xl); letter-spacing: -0.025em; max-width: 22ch;">{{ .Title | default "Specifications" }}</h1>
+      {{ with .Description }}<p class="section-lede">{{ . }}</p>{{ else }}
+      <p class="section-lede">
+        Formal specs for the primitives vinOS ships. Read these to build routines,
+        pick models, or extend the agent runtime.
+      </p>
+      {{ end }}
+    </header>
+
+    {{ if .Content }}
+    <div class="prose measure-wide" style="margin-bottom: var(--sp-6);">{{ .Content }}</div>
+    {{ end }}
+
+    {{ with .Pages }}
+    <div class="spec-index">
+      {{ range .ByTitle }}
+      <a class="spec-link" href="{{ .Permalink }}">
+        <span class="spec-link-eyebrow">spec</span>
+        <h3>{{ .Title }}</h3>
+        {{ with .Description }}<p>{{ . }}</p>{{ end }}
+        <span class="spec-link-more">Read →</span>
+      </a>
+      {{ end }}
+    </div>
+    {{ end }}
+  </article>
+</div>
+{{ end }}

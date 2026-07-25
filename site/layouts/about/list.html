@@ -1,0 +1,20 @@
+{{ define "main" }}
+<div class="page">
+  <article class="about-page">
+    <header class="about-header">
+      <div class="section-eyebrow">about</div>
+      <h1>{{ .Title }}</h1>
+      {{ with .Description }}<p>{{ . }}</p>{{ end }}
+    </header>
+    <div class="about-body prose">
+      {{ .Content }}
+    </div>
+    <div class="about-attribution">
+      vinOS is a small, open-source project by <a href="https://github.com/vinpatel" target="_blank" rel="noopener">Vin Patel</a>.
+      Built on <a href="https://archlinux.org/" target="_blank" rel="noopener">Arch Linux</a> and the
+      <a href="https://hyprland.org/" target="_blank" rel="noopener">Hyprland</a> ecosystem. See
+      <a href="{{ .Site.Params.github }}/blob/main/NOTICES.md" target="_blank" rel="noopener">NOTICES.md</a> for the full attribution.
+    </div>
+  </article>
+</div>
+{{ end }}

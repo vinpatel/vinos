@@ -1,0 +1,46 @@
+{{ define "main" }}
+<div class="page util-page">
+  <article class="doc" style="padding-top: var(--sp-7);">
+    <header class="section-head" style="margin-bottom: var(--sp-5);">
+      <div class="section-eyebrow">utilities</div>
+      <h1 style="font-size: var(--fs-3xl); letter-spacing: -0.025em; max-width: 22ch;">{{ .Title | default "vinos-* utilities" }}</h1>
+      {{ with .Description }}<p class="section-lede">{{ . }}</p>{{ else }}
+      <p class="section-lede">
+        Every vinos-* binary shipped in the base ISO. Terse. Composable. All read
+        from the same agent runtime.
+      </p>
+      {{ end }}
+    </header>
+
+    {{ if .Content }}
+    <div class="prose measure-wide" style="margin-bottom: var(--sp-6);">{{ .Content }}</div>
+    {{ end }}
+
+    {{/* Optional data-driven layout: if site/data/utilities.yaml exists,
+         render grouped dense tables. The content agent may drop that in. */}}
+    {{ with .Site.Data.utilities }}
+    <nav class="util-toc" aria-label="jump to category">
+      <span class="util-toc-label">jump</span>
+      {{ range . }}
+      <a href="#{{ .id }}">{{ .id }}</a>
+      {{ end }}
+    </nav>
+    {{ range . }}
+    <section class="util-section" id="{{ .id }}">
+      <h2>{{ .id }}</h2>
+      <table class="util-table">
+        <tbody>
+          {{ range .items }}
+          <tr>
+            <td><code>{{ .name }}</code></td>
+            <td>{{ .desc | safeHTML }}</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </section>
+    {{ end }}
+    {{ end }}
+  </article>
+</div>
+{{ end }}

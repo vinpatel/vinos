@@ -1,8 +1,9 @@
 {{ define "main" }}
 <div class="page">
-  <article class="doc section prose measure">
-    <header class="section-head">
-      <h2>{{ .Title }}</h2>
+  <article class="doc prose measure" style="padding-top: var(--sp-7);">
+    <header class="section-head" style="margin-bottom: var(--sp-6);">
+      {{ with .Section }}<div class="section-eyebrow">{{ . }}</div>{{ end }}
+      <h1 style="font-size: var(--fs-3xl); letter-spacing: -0.025em; max-width: 22ch;">{{ .Title }}</h1>
       {{ with .Description }}<p class="section-lede">{{ . }}</p>{{ end }}
     </header>
     {{ .Content }}

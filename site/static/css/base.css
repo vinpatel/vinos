@@ -1,0 +1,85 @@
+/* vinOS base layer — modern reset + typography defaults
+ * Small reset (~Josh Comeau shape), body typography, links, focus states,
+ * code / pre. Everything else lives in components.css / pages.css.
+ */
+
+/* ═════════ reset ═════════ */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-behavior: smooth; }
+body { min-height: 100vh; line-height: var(--lh-body); font-family: var(--font-sans); font-size: var(--fs-md); color: var(--fg-0); background: var(--bg-0); letter-spacing: var(--tracking-body); overflow-x: clip; }
+img, picture, video, canvas, svg { display: block; max-width: 100%; }
+input, button, textarea, select { font: inherit; color: inherit; }
+p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
+h1, h2, h3, h4, h5, h6 { line-height: var(--lh-tight); font-weight: 600; letter-spacing: var(--tracking-tight); color: var(--fg-0); }
+#root, #__next { isolation: isolate; }
+
+/* ═════════ selection ═════════ */
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+/* ═════════ page shell ═════════ */
+.page { max-width: var(--page-max); margin-inline: auto; padding-inline: var(--page-gutter); }
+.measure       { max-width: var(--measure); }
+.measure-wide  { max-width: var(--measure-wide); }
+.mono          { font-family: var(--font-mono); }
+.tnum          { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; }
+.eyebrow       { font-family: var(--font-mono); font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: var(--tracking-eyebrow); color: var(--fg-2); }
+.accent        { color: var(--accent); }
+.accent-2      { color: var(--accent-2); }
+
+/* ═════════ links ═════════ */
+a { color: var(--fg-0); text-decoration: none; transition: color var(--dur-1) var(--ease-out); }
+a:hover { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+/* ═════════ code + kbd ═════════ */
+code, kbd, samp, pre { font-family: var(--font-mono); font-feature-settings: "calt" 0, "liga" 0; }
+:not(pre) > code {
+  font-size: 0.9em;
+  padding: 0.12em 0.42em;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--fg-0);
+}
+kbd {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  padding: 0.15em 0.5em;
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  background: var(--bg-2);
+  border-radius: 4px;
+  color: var(--fg-0);
+  font-weight: 500;
+  line-height: 1;
+  display: inline-block;
+}
+pre {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--fg-0);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2);
+  padding: var(--sp-4) var(--sp-5);
+  overflow-x: auto;
+}
+pre code { background: transparent; border: 0; padding: 0; font-size: inherit; color: inherit; }
+
+/* ═════════ horizontal rule ═════════ */
+hr { border: 0; border-top: 1px solid var(--line); margin: var(--sp-6) 0; }
+
+/* ═════════ prose defaults (used by /about, /spec/*, /docs/*) ═════════ */
+.prose { max-width: var(--measure); font-size: var(--fs-lg); line-height: var(--lh-prose); color: var(--fg-0); }
+.prose > * + * { margin-top: var(--sp-5); }
+.prose h2 { font-size: var(--fs-2xl); margin-top: var(--sp-8); }
+.prose h3 { font-size: var(--fs-xl); margin-top: var(--sp-6); }
+.prose p { color: var(--fg-1); }
+.prose strong { color: var(--fg-0); font-weight: 600; }
+.prose em { font-style: italic; color: var(--fg-0); }
+.prose a { color: var(--accent); border-bottom: 1px solid rgba(51,204,255,0.35); }
+.prose a:hover { border-bottom-color: var(--accent); }
+.prose ul, .prose ol { padding-left: var(--sp-5); }
+.prose li + li { margin-top: var(--sp-2); }
+.prose blockquote { padding-left: var(--sp-5); border-left: 2px solid var(--line-strong); color: var(--fg-1); font-style: italic; }

@@ -1,0 +1,281 @@
+/* vinOS page-specific styles
+ * Homepage layout, /routines gallery, /utilities dense table,
+ * /models catalog polish (dark-first override for the legacy sheet),
+ * /about narrow single-column, /spec link cards.
+ */
+
+/* ═════════════════════════════════ homepage ═════════════════════════════ */
+.home main > * + * { }
+.home-hero {
+  padding: var(--sp-8) 0 var(--sp-7);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+}
+.home-hero .home-hero-copy { display: flex; flex-direction: column; gap: var(--sp-4); }
+.home-hero .home-hero-visual { min-width: 0; }
+.home-hero h1 {
+  font-size: var(--fs-hero);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: var(--fg-0);
+  font-weight: 600;
+  max-width: 16ch;
+}
+.home-hero h1 .accent { color: var(--accent); }
+.home-hero .home-hero-lede {
+  font-size: var(--fs-xl); color: var(--fg-1); line-height: 1.5; max-width: 46ch;
+}
+.home-hero .home-hero-lede em { font-style: italic; color: var(--fg-0); }
+.home-hero .home-hero-meta { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.home-hero .home-hero-cta { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; margin-top: var(--sp-2); }
+@media (max-width: 68rem) {
+  .home-hero { grid-template-columns: 1fr; gap: var(--sp-6); }
+}
+
+/* CTA final row (homepage tail) */
+.home-cta-final {
+  margin: var(--sp-9) 0 var(--sp-8);
+  padding: var(--sp-8) var(--sp-6);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-4);
+  display: grid; gap: var(--sp-4);
+  position: relative; overflow: hidden;
+}
+.home-cta-final::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(600px 260px at 100% 0%, rgba(51,204,255,0.10), transparent 60%);
+  pointer-events: none;
+}
+.home-cta-final h2 { font-size: var(--fs-3xl); letter-spacing: -0.025em; max-width: 22ch; }
+.home-cta-final h2 .accent { color: var(--accent); }
+.home-cta-final p { color: var(--fg-1); font-size: var(--fs-lg); max-width: 60ch; line-height: var(--lh-body); }
+.home-cta-final .home-cta-actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-3); }
+
+/* ═════════════════════════════════ routines gallery ═════════════════════════════ */
+.routines-filter {
+  display: flex; flex-wrap: wrap; gap: var(--sp-2);
+  padding: var(--sp-3) 0;
+  margin-bottom: var(--sp-5);
+  border-bottom: 1px solid var(--line);
+}
+.routines-filter .filter-label {
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  text-transform: uppercase; letter-spacing: var(--tracking-eyebrow);
+  color: var(--fg-2); align-self: center; margin-right: var(--sp-2);
+}
+.routines-filter .filter-chip {
+  padding: 4px 12px;
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  color: var(--fg-1);
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  cursor: pointer;
+  transition: all var(--dur-1) var(--ease-out);
+}
+.routines-filter .filter-chip:hover { color: var(--accent); border-color: rgba(51,204,255,0.35); }
+.routines-filter .filter-chip.is-active { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+
+.routines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--sp-4);
+  margin: var(--sp-4) 0;
+}
+.routine-card {
+  display: flex; flex-direction: column; gap: var(--sp-3);
+  padding: var(--sp-5);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  transition: border-color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+.routine-card:hover { border-color: rgba(51,204,255,0.35); transform: translateY(-2px); }
+.routine-card .routine-schedule {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  color: var(--accent);
+  padding: 2px 8px;
+  border: 1px solid rgba(51,204,255,0.25);
+  border-radius: var(--r-full);
+  align-self: flex-start;
+  background: rgba(51,204,255,0.05);
+}
+.routine-card h3 { font-size: var(--fs-lg); color: var(--fg-0); font-weight: 600; letter-spacing: -0.01em; }
+.routine-card p { color: var(--fg-1); font-size: var(--fs-md); line-height: var(--lh-body); flex: 1; }
+.routine-card .routine-install {
+  margin-top: auto;
+  padding: var(--sp-3);
+  font-family: var(--font-mono); font-size: var(--fs-sm);
+  color: var(--accent);
+  background: var(--bg-0);
+  border: 1px solid var(--line);
+  border-radius: var(--r-1);
+  overflow-x: auto; white-space: nowrap;
+}
+.routine-card .routine-install::before { content: "$ "; color: var(--fg-3); }
+
+/* ═════════════════════════════════ utilities reference (dense table) ═════════════════════════════ */
+.util-page .util-toc {
+  position: sticky; top: 64px; z-index: 20;
+  display: flex; flex-wrap: wrap; gap: var(--sp-2);
+  padding: var(--sp-3) 0;
+  background: rgba(10,13,18,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--sp-5);
+}
+.util-page .util-toc .util-toc-label {
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  text-transform: uppercase; letter-spacing: var(--tracking-eyebrow);
+  color: var(--fg-2); align-self: center; margin-right: var(--sp-2);
+}
+.util-page .util-toc a {
+  padding: 3px 10px;
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  color: var(--fg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+}
+.util-page .util-toc a:hover { color: var(--accent); border-color: rgba(51,204,255,0.35); }
+
+.util-section { margin: var(--sp-7) 0; }
+.util-section h2 {
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  text-transform: uppercase; letter-spacing: var(--tracking-eyebrow);
+  color: var(--accent); font-weight: 500;
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--line-strong);
+  margin-bottom: 0;
+}
+.util-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font-mono); font-size: var(--fs-sm);
+}
+.util-table td {
+  padding: var(--sp-3) var(--sp-2);
+  border-top: 1px solid var(--line);
+  vertical-align: baseline;
+}
+.util-table tr:first-child td { border-top: 0; }
+.util-table td:first-child {
+  color: var(--fg-0); font-weight: 500;
+  width: 32%;
+  padding-left: 0;
+}
+.util-table td:last-child {
+  color: var(--fg-1); font-family: var(--font-sans);
+  padding-right: 0;
+}
+.util-table tr:hover td { color: var(--fg-0); }
+.util-table tr:hover td:first-child { color: var(--accent); }
+
+/* ═════════════════════════════════ models catalog — dark override for legacy sheet ═════════════════════════════ */
+/* vinos.css defines .model-* rules; below adjusts what needs dark-mode tuning */
+.model-table-wrap { background: var(--bg-1); border-color: var(--line); box-shadow: var(--shadow-1); }
+.model-table { background: transparent; }
+.model-table thead th { background: var(--bg-2); color: var(--fg-2); border-bottom-color: var(--accent); }
+.model-table tbody td { border-top-color: var(--line); color: var(--fg-1); }
+.model-table tbody tr:hover { background: rgba(51,204,255,0.04); }
+.model-table td strong { color: var(--fg-0); }
+.model-table td a { color: var(--fg-2); }
+.model-table td a:hover { color: var(--accent); }
+.model-catnav {
+  background: rgba(10,13,18,0.85); backdrop-filter: blur(12px);
+  border-top-color: var(--line); border-bottom-color: var(--line);
+  top: 60px; /* sit under sticky site-header (~56px + 4px breathing) */
+}
+.model-catnav-label { color: var(--fg-2); }
+.model-catnav a { color: var(--fg-1); border-color: var(--line); background: transparent; }
+.model-catnav a:hover { color: var(--accent); border-color: rgba(51,204,255,0.35); background: rgba(51,204,255,0.06); }
+.model-quickstart, .model-usage { background: var(--bg-1); border-color: var(--line); }
+.model-license-note { background: var(--bg-2); border-color: var(--line); color: var(--fg-2); }
+
+/* ═════════════════════════════════ about (narrow single-column) ═════════════════════════════ */
+.about-page { padding: var(--sp-7) 0 var(--sp-8); }
+.about-page .about-header { margin-bottom: var(--sp-6); }
+.about-page .about-header h1 {
+  font-size: var(--fs-3xl); letter-spacing: -0.025em; max-width: 22ch;
+  color: var(--fg-0); font-weight: 600;
+}
+.about-page .about-header p { margin-top: var(--sp-3); color: var(--fg-1); font-size: var(--fs-xl); line-height: 1.5; max-width: 56ch; }
+.about-page .about-body { max-width: var(--measure); }
+.about-page .about-attribution {
+  margin-top: var(--sp-8); padding-top: var(--sp-5);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  color: var(--fg-2); line-height: 1.65;
+  max-width: 60ch;
+}
+.about-page .about-attribution a { color: var(--fg-1); border-bottom: 1px solid var(--line-strong); }
+.about-page .about-attribution a:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ═════════════════════════════════ spec index (link cards) ═════════════════════════════ */
+.spec-index {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--sp-4);
+  margin: var(--sp-6) 0;
+}
+.spec-index .spec-link {
+  display: flex; flex-direction: column; gap: var(--sp-2);
+  padding: var(--sp-5);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  color: inherit;
+  transition: border-color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+.spec-index .spec-link:hover { border-color: rgba(51,204,255,0.35); transform: translateY(-2px); color: inherit; }
+.spec-index .spec-link .spec-link-eyebrow {
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  text-transform: uppercase; letter-spacing: var(--tracking-eyebrow);
+  color: var(--fg-2);
+}
+.spec-index .spec-link h3 { font-size: var(--fs-lg); color: var(--fg-0); font-weight: 600; letter-spacing: -0.01em; }
+.spec-index .spec-link p { color: var(--fg-1); font-size: var(--fs-md); line-height: var(--lh-body); }
+.spec-index .spec-link .spec-link-more {
+  margin-top: auto; padding-top: var(--sp-3);
+  font-family: var(--font-mono); font-size: var(--fs-xs);
+  color: var(--accent);
+}
+
+/* ═════════════════════════════════ table (generic dark polish for legacy .spec) ═════════════════════════════ */
+.spec, .doc.prose table {
+  color: var(--fg-1);
+}
+.spec caption { color: var(--fg-2); }
+.spec thead th, .doc.prose table thead th { color: var(--fg-2); border-bottom-color: var(--fg-0); }
+.spec tbody th { color: var(--fg-0); }
+.spec td { color: var(--fg-1); }
+.spec td code { color: var(--fg-0); }
+.spec .group-row td { background: var(--bg-2); color: var(--fg-2); }
+
+/* ═════════════════════════════════ legacy layout dark-mode polish ═════════════════════════════ */
+/* These minor tweaks make the existing vinos.css rules read well on dark bg. */
+.hero-video video, .shot img, .shot video { background: var(--bg-1); border-color: var(--line-strong); }
+.for-strip-link { background: var(--bg-1); }
+.for-strip-link:hover { background: var(--bg-2); border-color: rgba(51,204,255,0.35); }
+.audience-hero .audience-eyebrow { background: var(--bg-1); }
+.audience-proof img { background: var(--bg-1); }
+.prose .small-print { background: var(--bg-1); border-left-color: var(--line-strong); }
+.foot-mark em, .wordmark em, .foot-line .foot-accent { color: var(--accent); }
+.arch { background: var(--bg-1); border-color: var(--line); }
+.arch .layer { color: var(--accent-2); }
+.arch .note { color: var(--fg-2); }
+.steps > li { border-top-color: var(--line); }
+.steps > li:last-child { border-bottom-color: var(--line); }
+.steps .cmd { background: var(--bg-0); color: var(--fg-0); border: 1px solid var(--line); }
+.steps .cmd::before { color: var(--fg-3); }
+
+/* Focus visible everywhere */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+/* Reveal (opacity only, ≤200ms) */
+.reveal { opacity: 0; transition: opacity var(--dur-2) var(--ease-out); }
+.reveal.in { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; } }

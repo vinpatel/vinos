@@ -1,0 +1,15 @@
+{{/*
+  feature-row partial · three-column feature grid
+  args (dict):
+    features · slice of dicts { num?, title, body, foot? }
+*/}}
+<div class="feature-row">
+  {{ range .features }}
+  <div class="feature">
+    {{ with .num }}<div class="feature-num">{{ . }}</div>{{ end }}
+    <h3>{{ .title | safeHTML }}</h3>
+    <p>{{ .body | safeHTML }}</p>
+    {{ with .foot }}<div class="feature-foot">{{ . | safeHTML }}</div>{{ end }}
+  </div>
+  {{ end }}
+</div>
