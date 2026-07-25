@@ -52,4 +52,18 @@ if [[ -d "$_vinos_repo_bin" ]]; then
   done
   unset _vinos_bin _vinos_name
 fi
-unset _vinos_profile_dir _vinos_repo_bin
+
+# Same story for vendored Omarchy bin/ — install/03-configs.sh rsyncs
+# configs/omarchy/bin/omarchy-* to /usr/local/bin/, and without an entry
+# here mkarchiso repacks them as 0644 → "command not found" pops on live
+# boot (omarchy-hyprland-monitor-watch, omarchy-menu, ...).
+_vinos_omarchy_bin="${_vinos_profile_dir}/../../configs/omarchy/bin"
+if [[ -d "$_vinos_omarchy_bin" ]]; then
+  for _vinos_bin in "$_vinos_omarchy_bin"/*; do
+    [[ -f "$_vinos_bin" ]] || continue
+    _vinos_name="$(basename "$_vinos_bin")"
+    file_permissions["/usr/local/bin/$_vinos_name"]="0:0:755"
+  done
+  unset _vinos_bin _vinos_name
+fi
+unset _vinos_profile_dir _vinos_repo_bin _vinos_omarchy_bin

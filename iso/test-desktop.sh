@@ -30,6 +30,9 @@ done
 
 [[ -z "$ISO" ]] && ISO="$(find "$ISO_DIR/out" -maxdepth 1 -name 'vinos-*.iso' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -1 | cut -d' ' -f2- || true)"
 [[ -n "$ISO" && -f "$ISO" ]] || die "no ISO — run iso/build.sh first"
+# docker -v refuses relative paths ("includes invalid characters for a local
+# volume name") — always mount by absolute path.
+ISO="$(realpath "$ISO")"
 
 IMG="vinos-iso-tester:latest"
 docker image inspect "$IMG" >/dev/null 2>&1 || die "tester image missing — run iso/test.sh once first"

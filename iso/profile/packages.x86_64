@@ -10,6 +10,7 @@ alsa-firmware
 alsa-ucm-conf
 alsa-utils
 amd-ucode
+apparmor
 apple-bcm-firmware
 apple-t2-audio-config
 arch-install-scripts
@@ -71,6 +72,7 @@ fcitx5-qt
 fd
 ffmpeg
 ffmpegthumbnailer
+firejail
 fontconfig
 foot
 foot-terminfo
@@ -136,6 +138,8 @@ linux
 linux-atm
 linux-firmware
 linux-firmware-marvell
+linux-hardened
+linux-hardened-headers
 linux-headers
 linux-t2
 linux-t2-headers
@@ -164,6 +168,7 @@ nautilus-python
 nbd
 ndisc6
 neovim
+networkmanager
 nfs-utils
 nilfs-utils
 nmap
@@ -183,6 +188,7 @@ openpgp-card-tools
 openssh
 openvpn
 pamixer
+papirus-icon-theme
 partclone
 parted
 partimage
@@ -204,6 +210,7 @@ qemu-guest-agent
 qt5-wayland
 qt6-wayland
 qt6ct
+quickshell-git
 refind
 reflector
 rfkill
@@ -246,6 +253,7 @@ ttf-ia-writer
 ttf-jetbrains-mono-nerd
 tzupdate
 udftools
+udiskie
 ufw
 unzip
 upower

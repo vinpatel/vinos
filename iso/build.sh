@@ -39,6 +39,12 @@ command -v docker >/dev/null || die "docker not found — install docker or run 
 VINOS_VERSION="$(<"$REPO/VERSION")"
 mkdir -p "$OUT_DIR"
 
+# v1.1.0 is the permanent archival gold copy (feedback: preserve-110-forever).
+# Refuse to run when VERSION would overwrite it. Bump VERSION to 2.0.x or later.
+if [[ "$VINOS_VERSION" == "1.1.0" ]]; then
+  die "VERSION=1.1.0 is the archival gold copy — bump VERSION (see memory: preserve-110-forever)"
+fi
+
 log "regenerating packages.x86_64 (drift check)"
 tmp_old="$(mktemp)"; cp "$ISO_DIR/profile/packages.x86_64" "$tmp_old" 2>/dev/null || : > "$tmp_old"
 "$ISO_DIR/gen-packages.sh"

@@ -125,8 +125,13 @@ log "dd complete + sync"
 if (( WITH_PERSIST )); then
   log "creating persistence partition (ext4 label=vinos-persist)"
   command -v sgdisk >/dev/null || die "sgdisk not found — install gptfdisk to use --with-persistence"
-  # ISO writes GPT+MBR hybrid via xorriso; sgdisk can extend by adding a
-  # partition after the ISO's data. Use largest available free space.
+  # ISO writes GPT+MBR hybrid via xorriso; the secondary GPT header sits at
+  # the ISO's boundary, not the USB's, so sgdisk sees "Invalid partition
+  # data" and refuses to add anything. Relocate the backup header to the
+  # actual end of the disk first — this is the standard archiso-persist fix.
+  sgdisk -e "$DEV_PATH" >/dev/null 2>&1 || warn "sgdisk -e (relocate backup GPT) returned non-zero — continuing"
+  partprobe "$DEV_PATH" 2>/dev/null || true
+  # Now add a partition using the largest available free space.
   sgdisk --new=0:0:0 --typecode=0:8300 --change-name=0:vinos-persist "$DEV_PATH"
   partprobe "$DEV_PATH" 2>/dev/null || true
   sleep 1
