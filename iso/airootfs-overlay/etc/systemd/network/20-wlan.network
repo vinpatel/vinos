@@ -1,0 +1,6 @@
+# vinOS override — masks the archiso wlan.network so NetworkManager (with
+# iwd backend) owns wifi DHCP without racing networkd. Empty [Match] means
+# no interface matches; networkd ignores this file. See conf.d/vinos-wifi-backend.conf.
+[Match]
+
+[Network]

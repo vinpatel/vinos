@@ -1,0 +1,13 @@
+[Unit]
+Description=vinOS boot marker (echoes VINOS_BOOT_OK + os-release ID to serial)
+After=multi-user.target
+Wants=multi-user.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+StandardOutput=journal+console
+ExecStart=/usr/local/bin/vinos-boot-marker
+
+[Install]
+WantedBy=multi-user.target graphical.target

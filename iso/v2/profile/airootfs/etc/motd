@@ -1,0 +1,23 @@
+
+   [38;2;79;209;197m/  /[38;2;230;232;235m\  \[0m
+  [38;2;79;209;197m/  /[38;2;230;232;235m  \  \[0m       [38;2;51;204;255mvinOS Live[0m
+ [38;2;79;209;197m/  /[38;2;230;232;235m    \  \[0m      the OS for agent operators
+[38;2;79;209;197m/__/[38;2;230;232;235m [38;2;79;209;197m▪[0m [38;2;230;232;235m\__\[0m
+
+[38;2;51;204;255m➜ Install to this machine's disk:[0m
+
+  [1msudo vinos-install-disk[0m
+
+  Auto-detects hardware (Apple T2 / NVIDIA / generic), partitions,
+  installs the system, and reboots. ~15 min end-to-end.
+
+[38;2;51;204;255m➜ Try before you install:[0m
+
+  This live session IS vinOS. Press [35mSuper[0m for the menu,
+  [35mSuper+K[0m for keybindings, [35mSuper+Ctrl+W[0m for wifi.
+
+[38;2;51;204;255m➜ For Wi-Fi:[0m launch [35mimpala[0m or press [35mSuper+Ctrl+W[0m.
+   [35miwctl[0m works as a fallback. Ethernet auto-connects via DHCP.
+
+[38;2;51;204;255m➜ Docs:[0m https://vinpatel.github.io/vinos/ · [35mvinos-menu[0m
+

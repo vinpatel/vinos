@@ -1,0 +1,14 @@
+[Unit]
+Description=Create T2-model-specific brcmfmac firmware symlinks
+DefaultDependencies=no
+After=systemd-udev-trigger.service systemd-modules-load.service
+Before=iwd.service network-pre.target sysinit.target
+ConditionPathExists=/sys/class/dmi/id/product_name
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/lib/vinos/t2-brcmfmac-firmware.sh
+
+[Install]
+WantedBy=sysinit.target

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Install vinOS
+GenericName=vinOS installer
+Comment=Install vinOS to this machine's disk
+Categories=System;Settings;
+Icon=system-software-install
+Terminal=true
+Exec=sh -c 'pkexec /usr/local/bin/vinos-install-disk; echo; read -p "Press Enter to close…"'
+Keywords=install;setup;installer;vinos;
