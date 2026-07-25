@@ -1,0 +1,79 @@
+- title: Getting started
+  url: /docs/getting-started/
+  pages:
+    - title: Download and flash
+      url: /docs/getting-started/download-and-flash/
+    - title: First boot
+      url: /docs/getting-started/first-boot/
+    - title: Set your API keys
+      url: /docs/getting-started/set-your-api-keys/
+
+- title: Agents
+  url: /docs/agents/
+  pages:
+    - title: Running a routine
+      url: /docs/agents/running-a-routine/
+    - title: Writing your own
+      url: /docs/agents/writing-your-own/
+    - title: Project routines
+      url: /docs/agents/project-routines/
+    - title: Tools and the sandbox
+      url: /docs/agents/tools-and-sandbox/
+    - title: The 80/20 router
+      url: /docs/agents/the-80-20-router/
+    - title: Troubleshooting
+      url: /docs/agents/troubleshooting/
+
+- title: Utilities
+  url: /docs/utilities/
+  pages:
+    - title: Founder
+      url: /docs/utilities/founder/
+    - title: Agent shortcuts
+      url: /docs/utilities/agent-shortcuts/
+    - title: System
+      url: /docs/utilities/system/
+    - title: Hardware
+      url: /docs/utilities/hardware/
+
+- title: Themes
+  url: /docs/themes/
+  pages:
+    - title: Switching themes
+      url: /docs/themes/switching-themes/
+    - title: The vinOS 10
+      url: /docs/themes/the-vinos-10/
+    - title: Building your own
+      url: /docs/themes/building-your-own/
+
+- title: Customization
+  url: /docs/customization/
+  pages:
+    - title: Keybindings
+      url: /docs/customization/keybindings/
+    - title: Waybar
+      url: /docs/customization/waybar/
+    - title: Walker menu
+      url: /docs/customization/walker-menu/
+    - title: First-boot customization
+      url: /docs/customization/first-boot-customization/
+
+- title: Troubleshooting
+  url: /docs/troubleshooting/
+  pages:
+    - title: Wi-Fi on T2 MacBooks
+      url: /docs/troubleshooting/wifi-t2/
+    - title: Docker not running
+      url: /docs/troubleshooting/docker-not-running/
+    - title: Theme picker empty
+      url: /docs/troubleshooting/theme-picker-empty/
+
+- title: Reference
+  url: /docs/reference/
+  pages:
+    - title: File layout
+      url: /docs/reference/file-layout/
+    - title: Environment variables
+      url: /docs/reference/environment-vars/
+    - title: CLI reference
+      url: /docs/reference/cli-reference/

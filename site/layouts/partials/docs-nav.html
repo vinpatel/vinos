@@ -1,0 +1,25 @@
+{{/*
+  docs-nav partial · left sidebar for docs section
+  Reads site/data/docs_nav.yaml. Marks current page/section as active.
+*/}}
+{{- $current := .RelPermalink -}}
+<nav class="docs-nav" aria-label="Documentation navigation">
+  <a href="/docs/" class="docs-nav-home{{ if eq $current "/docs/" }} active{{ end }}">
+    <span class="docs-nav-home-eyebrow">vinOS</span>
+    <span class="docs-nav-home-label">Documentation</span>
+  </a>
+  {{ range site.Data.docs_nav }}
+  <div class="docs-nav-group">
+    <a href="{{ .url }}" class="docs-nav-group-title{{ if eq $current .url }} active{{ end }}">{{ .title }}</a>
+    {{ with .pages }}
+    <ul class="docs-nav-list">
+      {{ range . }}
+      <li>
+        <a href="{{ .url }}" class="docs-nav-link{{ if eq $current .url }} active{{ end }}">{{ .title }}</a>
+      </li>
+      {{ end }}
+    </ul>
+    {{ end }}
+  </div>
+  {{ end }}
+</nav>

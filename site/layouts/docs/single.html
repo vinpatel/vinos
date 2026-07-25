@@ -1,0 +1,51 @@
+{{ define "main" }}
+{{- $current := .RelPermalink -}}
+{{- $prev := "" -}}
+{{- $next := "" -}}
+{{- $flat := slice -}}
+{{- range site.Data.docs_nav -}}
+  {{- $flat = $flat | append (dict "url" .url "title" .title) -}}
+  {{- range .pages -}}
+    {{- $flat = $flat | append (dict "url" .url "title" .title) -}}
+  {{- end -}}
+{{- end -}}
+{{- range $i, $e := $flat -}}
+  {{- if eq $e.url $current -}}
+    {{- if gt $i 0 -}}{{- $prev = index $flat (sub $i 1) -}}{{- end -}}
+    {{- if lt $i (sub (len $flat) 1) -}}{{- $next = index $flat (add $i 1) -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+
+<div class="docs-layout">
+  <aside class="docs-sidebar">
+    {{ partial "docs-nav.html" . }}
+  </aside>
+
+  <article class="docs-content doc prose">
+    <header class="docs-header">
+      <div class="docs-eyebrow">Docs{{ with .Parent }} · <a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</div>
+      <h1 class="docs-title">{{ .Title }}</h1>
+      {{ with .Description }}<p class="docs-lede">{{ . }}</p>{{ end }}
+    </header>
+
+    {{ .Content }}
+
+    {{ if or $prev $next }}
+    <nav class="docs-pager" aria-label="Docs pagination">
+      {{ with $prev }}
+      <a href="{{ .url }}" class="docs-pager-prev">
+        <span class="docs-pager-eyebrow">← Previous</span>
+        <span class="docs-pager-title">{{ .title }}</span>
+      </a>
+      {{ else }}<span></span>{{ end }}
+      {{ with $next }}
+      <a href="{{ .url }}" class="docs-pager-next">
+        <span class="docs-pager-eyebrow">Next →</span>
+        <span class="docs-pager-title">{{ .title }}</span>
+      </a>
+      {{ else }}<span></span>{{ end }}
+    </nav>
+    {{ end }}
+  </article>
+</div>
+{{ end }}

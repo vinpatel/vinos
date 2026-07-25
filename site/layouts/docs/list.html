@@ -1,0 +1,44 @@
+{{ define "main" }}
+<div class="docs-layout">
+  <aside class="docs-sidebar">
+    {{ partial "docs-nav.html" . }}
+  </aside>
+
+  <article class="docs-content doc prose">
+    <header class="docs-header">
+      <div class="docs-eyebrow">
+        {{ if eq .RelPermalink "/docs/" }}Documentation{{ else }}Docs · {{ with .Parent }}{{ .Title }}{{ end }}{{ end }}
+      </div>
+      <h1 class="docs-title">{{ .Title }}</h1>
+      {{ with .Description }}<p class="docs-lede">{{ . }}</p>{{ end }}
+    </header>
+
+    {{ .Content }}
+
+    {{ with .Pages }}
+    <div class="docs-index">
+      {{ range .ByWeight }}
+      <a class="docs-index-link" href="{{ .RelPermalink }}">
+        <h3>{{ .Title }}</h3>
+        {{ with .Description }}<p>{{ . }}</p>{{ end }}
+        <span class="docs-index-more">Read <span aria-hidden="true">→</span></span>
+      </a>
+      {{ end }}
+    </div>
+    {{ end }}
+
+    {{ with .Sections }}
+    <div class="docs-index">
+      {{ range .ByWeight }}
+      <a class="docs-index-link" href="{{ .RelPermalink }}">
+        <span class="docs-index-eyebrow">section</span>
+        <h3>{{ .Title }}</h3>
+        {{ with .Description }}<p>{{ . }}</p>{{ end }}
+        <span class="docs-index-more">Open <span aria-hidden="true">→</span></span>
+      </a>
+      {{ end }}
+    </div>
+    {{ end }}
+  </article>
+</div>
+{{ end }}

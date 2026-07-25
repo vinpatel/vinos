@@ -19,6 +19,7 @@
 
   {{/* Single stylesheet — vinos.css imports tokens.css + base.css + components.css + pages.css */}}
   <link rel="stylesheet" href="{{ "css/vinos.css" | relURL }}">
+  {{ if eq .Section "docs" }}<link rel="stylesheet" href="{{ "css/docs.css" | relURL }}">{{ end }}
 </head>
 <body class="{{ if .IsHome }}home {{ end }}{{ with .Section }}sec-{{ . }} {{ end }}">
   {{ partial "header.html" . }}

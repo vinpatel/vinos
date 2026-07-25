@@ -1,0 +1,20 @@
+{{/*
+  callout shortcode — wraps the callout partial.
+  Usage:
+    {{% callout kind="tip" %}}
+    Markdown body inside.
+    {{% /callout %}}
+  Kinds: note (default), warning, tip.
+*/}}
+{{- $kind := .Get "kind" | default "note" -}}
+{{- $icon := .Get "icon" -}}
+{{- if not $icon -}}
+  {{- if eq $kind "warning" -}}{{- $icon = "!" -}}
+  {{- else if eq $kind "tip"    -}}{{- $icon = "★" -}}
+  {{- else                       -}}{{- $icon = "i" -}}
+  {{- end -}}
+{{- end -}}
+<aside class="callout {{ $kind }}" role="note">
+  <span class="callout-icon" aria-hidden="true">{{ $icon }}</span>
+  <div>{{ .Inner | .Page.RenderString }}</div>
+</aside>
