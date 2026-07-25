@@ -11,6 +11,10 @@ skills-lock.json
 site/static/img/screenshots/*-serial.log
 site/tools/demo/frames/
 
+# Python bytecode (vinos-routine libexec)
+__pycache__/
+*.pyc
+
 # Private planning files — never re-commit these. Scrubbed from history
 # 2026-07-18 (git-filter-repo). Local copies live in ~/vinos-planning/.
 CLAUDE.md
