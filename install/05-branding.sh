@@ -54,10 +54,18 @@ if [[ -d "$REPO/assets/wallpapers" ]]; then
   done
 fi
 
-# aurora is the default first-boot theme (bright warm dawn). Overridable
-# by exporting VINOS_THEME= before install.sh / iso/build.sh.
-_active_theme="${VINOS_THEME:-aurora}"
-_sudo ln -sfn "themes/${_active_theme}/wallpaper.png" "$SHARE/wallpaper.png"
+# void is the default first-boot vinOS theme (Hubble Deep Field wallpaper,
+# near-black + teal signature). Overridable via VINOS_THEME= env before
+# install.sh / iso/build.sh. Legacy names ("aurora" pre-v2, "Void" v2.0.2
+# TitleCase) auto-migrate to the current lowercase "void". Theme dir names
+# are lowercase-kebab to match Omarchy convention (see 03-configs.sh:47).
+# 10 vinOS themes live at /usr/share/omarchy/themes/ alongside Omarchy's.
+_active_theme="${VINOS_THEME:-void}"
+case "$_active_theme" in
+  aurora|Aurora|Void) _active_theme="void" ;;
+esac
+_active_theme="$(printf '%s' "$_active_theme" | tr 'A-Z' 'a-z')"
+_sudo ln -sfn "/usr/share/omarchy/themes/${_active_theme}/wallpaper.png" "$SHARE/wallpaper.png"
 
 log "05-branding: installing vinos-* commands"
 _sudo rsync -a "$REPO/bin/" "$SHARE/bin/"

@@ -1,8 +1,254 @@
 #!/usr/bin/env bash
-# 03-configs.sh — copies base config/ into ~/.config. Orchestrator layers overlays after.
+# 03-configs.sh — vendor Omarchy configs verbatim into the live/target
+# filesystem, then let 05-branding.sh apply the thin vinOS overlay on top.
+# This is the "Omarchy configs verbatim + thin overlay" rule finalized
+# 2026-07-22.
+#
+# Layout mapping (upstream Omarchy path → target path):
+#   configs/omarchy/config/     → ~/.config/            (per-user, via etc/skel)
+#   configs/omarchy/default/    → /usr/share/omarchy/default/
+#   configs/omarchy/bin/        → /usr/local/bin/       (omarchy-* commands)
+#   configs/omarchy/etc/        → /etc/                 (systemd units, etc.)
+#   configs/omarchy/applications/ → /usr/share/applications/
+#   configs/omarchy/themes/     → /usr/share/omarchy/themes/
+#   configs/omarchy/shell/      → /usr/share/omarchy/shell/
+#   configs/omarchy/migrations/ → /usr/share/omarchy/migrations/
+#
+# Everything else Omarchy ships (LICENSE, version, ATTRIBUTIONS) stays
+# in configs/omarchy/ untouched.
 set -euo pipefail
 # shellcheck source=../lib/common.sh
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/lib/common.sh"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-log "03-configs: copying base config into \$HOME/.config"
-copy_config "$REPO/config"
+
+OMARCHY_SRC="$REPO/configs/omarchy"
+[[ -d "$OMARCHY_SRC" ]] || { log "03-configs: $OMARCHY_SRC missing — nothing to vendor"; exit 0; }
+
+log "03-configs: vendoring Omarchy config/ into \$HOME/.config"
+copy_config "$OMARCHY_SRC/config"
+
+# Helper: rsync a subtree from Omarchy into the target root under $prefix,
+# honoring VINOS_ROOT for ISO-build mode.
+_vendor_tree() {
+  local src="$1" prefix="$2"
+  [[ -d "$src" ]] || return 0
+  local dest
+  dest="$(_rootpath "$prefix")"
+  _sudo install -d -m 0755 "$dest"
+  log "03-configs: vendoring $(basename "$src")/ → $prefix"
+  _sudo rsync -a --exclude='.git' "$src/" "$dest/"
+}
+
+_vendor_tree "$OMARCHY_SRC/default"      /usr/share/omarchy/default
+_vendor_tree "$OMARCHY_SRC/themes"       /usr/share/omarchy/themes
+_vendor_tree "$OMARCHY_SRC/shell"        /usr/share/omarchy/shell
+_vendor_tree "$OMARCHY_SRC/migrations"   /usr/share/omarchy/migrations
+
+# vinOS themes — vendored alongside Omarchy's, NOT into Omarchy's tree.
+# Each theme is a proper Omarchy-schema directory (colors.toml, shell.lock.toml,
+# icons.theme, keyboard.rgb, neovim.lua, vscode.json, wallpaper.png, unlock.png,
+# preview*.png, backgrounds/) built from real 4K NASA imagery.
+#
+# Source dirs are TitleCase (Aurora, Canopy, …, Void) but we install them
+# lowercase-kebab (aurora, canopy, …, void) to match Omarchy's naming
+# convention exactly. Reason: omarchy-theme-switcher / omarchy-menu-images
+# dropped TitleCase entries from the picker on v2.0.2. Display names are
+# unaffected — omarchy-theme-list title-cases them for the UI ("aurora" →
+# "Aurora"), so users see the same labels.
+VINOS_THEMES_SRC="$REPO/configs/vinos/brand/themes"
+if [[ -d "$VINOS_THEMES_SRC" ]]; then
+  dest="$(_rootpath /usr/share/omarchy/themes)"
+  _sudo install -d -m 0755 "$dest"
+  log "03-configs: installing vinOS themes → /usr/share/omarchy/themes"
+  for _t in "$VINOS_THEMES_SRC"/*/; do
+    [[ -d "$_t" ]] || continue
+    _tname="$(basename "$_t" | tr 'A-Z' 'a-z')"
+    _sudo rsync -a --exclude='.git' --exclude='build-themes.sh' "$_t" "$dest/$_tname/"
+    log "  + $_tname"
+  done
+  unset _t _tname dest
+fi
+
+# Pre-stamp EVERY vendored migration as "done" in /etc/skel so a fresh
+# vinos user boots with 0 pending — matches the state a full Omarchy
+# install would have post-installer. Without this, the tray shows
+# "24 pending Omarchy migrations" on every live boot. omarchy-migrate
+# uses $HOME/.local/state/omarchy/migrations/<name> as the completed marker.
+if [[ -d "$OMARCHY_SRC/migrations" ]]; then
+  skel_mig="$(_rootpath /etc/skel/.local/state/omarchy/migrations)"
+  _sudo install -d -m 0755 "$skel_mig"
+  log "03-configs: pre-stamping $(ls "$OMARCHY_SRC/migrations" | wc -l) migrations as done in /etc/skel"
+  for _m in "$OMARCHY_SRC/migrations"/*.sh; do
+    [[ -f "$_m" ]] || continue
+    _sudo touch "$skel_mig/$(basename "$_m")"
+  done
+  unset _m skel_mig
+fi
+
+# Seed ~/.local/state/omarchy/current/ to match what `omarchy-theme-set vinos`
+# would produce, so first-boot omarchy-shell picks up vinOS colors + wallpaper
+# without needing a shell IPC round-trip.
+#
+# Structure (from configs/omarchy/bin/omarchy-theme-set line 130-165):
+#   current/theme/          real directory (copy of themes/<name>/), NOT a symlink
+#   current/theme.name      plain text file with the theme name
+#   current/background      symlink → a specific PNG file
+# Default theme is "void" (lowercase, matching the installed dir name).
+# Source dir in the repo is "Void" (TitleCase) so we look up by that.
+_default_theme="void"
+_vinos_src_theme="Void"
+# Prefer the vinOS themes tree (10 4K NASA-sourced themes); fall back to
+# a vendored Omarchy theme if for some reason Void isn't shipped.
+if [[ ! -d "$VINOS_THEMES_SRC/$_vinos_src_theme" ]] && [[ ! -d "$OMARCHY_SRC/themes/tokyo-night" ]]; then
+  _default_theme="tokyo-night"
+  _vinos_src_theme=""
+fi
+
+skel_state="$(_rootpath /etc/skel/.local/state/omarchy/current)"
+_sudo install -d -m 0755 "$skel_state"
+
+# Copy the theme tree in (not a symlink) — omarchy-theme-set does `mv` here,
+# meaning omarchy-shell treats current/theme as owned/mutable.
+# Source prefers vinOS themes dir (real 4K NASA imagery) over Omarchy's.
+_sudo rm -rf "$skel_state/theme"
+if [[ -n "$_vinos_src_theme" ]] && [[ -d "$VINOS_THEMES_SRC/$_vinos_src_theme" ]]; then
+  _sudo cp -r "$VINOS_THEMES_SRC/$_vinos_src_theme" "$skel_state/theme"
+  # Drop the build helper — not shipped to the live system
+  _sudo rm -f "$skel_state/theme/build-themes.sh"
+else
+  _sudo cp -r "$OMARCHY_SRC/themes/$_default_theme" "$skel_state/theme"
+fi
+
+# theme.name — plain string
+printf '%s\n' "$_default_theme" | _sudo tee "$skel_state/theme.name" >/dev/null
+
+# background — pick the branded wallpaper if we shipped one, else the first
+# PNG in backgrounds/, else the theme root wallpaper.png. Symlink target MUST
+# be RELATIVE — /etc/skel gets copied to /home/vinos on first boot, so an
+# absolute build-time path would break the moment the ISO boots.
+# Backgrounds/*.jpg filenames use the SOURCE theme name (TitleCase for
+# vinOS themes), so probe with $_vinos_src_theme first, then the runtime
+# name (Omarchy themes use lowercase filenames matching the dir name).
+_bg_probe_names=()
+[[ -n "$_vinos_src_theme" ]] && _bg_probe_names+=("$_vinos_src_theme")
+_bg_probe_names+=("$_default_theme")
+_bg_rel=""
+for _bpn in "${_bg_probe_names[@]}"; do
+  for _candidate in \
+      "theme/backgrounds/${_bpn}-branded.jpg" \
+      "theme/backgrounds/${_bpn}.jpg" \
+      "theme/wallpaper.png"; do
+    if [[ -f "$skel_state/$_candidate" ]]; then _bg_rel="$_candidate"; break 2; fi
+  done
+done
+if [[ -z "$_bg_rel" ]]; then
+  # First backgrounds/*.(jpg|png) as relative path
+  _first_bg="$(find "$skel_state/theme/backgrounds" -maxdepth 1 -type f \( -name '*.jpg' -o -name '*.png' \) 2>/dev/null | head -1)"
+  [[ -n "$_first_bg" ]] && _bg_rel="theme/backgrounds/$(basename "$_first_bg")"
+fi
+if [[ -n "$_bg_rel" ]]; then
+  _sudo ln -sfn "$_bg_rel" "$skel_state/background"
+  log "03-configs: seeded ~/.local/state/omarchy/current → $_default_theme (bg=$_bg_rel)"
+else
+  log "03-configs: WARN no background file found under $skel_state/theme/backgrounds/"
+fi
+
+# Pre-warm the omarchy-theme-switcher cache in /etc/skel so the FIRST
+# invocation of the theme picker shows all shipped themes immediately.
+# The switcher's fast_signature is stable across boots because
+# /usr/share/omarchy/themes lives on the read-only squashfs — its mtimes
+# survive the boot verbatim. USER_THEMES_PATH ($HOME/.config/omarchy/themes)
+# doesn't exist on first boot so it's absent from the signature — matching
+# our pre-baked assumption.
+_themes_root_build="$(_rootpath /usr/share/omarchy/themes)"
+_skel_cache="$(_rootpath /etc/skel/.cache/omarchy/theme-selector)"
+_skel_previews="$_skel_cache/previews"
+_sudo install -d -m 0755 "$_skel_previews"
+
+_fast_sig_tmp="$(mktemp)"
+{
+  printf 'v1\n'
+  printf '/usr/share/omarchy/themes:%s\n' "$(stat -Lc '%Y' "$_themes_root_build")"
+  for _tp in "$_themes_root_build"/*/; do
+    [[ -d "$_tp" ]] || continue
+    _tp="${_tp%/}"
+    _tn="$(basename "$_tp")"
+    printf '/usr/share/omarchy/themes/%s:%s\n' "$_tn" "$(stat -Lc '%Y' "$_tp")"
+  done
+} > "$_fast_sig_tmp"
+_sudo install -Dm 0644 "$_fast_sig_tmp" "$_skel_cache/fast-signature"
+rm -f "$_fast_sig_tmp"
+
+# Symlink each theme's preview into the cache dir with the exact name the
+# switcher would create (theme_name.<ext>, lowercased extension). Use
+# absolute runtime paths so /etc/skel → /home/<user>/ copy stays valid.
+_prewarm_count=0
+for _tp in "$_themes_root_build"/*/; do
+  [[ -d "$_tp" ]] || continue
+  _tp="${_tp%/}"
+  _tn="$(basename "$_tp")"
+  _prev=""
+  for _pn in preview.png preview.jpg preview.jpeg preview.webp preview.gif preview.bmp; do
+    if [[ -f "$_tp/$_pn" ]]; then _prev="/usr/share/omarchy/themes/$_tn/$_pn"; break; fi
+  done
+  if [[ -z "$_prev" && -d "$_tp/backgrounds" ]]; then
+    _first="$(find "$_tp/backgrounds" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.bmp' -o -iname '*.webp' \) | sort | head -1)"
+    [[ -n "$_first" ]] && _prev="/usr/share/omarchy/themes/$_tn/backgrounds/$(basename "$_first")"
+  fi
+  if [[ -n "$_prev" ]]; then
+    _ext="${_prev##*.}"; _ext="${_ext,,}"
+    _sudo ln -sfn "$_prev" "$_skel_previews/$_tn.$_ext"
+    _prewarm_count=$((_prewarm_count + 1))
+  fi
+done
+log "03-configs: pre-warmed theme-selector cache with $_prewarm_count previews in /etc/skel"
+
+unset _default_theme _vinos_src_theme _bg_rel _first_bg _candidate skel_state \
+      _bg_probe_names _bpn _themes_root_build _skel_cache _skel_previews \
+      _fast_sig_tmp _tp _tn _prev _pn _first _ext _prewarm_count
+
+# applications/ lands in /usr/local/share/applications/ instead of
+# /usr/share/applications/. Rationale: Omarchy ships desktop-entry
+# OVERRIDES (foot.desktop, imv.desktop, mpv.desktop) that would collide
+# with the package-shipped files during pacstrap. /usr/local/share is
+# earlier in XDG_DATA_DIRS (default /usr/local/share:/usr/share), so the
+# override still wins at runtime.
+_vendor_tree "$OMARCHY_SRC/applications" /usr/local/share/applications
+
+# Product icons: Omarchy stashes them at applications/icons/*.png (TitleCase),
+# but XDG icon spec scans /usr/share/pixmaps + /usr/share/icons/. .desktop
+# entries reference lowercase names (Icon=basecamp) → symlink both original +
+# lowercased variants into pixmaps/ so the menu resolves them.
+if [[ -d "$OMARCHY_SRC/applications/icons" ]]; then
+  pix="$(_rootpath /usr/share/pixmaps)"
+  _sudo install -d -m 0755 "$pix"
+  log "03-configs: exposing Omarchy product icons → /usr/share/pixmaps"
+  for _ic in "$OMARCHY_SRC/applications/icons"/*.png; do
+    [[ -f "$_ic" ]] || continue
+    _base="$(basename "$_ic")"
+    _lower="$(printf '%s' "$_base" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')"
+    _sudo cp "$_ic" "$pix/$_base"
+    [[ "$_base" != "$_lower" ]] && _sudo cp "$_ic" "$pix/$_lower"
+  done
+  unset _ic _base _lower pix
+fi
+
+# NOTE: configs/omarchy/etc/ is intentionally NOT vendored here.
+# Several files (nsswitch.conf, security/faillock.conf, plymouth/plymouthd.conf)
+# are owned by pacstrap-installed packages and would fail the same way
+# applications/foot.desktop did. Deferred to a post-pacstrap
+# customize_airootfs.sh hook — TODO.
+
+# bin/ needs the +x bit preserved and lands in /usr/local/bin so it wins
+# over any package-shipped duplicates (vinOS overlay principle: our copy
+# beats upstream when both are present).
+if [[ -d "$OMARCHY_SRC/bin" ]]; then
+  dest="$(_rootpath /usr/local/bin)"
+  _sudo install -d -m 0755 "$dest"
+  log "03-configs: vendoring omarchy bin/ → /usr/local/bin"
+  _sudo rsync -a "$OMARCHY_SRC/bin/" "$dest/"
+  # rsync --chmod=F0755 got dropped under docker bind-mount in prior build,
+  # leaving omarchy-* at 0644 → autostart "command not found" pops on live
+  # boot. Explicit chmod pass is authoritative.
+  _sudo find "$dest" -maxdepth 1 -name 'omarchy-*' -type f -exec chmod 0755 {} +
+fi
