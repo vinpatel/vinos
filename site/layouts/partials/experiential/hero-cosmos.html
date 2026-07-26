@@ -11,8 +11,15 @@
 */}}
 <section class="home-hero home-hero--cosmos" aria-labelledby="hero-heading"
          data-exp-hero
-         style="--hero-wallpaper: url('{{ "img/wallpapers/cosmos.jpg" | relURL }}');">
+         style="--hero-wallpaper: url('{{ "img/screenshots/theme-cosmos.jpg" | relURL }}');">
   <div class="home-hero-scrim" aria-hidden="true"></div>
+  {{/* OS chrome tease: tiny corner marker so the hero reads as
+       "you're looking at the actual vinOS desktop" rather than a
+       generic marketing background. The screenshot ALREADY shows
+       waybar + brand mark; this label just makes it obvious. */}}
+  <div class="home-hero-osbadge" aria-hidden="true">
+    ● live desktop · cosmos · v{{ .Site.Params.version }}
+  </div>
 
   <div class="home-hero-copy">
     <span class="hero-eyebrow">

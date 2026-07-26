@@ -32,16 +32,52 @@
 .home-hero-scrim {
   position: absolute; inset: 0; z-index: -1;
   background:
-    linear-gradient(180deg,
-      rgba(10,13,18,0.78) 0%,
-      rgba(10,13,18,0.92) 55%,
-      rgba(10,13,18,0.985) 100%),
+    /* Left-side text zone: darker so headline reads; right-side keeps the
+       desktop visible so the visitor SEES the OS instead of a black tint. */
+    linear-gradient(105deg,
+      rgba(10,13,18,0.90) 0%,
+      rgba(10,13,18,0.72) 40%,
+      rgba(10,13,18,0.35) 72%,
+      rgba(10,13,18,0.28) 100%),
     radial-gradient(120% 60% at 20% 0%, rgba(51,204,255,0.10), transparent 60%);
   pointer-events: none;
+}
+@media (max-width: 68rem) {
+  /* Narrow viewports: fall back to a strong even scrim so text stays readable. */
+  .home-hero-scrim {
+    background:
+      linear-gradient(180deg,
+        rgba(10,13,18,0.78) 0%,
+        rgba(10,13,18,0.92) 55%,
+        rgba(10,13,18,0.985) 100%),
+      radial-gradient(120% 60% at 20% 0%, rgba(51,204,255,0.10), transparent 60%);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .home-hero--cosmos::before { transform: none; }
 }
+
+/* "live desktop" corner badge — signals to a first-time visitor that
+   the hero background IS the vinOS desktop, not a marketing render. */
+.home-hero-osbadge {
+  position: absolute;
+  top: var(--sp-3);
+  right: var(--sp-4);
+  z-index: 2;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-2);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  background: rgba(10,13,18,0.55);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+.home-hero-osbadge::first-letter { color: var(--accent); }
 
 /* ═════════ 2. theme re-skinner ═════════ */
 .reskinner {

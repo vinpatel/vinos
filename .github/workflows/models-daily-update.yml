@@ -1,0 +1,75 @@
+name: models.md daily refresh
+
+on:
+  schedule:
+    # 06:00 UTC daily. Ollama typically drops new model tags overnight (US).
+    - cron: '0 6 * * *'
+  workflow_dispatch: {}
+  push:
+    paths:
+      - '.github/workflows/models-daily-update.yml'
+      - 'site/tools/update-models.py'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: models-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Detect model deltas
+        id: detect
+        env:
+          MODELS_REPORT_PATH: /tmp/models-report.md
+        run: |
+          python3 site/tools/update-models.py
+
+      - name: Open / update issue when new models detected
+        if: steps.detect.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEW_COUNT: ${{ steps.detect.outputs.new_count }}
+        run: |
+          today=$(date -u +%Y-%m-%d)
+          title="models.md refresh: ${NEW_COUNT} new models · ${today}"
+
+          # Find any open issue with the "models-refresh" label; append there
+          # instead of opening duplicates.
+          existing=$(gh issue list \
+            --repo "${{ github.repository }}" \
+            --label models-refresh \
+            --state open \
+            --json number,title \
+            --jq '.[0].number // empty')
+
+          if [ -n "$existing" ]; then
+            echo "Appending to existing issue #$existing"
+            gh issue comment "$existing" \
+              --repo "${{ github.repository }}" \
+              --body-file /tmp/models-report.md
+          else
+            echo "Opening new issue"
+            gh issue create \
+              --repo "${{ github.repository }}" \
+              --title "$title" \
+              --label models-refresh \
+              --label auto \
+              --body-file /tmp/models-report.md
+          fi
+
+      - name: Log no-op
+        if: steps.detect.outputs.has_changes != 'true'
+        run: echo "No new models on ollama.com/library. Skipping issue."

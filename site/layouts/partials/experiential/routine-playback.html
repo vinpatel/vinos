@@ -31,9 +31,24 @@
       <aside class="playback-brief" aria-label="rendered brief">
         <div class="playback-brief-head">
           <span class="playback-brief-tag">~/.local/state/vinos/brief.md</span>
-          <span class="playback-brief-status" data-playback-brief-status>waiting…</span>
+          <span class="playback-brief-status" data-playback-brief-status>ready</span>
         </div>
-        <div class="playback-brief-body" data-playback-brief></div>
+        <div class="playback-brief-body" data-playback-brief>
+          {{/* Static baseline — always visible even if JS is disabled/blocked.
+               The JS playback module hides + re-reveals these when it runs
+               its animation; if it doesn't run, the content still reads. */}}
+          <h4 class="pb-brief-h1">Today · Fri 25 Jul</h4>
+          <h5 class="pb-brief-h2">Top 3</h5>
+          <p class="pb-brief-l">1. Ship v2.0.5 ISO to dl.vinos.computer</p>
+          <p class="pb-brief-l">2. Review 3 open PRs on vinpatel/vinos</p>
+          <p class="pb-brief-l">3. Draft the routines.yaml spec</p>
+          <h5 class="pb-brief-h2">Signals</h5>
+          <p class="pb-brief-l">• 1 new sponsor via GitHub</p>
+          <p class="pb-brief-l">• 4 stars overnight</p>
+          <p class="pb-brief-l">• 2 issues opened (labels: enhancement, docs)</p>
+          <h5 class="pb-brief-h2">Reflect</h5>
+          <p class="pb-brief-l">Yesterday you shipped $0.30 in local-model savings.</p>
+        </div>
       </aside>
     </div>
 
