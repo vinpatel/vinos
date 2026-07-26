@@ -86,6 +86,11 @@ FIX:
 Great in a loop when you're bashing on something new; less useful when
 you already know the answer.
 
+<figure class="doc-shot doc-shot-pending" id="shot-34">
+  <div class="doc-shot-slot">Screenshot pending: `false 2>&1 | vinos-fix` output in a foot terminal</div>
+  <figcaption>vinos-fix on a failed pipeline — see SCREENSHOTS_NEEDED.md #shot-34.</figcaption>
+</figure>
+
 ## `vinos-explain`
 
 Pipe anything → plain-English explanation, ≤80 words.

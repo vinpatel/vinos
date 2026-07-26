@@ -40,6 +40,14 @@ Right cluster:
   <figcaption>Shipped waybar layout — see SCREENSHOTS_NEEDED.md #shot-30.</figcaption>
 </figure>
 
+Zoomed on the right cluster (the slot where the v2.0.6 routine-status
+widget lands — currently a placeholder in v2.0.5):
+
+<figure class="doc-shot doc-shot-pending" id="shot-33">
+  <div class="doc-shot-slot">Screenshot pending: waybar right cluster close-up (routine widget slot)</div>
+  <figcaption>waybar right cluster — see SCREENSHOTS_NEEDED.md #shot-33.</figcaption>
+</figure>
+
 ## Reorder or hide
 
 Copy once, then edit:

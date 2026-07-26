@@ -29,6 +29,11 @@ today | blockers | one-liner. Force local model with:
   VINOS_ROUTE=ollama vinos-standup
 ```
 
+<figure class="doc-shot" id="shot-72">
+  <img src="/img/screenshots/vinos-standup-help.png" alt="vinos-standup --help output" width="900" height="600" loading="lazy">
+  <figcaption>vinos-standup --help — see SCREENSHOTS_NEEDED.md #shot-72.</figcaption>
+</figure>
+
 ### `vinos-commit`
 
 ```
@@ -45,6 +50,11 @@ Reads `git diff --cached`. If nothing is staged, tells you to run
 git add first. Force local model with:
   VINOS_ROUTE=ollama vinos-commit
 ```
+
+<figure class="doc-shot" id="shot-73">
+  <img src="/img/screenshots/vinos-commit-help.png" alt="vinos-commit --help output" width="900" height="600" loading="lazy">
+  <figcaption>vinos-commit --help — see SCREENSHOTS_NEEDED.md #shot-73.</figcaption>
+</figure>
 
 ### `vinos-focus`
 
@@ -64,6 +74,11 @@ writes a status file at ~/.vinos/focus/current, then auto-restores
 when time is up. Ctrl-C restores immediately.
 ```
 
+<figure class="doc-shot" id="shot-74">
+  <img src="/img/screenshots/vinos-focus-help.png" alt="vinos-focus --help output" width="900" height="600" loading="lazy">
+  <figcaption>vinos-focus --help — see SCREENSHOTS_NEEDED.md #shot-74.</figcaption>
+</figure>
+
 ### `vinos-brief`
 
 ```
@@ -75,6 +90,11 @@ Usage:
   vinos-brief <name>             Latest output for one routine
   vinos-brief --date YYYY-MM-DD  Outputs from a specific date
 ```
+
+<figure class="doc-shot" id="shot-71">
+  <img src="/img/screenshots/vinos-brief-help.png" alt="vinos-brief --help output" width="900" height="600" loading="lazy">
+  <figcaption>vinos-brief --help — see SCREENSHOTS_NEEDED.md #shot-71.</figcaption>
+</figure>
 
 ## Agents
 
@@ -98,6 +118,11 @@ Requires the ai bundle (vinos-install-ai). If ollama isn't installed,
 emits an actionable pointer.
 ```
 
+<figure class="doc-shot" id="shot-77">
+  <img src="/img/screenshots/vinos-ai-help.png" alt="vinos-ai --help output" width="900" height="600" loading="lazy">
+  <figcaption>vinos-ai --help — see SCREENSHOTS_NEEDED.md #shot-77.</figcaption>
+</figure>
+
 ### `vinos-fix`
 
 ```
@@ -114,6 +139,11 @@ command in a fenced code block. Highlights the output with `bat`
 or `pygmentize` when available.
 ```
 
+<figure class="doc-shot" id="shot-75">
+  <img src="/img/screenshots/vinos-fix-help.png" alt="vinos-fix --help output" width="900" height="600" loading="lazy">
+  <figcaption>vinos-fix --help — see SCREENSHOTS_NEEDED.md #shot-75.</figcaption>
+</figure>
+
 ### `vinos-explain`
 
 ```
@@ -129,6 +159,11 @@ Content-adaptive: if input looks like code (braces, indentation,
 common language tokens) → "explain what this code does". Otherwise
 → "summarize in plain English". Response capped at 80 words.
 ```
+
+<figure class="doc-shot" id="shot-76">
+  <img src="/img/screenshots/vinos-explain-help.png" alt="vinos-explain --help output" width="900" height="600" loading="lazy">
+  <figcaption>vinos-explain --help — see SCREENSHOTS_NEEDED.md #shot-76.</figcaption>
+</figure>
 
 ## Routines
 
@@ -161,6 +196,11 @@ Outputs → ~/.vinos/routines/state/<name>/YYYY-MM-DD-HHMM.md
 Ledger  → ~/.vinos/routines/state/ledger.db
 ```
 
+<figure class="doc-shot" id="shot-70">
+  <img src="/img/screenshots/vinos-routine-help.png" alt="vinos-routine --help output rendered in dark terminal style" width="900" height="600" loading="lazy">
+  <figcaption>vinos-routine --help — see SCREENSHOTS_NEEDED.md #shot-70.</figcaption>
+</figure>
+
 ## System
 
 ### `vinos-doctor`
@@ -182,6 +222,11 @@ Sections checked, in order:
 
 Exits non-zero if any FAIL. Prints a per-section summary at the end:
 `summary: PASS=27 FAIL=0 SKIP=2`.
+
+<figure class="doc-shot" id="shot-78">
+  <img src="/img/screenshots/vinos-doctor-help.png" alt="vinos-doctor --help output" width="900" height="600" loading="lazy">
+  <figcaption>vinos-doctor --help — see SCREENSHOTS_NEEDED.md #shot-78.</figcaption>
+</figure>
 
 ### `vinos-first-run`
 
@@ -216,6 +261,14 @@ A theme lives at /usr/share/vinos/themes/<name>/ with:
   theme.conf        (colors + metadata — key=value)
   wallpaper.png     (background)
 ```
+
+`vinos-theme-set` is a thin v2.0.6 passthrough to `omarchy-theme-set`
+for callers that want a stable vinOS-prefixed name.
+
+<figure class="doc-shot" id="shot-79">
+  <img src="/img/screenshots/vinos-theme-set-help.png" alt="vinos-theme-set --help — passthrough to omarchy-theme-set" width="900" height="600" loading="lazy">
+  <figcaption>vinos-theme-set --help (passthrough) — see SCREENSHOTS_NEEDED.md #shot-79.</figcaption>
+</figure>
 
 ### `vinos-cheatsheet`
 

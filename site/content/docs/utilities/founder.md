@@ -47,6 +47,15 @@ key needed. Set `VINOS_ROUTE=anthropic` if you want Claude polish.
   <figcaption>vinos-standup rendered — see SCREENSHOTS_NEEDED.md #shot-42.</figcaption>
 </figure>
 
+Live capture from a `--yesterday` run in a real foot terminal (may
+show the "no code dir" error path on a fresh install — that's fine,
+docs both success and error surface):
+
+<figure class="doc-shot doc-shot-pending" id="shot-35">
+  <div class="doc-shot-slot">Screenshot pending: `vinos-standup --yesterday` in a foot terminal</div>
+  <figcaption>vinos-standup live — see SCREENSHOTS_NEEDED.md #shot-35.</figcaption>
+</figure>
+
 ## `vinos-commit`
 
 AI-drafted commit message from your staged diff, with an Edit / Accept /

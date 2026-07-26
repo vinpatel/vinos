@@ -15,6 +15,28 @@ Two commands run on first login:
 Both are hyprland `exec-once` entries in the shipped config. Both are
 idempotent — rerun any time.
 
+## The vinos-menu deep-dive
+
+`vinos-menu` is the walker-driven surface you'll come back to most.
+It's rooted at a small set of top-level actions (Install, Style,
+Trigger, System) and each one drills down into a submenu. Here's
+what each root branch looks like when opened:
+
+<figure class="doc-shot doc-shot-pending" id="shot-15">
+  <div class="doc-shot-slot">Screenshot pending: vinos-menu open at the Style submenu</div>
+  <figcaption>Style submenu — theme, wallpaper, font size, lock/idle. See SCREENSHOTS_NEEDED.md #shot-15.</figcaption>
+</figure>
+
+<figure class="doc-shot doc-shot-pending" id="shot-16">
+  <div class="doc-shot-slot">Screenshot pending: vinos-menu open at the Install bundles submenu</div>
+  <figcaption>Install submenu — ai, dev, comms, browser, media. See SCREENSHOTS_NEEDED.md #shot-16.</figcaption>
+</figure>
+
+<figure class="doc-shot doc-shot-pending" id="shot-17">
+  <div class="doc-shot-slot">Screenshot pending: vinos-menu open at the Trigger submenu</div>
+  <figcaption>Trigger submenu — one-shot commands (screenshot, sleep, restart-waybar). See SCREENSHOTS_NEEDED.md #shot-17.</figcaption>
+</figure>
+
 ## Skip the whole thing
 
 Delete the exec-once entries in `~/.config/hypr/autostart.d/`:

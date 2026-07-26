@@ -46,6 +46,11 @@ day-brief                      no         never                    *-*-* 06:00:0
 evening-shutdown               no         never                    *-*-* 18:00:00
 ```
 
+<figure class="doc-shot doc-shot-pending" id="shot-23">
+  <div class="doc-shot-slot">Screenshot pending: foot terminal after `vinos-routine list`</div>
+  <figcaption>vinos-routine list — see SCREENSHOTS_NEEDED.md #shot-23.</figcaption>
+</figure>
+
 Everything shipped is **disabled by default**. The first-boot flow
 asks which you want on; you can always change your mind with
 `enable` / `disable`.
@@ -81,6 +86,11 @@ $ vinos-routine run day-brief
   cost   $0.0038  (2,847 in / 691 out)
 ```
 
+<figure class="doc-shot doc-shot-pending" id="shot-24">
+  <div class="doc-shot-slot">Screenshot pending: foot terminal in the middle of `vinos-routine run day-brief`</div>
+  <figcaption>Ad-hoc routine run — see SCREENSHOTS_NEEDED.md #shot-24.</figcaption>
+</figure>
+
 ## Logs
 
 Journal-backed. `--tail` follows in real time.
@@ -114,6 +124,11 @@ DAILY TOTAL   $0.0098   (of $0.20 cap)
 WEEKLY TOTAL  $0.0483
 ```
 
+<figure class="doc-shot doc-shot-pending" id="shot-25">
+  <div class="doc-shot-slot">Screenshot pending: foot terminal after `vinos-routine cost` — sqlite ledger dump</div>
+  <figcaption>Cost ledger — see SCREENSHOTS_NEEDED.md #shot-25.</figcaption>
+</figure>
+
 Local Ollama routes always cost `$0.0000` — the ledger still records
 in/out tokens so you can see where your context is going.
 
@@ -137,5 +152,10 @@ Or scope to one routine:
 ```
 $ vinos-brief day-brief
 ```
+
+<figure class="doc-shot doc-shot-pending" id="shot-26">
+  <div class="doc-shot-slot">Screenshot pending: vinos-brief markdown output in a foot terminal</div>
+  <figcaption>vinos-brief in a terminal — see SCREENSHOTS_NEEDED.md #shot-26.</figcaption>
+</figure>
 
 Next: [write your own routine](/docs/agents/writing-your-own/).

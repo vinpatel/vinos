@@ -82,4 +82,13 @@ Eject cleanly:
 $ sync && sudo eject /dev/sdb
 ```
 
+Once you boot from the stick, the first thing you'll see is the
+syslinux menu — pick "vinOS live" (highlighted by default) and press
+Return.
+
+<figure class="doc-shot doc-shot-pending" id="shot-04">
+  <div class="doc-shot-slot">Screenshot pending: syslinux boot menu with "vinOS live" highlighted</div>
+  <figcaption>Boot menu — see SCREENSHOTS_NEEDED.md #shot-04.</figcaption>
+</figure>
+
 You're ready for [first boot](/docs/getting-started/first-boot/).

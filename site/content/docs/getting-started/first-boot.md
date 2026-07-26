@@ -14,6 +14,15 @@ Plug the USB in, hold your boot-menu key (`F12` on most Dells,
   <figcaption>Plymouth boot splash — see SCREENSHOTS_NEEDED.md #shot-01.</figcaption>
 </figure>
 
+A few seconds later the console-mode greeter appears while greetd
+resolves the autologin. You'll blink past it — it's here for
+completeness so you know what's normal.
+
+<figure class="doc-shot doc-shot-pending" id="shot-05">
+  <div class="doc-shot-slot">Screenshot pending: greetd / tuigreet on the TTY before autologin</div>
+  <figcaption>Console greeter, pre-autologin — see SCREENSHOTS_NEEDED.md #shot-05.</figcaption>
+</figure>
+
 On a **T2 MacBook Pro** (2018/2019/2020 Intel), the internal keyboard
 and trackpad work out of the box thanks to the shipped `linux-t2`
 kernel. Wi-Fi comes up after a firmware warm-up — expect 15–40 seconds
@@ -24,6 +33,14 @@ On generic x86_64, everything except NVIDIA optimus laptops "just works".
 NVIDIA users may need to add `nomodeset` to the boot line the first
 time; once installed, `vinos-install-common` handles the driver setup.
 
+Once autologin fires you land on the default cosmos desktop — waybar
+across the top, walker dormant, cosmos wallpaper filling the screen.
+
+<figure class="doc-shot doc-shot-pending" id="shot-06">
+  <div class="doc-shot-slot">Screenshot pending: clean cosmos desktop after autologin</div>
+  <figcaption>First desktop — cosmos, no overlays. See SCREENSHOTS_NEEDED.md #shot-06.</figcaption>
+</figure>
+
 ## First-run flow
 
 The first login autostarts `vinos-welcome` in a floating foot window.
@@ -32,6 +49,11 @@ It's a walker-dmenu picker with these tasks:
 <figure class="doc-shot" id="shot-03">
   <img src="/img/screenshots/welcome-dmenu.png" alt="vinos-welcome walker-dmenu picker" width="1280" height="800" loading="lazy">
   <figcaption>vinos-welcome on first login — see SCREENSHOTS_NEEDED.md #shot-03.</figcaption>
+</figure>
+
+<figure class="doc-shot doc-shot-pending" id="shot-07">
+  <div class="doc-shot-slot">Screenshot pending: vinos-welcome checklist view (walker overlay)</div>
+  <figcaption>Welcome checklist — see SCREENSHOTS_NEEDED.md #shot-07.</figcaption>
 </figure>
 
 - **Connect Wi-Fi** — opens the `impala` TUI (Super+Ctrl+W later).
