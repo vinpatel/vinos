@@ -1,0 +1,33 @@
+{{/*
+  theme-gallery.html — 10-tile grid of the shipped vinOS themes.
+  Uses site/static/img/themes/<name>.png (600×338 preview thumbnails).
+  Pass no args; the theme list is baked in (matches configs/vinos/brand/themes/).
+*/}}
+{{ $themes := slice
+  (dict "slug" "cosmos"  "label" "cosmos"  "mode" "dark"  "hue" "milky-way + alpine lake" "credit" "Pascal Debrunner")
+  (dict "slug" "circuit" "label" "circuit" "mode" "dark"  "hue" "techy cyan-on-black"     "credit" "A Chosen Soul")
+  (dict "slug" "egret"   "label" "egret"   "mode" "dark"  "hue" "cattle egret on black"   "credit" "David Clode")
+  (dict "slug" "reef"    "label" "reef"    "mode" "dark"  "hue" "green brain coral"       "credit" "David Clode")
+  (dict "slug" "crater"  "label" "crater"  "mode" "dark"  "hue" "fresh mars impact"       "credit" "NASA")
+  (dict "slug" "dusk"    "label" "dusk"    "mode" "dark"  "hue" "alpenglow at sunset"     "credit" "Pascal Debrunner")
+  (dict "slug" "prism"   "label" "prism"   "mode" "light" "hue" "pastel isometric blocks" "credit" "A Chosen Soul")
+  (dict "slug" "bloom"   "label" "bloom"   "mode" "light" "hue" "orange lilies · lime"    "credit" "Natalie Kinnear")
+  (dict "slug" "summit"  "label" "summit"  "mode" "light" "hue" "ama dablam at dawn"      "credit" "Eugene Ga")
+  (dict "slug" "ridge"   "label" "ridge"   "mode" "light" "hue" "pastel-pink range"       "credit" "Marek Piwnicki")
+}}
+<div class="theme-gallery" role="list">
+  {{ range $themes }}
+  <figure class="theme-tile" role="listitem" data-mode="{{ .mode }}">
+    <img class="theme-tile-img"
+         src="/img/themes/{{ .slug }}.png"
+         alt="Preview of the {{ .label }} vinOS theme — {{ .hue }}"
+         width="600" height="338" loading="lazy" decoding="async">
+    <figcaption class="theme-tile-cap">
+      <span class="theme-tile-name">{{ .label }}</span>
+      <span class="theme-tile-mode">{{ .mode }}</span>
+      <span class="theme-tile-hue">{{ .hue }}</span>
+      <span class="theme-tile-credit">Wallpaper: {{ .credit }} · Unsplash</span>
+    </figcaption>
+  </figure>
+  {{ end }}
+</div>
