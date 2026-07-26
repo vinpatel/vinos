@@ -18,13 +18,34 @@
   padding: var(--sp-3) var(--page-gutter);
 }
 .site-brand {
-  display: inline-flex; align-items: center; gap: var(--sp-2);
-  color: var(--fg-0); font-weight: 600; font-size: var(--fs-lg);
-  letter-spacing: -0.01em;
+  display: inline-flex; align-items: center; gap: 10px;
+  color: var(--fg-0);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  transition: opacity var(--dur-1) var(--ease-out);
 }
-.site-brand:hover { color: var(--fg-0); }
-.site-brand img { width: 28px; height: 28px; }
-.site-brand em { font-style: normal; color: var(--accent); }
+.site-brand:hover { color: var(--fg-0); opacity: 0.9; }
+.site-brand img {
+  /* UI/UX best practice: sticky-header brand is 32-40px on desktop —
+     large enough to read as a signature mark, small enough not to
+     compete with content. 40px matches JetBrains, Vercel, Linear. */
+  width: 40px; height: 40px;
+  display: block;
+}
+.site-brand-word {
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.site-brand em {
+  font-style: normal;
+  color: var(--accent);
+  font-weight: 700;
+}
+@media (max-width: 44rem) {
+  .site-brand img { width: 32px; height: 32px; }
+  .site-brand-word { font-size: 18px; }
+}
 .site-nav {
   display: flex; align-items: center; gap: var(--sp-1);
   margin-left: auto;

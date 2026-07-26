@@ -21,6 +21,10 @@ enableGitInfo = false
   costMonthlyPremium = "$450"
   costMonthlyRouted  = "$90"
   costMonthlySaved   = "$360"
+  # Enterprise comparison anchors — used on /for/enterprise/
+  costMonthlyCopilotEnterprise = "$40"
+  costMonthlyCursorEnterprise  = "$40"
+  costMonthlyChatgptTeam       = "$30"
 
 [markup]
   # /for/*.md pages use inline HTML for the audience-page layout —

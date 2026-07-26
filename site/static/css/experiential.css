@@ -257,6 +257,8 @@
   grid-template-areas: "copy visual";
   gap: var(--sp-6);
   align-items: center;
+  /* Extra bottom padding so the dock has room to sit above the section edge */
+  padding-bottom: calc(clamp(3rem, 8vw, 6rem) + 64px);
 }
 .home-hero-copy { grid-area: copy; }
 @media (max-width: 68rem) {
@@ -266,6 +268,63 @@
     gap: var(--sp-5);
   }
   .home-hero-os { max-width: 42rem; margin: 0 auto; }
+}
+
+/* ═════════ app dock (bottom of hero) ═════════
+   Sits absolute-bottom-center over the wallpaper. Semi-transparent
+   rounded pill with 7 geometric SVG glyphs — no cartoon icons.
+   Signals "there are apps running here." */
+.home-hero-dock {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  z-index: 3;
+  pointer-events: none;
+}
+.hd-inner {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 10px;
+  background: rgba(8, 10, 14, 0.72);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px -12px rgba(0,0,0,0.6);
+}
+.hd-app {
+  width: 40px; height: 40px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+  color: var(--fg-2);
+  background: rgba(255,255,255,0.02);
+  transition: background var(--dur-2), color var(--dur-2), transform var(--dur-2);
+  pointer-events: none;
+}
+.hd-app svg { width: 20px; height: 20px; display: block; }
+.hd-app--active {
+  color: var(--accent);
+  background: rgba(51,204,255,0.14);
+  box-shadow: inset 0 0 0 1px rgba(51,204,255,0.35);
+}
+/* Active-app pip below the icon, macOS-dock style */
+.hd-app--active::after {
+  content: "";
+  position: absolute;
+  bottom: -6px; left: 50%;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translateX(-50%);
+}
+.hd-app { position: relative; }
+.hd-sep {
+  width: 1px; height: 24px;
+  background: rgba(255,255,255,0.10);
+  margin: 0 2px;
+}
+@media (max-width: 40rem) {
+  .home-hero-dock { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .home-hero--cosmos::before { transform: none; }
