@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """vinos-routine-run — one-shot agent invocation for a routine.
 
-Reads a routine TOML, calls the agent (Anthropic or Ollama), writes markdown
-output to $VINOS_ROUTINE_OUTPUT, and logs a row into the SQLite ledger at
-$VINOS_ROUTINE_LEDGER.
+Reads a routine TOML, calls the agent (Anthropic, Ollama, or auto-routed),
+writes markdown output to $VINOS_ROUTINE_OUTPUT, and logs a row into the
+SQLite ledger at $VINOS_ROUTINE_LEDGER.
 
 Invoked by `vinos-routine run <name>` — not intended for direct human use.
 
@@ -21,16 +21,37 @@ Tools (v2.0.5)
     (unless [agent].network = true). Timeout via [agent].shell_timeout_sec
     (default 30s).
 
+Auto-router (v2.0.6, [agent].route = "auto"):
+    Runs a local Ollama model first, then applies cheap heuristics to decide
+    whether to escalate to a premium Anthropic model:
+
+      * low_confidence      — reply is very short or contains hedge phrases
+      * reasoning_task      — prompt or [agent].tags mark it as reasoning-heavy
+      * context_overflow    — local reply is empty and prompt filled the ctx
+      * malformed_tool_json — local returned tool_calls we couldn't parse
+
+    Escalation is capped by [agent.escalation].max_escalations_per_run (per
+    process — currently one turn = one potential escalation).
+
+Memory (v2.0.6, [agent].memory ∈ session|persistent|shared):
+    "persistent" reads/writes ~/.vinos/routines/state/<name>/memory.md.
+    "shared" reads/writes ~/.vinos/routines/state/shared/memory.md.
+    The prior memory is prepended to the user turn; after the run, a fresh
+    concise summary (via one small local-model call) is appended, capped at
+    ~4 KB by trimming the oldest ~500 chars first.
+
 Env:
   VINOS_ROUTINE_OUTPUT   destination markdown file (required)
   VINOS_ROUTINE_LEDGER   sqlite ledger path (required)
   ANTHROPIC_API_KEY      or file at ~/.vinos/secrets/anthropic-key
+  VINOS_ROUTINES_STATE   override state dir (default ~/.vinos/routines/state)
 """
 from __future__ import annotations
 
 import glob as _glob
 import json
 import os
+import re
 import shutil
 import sqlite3
 import subprocess
@@ -52,6 +73,41 @@ DEFAULT_SHELL_TIMEOUT_SEC = 30
 READ_PREFIX = "read:"
 SHELL_PREFIX = "shell:"
 
+# --- auto-router thresholds -------------------------------------------------
+
+# If the local reply has fewer than this many whitespace-separated tokens and
+# the prompt wasn't a tiny factual lookup, treat it as low confidence.
+LOW_CONF_MIN_TOKENS = 40
+
+# Hedge phrases we treat as "the model bailed". Matched case-insensitively as
+# whole phrases anywhere in the reply.
+LOW_CONF_HEDGES = (
+    "i don't know", "i do not know", "i'm not sure", "i am not sure",
+    "not sure", "i cannot", "i can't", "i am unable", "i'm unable",
+    "unable to", "as an ai", "i don't have", "unclear",
+    "insufficient information", "no information",
+)
+
+# Prompt/system-prompt markers that flag a reasoning-heavy task.
+REASONING_MARKERS = re.compile(
+    r"\b(reasoning|prove|derive|chain[- ]of[- ]thought|step[- ]by[- ]step|"
+    r"deduce|explain why)\b",
+    re.IGNORECASE,
+)
+
+# If prompt_eval_count is within this fraction of the local model's context,
+# we treat an empty reply as a context-overflow signal.
+CONTEXT_OVERFLOW_FRACTION = 0.9
+# Fallback assumption when we don't know the local model's true context size.
+DEFAULT_LOCAL_CONTEXT_TOKENS = 4096
+
+# --- memory -----------------------------------------------------------------
+
+MEMORY_MAX_BYTES = 4 * 1024        # cap ~4 KB (~800 words)
+MEMORY_TRIM_CHARS = 500            # drop this many oldest chars when over cap
+MEMORY_SUMMARY_MAX_TOKENS = 200    # budget for the summarisation Ollama call
+MEMORY_SUMMARY_MODEL_FALLBACK = "llama3.2"
+
 
 # ---------------------------------------------------------------------------
 # helpers
@@ -66,6 +122,10 @@ def warn(msg: str):
     print(f"vinos-routine-run: WARN: {msg}", file=sys.stderr)
 
 
+def info(msg: str):
+    print(f"vinos-routine-run: {msg}", file=sys.stderr)
+
+
 def load_anthropic_key() -> str | None:
     key = os.environ.get("ANTHROPIC_API_KEY")
     if key:
@@ -74,6 +134,11 @@ def load_anthropic_key() -> str | None:
     if secrets.is_file():
         return secrets.read_text().strip()
     return None
+
+
+def state_dir() -> Path:
+    return Path(os.environ.get("VINOS_ROUTINES_STATE",
+                               str(Path.home() / ".vinos/routines/state")))
 
 
 # ---------------------------------------------------------------------------
@@ -407,6 +472,11 @@ def _ollama_post(payload: dict) -> dict:
 
 def call_ollama(model, system, prompt, max_tokens,
                 reads, shells, network, shell_timeout, bwrap_available):
+    """Return (text, in_tok, out_tok, tool_names, extras).
+
+    `extras` is a dict of extra signals: {"prompt_eval_count", "eval_count",
+    "malformed_tool_json"} — the auto-router uses these for its heuristics.
+    """
     tools_declared = bool(reads or shells)
     messages = [
         {"role": "system", "content": system},
@@ -416,6 +486,8 @@ def call_ollama(model, system, prompt, max_tokens,
     tool_call_names: list[str] = []
     final_text = ""
     warned_no_tools = False
+    last_prompt_eval = 0
+    malformed_tool_json = False
 
     for iteration in range(MAX_TOOL_ITERATIONS):
         payload = {
@@ -430,6 +502,7 @@ def call_ollama(model, system, prompt, max_tokens,
         body = _ollama_post(payload)
         in_tok += body.get("prompt_eval_count", 0)
         out_tok += body.get("eval_count", 0)
+        last_prompt_eval = body.get("prompt_eval_count", last_prompt_eval)
 
         msg = body.get("message", {})
         content = msg.get("content", "") or ""
@@ -459,6 +532,8 @@ def call_ollama(model, system, prompt, max_tokens,
                 try:
                     args = json.loads(args)
                 except json.JSONDecodeError:
+                    warn(f"Ollama returned malformed tool JSON: {args[:120]!r}")
+                    malformed_tool_json = True
                     args = {}
             tool_call_names.append(name)
             if name == "read_files":
@@ -475,44 +550,208 @@ def call_ollama(model, system, prompt, max_tokens,
     else:
         warn(f"hit MAX_TOOL_ITERATIONS ({MAX_TOOL_ITERATIONS}) on Ollama loop")
 
-    return final_text, in_tok, out_tok, tool_call_names
+    extras = {
+        "prompt_eval_count": last_prompt_eval,
+        "eval_count": out_tok,
+        "malformed_tool_json": malformed_tool_json,
+    }
+    return final_text, in_tok, out_tok, tool_call_names, extras
+
+
+# ---------------------------------------------------------------------------
+# auto-router heuristics
+# ---------------------------------------------------------------------------
+
+def _looks_low_confidence(text: str) -> bool:
+    if not text:
+        return True
+    lower = text.lower()
+    if any(h in lower for h in LOW_CONF_HEDGES):
+        return True
+    token_count = len(text.split())
+    if token_count < LOW_CONF_MIN_TOKENS:
+        return True
+    return False
+
+
+def _looks_reasoning_task(system: str, prompt: str, tags: list[str]) -> bool:
+    if tags:
+        for t in tags:
+            if isinstance(t, str) and t.strip().lower() == "reasoning":
+                return True
+    combined = f"{system}\n{prompt}"
+    return bool(REASONING_MARKERS.search(combined))
+
+
+def _looks_context_overflow(text: str, prompt_eval_count: int,
+                             local_ctx_hint: int) -> bool:
+    if text:
+        return False
+    if not prompt_eval_count:
+        return False
+    ctx = local_ctx_hint or DEFAULT_LOCAL_CONTEXT_TOKENS
+    return prompt_eval_count >= int(ctx * CONTEXT_OVERFLOW_FRACTION)
+
+
+def decide_escalation(
+    text: str,
+    prompt_eval_count: int,
+    malformed_tool_json: bool,
+    escalation_cfg: dict,
+    system: str,
+    prompt: str,
+    tags: list[str],
+    local_ctx_hint: int,
+) -> str:
+    """Return the escalation-reason string (one of the ledger enum values) or
+    '' if we shouldn't escalate. Individual triggers can be disabled via
+    [agent.escalation].on_<name> = false.
+    """
+    if escalation_cfg.get("on_malformed_tool_json", True) and malformed_tool_json:
+        return "malformed_tool_json"
+    if escalation_cfg.get("on_context_overflow", True) and _looks_context_overflow(
+            text, prompt_eval_count, local_ctx_hint):
+        return "context_overflow"
+    if escalation_cfg.get("on_reasoning_task", True) and _looks_reasoning_task(
+            system, prompt, tags):
+        return "reasoning_task"
+    if escalation_cfg.get("on_low_confidence", True) and _looks_low_confidence(text):
+        return "low_confidence"
+    return ""
+
+
+# ---------------------------------------------------------------------------
+# memory
+# ---------------------------------------------------------------------------
+
+def memory_path_for(mode: str, name: str) -> Path | None:
+    """Return the on-disk memory path, or None for session/off."""
+    if mode == "persistent":
+        return state_dir() / name / "memory.md"
+    if mode == "shared":
+        return state_dir() / "shared" / "memory.md"
+    return None
+
+
+def read_memory(path: Path | None) -> str:
+    if path is None or not path.is_file():
+        return ""
+    try:
+        data = path.read_text(errors="replace")
+    except OSError as e:
+        warn(f"failed to read memory {path}: {e}")
+        return ""
+    # If somehow bigger than cap, trim from the front.
+    if len(data) > MEMORY_MAX_BYTES:
+        data = data[-MEMORY_MAX_BYTES:]
+    return data
+
+
+def summarise_for_memory(local_model: str, name: str, output_text: str) -> str:
+    """One cheap Ollama call → ~200-token summary. Failure = no update."""
+    if not output_text.strip():
+        return ""
+    payload = {
+        "model": local_model or MEMORY_SUMMARY_MODEL_FALLBACK,
+        "stream": False,
+        "messages": [
+            {"role": "system", "content": (
+                "You compress a routine run's output into a 2-3 sentence memo "
+                "for future runs. No preamble. State facts and decisions only. "
+                "Under 60 words."
+            )},
+            {"role": "user", "content": (
+                f"Routine `{name}` just produced this output:\n\n"
+                f"---\n{output_text[:6000]}\n---\n\n"
+                "Write the memo now."
+            )},
+        ],
+        "options": {"num_predict": MEMORY_SUMMARY_MAX_TOKENS},
+    }
+    try:
+        body = _ollama_post(payload)
+    except SystemExit:
+        # _ollama_post calls die() on failure; catch to keep memory non-fatal.
+        warn("memory summariser: Ollama unreachable — skipping memory update")
+        return ""
+    return (body.get("message", {}).get("content", "") or "").strip()
+
+
+def write_memory(path: Path, existing: str, name: str, summary: str) -> None:
+    if not summary:
+        return
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M")
+    entry = f"- {ts} [{name}] {summary}\n"
+    combined = (existing.rstrip() + "\n" if existing else "") + entry
+    # Trim from the front if over cap.
+    while len(combined.encode("utf-8")) > MEMORY_MAX_BYTES:
+        combined = combined[MEMORY_TRIM_CHARS:]
+        # Realign to the next newline so we don't cut in the middle of a bullet.
+        nl = combined.find("\n")
+        if nl >= 0:
+            combined = combined[nl + 1:]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(combined)
+    tmp.replace(path)
 
 
 # ---------------------------------------------------------------------------
 # ledger
 # ---------------------------------------------------------------------------
 
+# All columns for the v3 schema. Anything missing on an older DB gets added
+# via ALTER TABLE; older rows keep their NULL defaults, which is fine.
+_LEDGER_CREATE = """
+    CREATE TABLE IF NOT EXISTS runs (
+        ts                 TEXT NOT NULL,
+        name               TEXT NOT NULL,
+        route              TEXT,
+        model              TEXT,
+        input_tokens       INTEGER,
+        output_tokens      INTEGER,
+        exit_status        INTEGER DEFAULT 0,
+        output_path        TEXT,
+        tool_calls         INTEGER DEFAULT 0,
+        tools_used         TEXT,
+        escalated          INTEGER DEFAULT 0,
+        escalated_reason   TEXT,
+        local_input_tokens INTEGER,
+        local_output_tokens INTEGER
+    )
+"""
+
+_LEDGER_ADD_COLUMNS = (
+    "tool_calls INTEGER DEFAULT 0",
+    "tools_used TEXT",
+    "escalated INTEGER DEFAULT 0",
+    "escalated_reason TEXT",
+    "local_input_tokens INTEGER",
+    "local_output_tokens INTEGER",
+)
+
+
 def log_ledger(db_path: str, row: dict):
     Path(db_path).parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(db_path)
-    con.execute("""
-        CREATE TABLE IF NOT EXISTS runs (
-            ts             TEXT NOT NULL,
-            name           TEXT NOT NULL,
-            route          TEXT,
-            model          TEXT,
-            input_tokens   INTEGER,
-            output_tokens  INTEGER,
-            exit_status    INTEGER DEFAULT 0,
-            output_path    TEXT,
-            tool_calls     INTEGER DEFAULT 0,
-            tools_used     TEXT
-        )
-    """)
-    # Backwards compat: ALTER older tables lacking the new columns. sqlite3
+    con.execute(_LEDGER_CREATE)
+    # Backwards compat: ALTER older tables lacking newer columns. sqlite3
     # raises OperationalError if the column already exists — swallow that.
-    for col_ddl in ("tool_calls INTEGER DEFAULT 0", "tools_used TEXT"):
+    for col_ddl in _LEDGER_ADD_COLUMNS:
         try:
             con.execute(f"ALTER TABLE runs ADD COLUMN {col_ddl}")
         except sqlite3.OperationalError:
             pass
     con.execute(
         "INSERT INTO runs (ts, name, route, model, input_tokens, output_tokens, "
-        "output_path, tool_calls, tools_used) "
-        "VALUES (?,?,?,?,?,?,?,?,?)",
+        "output_path, tool_calls, tools_used, escalated, escalated_reason, "
+        "local_input_tokens, local_output_tokens) "
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
         (row["ts"], row["name"], row["route"], row["model"],
          row["input_tokens"], row["output_tokens"], row["output_path"],
-         row["tool_calls"], row["tools_used"]),
+         row["tool_calls"], row["tools_used"],
+         row.get("escalated", 0), row.get("escalated_reason"),
+         row.get("local_input_tokens"), row.get("local_output_tokens")),
     )
     con.commit()
     con.close()
@@ -544,9 +783,19 @@ def main():
 
     name       = routine.get("name") or die("routine.name missing")
     route      = agent.get("route", "anthropic")
-    model      = agent.get("model", "claude-sonnet-4-6" if route == "anthropic" else "llama3.2")
+    # Legacy: a single `model` field. New: `local_model` + `premium_model`
+    # for the auto-router. Fall back sensibly when only one is provided.
+    legacy_model  = agent.get("model")
+    local_model   = agent.get("local_model", legacy_model or "llama3.2")
+    premium_model = agent.get("premium_model", legacy_model or "claude-sonnet-4-6")
     system     = (agent.get("system") or "").strip()
     max_tokens = int(budget.get("max_tokens_per_run", 4000))
+    tags       = agent.get("tags", []) or []
+    memory_mode = agent.get("memory", "session")
+
+    if memory_mode not in ("session", "persistent", "shared"):
+        warn(f"unknown memory mode {memory_mode!r} — falling back to session")
+        memory_mode = "session"
 
     # Tool config
     reads, shells = parse_tools(agent.get("tools", []))
@@ -557,47 +806,152 @@ def main():
         warn("bwrap not installed — shell: tools will fail-closed "
              "(install `bubblewrap` to enable)")
 
+    # Escalation config (only meaningful for route = auto).
+    escalation_cfg = cfg.get("agent", {}).get("escalation", {}) or {}
+    max_escalations = int(escalation_cfg.get("max_escalations_per_run", 3))
+    local_ctx_hint = int(agent.get("local_context_tokens",
+                                    DEFAULT_LOCAL_CONTEXT_TOKENS))
+
+    # Memory: read prior context (persistent/shared only).
+    mem_path = memory_path_for(memory_mode, name)
+    prior_memory = read_memory(mem_path)
+
     manifest = build_tool_manifest(reads, shells)
     prompt = (
         f"Run the routine now. Today is {datetime.now().strftime('%A, %Y-%m-%d')}. "
         f"Return the requested content.\n"
     )
+    if prior_memory:
+        prompt = (
+            "Prior context from earlier runs (most recent last):\n"
+            f"---\n{prior_memory.strip()}\n---\n\n"
+        ) + prompt
     if manifest:
         prompt += "\nAvailable tools (call ONLY with these exact arguments):\n" + manifest + "\n"
 
+    # Ledger row defaults — mutated below per route.
+    ledger_row: dict = {
+        "ts": datetime.now().isoformat(timespec="seconds"),
+        "name": name,
+        "route": route,
+        "model": None,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "output_path": out_path,
+        "tool_calls": 0,
+        "tools_used": None,
+        "escalated": 0,
+        "escalated_reason": None,
+        "local_input_tokens": None,
+        "local_output_tokens": None,
+    }
+
     if route == "anthropic":
         text, in_tok, out_tok, tool_names = call_anthropic(
-            model, system, prompt, max_tokens,
+            premium_model, system, prompt, max_tokens,
             reads, shells, network, shell_timeout, bwrap_available)
+        model_used = premium_model
+        ledger_row.update(model=model_used, input_tokens=in_tok,
+                          output_tokens=out_tok, tool_calls=len(tool_names),
+                          tools_used=json.dumps(tool_names) if tool_names else None)
+
     elif route == "ollama":
-        text, in_tok, out_tok, tool_names = call_ollama(
-            model, system, prompt, max_tokens,
+        text, in_tok, out_tok, tool_names, _extras = call_ollama(
+            local_model, system, prompt, max_tokens,
             reads, shells, network, shell_timeout, bwrap_available)
+        model_used = local_model
+        ledger_row.update(model=model_used, input_tokens=in_tok,
+                          output_tokens=out_tok, tool_calls=len(tool_names),
+                          tools_used=json.dumps(tool_names) if tool_names else None)
+
+    elif route == "auto":
+        # First pass: local Ollama model.
+        info(f"auto-route: local first-pass with {local_model!r}")
+        (l_text, l_in, l_out, l_tools, l_extras) = call_ollama(
+            local_model, system, prompt, max_tokens,
+            reads, shells, network, shell_timeout, bwrap_available)
+
+        reason = decide_escalation(
+            text=l_text,
+            prompt_eval_count=l_extras.get("prompt_eval_count", 0),
+            malformed_tool_json=l_extras.get("malformed_tool_json", False),
+            escalation_cfg=escalation_cfg,
+            system=system,
+            prompt=prompt,
+            tags=tags,
+            local_ctx_hint=local_ctx_hint,
+        )
+
+        # max_escalations_per_run currently gates the single potential
+        # escalation this run has; the counter is future-proofing for when
+        # we support multi-turn interactive routines.
+        if reason and max_escalations >= 1:
+            info(f"auto-route: escalating (reason={reason}) to {premium_model!r}")
+            p_text, p_in, p_out, p_tools = call_anthropic(
+                premium_model, system, prompt, max_tokens,
+                reads, shells, network, shell_timeout, bwrap_available)
+            text = p_text
+            model_used = f"{local_model}->{premium_model}"
+            ledger_row.update(
+                route="local->premium",
+                model=model_used,
+                input_tokens=p_in,
+                output_tokens=p_out,
+                tool_calls=len(p_tools),
+                tools_used=json.dumps(p_tools) if p_tools else None,
+                escalated=1,
+                escalated_reason=reason,
+                local_input_tokens=l_in,
+                local_output_tokens=l_out,
+            )
+        else:
+            if reason and max_escalations < 1:
+                info(f"auto-route: would escalate (reason={reason}) but "
+                     f"max_escalations_per_run={max_escalations} — keeping local")
+            else:
+                info("auto-route: local reply passed heuristics — no escalation")
+            text = l_text
+            model_used = local_model
+            ledger_row.update(
+                route="local",
+                model=model_used,
+                input_tokens=l_in,
+                output_tokens=l_out,
+                tool_calls=len(l_tools),
+                tools_used=json.dumps(l_tools) if l_tools else None,
+                escalated=0,
+                escalated_reason="",
+                local_input_tokens=l_in,
+                local_output_tokens=l_out,
+            )
     else:
-        die(f"unknown route '{route}' (want anthropic | ollama)")
+        die(f"unknown route '{route}' (want anthropic | ollama | auto)")
 
     title = render_title(output.get("title", "{{name}} · {{date}}"), name)
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w") as f:
         f.write(f"# {title}\n\n")
-        f.write(f"> `{route}/{model}` · in={in_tok} out={out_tok} tokens")
-        if tool_names:
-            f.write(f" · tools={len(tool_names)} ({', '.join(sorted(set(tool_names)))})")
+        f.write(f"> `{ledger_row['route']}/{model_used}` · "
+                f"in={ledger_row['input_tokens']} out={ledger_row['output_tokens']} tokens")
+        if ledger_row.get("escalated"):
+            f.write(f" · escalated: {ledger_row.get('escalated_reason', '')}")
+        tools_json = ledger_row.get("tools_used")
+        if tools_json:
+            names = json.loads(tools_json)
+            if names:
+                f.write(f" · tools={len(names)} ({', '.join(sorted(set(names)))})")
         f.write("\n\n")
         f.write((text or "").strip())
         f.write("\n")
 
-    log_ledger(ledger, {
-        "ts": datetime.now().isoformat(timespec="seconds"),
-        "name": name,
-        "route": route,
-        "model": model,
-        "input_tokens": in_tok,
-        "output_tokens": out_tok,
-        "output_path": out_path,
-        "tool_calls": len(tool_names),
-        "tools_used": json.dumps(tool_names) if tool_names else None,
-    })
+    log_ledger(ledger, ledger_row)
+
+    # Memory: summarise + append (persistent/shared only, best-effort).
+    if mem_path is not None and text:
+        summary = summarise_for_memory(local_model, name, text)
+        if summary:
+            write_memory(mem_path, prior_memory, name, summary)
+            info(f"memory: appended {len(summary)}B to {mem_path}")
 
 
 if __name__ == "__main__":

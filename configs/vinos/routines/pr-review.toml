@@ -1,0 +1,77 @@
+# pr-review — hourly PR triage for the current user's open GitHub PRs.
+#
+# Demonstrates two v2.0.6 features:
+#   * route = "auto" — first pass runs on the local Ollama model; if the reply
+#     hedges, is too short, or trips the reasoning heuristic, the runtime
+#     re-runs the same turn against the premium Anthropic model.
+#   * memory = "persistent" — each run reads the previous run's summary from
+#     ~/.vinos/routines/state/pr-review/memory.md and prepends it to the user
+#     turn, so the agent knows "you already flagged PR #47 as stale yesterday."
+#
+# Shipped disabled. Enable with either syntax:
+#   vinos-routine enable pr-review        # uses [schedule].cron below
+[routine]
+name = "pr-review"
+description = "PR triage: what needs your review, what's stale, what shipped"
+enabled = false
+
+[schedule]
+# Standard cron — the CLI translates this to systemd OnCalendar on enable.
+cron     = "0 9,13,17 * * MON-FRI"
+timezone = "local"
+jitter   = "3m"
+
+[agent]
+route         = "auto"
+local_model   = "llama3.1:8b"
+premium_model = "claude-sonnet-4-6"
+memory        = "persistent"
+tags          = ["reasoning"]     # flags this as a reasoning task → prefers premium
+
+system = """
+You are the user's PR-review agent. Concise, engineering-grade, no filler.
+
+Return markdown with exactly three sections:
+
+## Needs your review
+Numbered list of PRs opened or updated since last run that are waiting on
+this user. One line per PR: `#N title · owner/repo · <one-line why-it-matters>`.
+
+## Stale
+2-4 bullets. Open PRs that have not moved in 5+ business days. Include the
+author's name so the user knows who to ping.
+
+## Shipped since last run
+2-3 bullets. Just the names.
+
+Total ≤ 350 words. No preamble, no sign-off, no advice.
+
+Use tools sparingly — the shell command below returns everything you need.
+If the tool output is empty, say so in one line and stop.
+"""
+
+# One shell command is enough — gh's search API returns all open PRs.
+tools = [
+  "shell:gh api -X GET search/issues -f q='is:pr is:open involves:@me archived:false' --jq '.items[] | {number, title, repository_url, updated_at, user: .user.login}' 2>/dev/null | head -c 12000",
+]
+shell_timeout_sec = 20
+network           = false
+
+# Escalation policy: local first, escalate on any of these triggers, but never
+# more than twice per run (belt + suspenders — we only do one turn today).
+[agent.escalation]
+on_low_confidence       = true
+on_reasoning_task       = true
+on_context_overflow     = true
+on_malformed_tool_json  = true
+max_escalations_per_run = 2
+
+[output]
+type  = "brief"
+title = "PR review · {{date}}"
+notify = true
+
+[budget]
+max_tokens_per_run  = 3000
+max_dollars_per_day = 0.15
+on_exceed           = "skip"

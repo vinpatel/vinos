@@ -131,8 +131,28 @@ _libexec_dir() {
 cmd_enable() {
   local name="${1:-}"; [[ -n "$name" ]] || _die "usage: vinos-routine enable <name>"
   local path; path=$(_find_routine "$name") || _die "routine '$name' not found"
-  local oncal; oncal=$(_read_toml_field "$path" schedule oncalendar)
-  [[ -n "$oncal" ]] || _die "routine '$name' has no [schedule].oncalendar"
+  local oncal;  oncal=$(_read_toml_field "$path" schedule oncalendar)
+  local cronx;  cronx=$(_read_toml_field "$path" schedule cron)
+
+  # Precedence: oncalendar wins with a WARN when both are set (matches spec).
+  if [[ -n "$oncal" && -n "$cronx" ]]; then
+    printf '%svinos-routine:%s WARN: both [schedule].oncalendar and [schedule].cron set — using oncalendar (drop one to silence)\n' "$R" "$Z" >&2
+  fi
+
+  if [[ -z "$oncal" && -n "$cronx" ]]; then
+    # Translate cron → OnCalendar via the Python helper.
+    local libexec; libexec=$(_libexec_dir)
+    [[ -f "$libexec/vinos_routine_cron.py" ]] || \
+      _die "vinos_routine_cron.py not found in $libexec"
+    if ! oncal=$(python3 "$libexec/vinos_routine_cron.py" "$cronx" 2>&1); then
+      _die "cron translate failed: $oncal"
+    fi
+    _log "translated cron '$cronx' → OnCalendar '$oncal'"
+  fi
+
+  [[ -n "$oncal" ]] || \
+    _die "routine '$name' has no [schedule].oncalendar or [schedule].cron"
+
   # Write per-instance timer drop-in so systemd picks up this routine's cadence.
   local dropin_dir="$HOME/.config/systemd/user/vinos-routine@${name}.timer.d"
   mkdir -p "$dropin_dir"
@@ -163,12 +183,40 @@ cmd_logs() {
 cmd_cost() {
   [[ -f "$LEDGER_DB" ]] || { echo "no runs yet — ledger empty"; return; }
   _have sqlite3 || _die "sqlite3 not installed"
+
+  # Per-run detail table: adds escalation columns from v3 schema (backwards
+  # compat via COALESCE — older rows just show blanks).
   sqlite3 -header -column "$LEDGER_DB" "
-    SELECT substr(ts,1,16) AS ts, name, route, model,
-           input_tokens AS in_tok, output_tokens AS out_tok
+    SELECT substr(ts,1,16) AS ts,
+           name,
+           route,
+           model,
+           input_tokens  AS in_tok,
+           output_tokens AS out_tok,
+           CASE WHEN COALESCE(escalated,0)=1 THEN 'yes' ELSE '' END AS esc,
+           COALESCE(escalated_reason,'') AS reason
     FROM runs
     ORDER BY ts DESC
     LIMIT 20;"
+
+  # Auto-router summary: only meaningful when there are auto-routed runs.
+  # Compute escalation rate per routine over the last 100 runs so the user
+  # can see 'day-brief: 4/20 escalated (20%)' at a glance.
+  echo
+  sqlite3 -header -column "$LEDGER_DB" "
+    SELECT name,
+           COUNT(*) AS runs,
+           SUM(CASE WHEN COALESCE(escalated,0)=1 THEN 1 ELSE 0 END) AS escalated,
+           printf('%d%%',
+             CASE WHEN COUNT(*)=0 THEN 0
+                  ELSE 100 * SUM(CASE WHEN COALESCE(escalated,0)=1 THEN 1 ELSE 0 END) / COUNT(*)
+             END) AS esc_rate
+    FROM (SELECT * FROM runs
+          WHERE route IN ('local','local->premium','auto')
+          ORDER BY ts DESC LIMIT 100)
+    GROUP BY name
+    HAVING runs > 0
+    ORDER BY runs DESC;" 2>/dev/null || true
 }
 
 cmd_edit() {
