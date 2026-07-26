@@ -11,7 +11,7 @@
 */}}
 <section class="home-hero home-hero--cosmos" aria-labelledby="hero-heading"
          data-exp-hero
-         style="--hero-wallpaper: url('{{ "img/screenshots/theme-cosmos.jpg" | relURL }}');">
+         style="--hero-wallpaper: url('{{ "img/wallpapers/cosmos.jpg" | relURL }}');">
   <div class="home-hero-scrim" aria-hidden="true"></div>
 
   {{/* Mock Waybar at the very top of the hero — this is the
@@ -70,17 +70,46 @@
     </div>
   </div>
 
-  <aside class="home-hero-teaser" aria-hidden="true">
-    <div class="home-hero-teaser-line">
-      <span class="ht-time">00:06</span>
-      <span class="ht-body">
-        <span class="ht-name">day-brief</span> woke, drafted a brief in
-        <span class="accent">4.2s</span>, cost <span class="accent">$0.00</span>.
-      </span>
+  {{/* Floating OS chrome on the right side — signals "this is a running
+       operating system, not marketing." A foot-styled terminal window
+       with real vinos-routine output visible, layered above the wallpaper.
+       Below/beside it, a mako-style notification toast previews the
+       "routine finished" moment users get on their real machine. */}}
+  <aside class="home-hero-os" aria-hidden="true">
+    <div class="hos-term">
+      <div class="hos-term-head">
+        <span class="hos-term-dots"><span class="r"></span><span class="y"></span><span class="g"></span></span>
+        <span class="hos-term-title">vinos-routine · day-brief</span>
+      </div>
+      <div class="hos-term-body"><pre><span class="prompt">$</span> <span class="cmd">vinos-routine run day-brief</span>
+<span class="dim">→ routine    day-brief</span>
+<span class="dim">→ schedule   0 6 * * *</span>
+<span class="dim">→ model      llama3.1:8b</span>
+<span class="dim">→ tools      calendar, inbox, github</span>
+
+<span class="ok">✓</span> <span class="cmd">context assembled</span>   <span class="dim">(3 sources · 412 tokens)</span>
+<span class="ok">✓</span> <span class="cmd">agent step 3/3</span>       <span class="dim">llama3.1:8b · 0.6s</span>
+<span class="ok">✓</span> <span class="cmd">rendered brief</span>       <span class="dim">→ ~/.local/state/vinos/brief.md</span>
+
+<span class="dim">$ cost</span>   <span class="accent">$0.000</span> local · $0.00 escalated
+<span class="prompt">$</span> <span class="hos-caret"></span></pre></div>
     </div>
-    <a href="#watch-a-routine-run" class="home-hero-teaser-cta" data-exp-scroll-play>
-      Hit play to watch it happen
-      <span aria-hidden="true">↓</span>
+
+    <div class="hos-toast" role="status">
+      <div class="hos-toast-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="hos-toast-body">
+        <div class="hos-toast-title">day-brief ready</div>
+        <div class="hos-toast-note"><span class="accent">3</span> priorities · <span class="accent">2</span> signals · rendered in 4.2s · cost <span class="accent">$0.00</span></div>
+      </div>
+      <div class="hos-toast-app">mako · vinOS</div>
+    </div>
+
+    <a href="#watch-a-routine-run" class="hos-teaser-cta" data-exp-scroll-play aria-hidden="false">
+      Watch this happen live ↓
     </a>
   </aside>
 </section>

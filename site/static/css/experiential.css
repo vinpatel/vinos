@@ -115,6 +115,158 @@
    extra top padding so nothing collides with it. */
 .home-hero--cosmos { padding-top: calc(clamp(3rem, 8vw, 6rem) + 28px); }
 .home-hero-osbadge { top: calc(28px + var(--sp-3)); }
+
+/* ═════════ hero OS chrome — floating terminal + notification toast ═════════
+   The hero is a mock vinOS desktop. Waybar at top (above), copy on left,
+   floating "foot" terminal window on the right showing real vinos-routine
+   output, plus a mako-style notification toast that says "day-brief ready."
+   All together, the hero looks like a screenshot of the OS in action
+   without needing a real screenshot. */
+.home-hero-os {
+  grid-area: visual;
+  position: relative;
+  display: flex; flex-direction: column; gap: var(--sp-4);
+  align-items: stretch;
+  min-width: 0;
+}
+
+/* Mock foot terminal */
+.hos-term {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-3);
+  background: rgba(8, 10, 14, 0.88);
+  box-shadow: 0 24px 60px -20px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.03) inset;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+.hos-term-head {
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.015);
+}
+.hos-term-dots { display: inline-flex; gap: 6px; }
+.hos-term-dots span {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(255,255,255,0.16);
+}
+.hos-term-dots .r { background: #ff5f57; }
+.hos-term-dots .y { background: #febc2e; }
+.hos-term-dots .g { background: #28c840; }
+.hos-term-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-2);
+  letter-spacing: 0.02em;
+}
+.hos-term-body {
+  padding: var(--sp-3) var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--fg-1);
+}
+.hos-term-body pre { margin: 0; white-space: pre; overflow-x: auto; }
+.hos-term-body .prompt { color: var(--accent); font-weight: 600; }
+.hos-term-body .cmd    { color: var(--fg-0); }
+.hos-term-body .dim    { color: var(--fg-3); }
+.hos-term-body .ok     { color: #7abf6a; }
+.hos-term-body .accent { color: var(--accent); }
+.hos-term-body .hos-caret {
+  display: inline-block;
+  width: 8px; height: 14px;
+  background: var(--accent);
+  vertical-align: text-bottom;
+  animation: hosBlink 1.1s steps(2, end) infinite;
+}
+@keyframes hosBlink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .hos-term-body .hos-caret { animation: none; opacity: 1; }
+}
+
+/* Mako-style notification toast */
+.hos-toast {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--sp-3);
+  align-items: center;
+  padding: 10px 14px;
+  border: 1px solid var(--line-strong);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r-2);
+  background: rgba(8, 10, 14, 0.92);
+  box-shadow: 0 12px 32px -12px rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: hosToastIn 700ms var(--ease-out) both 800ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hos-toast { animation: none; }
+}
+@keyframes hosToastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+.hos-toast-icon {
+  width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--accent);
+  background: rgba(51,204,255,0.14);
+  border-radius: 50%;
+}
+.hos-toast-icon svg { width: 15px; height: 15px; }
+.hos-toast-title {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg-0);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.hos-toast-note {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-2);
+  margin-top: 2px;
+}
+.hos-toast-note .accent { color: var(--accent); }
+.hos-toast-app {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.hos-teaser-cta {
+  align-self: flex-start;
+  padding: 8px 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg-1);
+  text-decoration: none;
+  border: 1px dashed rgba(255,255,255,0.14);
+  border-radius: var(--r-full);
+  transition: border-color var(--dur-2), color var(--dur-2);
+}
+.hos-teaser-cta:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Two-column hero layout: copy left, OS visual right */
+.home-hero--cosmos {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  grid-template-areas: "copy visual";
+  gap: var(--sp-6);
+  align-items: center;
+}
+.home-hero-copy { grid-area: copy; }
+@media (max-width: 68rem) {
+  .home-hero--cosmos {
+    grid-template-columns: 1fr;
+    grid-template-areas: "copy" "visual";
+    gap: var(--sp-5);
+  }
+  .home-hero-os { max-width: 42rem; margin: 0 auto; }
+}
 @media (prefers-reduced-motion: reduce) {
   .home-hero--cosmos::before { transform: none; }
 }
