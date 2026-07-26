@@ -404,6 +404,51 @@
 .cluster-splits .code-block { min-width: 0; }
 @media (max-width: 68rem) { .cluster-splits { grid-template-columns: 1fr; } }
 
+/* ═════════ outcomes row (3-card grid used on homepage AND persona pages) ═════════
+   Was previously only in experiential.css (homepage-only). Persona pages
+   under /for/*/ also use these classes and were rendering unstyled — SVG
+   icons at full viewport size, cards with no borders or padding. Moving
+   the rules here so they load on every page. */
+.outcomes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-5);
+  margin-top: var(--sp-5);
+}
+.outcome {
+  padding: var(--sp-6) var(--sp-5);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  display: flex; flex-direction: column; gap: var(--sp-3);
+  transition: border-color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+.outcome:hover { border-color: rgba(51,204,255,0.35); transform: translateY(-2px); }
+.outcome-icon {
+  width: 44px; height: 44px;
+  border-radius: var(--r-2);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: color-mix(in oklab, var(--accent) 10%, var(--bg-2));
+  color: var(--accent);
+  border: 1px solid rgba(51,204,255,0.28);
+  flex: 0 0 auto;
+}
+.outcome-icon svg { width: 22px; height: 22px; display: block; }
+.outcome h3 { font-size: var(--fs-xl); line-height: 1.2; color: var(--fg-0); font-weight: 600; letter-spacing: -0.015em; }
+.outcome h3 .accent { color: var(--accent); }
+.outcome-sub { color: var(--fg-1); font-size: var(--fs-md); line-height: var(--lh-body); }
+.outcome-tool {
+  margin-top: auto;
+  padding-top: var(--sp-3);
+  border-top: 1px dashed var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--fg-2);
+}
+.outcome-tool code { color: var(--accent); background: transparent; border: 0; padding: 0; }
+.outcome-tool .dim { color: var(--fg-3); }
+@media (max-width: 60rem) { .outcomes { grid-template-columns: 1fr; } }
+
 /* ═════════════════════════════════ persona page (extends /for/*) ═════════════════════════════ */
 .persona-page .persona-hero { padding: var(--sp-8) 0 var(--sp-6); border-bottom: 1px solid var(--line); margin-bottom: var(--sp-7); display: flex; flex-direction: column; gap: var(--sp-4); }
 .persona-page .persona-hero .eyebrow { align-self: flex-start; font-family: var(--font-mono); font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: var(--tracking-eyebrow); color: var(--accent); padding: 3px 12px; border: 1px solid rgba(51,204,255,0.35); border-radius: var(--r-full); background: color-mix(in oklab, var(--accent) 8%, transparent); }
