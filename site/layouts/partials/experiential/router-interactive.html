@@ -1,0 +1,93 @@
+{{/*
+  router-interactive partial · SVG 80/20 router with a live threshold slider
+  and animated request particles. All animation driven by experiential.js
+  requestAnimationFrame; prefers-reduced-motion fallback = static diagram
+  with the slider still functional but no particles.
+*/}}
+<div class="router-live" data-exp-router role="figure"
+     aria-label="interactive 80/20 router · adjust the escalation threshold">
+  <div class="router-live-controls">
+    <label class="router-live-slider">
+      <span class="rl-label">escalate above</span>
+      <input type="range" min="0" max="100" step="1" value="20"
+             data-router-threshold aria-label="escalation threshold percent">
+      <span class="rl-value"><span data-router-threshold-out>20</span>%</span>
+    </label>
+    <div class="router-live-meta">
+      <span class="rl-chip rl-chip--local">
+        <span class="dim">local</span>
+        <strong data-router-count-local>0</strong>
+      </span>
+      <span class="rl-chip rl-chip--premium">
+        <span class="dim">premium</span>
+        <strong data-router-count-premium>0</strong>
+      </span>
+      <span class="rl-chip rl-chip--cost">
+        <span class="dim">this session</span>
+        <strong>$<span data-router-cost>0.00</span></strong>
+      </span>
+      <button type="button" class="rl-reset" data-router-reset>reset</button>
+    </div>
+  </div>
+
+  <svg class="router-live-svg" viewBox="0 0 780 260"
+       xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+    <defs>
+      <marker id="rli-arr-local" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--success)"/>
+      </marker>
+      <marker id="rli-arr-premium" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+      </marker>
+      <path id="rli-path-local"   d="M 300 130 Q 440 60 620 60"   fill="none"/>
+      <path id="rli-path-premium" d="M 300 130 Q 440 200 620 210" fill="none"/>
+    </defs>
+
+    <!-- prompt node -->
+    <g transform="translate(20,104)">
+      <rect x="0" y="0" width="140" height="52" rx="8" fill="var(--bg-2)" stroke="var(--line-strong)"/>
+      <text x="70" y="24" text-anchor="middle" font-family="var(--font-mono)" font-size="12" fill="var(--fg-0)">prompt</text>
+      <text x="70" y="42" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--fg-2)">routine · agent</text>
+    </g>
+
+    <!-- router node -->
+    <g transform="translate(180,94)">
+      <rect x="0" y="0" width="140" height="72" rx="10" fill="var(--bg-1)" stroke="var(--accent)" stroke-width="1.2"/>
+      <text x="70" y="26" text-anchor="middle" font-family="var(--font-mono)" font-size="12" fill="var(--accent)">80/20 router</text>
+      <text x="70" y="46" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--fg-1)">threshold =</text>
+      <text x="70" y="62" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--fg-0)"
+            data-router-svg-threshold>20%</text>
+    </g>
+
+    <!-- rendered flow paths (visible) -->
+    <use href="#rli-path-local"   stroke="var(--success)" stroke-width="1.5" marker-end="url(#rli-arr-local)"/>
+    <use href="#rli-path-premium" stroke="var(--accent)"  stroke-width="1.5" marker-end="url(#rli-arr-premium)"/>
+
+    <text x="440" y="42" font-family="var(--font-mono)" font-size="10" fill="var(--success)" text-anchor="middle"
+          data-router-svg-local-pct>80% · local</text>
+    <text x="440" y="236" font-family="var(--font-mono)" font-size="10" fill="var(--accent)" text-anchor="middle"
+          data-router-svg-premium-pct>20% · escalate</text>
+
+    <!-- destination nodes -->
+    <g transform="translate(620,32)">
+      <rect x="0" y="0" width="140" height="56" rx="8" fill="var(--bg-2)" stroke="var(--success)" stroke-opacity="0.55"/>
+      <text x="70" y="24" text-anchor="middle" font-family="var(--font-mono)" font-size="12" fill="var(--fg-0)">ollama · local</text>
+      <text x="70" y="42" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--fg-2)">no key · $0.00</text>
+    </g>
+    <g transform="translate(620,182)">
+      <rect x="0" y="0" width="140" height="56" rx="8" fill="var(--bg-2)" stroke="var(--accent)" stroke-opacity="0.55"/>
+      <text x="70" y="24" text-anchor="middle" font-family="var(--font-mono)" font-size="12" fill="var(--fg-0)">claude · premium</text>
+      <text x="70" y="42" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--fg-2)">metered · ~$0.03</text>
+    </g>
+
+    <!-- particle layer — populated by experiential.js -->
+    <g data-router-particles></g>
+  </svg>
+
+  <p class="router-live-caption">
+    Drag the slider. Each dot is a routine invocation. The router decides
+    <strong style="color:var(--success)">local</strong> or
+    <strong style="color:var(--accent)">premium</strong> based on your
+    threshold. Real math, no telemetry.
+  </p>
+</div>

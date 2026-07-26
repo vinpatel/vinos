@@ -1,69 +1,11 @@
 {{ define "main" }}
 <div class="page">
 
-  {{/* ─────────────── HERO ─────────────── */}}
-  <section class="home-hero" aria-labelledby="hero-heading">
-    <div class="home-hero-copy">
-      <span class="hero-eyebrow"><span class="dot" aria-hidden="true"></span>the <span class="accent">agentic</span> operating system · v{{ .Site.Params.version }}</span>
+  {{/* ─────────────── HERO (experiential · cosmos wallpaper bg) ─────────────── */}}
+  {{ partial "experiential/hero-cosmos.html" . }}
 
-      <h1 id="hero-heading">Agents that run <span class="accent">without you.</span></h1>
-
-      <p class="home-hero-lede">
-        vinOS ships agents as first-class OS citizens. Real Claude- and
-        Ollama-powered routines run on a <em>schedule</em>, on your machine, on your
-        terms — briefing you at 6&nbsp;am, reviewing PRs at 1&nbsp;pm, closing
-        your day at 6&nbsp;pm. 80% on local models, 20% on premium APIs.
-        Saves roughly <span class="accent">{{ .Site.Params.costMonthlySaved }}/mo</span>.
-      </p>
-
-      <div class="home-hero-meta">
-        <span class="chip strong">x86_64 UEFI</span>
-        <span class="chip">Apple T2</span>
-        <span class="chip">NVIDIA</span>
-        <span class="chip">Arch-based</span>
-        <span class="chip">4.3 GB ISO</span>
-      </div>
-
-      <div class="home-hero-cta">
-        <a href="{{ .Site.Params.isoURL }}" class="btn primary" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download {{ .Site.Params.version }} ISO
-        </a>
-        <a href="{{ "routines/" | relURL }}" class="btn ghost">See the routines</a>
-        <a href="{{ "spec/" | relURL }}" class="btn link">Read the spec</a>
-      </div>
-    </div>
-
-    <div class="home-hero-visual">
-      {{ partial "terminal.html" (dict
-        "title" "vinos-routine · 06:00 · day-brief"
-        "caret" true
-        "body" (printf `<span class="prompt">$</span> <span class="cmd">vinos-routine run day-brief</span>
-<span class="dim">→ routine    day-brief</span>
-<span class="dim">→ schedule   0 6 * * *          </span>(daily · 06:00 local)
-<span class="dim">→ model      llama3.1:8b          </span>(local · ollama)
-<span class="dim">→ tools      calendar,inbox,github,weather</span>
-
-<span class="ok">✓</span> <span class="cmd">context assembled</span>       <span class="dim">(3 sources · 412 tokens)</span>
-<span class="ok">✓</span> <span class="cmd">agent step 1/3</span>           <span class="dim">llama3.1:8b · 0.8s</span>
-<span class="ok">✓</span> <span class="cmd">agent step 2/3</span>           <span class="dim">llama3.1:8b · 1.1s</span>
-<span class="ok">✓</span> <span class="cmd">agent step 3/3</span>           <span class="dim">llama3.1:8b · 0.6s</span>
-<span class="ok">✓</span> <span class="cmd">rendered brief</span>           <span class="dim">→ ~/.local/state/vinos/brief.md</span>
-
-<span class="dim">──────────────────────────────────────────────</span>
-Today · Fri 25 Jul
-  <span class="accent">1</span> Ship v%s ISO to archive.org
-  <span class="accent">2</span> Review 3 open PRs on vinpatel/vinos
-  <span class="accent">3</span> Draft the routines.yaml spec
-
-Signals   1 sponsor · 4 stars · 2 issues opened
-Reflect   Yesterday you shipped %s in cost savings.
-<span class="dim">──────────────────────────────────────────────</span>
-<span class="dim">$ cost   0.000 (local) · $0.00 escalated</span>
-<span class="prompt">$</span> ` .Site.Params.version .Site.Params.costMonthlySaved)
-      ) }}
-    </div>
-  </section>
+  {{/* ─────────────── LIVE THEME RE-SKINNER ─────────────── */}}
+  {{ partial "experiential/theme-reskinner.html" . }}
 
   {{/* ─────────────── STAT ROW ─────────────── */}}
   {{ partial "stat-card.html" (dict "stats" (slice
@@ -109,7 +51,7 @@ Reflect   Yesterday you shipped %s in cost savings.
       <p class="section-lede">All quiet unless they have something worth telling you.</p>
     </header>
 
-    {{ partial "day-timeline.html" (dict "events" (slice
+    {{ partial "experiential/day-timeline-scroll.html" (dict "events" (slice
       (dict "time" "05:55" "icon" "◐" "title" "hardware wake" "note" "systemd timers arm. iwd re-associates. ollama warms llama3.1:8b in the background.")
       (dict "time" "06:00" "icon" "☀" "title" "day-brief"    "note" "top-3, signals, one reflection · opens on the login screen · llama3.1:8b · local.")
       (dict "time" "09:00" "icon" "⌥" "title" "github-review" "note" "PR queue, what needs your eyes, drafts one comment · claude · escalates when a diff exceeds 400 lines.")
@@ -133,10 +75,10 @@ Reflect   Yesterday you shipped %s in cost savings.
       </p>
     </header>
 
-    {{ partial "router-diagram.html" . }}
+    {{ partial "experiential/router-interactive.html" . }}
 
     <div style="margin-top: var(--sp-6); display: grid; gap: var(--sp-5); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start;">
-      {{ partial "cost-calculator.html" . }}
+      {{ partial "experiential/cost-ticker.html" . }}
       {{ partial "code-block.html" (dict
         "file" ".vinos/routines/day-brief.toml"
         "lang" "toml"

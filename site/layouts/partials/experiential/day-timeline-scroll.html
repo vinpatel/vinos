@@ -1,0 +1,41 @@
+{{/*
+  day-timeline-scroll partial · sticky rail on the left, events pop in as
+  they enter view. IntersectionObserver-driven; falls back to a plain
+  timeline if IO or reduced-motion is active.
+  args (dict):
+    events · slice of dicts { time, icon?, title, note? }
+*/}}
+{{- $events := .events -}}
+<div class="day-scroll" data-exp-daytimeline
+     role="figure" aria-label="one vinOS day, scroll to reveal events">
+  <div class="day-scroll-rail" aria-hidden="true">
+    <div class="day-scroll-rail-inner">
+      <span class="day-scroll-rail-hour" style="top: 0%">00</span>
+      <span class="day-scroll-rail-hour" style="top: 25%">06</span>
+      <span class="day-scroll-rail-hour" style="top: 50%">12</span>
+      <span class="day-scroll-rail-hour" style="top: 75%">18</span>
+      <span class="day-scroll-rail-hour" style="top: 100%">24</span>
+      <span class="day-scroll-rail-line"></span>
+      <span class="day-scroll-rail-marker" data-day-marker></span>
+    </div>
+  </div>
+
+  <ol class="day-scroll-events">
+    {{ range $i, $e := $events }}
+    {{- $h := index (split .time ":") 0 -}}
+    {{- $m := index (split .time ":") 1 -}}
+    {{/* Trim any leading zero so Hugo's int cast is happy on "09". */}}
+    {{- $hn := int (strings.TrimLeft "0" $h | default "0") -}}
+    {{- $mn := int (strings.TrimLeft "0" $m | default "0") -}}
+    {{- $pct := div (float (add (mul $hn 60) $mn)) 14.4 -}}
+    <li class="day-scroll-event" data-hour="{{ $h }}" data-pct="{{ $pct }}">
+      <span class="day-scroll-time">{{ .time }}</span>
+      <span class="day-scroll-icon" aria-hidden="true">{{ .icon | default "·" }}</span>
+      <div class="day-scroll-body">
+        <h4>{{ .title | safeHTML }}</h4>
+        {{ with .note }}<p>{{ . | safeHTML }}</p>{{ end }}
+      </div>
+    </li>
+    {{ end }}
+  </ol>
+</div>

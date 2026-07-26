@@ -20,6 +20,7 @@
   {{/* Single stylesheet — vinos.css imports tokens.css + base.css + components.css + pages.css */}}
   <link rel="stylesheet" href="{{ "css/vinos.css" | relURL }}">
   {{ if eq .Section "docs" }}<link rel="stylesheet" href="{{ "css/docs.css" | relURL }}">{{ end }}
+  {{ if .IsHome }}<link rel="stylesheet" href="{{ "css/experiential.css" | relURL }}">{{ end }}
 </head>
 <body class="{{ if .IsHome }}home {{ end }}{{ with .Section }}sec-{{ . }} {{ end }}">
   {{ partial "header.html" . }}
@@ -28,5 +29,9 @@
   </main>
   {{ partial "footer.html" . }}
   {{ partial "copy-script.html" . }}
+  {{ if .IsHome }}
+    <script src="{{ "js/theme-data.js" | relURL }}" defer></script>
+    <script src="{{ "js/experiential.js" | relURL }}" defer></script>
+  {{ end }}
 </body>
 </html>

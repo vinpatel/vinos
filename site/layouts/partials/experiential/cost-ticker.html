@@ -1,0 +1,45 @@
+{{/*
+  cost-ticker partial · living cost card
+  Every 500ms a mock routine fires; 20% chance premium (adds $0.01-0.05).
+  Shows routed cost vs full-premium cost + delta. Reset button.
+*/}}
+<div class="cost-ticker" data-exp-cost role="figure" aria-label="live cost ticker">
+  <div class="cost-ticker-head">
+    <span class="cost-ticker-tag">$ live ledger</span>
+    <span class="dim">mock routine fires every 500 ms · 20% escalate</span>
+  </div>
+
+  <div class="cost-ticker-grid">
+    <div class="cost-ticker-cell">
+      <div class="cost-ticker-label">routed cost</div>
+      <div class="cost-ticker-value cost-ticker-value--routed tnum">
+        $<span data-cost-routed>0.00</span>
+      </div>
+      <div class="cost-ticker-sub"><span data-cost-runs>0</span> runs · <span data-cost-premium-runs>0</span> escalated</div>
+    </div>
+
+    <div class="cost-ticker-cell">
+      <div class="cost-ticker-label">full-premium cost</div>
+      <div class="cost-ticker-value cost-ticker-value--premium tnum">
+        $<span data-cost-full>0.00</span>
+      </div>
+      <div class="cost-ticker-sub">every routine on Claude</div>
+    </div>
+
+    <div class="cost-ticker-cell cost-ticker-cell--delta">
+      <div class="cost-ticker-label">you keep</div>
+      <div class="cost-ticker-value cost-ticker-value--delta tnum">
+        $<span data-cost-saved>0.00</span>
+      </div>
+      <div class="cost-ticker-sub"><span data-cost-pct>0</span>% saved this session</div>
+    </div>
+  </div>
+
+  <div class="cost-ticker-foot">
+    <button type="button" class="rl-reset" data-cost-reset>reset</button>
+    <button type="button" class="rl-reset" data-cost-pause>pause</button>
+    <span class="cost-ticker-note dim">
+      Same math as the ledger on a booted vinOS box: 20% × $0.03 avg × N runs.
+    </span>
+  </div>
+</div>

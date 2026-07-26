@@ -1,0 +1,45 @@
+{{/*
+  theme-reskinner partial · chip strip that instantly re-skins the whole page
+  Click a chip → experiential.js sets CSS custom properties on :root from
+  window.VINOS_THEMES[slug]. Persists via localStorage.
+  Hover shows the theme's actual wallpaper thumbnail as a preview.
+*/}}
+<section class="reskinner" aria-labelledby="reskin-heading" data-exp-reskin>
+  <div class="reskinner-head">
+    <h2 id="reskin-heading" class="reskinner-title">
+      <span class="section-eyebrow">the vinOS ten · live</span>
+      <span>Click a theme. <span class="accent">The whole page re-skins.</span></span>
+    </h2>
+    <p class="reskinner-lede">
+      Every theme is a real palette that ships in the ISO. This chip is the same
+      switch you'd flip on a booted vinOS box — same colors, same wallpaper.
+    </p>
+  </div>
+
+  <div class="reskin-chips" role="tablist" aria-label="theme picker">
+    {{- $themes := slice "cosmos" "circuit" "egret" "reef" "crater" "dusk" "prism" "bloom" "summit" "ridge" -}}
+    {{- range $themes }}
+    <button type="button" class="reskin-chip"
+            role="tab"
+            data-theme="{{ . }}"
+            data-preview="{{ printf "img/themes/%s.png" . | relURL }}"
+            aria-selected="false">
+      <span class="reskin-chip-swatch" aria-hidden="true"></span>
+      <span class="reskin-chip-label">{{ . }}</span>
+    </button>
+    {{- end }}
+    <button type="button" class="reskin-chip reskin-chip--reset" data-theme-reset title="restore default vinOS palette">
+      <span class="reskin-chip-label">reset</span>
+    </button>
+  </div>
+
+  <div class="reskin-preview" data-reskin-preview aria-hidden="true">
+    <img alt="" loading="lazy" decoding="async">
+    <span class="reskin-preview-name"></span>
+  </div>
+
+  <p class="reskin-note" data-reskin-note>
+    <span class="dim">No theme selected — using the default palette. </span>
+    <span data-reskin-active></span>
+  </p>
+</section>
