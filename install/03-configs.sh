@@ -40,7 +40,14 @@ _vendor_tree() {
 }
 
 _vendor_tree "$OMARCHY_SRC/default"      /usr/share/omarchy/default
-_vendor_tree "$OMARCHY_SRC/themes"       /usr/share/omarchy/themes
+# NOTE: Omarchy's own themes are intentionally NOT vendored.
+# The picker shows only vinOS themes (10, curated) so every wallpaper
+# and palette is a vinOS brand moment. Omarchy's config schema and
+# theme-engine plumbing (~/.local/state/omarchy/current/theme/*, the
+# shell functions, the picker UI) stay in use — that's implementation,
+# not brand. Attribution: NOTICES.md + About page (both cite MIT
+# license + upstream basecamp/omarchy).
+# _vendor_tree "$OMARCHY_SRC/themes"       /usr/share/omarchy/themes
 _vendor_tree "$OMARCHY_SRC/shell"        /usr/share/omarchy/shell
 _vendor_tree "$OMARCHY_SRC/migrations"   /usr/share/omarchy/migrations
 
