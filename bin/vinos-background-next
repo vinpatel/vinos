@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# vinos-background-next — cycle to the next wallpaper in the active
+# theme. vinOS-branded passthrough to omarchy-theme-bg-next. See
+# NOTICES.md for the heritage.
+set -euo pipefail
+exec omarchy-theme-bg-next "$@"

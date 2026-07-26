@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# vinos-background-pick — open the walker-driven wallpaper picker.
+# vinOS-branded passthrough to omarchy-theme-bg-switcher. See NOTICES.md
+# for the heritage.
+set -euo pipefail
+exec omarchy-theme-bg-switcher "$@"

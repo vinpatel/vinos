@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# vinos-toggle-topbar — toggle the waybar top bar visibility.
+# vinOS-branded passthrough to omarchy-toggle-bar. See NOTICES.md for
+# the heritage.
+set -euo pipefail
+exec omarchy-toggle-bar "$@"

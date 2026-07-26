@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# vinos-background — set the desktop wallpaper. vinOS-branded
+# passthrough to omarchy-theme-bg-set. See NOTICES.md for the heritage.
+set -euo pipefail
+exec omarchy-theme-bg-set "$@"

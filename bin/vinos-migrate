@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# vinos-migrate — run pending config migrations. vinOS-branded
+# passthrough to omarchy-migrate. See NOTICES.md for the heritage.
+set -euo pipefail
+exec omarchy-migrate "$@"

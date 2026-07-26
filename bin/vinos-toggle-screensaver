@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# vinos-toggle-screensaver — toggle the screensaver on/off. vinOS-branded
+# passthrough to omarchy-toggle-screensaver. See NOTICES.md for the
+# heritage.
+set -euo pipefail
+exec omarchy-toggle-screensaver "$@"

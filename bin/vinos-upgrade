@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# vinos-upgrade — run the system upgrade (pacman + AUR + migrations).
+# vinOS-branded passthrough to omarchy-update. See NOTICES.md for the
+# heritage.
+set -euo pipefail
+exec omarchy-update "$@"

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# vinos-restart-hyprland — reload the running Hyprland session (config
+# + rules). vinOS-branded passthrough to omarchy-refresh-hyprland. See
+# NOTICES.md for the heritage.
+set -euo pipefail
+exec omarchy-refresh-hyprland "$@"

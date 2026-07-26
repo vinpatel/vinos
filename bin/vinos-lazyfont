@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# vinos-lazyfont — set the system font from an installed family.
+# vinOS-branded passthrough to omarchy-font-set. See NOTICES.md for the
+# heritage.
+set -euo pipefail
+exec omarchy-font-set "$@"

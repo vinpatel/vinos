@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# vinos-theme-list — list installed themes. vinOS-branded passthrough
+# to omarchy-theme-list. See NOTICES.md for the heritage.
+set -euo pipefail
+exec omarchy-theme-list "$@"
