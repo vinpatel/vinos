@@ -29,8 +29,8 @@ time; once installed, `vinos-install-common` handles the driver setup.
 The first login autostarts `vinos-welcome` in a floating foot window.
 It's a walker-dmenu picker with these tasks:
 
-<figure class="doc-shot doc-shot-pending" id="shot-03">
-  <div class="doc-shot-slot">Screenshot pending: vinos-welcome walker-dmenu picker</div>
+<figure class="doc-shot" id="shot-03">
+  <img src="/img/screenshots/welcome-dmenu.png" alt="vinos-welcome walker-dmenu picker" width="1280" height="800" loading="lazy">
   <figcaption>vinos-welcome on first login — see SCREENSHOTS_NEEDED.md #shot-03.</figcaption>
 </figure>
 

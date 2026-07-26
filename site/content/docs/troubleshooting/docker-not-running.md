@@ -43,8 +43,8 @@ Hello from Docker!
 If that works, <kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd> will now
 open lazydocker cleanly.
 
-<figure class="doc-shot doc-shot-pending" id="shot-61">
-  <div class="doc-shot-slot">Screenshot pending: lazydocker TUI with running containers</div>
+<figure class="doc-shot" id="shot-61">
+  <img src="/img/screenshots/docker-lazydocker.png" alt="lazydocker TUI with running containers" width="1280" height="800" loading="lazy">
   <figcaption>lazydocker running — see SCREENSHOTS_NEEDED.md #shot-61.</figcaption>
 </figure>
 

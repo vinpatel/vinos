@@ -42,8 +42,8 @@ One-liner:  Docs land today; alpha goes public tomorrow morning.
 Runs on your local model by default (`VINOS_ROUTE=ollama` forced) — no
 key needed. Set `VINOS_ROUTE=anthropic` if you want Claude polish.
 
-<figure class="doc-shot doc-shot-pending" id="shot-42">
-  <div class="doc-shot-slot">Screenshot pending: vinos-standup output in a foot terminal</div>
+<figure class="doc-shot" id="shot-42">
+  <img src="/img/screenshots/vinos-standup-out.png" alt="vinos-standup output in a foot terminal" width="1280" height="800" loading="lazy">
   <figcaption>vinos-standup rendered — see SCREENSHOTS_NEEDED.md #shot-42.</figcaption>
 </figure>
 
@@ -84,8 +84,8 @@ list at SCREENSHOTS_NEEDED.md.
 ✓ committed 4a8fdba
 ```
 
-<figure class="doc-shot doc-shot-pending" id="shot-41">
-  <div class="doc-shot-slot">Screenshot pending: vinos-commit interactive prompt</div>
+<figure class="doc-shot" id="shot-41">
+  <img src="/img/screenshots/vinos-commit-tui.png" alt="vinos-commit interactive prompt" width="1280" height="800" loading="lazy">
   <figcaption>vinos-commit draft prompt — see SCREENSHOTS_NEEDED.md #shot-41.</figcaption>
 </figure>
 

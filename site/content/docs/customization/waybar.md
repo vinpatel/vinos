@@ -35,8 +35,8 @@ Right cluster:
 - **battery** — reads `vinos-battery-status`.
 - **tray** — mako, blueman, network manager, walker's helper.
 
-<figure class="doc-shot doc-shot-pending" id="shot-30">
-  <div class="doc-shot-slot">Screenshot pending: waybar full width with all modules populated</div>
+<figure class="doc-shot" id="shot-30">
+  <img src="/img/screenshots/waybar-full.png" alt="waybar full width with all modules populated" width="1280" height="800" loading="lazy">
   <figcaption>Shipped waybar layout — see SCREENSHOTS_NEEDED.md #shot-30.</figcaption>
 </figure>
 

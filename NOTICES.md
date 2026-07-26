@@ -13,6 +13,12 @@ attribution requirements. For the license governing vinOS's own code, see
 - **Omarchy desktop configuration** — MIT. Upstream:
   [basecamp/omarchy](https://github.com/basecamp/omarchy). vinOS vendors
   Omarchy configuration files verbatim as its desktop layer.
+
+  vinOS wraps user-facing Omarchy commands with `vinos-*` aliases so
+  users see one consistent brand at the CLI. The underlying scripts
+  are unmodified Omarchy 4.0.0-alpha under Omarchy's MIT license. Run
+  `cat $(which vinos-<name>)` on any wrapper to see the passthrough
+  and the omarchy-`<name>` it invokes.
 - **Arch Linux** — vinOS is built from the archiso profile published by the
   Arch Linux project ([archlinux/archiso](https://gitlab.archlinux.org/archlinux/archiso),
   GPL-3.0). Modifications to that profile are retained under the same

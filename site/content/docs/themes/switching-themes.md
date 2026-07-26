@@ -48,8 +48,8 @@ Or open the picker:
 $ vinos-theme --pick
 ```
 
-<figure class="doc-shot doc-shot-pending" id="shot-11">
-  <div class="doc-shot-slot">Screenshot pending: vinos-theme --pick walker overlay</div>
+<figure class="doc-shot" id="shot-11">
+  <img src="/img/screenshots/theme-picker.png" alt="vinos-theme --pick walker overlay" width="1280" height="800" loading="lazy">
   <figcaption>Theme picker — see SCREENSHOTS_NEEDED.md #shot-11.</figcaption>
 </figure>
 

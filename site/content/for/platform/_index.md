@@ -37,8 +37,8 @@ layout: "persona"
         </svg>
       </div>
       <h3>Portable spec — <span class="accent">yaml → CronJob.</span></h3>
-      <p class="outcome-sub"><code>vinos-routine export --k8s</code> emits a K8s CronJob per routine. Schedules translated. Secrets referenced. State bound to a PVC.</p>
-      <div class="outcome-tool"><code>vinos-routine export --k8s</code> · <span class="dim">v2.1</span></div>
+      <p class="outcome-sub"><code>vinos-routine export --k8s</code> will emit a K8s CronJob per routine — schedules translated, secrets referenced, state bound to a PVC. The <code>.vinos/routines.yaml</code> spec ships today (v2.0.5); the exporter + Helm chart land in v2.1.</p>
+      <div class="outcome-tool"><code>vinos-routine export --k8s</code> · <span class="dim">coming v2.1</span></div>
     </article>
     <article class="outcome">
       <div class="outcome-icon" aria-hidden="true">
@@ -139,10 +139,13 @@ spec:
     <details>
       <summary>Helm chart?</summary>
       <div class="faq-body">
-        v2.1. <code>helm install vinos-agents vinos/agents</code> — one
-        CronJob per routine, one PVC for the shared ledger, one Secret
-        for API keys, one Deployment for the optional Ollama sidecar.
-        Chart values map 1:1 to RoutineSet <code>defaults</code>.
+        Targeted for v2.1 — <code>helm install vinos-agents vinos/agents</code>.
+        Design intent: one CronJob per routine, one PVC for the shared
+        ledger, one Secret for API keys, one optional Deployment for a
+        cluster-local Ollama sidecar. Chart values will mirror
+        RoutineSet <code>defaults</code>. Not yet published — see the
+        <a href="https://github.com/vinpatel/vinos/blob/main/docs/v2/ROADMAP.md">v2.1
+        roadmap</a> for shipping trigger.
       </div>
     </details>
     <details>

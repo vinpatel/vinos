@@ -48,8 +48,8 @@ $ vinos-ai code
 # opens claude-code in the current directory
 ```
 
-<figure class="doc-shot doc-shot-pending" id="shot-43">
-  <div class="doc-shot-slot">Screenshot pending: vinos-ai chat session in a foot terminal</div>
+<figure class="doc-shot" id="shot-43">
+  <img src="/img/screenshots/vinos-ai-chat.png" alt="vinos-ai chat session in a foot terminal" width="1280" height="800" loading="lazy">
   <figcaption>vinos-ai chat — see SCREENSHOTS_NEEDED.md #shot-43.</figcaption>
 </figure>
 

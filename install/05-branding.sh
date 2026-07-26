@@ -75,6 +75,17 @@ for f in "$SHARE/bin/"vinos-*; do
   _sudo ln -sfn "/usr/share/vinos/bin/$(basename "$f")" "$LOCAL_BIN/$(basename "$f")"
 done
 
+# v2.0.6 rebrand pass: user-facing Omarchy menu still lists actions as
+# `omarchy-<name>`. For every wrapper we ship in bin/vinos-*, rewrite
+# the installed menu jsonc to call the vinos-* alias instead — so users
+# see one consistent brand at the CLI. The vendored source in
+# configs/omarchy/ stays untouched. Script is idempotent + only rewrites
+# actions whose vinos-* wrapper actually exists on PATH.
+if [[ -x "$REPO/install/vinos-menu-rebrand.sh" ]]; then
+  log "05-branding: rebranding installed omarchy-menu.jsonc → vinos-* actions"
+  "$REPO/install/vinos-menu-rebrand.sh"
+fi
+
 # libexec/ — helper scripts (python, etc.) that vinos-* commands invoke.
 # Not on PATH. Currently: vinos-routine-run.py for the routine agent loop.
 if [[ -d "$REPO/libexec" ]]; then

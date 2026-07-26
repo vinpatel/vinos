@@ -180,8 +180,10 @@ layout: "persona"
     <details>
       <summary>SSO / LDAP / SCIM?</summary>
       <div class="faq-body">
-        vinOS ships stock Arch's auth stack — anything Arch supports
-        (SSSD, realmd, LDAP, Kerberos, PAM modules) works. Per-user
+        vinOS inherits Arch's auth surface — SSSD, realmd, LDAP,
+        Kerberos, and PAM modules install from AUR/extras (not
+        pre-installed in the base ISO — pull them via
+        <code>pacman -S</code> or a post-install profile). Per-user
         routine ledgers are already per-<code>$UID</code>. SCIM
         provisioning is not vinOS's layer — handle it at your identity
         provider.

@@ -127,8 +127,8 @@ day at once with:
 $ vinos-brief
 ```
 
-<figure class="doc-shot doc-shot-pending" id="shot-20">
-  <div class="doc-shot-slot">Screenshot pending: vinos-brief walker panel with today's day-brief</div>
+<figure class="doc-shot" id="shot-20">
+  <img src="/img/screenshots/vinos-brief-panel.png" alt="vinos-brief walker panel with today's day-brief" width="1280" height="800" loading="lazy">
   <figcaption>vinos-brief showing today's outputs — see SCREENSHOTS_NEEDED.md #shot-20.</figcaption>
 </figure>
 

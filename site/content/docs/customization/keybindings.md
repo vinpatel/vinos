@@ -13,8 +13,8 @@ The source of truth is `~/.config/hypr/bindings.lua` (generates
 run <kbd>Super</kbd>+<kbd>K</kbd> at any time to search the live map
 in a walker overlay.
 
-<figure class="doc-shot doc-shot-pending" id="shot-32">
-  <div class="doc-shot-slot">Screenshot pending: Super+K cheatsheet overlay</div>
+<figure class="doc-shot" id="shot-32">
+  <img src="/img/screenshots/cheatsheet-overlay.png" alt="Super+K cheatsheet overlay" width="1280" height="800" loading="lazy">
   <figcaption>Live keybinding cheatsheet — see SCREENSHOTS_NEEDED.md #shot-32.</figcaption>
 </figure>
 

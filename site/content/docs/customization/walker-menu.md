@@ -7,8 +7,8 @@ weight: 30
 Walker is the app launcher, emoji picker, file picker, and dmenu
 substitute all rolled into one. <kbd>Super</kbd>+<kbd>Space</kbd> opens it.
 
-<figure class="doc-shot doc-shot-pending" id="shot-31">
-  <div class="doc-shot-slot">Screenshot pending: walker launcher open with query</div>
+<figure class="doc-shot" id="shot-31">
+  <img src="/img/screenshots/walker-launcher.png" alt="walker launcher open with query" width="1280" height="800" loading="lazy">
   <figcaption>Walker launcher — see SCREENSHOTS_NEEDED.md #shot-31.</figcaption>
 </figure>
 

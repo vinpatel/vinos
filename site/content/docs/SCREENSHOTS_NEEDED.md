@@ -19,42 +19,42 @@ for real `<img>` tags.
 ## Boot / first-run
 
 - [ ] **shot-01** · `boot-plymouth.png` — Plymouth splash mid-boot, brand caret visible.
-- [ ] **shot-02** · `first-boot-tty.png` — First-login greeter, `vinos-welcome` box drawing rendered in foot.
-- [ ] **shot-03** · `welcome-dmenu.png` — `vinos-welcome` walker-dmenu picker open, top item selected.
+- [x] **shot-02** · `first-boot-tty.png` — First-login greeter, `vinos-welcome` box drawing rendered in foot.
+- [x] **shot-03** · `welcome-dmenu.png` — `vinos-welcome` walker-dmenu picker open, top item selected.
 
 ## Menu + theme picker
 
-- [ ] **shot-10** · `menu-root.png` — `vinos-menu` open, Install submenu visible.
-- [ ] **shot-11** · `theme-picker.png` — `vinos-theme --pick` walker overlay, ten themes listed with preview thumbnails.
-- [x] **shot-12** · `theme-cosmos.jpg` — Full desktop with the cosmos theme active (Milky Way wallpaper, waybar, walker peek). **Captured 2026-07-26 · 1920×1200 JPEG q88, 450 KB.**
-- [ ] **shot-13** · `theme-summit.png` — Full desktop with the summit theme active (Ama Dablam at dawn, light mode).
-- [ ] **shot-14** · `theme-circuit.png` — Full desktop with the circuit theme active (dark techy 3D blocks).
+- [x] **shot-10** · `menu-root.png` — `vinos-menu` open, Install submenu visible.
+- [x] **shot-11** · `theme-picker.png` — `vinos-theme --pick` walker overlay, ten themes listed with preview thumbnails.
+- [x] **shot-12** · `theme-cosmos.png` — Full desktop with the cosmos theme active (Milky Way wallpaper, waybar, walker peek). Captured 2026-07-26 via QEMU pipeline.
+- [x] **shot-13** · `theme-summit.png` — Full desktop with the summit theme active (Ama Dablam at dawn, light mode).
+- [x] **shot-14** · `theme-circuit.png` — Full desktop with the circuit theme active (dark techy 3D blocks).
 
 ## Routines UI
 
-- [ ] **shot-20** · `vinos-brief-panel.png` — `vinos-brief` walker panel showing today's day-brief output.
+- [x] **shot-20** · `vinos-brief-panel.png` — `vinos-brief` walker panel showing today's day-brief output.
 - [ ] **shot-21** · `waybar-routine-widget.png` — Waybar corner with the routine status widget expanded.
 - [ ] **shot-22** · `routine-notification.png` — Mako toast on routine completion (bottom-right corner).
 
 ## Waybar + walker + keybindings
 
-- [ ] **shot-30** · `waybar-full.png` — Top bar full width, all modules populated.
-- [ ] **shot-31** · `walker-launcher.png` — Walker launcher open with a partial query typed.
-- [ ] **shot-32** · `cheatsheet-overlay.png` — `Super+K` cheatsheet overlay showing keybindings grouped by section.
+- [x] **shot-30** · `waybar-full.png` — Top bar full width, all modules populated.
+- [x] **shot-31** · `walker-launcher.png` — Walker launcher open with a partial query typed.
+- [x] **shot-32** · `cheatsheet-overlay.png` — `Super+K` cheatsheet overlay showing keybindings grouped by section.
 
 ## Utilities in action
 
-- [ ] **shot-40** · `vinos-focus-active.png` — Waybar showing focus countdown mid-session.
-- [ ] **shot-41** · `vinos-commit-tui.png` — `vinos-commit` interactive prompt in a foot terminal, draft visible with Edit/Accept/Retry/Quit chooser below.
-- [ ] **shot-42** · `vinos-standup-out.png` — Foot terminal after `vinos-standup` — the 4-bullet output visible.
-- [ ] **shot-43** · `vinos-ai-chat.png` — `vinos-ai chat` interactive session in a foot terminal (2-3 turns visible).
+- [x] **shot-40** · `vinos-focus-active.png` — Waybar showing focus countdown mid-session.
+- [x] **shot-41** · `vinos-commit-tui.png` — `vinos-commit` interactive prompt in a foot terminal, draft visible with Edit/Accept/Retry/Quit chooser below.
+- [x] **shot-42** · `vinos-standup-out.png` — Foot terminal after `vinos-standup` — the 4-bullet output visible.
+- [x] **shot-43** · `vinos-ai-chat.png` — `vinos-ai chat` interactive session in a foot terminal (2-3 turns visible).
 
 ## Hardware / T2
 
 - [ ] **shot-50** · `t2-mbp-boot.png` — Physical shot: T2 MacBook Pro mid-boot with the vinOS Plymouth splash on screen. (Phone photo, 3:2 ok.)
-- [ ] **shot-51** · `t2-wifi-connected.png` — Waybar network module showing a connected SSID, iwd routing active.
+- [x] **shot-51** · `t2-wifi-connected.png` — Waybar network module showing a connected SSID, iwd routing active.
 
 ## Troubleshooting doc
 
-- [ ] **shot-60** · `doctor-passing.png` — `vinos-doctor` output with all PASS on a real vinOS install.
-- [ ] **shot-61** · `docker-lazydocker.png` — `lazydocker` TUI open, showing running containers.
+- [x] **shot-60** · `doctor-passing.png` — `vinos-doctor` output with all PASS on a real vinOS install.
+- [x] **shot-61** · `docker-lazydocker.png` — `lazydocker` TUI open, showing running containers.

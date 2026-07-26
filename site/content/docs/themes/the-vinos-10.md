@@ -39,12 +39,12 @@ Default first-boot theme: **cosmos**.
 | **dusk** | Distant snow range under sunset alpenglow | gruvbox-dark | Pascal Debrunner |
 
 <figure class="doc-shot" id="shot-12">
-  <img src="/img/screenshots/theme-cosmos.jpg" alt="Full desktop with the cosmos theme active — Milky Way over an alpine lake, waybar with time and workspaces, vinOS brand mark bottom-right" width="1920" height="1200" loading="lazy">
-  <figcaption>cosmos — captured on v2.0.5 · Pascal Debrunner via Unsplash.</figcaption>
+  <img src="/img/screenshots/theme-cosmos.png" alt="Full desktop with the cosmos theme active — Milky Way over an alpine lake, waybar visible" width="1280" height="800" loading="lazy">
+  <figcaption>cosmos — captured on v2.0.5.</figcaption>
 </figure>
 
-<figure class="doc-shot doc-shot-pending" id="shot-14">
-  <div class="doc-shot-slot">Screenshot pending: full desktop with circuit active</div>
+<figure class="doc-shot" id="shot-14">
+  <img src="/img/screenshots/theme-circuit.png" alt="full desktop with circuit active" width="1280" height="800" loading="lazy">
   <figcaption>circuit — see SCREENSHOTS_NEEDED.md #shot-14.</figcaption>
 </figure>
 
@@ -57,8 +57,8 @@ Default first-boot theme: **cosmos**.
 | **summit** | Ama Dablam at dawn, pastel Himalayan sky | everforest-light | Eugene Ga |
 | **ridge** | Snowy range under pastel-pink sunset sky | catppuccin-latte | Marek Piwnicki |
 
-<figure class="doc-shot doc-shot-pending" id="shot-13">
-  <div class="doc-shot-slot">Screenshot pending: full desktop with summit active</div>
+<figure class="doc-shot" id="shot-13">
+  <img src="/img/screenshots/theme-summit.png" alt="full desktop with summit active" width="1280" height="800" loading="lazy">
   <figcaption>summit — see SCREENSHOTS_NEEDED.md #shot-13.</figcaption>
 </figure>
 

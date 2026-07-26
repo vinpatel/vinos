@@ -47,8 +47,8 @@ wifi (T2 Mac + generic)
 summary: PASS=14 FAIL=11 SKIP=4
 ```
 
-<figure class="doc-shot doc-shot-pending" id="shot-60">
-  <div class="doc-shot-slot">Screenshot pending: vinos-doctor with all PASS on a real vinOS install</div>
+<figure class="doc-shot" id="shot-60">
+  <img src="/img/screenshots/doctor-passing.png" alt="vinos-doctor with all PASS on a real vinOS install" width="1280" height="800" loading="lazy">
   <figcaption>Green run — see SCREENSHOTS_NEEDED.md #shot-60.</figcaption>
 </figure>
 
@@ -98,8 +98,8 @@ Entries include every `vinos-install-*` bundle, wifi controls,
 bluetooth pairing, audio mixer, `vinos-update`, theme switcher,
 diagnostics, and lock.
 
-<figure class="doc-shot doc-shot-pending" id="shot-10">
-  <div class="doc-shot-slot">Screenshot pending: vinos-menu open with Install submenu visible</div>
+<figure class="doc-shot" id="shot-10">
+  <img src="/img/screenshots/menu-root.png" alt="vinos-menu open with Install submenu visible" width="1280" height="800" loading="lazy">
   <figcaption>vinos-menu root — see SCREENSHOTS_NEEDED.md #shot-10.</figcaption>
 </figure>
 
