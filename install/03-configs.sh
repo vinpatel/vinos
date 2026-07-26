@@ -176,14 +176,19 @@ _sudo install -d -m 0755 "$skel_state"
 
 # Copy the theme tree in (not a symlink) — omarchy-theme-set does `mv` here,
 # meaning omarchy-shell treats current/theme as owned/mutable.
-# Source prefers vinOS themes dir (real 4K NASA imagery) over Omarchy's.
+# CRITICAL: copy from _themes_dst (the AIROOT'd /usr/share/omarchy/themes),
+# not VINOS_THEMES_SRC. The foot.ini generator above wrote foot.ini into
+# _themes_dst/<theme>/foot.ini; copying from the source tree would ship a
+# theme without foot.ini and foot would error on every terminal open:
+#   foot: [main].include: ~/.local/state/omarchy/current/theme/foot.ini:
+#   failed to open: No such file or directory
 _sudo rm -rf "$skel_state/theme"
-if [[ -n "$_vinos_src_theme" ]] && [[ -d "$VINOS_THEMES_SRC/$_vinos_src_theme" ]]; then
-  _sudo cp -r "$VINOS_THEMES_SRC/$_vinos_src_theme" "$skel_state/theme"
+if [[ -d "$_themes_dst/$_vinos_src_theme" ]]; then
+  _sudo cp -r "$_themes_dst/$_vinos_src_theme" "$skel_state/theme"
   # Drop the build helper — not shipped to the live system
   _sudo rm -f "$skel_state/theme/build-themes.sh"
 else
-  _sudo cp -r "$OMARCHY_SRC/themes/$_default_theme" "$skel_state/theme"
+  _sudo cp -r "$_themes_dst/$_default_theme" "$skel_state/theme"
 fi
 
 # theme.name — plain string
