@@ -10,8 +10,8 @@ Latest builds land on GitHub Releases and are mirrored to Archive.org.
 The Archive.org mirror is what the homepage links to because it's
 free forever and torrentable.
 
-- **GitHub Releases** — [github.com/vinpatel/vinos/releases](https://github.com/vinpatel/vinos/releases)
-- **Archive.org (recommended)** — [archive.org/details/vinos-1.1.0-x86_64](https://archive.org/details/vinos-1.1.0-x86_64)
+- **GitHub Releases (current)** — [github.com/vinpatel/vinos/releases/latest](https://github.com/vinpatel/vinos/releases/latest)
+- **Archive.org (v1.1.0 archival only)** — [archive.org/details/vinos-1.1.0-x86_64](https://archive.org/details/vinos-1.1.0-x86_64) · permanent gold-copy mirror of the v1 line
 
 Files you want:
 

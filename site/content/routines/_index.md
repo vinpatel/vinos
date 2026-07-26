@@ -277,7 +277,7 @@ tools = [
 
 <section class="audience-section">
   <div class="hero-actions" style="justify-content: flex-start;">
-    <a href="https://archive.org/details/vinos-1.1.0-x86_64" class="btn-primary" target="_blank" rel="noopener">Download the ISO</a>
+    <a href="{{< param isoURL >}}" class="btn-primary" target="_blank" rel="noopener">Download vinOS v{{< param version >}}</a>
     <a href="/utilities/" class="link-ghost">Utilities reference →</a>
     <a href="/models/" class="link-ghost">The 80/20 router →</a>
   </div>

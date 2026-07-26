@@ -382,7 +382,7 @@ max_escalations_per_run = 3     # cap runaway loops
     Right now this is a curated snapshot maintained by hand. A future <code>vinos-models</code> command will populate this table live from the Ollama registry plus a vinOS-blessed metadata layer (RAM estimates, cost anchors, workload tags, license badges) — and, more importantly, will <em>recommend the right model for your specific machine and workflow</em>. RAG pipeline? Code assistant? Long-context research? Edge deployment? The current picker is the raw material; the v1.2 personalization layer is what turns it into an answer. Model missing? File a PR against <a href="https://github.com/vinpatel/vinos/blob/main/site/content/models.md" target="_blank" rel="noopener"><code>site/content/models.md</code></a>.
   </p>
   <div class="hero-actions">
-    <a href="https://archive.org/details/vinos-1.1.0-x86_64" class="btn-primary" target="_blank" rel="noopener">Download vinOS v1.1.0</a>
+    <a href="{{< param isoURL >}}" class="btn-primary" target="_blank" rel="noopener">Download vinOS v{{< param version >}}</a>
     <a href="/install/" class="link-ghost">Install guide →</a>
     <a href="https://ollama.com/library" class="link-ghost" target="_blank" rel="noopener">Full Ollama library →</a>
   </div>

@@ -59,7 +59,7 @@ url: "/for/developers/"
   <figure>
     <img src="/img/for/developers-doctor.png" alt="vinos-doctor terminal — 26 checks passed, 0 failed"
          onerror="this.onerror=null;this.src='/img/screenshots/01-desktop.png';">
-    <figcaption>Fresh boot. <code>vinos-doctor</code> → <span style="color:var(--color-ok)">PASS = 26</span> · <span>FAIL = 0</span> · SKIP = 3. Real output from the shipping v1.1.0 ISO.</figcaption>
+    <figcaption>Fresh boot. <code>vinos-doctor</code> → <span style="color:var(--color-ok)">PASS = 26</span> · <span>FAIL = 0</span> · SKIP = 3. Real output from a fresh boot.</figcaption>
   </figure>
 </section>
 
@@ -69,7 +69,7 @@ url: "/for/developers/"
     Flash a USB. Boot. In fifteen minutes, your daily driver runs local LLMs and Claude Code. Every subsequent boot: five seconds to a working workspace.
   </p>
   <div class="hero-actions">
-    <a href="https://archive.org/details/vinos-1.1.0-x86_64" class="btn-primary" target="_blank" rel="noopener">Download vinOS v1.1.0</a>
+    <a href="{{< param isoURL >}}" class="btn-primary" target="_blank" rel="noopener">Download vinOS v{{< param version >}}</a>
     <a href="/install/" class="link-ghost">Read the install guide →</a>
     <a href="https://github.com/sponsors/vinpatel" class="link-ghost" target="_blank" rel="noopener">Sponsor the work ♥</a>
   </div>

@@ -195,7 +195,7 @@ layout: "persona"
         Community support via <a href="{{< param github >}}/discussions" target="_blank" rel="noopener">GitHub Discussions</a>
         today. Enterprise tier with named-contact SLA + private
         vulnerability disclosure is planned — contact
-        <a href="mailto:vin@mindtrades.com">vin@mindtrades.com</a>
+        <a href="mailto:vinpatel.pro@gmail.com">vinpatel.pro@gmail.com</a>
         directly if you need a quote before the tier is public.
       </div>
     </details>

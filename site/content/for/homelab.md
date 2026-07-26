@@ -69,7 +69,7 @@ url: "/for/homelab/"
     Free, MIT-licensed, offline-capable. Flash a USB, boot the target, tell us what worked and what didn't — every hardware report widens the compatibility matrix.
   </p>
   <div class="hero-actions">
-    <a href="https://archive.org/details/vinos-1.1.0-x86_64" class="btn-primary" target="_blank" rel="noopener">Download vinOS v1.1.0</a>
+    <a href="{{< param isoURL >}}" class="btn-primary" target="_blank" rel="noopener">Download vinOS v{{< param version >}}</a>
     <a href="https://github.com/vinpatel/vinos/issues/new?template=hardware-report.yml" class="link-ghost" target="_blank" rel="noopener">Report your hardware →</a>
     <a href="https://opencollective.com/vinos" class="link-ghost" target="_blank" rel="noopener">Sponsor the work</a>
   </div>

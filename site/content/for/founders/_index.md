@@ -1,6 +1,6 @@
 ---
 title: "vinOS for founders — get your Sunday back"
-description: "vinOS runs the busywork that eats your weekend. Inbox triage, PR review, day-brief, evening shutdown. On a schedule. On your laptop. 80% on a local model."
+description: "vinOS runs the busywork that eats your weekend. Inbox triage, PR review, day-brief, evening recap. Agents run 24/7 on your laptop. 80% on a local model."
 url: "/for/founders/"
 type: "for"
 layout: "persona"
@@ -11,8 +11,8 @@ layout: "persona"
   <h1>Get your <span class="accent">Sunday</span> back.</h1>
   <p class="persona-lede">
     vinOS runs the busywork that eats your weekend — inbox triage, PR
-    review, morning brief, evening shutdown. On a schedule. On your
-    laptop. <em>80% on a local model. Free. Offline.</em>
+    review, morning brief, evening recap. Agents run 24/7 on your
+    laptop. <em>80% on a local model. Free.</em>
   </p>
   <div class="persona-cta-row">
     <a href="{{< param isoURL >}}" class="btn primary" target="_blank" rel="noopener">Download vinOS {{< param version >}}</a>

@@ -70,7 +70,7 @@ url: "/for/privacy/"
     Freelance consultants working across client codebases. Journalists protecting sources. Legal teams reviewing contracts. Researchers with regulated data. Anyone whose "AI stack" needs to survive the next data-privacy conversation.
   </p>
   <div class="hero-actions">
-    <a href="https://archive.org/details/vinos-1.1.0-x86_64" class="btn-primary" target="_blank" rel="noopener">Download vinOS v1.1.0</a>
+    <a href="{{< param isoURL >}}" class="btn-primary" target="_blank" rel="noopener">Download vinOS v{{< param version >}}</a>
     <a href="/install/" class="link-ghost">Read the install guide →</a>
     <a href="mailto:hello@vinos.computer" class="link-ghost">Talk enterprise / compliance</a>
   </div>

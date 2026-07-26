@@ -51,7 +51,7 @@ url: "/for/mac/"
     </li>
     <li>
       <h3>Verified on real hardware, not just docs.</h3>
-      <p>The v1.1.0 ISO is boot-tested on a 2019 MacBook Pro (T2, MacBookPro15,4). Wi-Fi, keyboard, trackpad, Touch Bar all green.</p>
+      <p>vinOS is boot-tested on a 2019 MacBook Pro (T2, MacBookPro15,4). Wi-Fi, keyboard, trackpad, Touch Bar all green.</p>
     </li>
   </ul>
 </section>
@@ -70,7 +70,7 @@ url: "/for/mac/"
     Flash the ISO, boot with <kbd>Option</kbd> held, pick the USB. The T2 kernel is the default boot entry — no menu-picking required. Full T2 guide: <a href="/install/">install docs</a>.
   </p>
   <div class="hero-actions">
-    <a href="https://archive.org/details/vinos-1.1.0-x86_64" class="btn-primary" target="_blank" rel="noopener">Download vinOS v1.1.0</a>
+    <a href="{{< param isoURL >}}" class="btn-primary" target="_blank" rel="noopener">Download vinOS v{{< param version >}}</a>
     <a href="/install/" class="link-ghost">Read the T2 install path →</a>
     <a href="https://github.com/vinpatel/vinos/discussions" class="link-ghost" target="_blank" rel="noopener">Join the T2 discussion</a>
   </div>

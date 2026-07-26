@@ -91,7 +91,7 @@ layout: "single"
     Every use case runs the same ISO. Flash it, boot, decide later which page describes you best. Reversible in one command (<code>vinos-uninstall</code>).
   </p>
   <div class="hero-actions">
-    <a href="https://archive.org/details/vinos-1.1.0-x86_64" class="btn-primary" target="_blank" rel="noopener">Download vinOS v1.1.0</a>
+    <a href="{{< param isoURL >}}" class="btn-primary" target="_blank" rel="noopener">Download vinOS v{{< param version >}}</a>
     <a href="/install/" class="link-ghost">Install guide →</a>
   </div>
 </section>

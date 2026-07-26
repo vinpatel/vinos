@@ -1,66 +1,60 @@
 ---
 title: "Install"
-description: "One command on any Arch. T2 Mac path included."
+description: "Flash the ISO. Boot it. Run one command. ~15 minutes end-to-end. Same path on any x86_64 — T2 Mac included."
 ---
 
-vinOS is an Arch layer — install Arch first, then run one command on top.
+vinOS is a **live ISO**. Boot it, run one command, reboot into your new
+system. No Arch install first. No manual partitioning. Same path for
+every machine — the installer detects your hardware.
 
-## Which path are you?
+## The whole flow
 
-- **You have a 2018-2020 T2 Mac**: [T2 Mac path](#t2-mac).
-- **Everything else**: [Standard path](#standard).
+1. **[Download and flash the ISO](/docs/getting-started/download-and-flash/)**
+   to a USB stick. ~5 minutes with `dd` or Balena Etcher.
+2. **Boot the USB.** The live desktop comes up in ~90 seconds.
+3. **Install to disk** from the live session:
 
-## T2 Mac
+    ```bash
+    sudo vinos-install-disk
+    ```
 
-The T2 chip owns internal keyboard, trackpad, wifi, audio. Stock Arch
-can't drive that. Use the community [t2linux](https://wiki.t2linux.org)
-Arch build with the patched `linux-t2` kernel.
+    Auto-detects hardware (Apple T2 · NVIDIA · generic), partitions,
+    installs, reboots. ~15 minutes end-to-end.
 
-1. Read + follow **[t2linux pre-install](https://wiki.t2linux.org/guides/preinstall/)** — Secure Boot off, allow external boot, shrink macOS partition.
-2. Follow **[t2linux Arch install](https://wiki.t2linux.org/distributions/arch/installation/)**. Use `t2archinstall` (guided) for the easy path.
-3. Finish Arch. Log in as your user. Then:
+That's it — same command whether you're on a 2019 MacBook Pro or a
+generic x86_64 laptop. T2-specific bits (`linux-t2` kernel,
+`brcmfmac` firmware, `tiny-dfr` for Touch Bar, T2 audio routing) ship
+in the ISO; the installer copies them to disk when it sees a T2.
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/vinpatel/vinos/main/boot.sh | bash
-```
+## T2 Mac prerequisites
 
-Reboot; you're in the vinOS Hyprland desktop with T2 hardware fully working.
+Before you flash, on the Mac itself:
 
-## Standard
+1. Boot to Recovery (**⌘+R** at chime).
+2. **Startup Security Utility** → set to **No Security** and **Allow booting
+   from external media**.
+3. Shrink the macOS partition to leave space for vinOS (Disk Utility →
+   resize).
 
-Any 2015+ Intel or AMD laptop/desktop.
+That's the only Mac-specific step. Everything after is the same
+one-command install.
 
-1. Boot the official Arch install ISO (or any Arch flavor's live media).
-2. Run `archinstall`. Pick your kernel, filesystem, timezone, user, sudo. **Profile: minimal** — vinOS handles the rest.
-3. Reboot into your new Arch. Log in.
-4. Run:
+## Try before you install
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/vinpatel/vinos/main/boot.sh | bash
-```
+The live USB **is** vinOS — you can use it directly without touching
+your disk:
 
-## What the one-liner does
+- **`Super`** — menu
+- **`Super + K`** — keybindings cheat sheet
+- **`Super + Ctrl + W`** — Wi-Fi (impala)
+- **`Super + Ctrl + O`** — vinOS menu (bundles, theme, doctor, lock)
+- **`Super + A`** — AI chat (after `vinos-install-ai`)
 
-- Installs `git` if missing.
-- Clones this repo to `~/.local/share/vinos`.
-- Runs `install.sh` which orchestrates the numbered scripts (`01-base` → `06-hardware`).
-
-Everything is **idempotent** — safe to re-run. On failure, resume with:
-
-```bash
-cd ~/.local/share/vinos && ./install.sh --skip NN
-```
-
-## First moves
-
-- **`Super + K`** — the keybindings cheat sheet.
-- **`Super + Ctrl + O`** — vinOS menu (bundles, wifi, theme, doctor, lock).
-- **`Super + Ctrl + W`** — wifi via impala.
-- **`Super + A`** — AI chat (install first with `vinos-install-ai`).
+Wi-Fi works on T2 out of the box. Ethernet auto-connects via DHCP.
 
 ## Bundles
 
-Base is lean. Add what you need:
+Base is lean. Add what you need after installing:
 
 ```bash
 vinos-install-ai            # ollama + claude-code + torch + aichat
@@ -77,12 +71,9 @@ Full catalog: [Bundles](/bundles/).
 
 ## Uninstall
 
-vinOS is additive — no base package modifications. To remove:
-
-```bash
-sudo pacman -Rns hyprland waybar foot mako walker ...  # any bundle
-rm -rf ~/.config/{hypr,waybar,foot,mako,walker} ~/.local/share/vinos
-sudo mv /etc/os-release.arch.bak /etc/os-release
-```
+vinOS is a full Linux distribution, not a package overlay — there is
+no in-place uninstall. To remove it, boot another OS's installer USB
+(macOS Recovery, Windows installer, or another Linux ISO) and
+repartition the drive.
 
 Full source: [github.com/vinpatel/vinos](https://github.com/vinpatel/vinos)
