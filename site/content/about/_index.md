@@ -1,6 +1,6 @@
 ---
 title: "About vinOS"
-description: "Positioning, heritage, sponsors. vinOS is an agentic OS for founders — real Claude/Ollama-powered agents on a schedule, 80% local, 20% premium, and a small, readable overlay on stock Arch."
+description: "Positioning, heritage, sponsors. vinOS is the agentic startup OS — real Claude/Ollama-powered agents on a schedule, 80% local, 20% premium, and a small, readable overlay on stock Arch."
 url: "/about/"
 type: "for"
 ---
