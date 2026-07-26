@@ -143,27 +143,11 @@ max_dollars = 0.10             # per run · hard cap`
   {{/* ─────────────── LAPTOP → CLUSTER (v2.1 portability) ─────────────── */}}
   {{ partial "cluster-portability.html" . }}
 
-  {{/* ─────────────── THEMES ─────────────── */}}
-  <section class="section-block" aria-labelledby="themes-heading">
-    <header class="section-head">
-      <div class="section-eyebrow">the vinOS ten</div>
-      <h2 id="themes-heading">Ten curated themes. <span class="accent">Real HD wallpapers</span> from working photographers.</h2>
-      <p class="section-lede">
-        Six dark, four light. Each theme layers a battle-tested community
-        palette (tokyonight, gruvbox, nord, catppuccin-latte, everforest)
-        with the vinOS teal signature — proven color science, one brand
-        voice. Wallpapers curated from Unsplash and attributed per shot.
-      </p>
-    </header>
-
-    {{ partial "theme-gallery.html" . }}
-
-    <p class="section-foot">
-      <a class="section-foot-link" href="/docs/themes/the-vinos-10/">
-        The full theme catalog + attribution →
-      </a>
-    </p>
-  </section>
+  {{/* Themes gallery moved off the homepage — the theme re-skinner
+       below the hero already lets visitors preview all 10, and the
+       full wallpaper catalog + attribution lives at
+       /docs/themes/the-vinos-10/. Homepage stays laser-focused on
+       agents; themes are chrome, not the value prop. */}}
 
   {{/* ─────────────── INSTALL (moved down · after demo + value prop) ─────────────── */}}
   <section class="section-block">
