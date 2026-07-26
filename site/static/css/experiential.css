@@ -31,28 +31,90 @@
 }
 .home-hero-scrim {
   position: absolute; inset: 0; z-index: -1;
+  /* Uniform, soft — lets the desktop breathe. Text legibility comes from
+     a text-shadow on the headline copy, not from a heavy backdrop. */
   background:
-    /* Left-side text zone: darker so headline reads; right-side keeps the
-       desktop visible so the visitor SEES the OS instead of a black tint. */
-    linear-gradient(105deg,
-      rgba(10,13,18,0.90) 0%,
-      rgba(10,13,18,0.72) 40%,
-      rgba(10,13,18,0.35) 72%,
-      rgba(10,13,18,0.28) 100%),
-    radial-gradient(120% 60% at 20% 0%, rgba(51,204,255,0.10), transparent 60%);
+    linear-gradient(180deg,
+      rgba(10,13,18,0.28) 0%,
+      rgba(10,13,18,0.42) 65%,
+      rgba(10,13,18,0.62) 100%);
   pointer-events: none;
 }
 @media (max-width: 68rem) {
-  /* Narrow viewports: fall back to a strong even scrim so text stays readable. */
+  /* Narrow viewports: stronger scrim so text stays readable at reading
+     angles (phones, tablets) without a huge card behind the copy. */
   .home-hero-scrim {
     background:
       linear-gradient(180deg,
-        rgba(10,13,18,0.78) 0%,
-        rgba(10,13,18,0.92) 55%,
-        rgba(10,13,18,0.985) 100%),
-      radial-gradient(120% 60% at 20% 0%, rgba(51,204,255,0.10), transparent 60%);
+        rgba(10,13,18,0.62) 0%,
+        rgba(10,13,18,0.85) 65%,
+        rgba(10,13,18,0.98) 100%);
   }
 }
+
+/* Headline + lede get their contrast from a subtle drop-shadow so we can
+   drop the heavy backdrop scrim and let the OS behind read. */
+.home-hero--cosmos #hero-heading,
+.home-hero--cosmos .home-hero-lede,
+.home-hero--cosmos .home-hero-teaser-line,
+.home-hero--cosmos .home-hero-teaser-cta {
+  text-shadow: 0 1px 20px rgba(0,0,0,0.85), 0 1px 3px rgba(0,0,0,0.65);
+}
+
+/* ═════════ mock waybar in the hero ═════════
+   The visual signal to a first-time visitor that the background is an
+   operating system, not a marketing render. All CSS, no image deps. */
+.home-hero-waybar {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 3;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-3);
+  padding: 6px 14px;
+  height: 28px;
+  background: rgba(10,13,18,0.72);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-2);
+  pointer-events: none;
+  user-select: none;
+}
+.home-hero-waybar .hwb-left,
+.home-hero-waybar .hwb-center,
+.home-hero-waybar .hwb-right {
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.home-hero-waybar .hwb-pip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 16px; padding: 0 5px; height: 16px;
+  border-radius: 4px;
+  color: var(--fg-3);
+  background: rgba(255,255,255,0.04);
+  font-size: 10px;
+}
+.home-hero-waybar .hwb-pip--active {
+  color: var(--accent);
+  background: rgba(51,204,255,0.14);
+  box-shadow: inset 0 0 0 1px rgba(51,204,255,0.35);
+}
+.home-hero-waybar .hwb-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(51,204,255,0.7);
+}
+.home-hero-waybar .hwb-app { color: var(--fg-1); }
+.home-hero-waybar .hwb-app .hwb-money { color: var(--accent); }
+.home-hero-waybar .hwb-mod { color: var(--fg-3); }
+.home-hero-waybar .hwb-mod--strong { color: var(--fg-0); }
+@media (max-width: 40rem) {
+  .home-hero-waybar .hwb-center { display: none; }
+}
+
+/* Since the mock waybar now anchors the top, the hero content needs
+   extra top padding so nothing collides with it. */
+.home-hero--cosmos { padding-top: calc(clamp(3rem, 8vw, 6rem) + 28px); }
+.home-hero-osbadge { top: calc(28px + var(--sp-3)); }
 @media (prefers-reduced-motion: reduce) {
   .home-hero--cosmos::before { transform: none; }
 }

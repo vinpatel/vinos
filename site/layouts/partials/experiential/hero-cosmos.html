@@ -13,10 +13,31 @@
          data-exp-hero
          style="--hero-wallpaper: url('{{ "img/screenshots/theme-cosmos.jpg" | relURL }}');">
   <div class="home-hero-scrim" aria-hidden="true"></div>
-  {{/* OS chrome tease: tiny corner marker so the hero reads as
-       "you're looking at the actual vinOS desktop" rather than a
-       generic marketing background. The screenshot ALREADY shows
-       waybar + brand mark; this label just makes it obvious. */}}
+
+  {{/* Mock Waybar at the very top of the hero — this is the
+       "you are looking at an operating system" moment. Renders as HTML/CSS
+       so it stays crisp at any resolution, doesn't depend on the
+       screenshot behind it, and lets us bake in real vinOS UI language
+       (workspace pips, brand accent dot, JetBrains Mono time). */}}
+  <div class="home-hero-waybar" aria-hidden="true">
+    <div class="hwb-left">
+      <span class="hwb-pip hwb-pip--active">1</span>
+      <span class="hwb-pip">2</span>
+      <span class="hwb-pip">3</span>
+      <span class="hwb-pip">4</span>
+      <span class="hwb-pip">5</span>
+    </div>
+    <div class="hwb-center">
+      <span class="hwb-dot"></span>
+      <span class="hwb-app">day-brief · rendered · <span class="hwb-money">$0.00</span></span>
+    </div>
+    <div class="hwb-right">
+      <span class="hwb-mod">wifi</span>
+      <span class="hwb-mod">89%</span>
+      <span class="hwb-mod hwb-mod--strong">06:12</span>
+    </div>
+  </div>
+
   <div class="home-hero-osbadge" aria-hidden="true">
     ● live desktop · cosmos · v{{ .Site.Params.version }}
   </div>
