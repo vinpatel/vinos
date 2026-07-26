@@ -554,6 +554,22 @@
 .home-hero--cosmos .hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px rgba(51,204,255,0.55); }
 .home-hero--cosmos .hero-eyebrow .accent { color: var(--accent); }
 .home-hero--cosmos .hero-eyebrow-ver { color: var(--fg-3); padding-left: var(--sp-2); border-left: 1px solid var(--line); margin-left: var(--sp-1); }
+/* Secondary eyebrow — "secure by default" trust marker below the main
+   tagline. Same shape as the main eyebrow but with a shield glyph in
+   place of the pulsing dot, and slightly muted color. */
+.home-hero--cosmos .hero-eyebrow--sub {
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 4px 12px;
+  color: var(--fg-2);
+  background: rgba(10,13,18,0.42);
+  font-size: 11px;
+  margin-top: -6px;
+}
+.home-hero--cosmos .hero-eyebrow--sub svg {
+  width: 12px; height: 12px;
+  color: var(--accent);
+}
 .home-hero-teaser { align-self: end; display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-5); background: rgba(10,13,18,0.55); border: 1px solid var(--line-strong); border-left: 3px solid var(--accent); border-radius: var(--r-3); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 .home-hero-teaser-line { display: flex; align-items: baseline; gap: var(--sp-3); font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--fg-1); line-height: 1.55; }
 .home-hero-teaser-line .ht-time { color: var(--accent); font-variant-numeric: tabular-nums; }
