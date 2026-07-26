@@ -15,6 +15,17 @@ type: "for"
     electricity. Routines default to a local pick from this catalog and
     escalate to Claude only when they have to — see the router below.
   </p>
+  <div class="models-freshness" role="status" aria-label="catalog freshness">
+    <span class="models-freshness-dot" aria-hidden="true"></span>
+    <span class="models-freshness-label">
+      <strong>Updated daily.</strong>
+      A <a href="https://github.com/vinpatel/vinos/blob/main/.github/workflows/models-daily-update.yml" target="_blank" rel="noopener">GitHub&nbsp;Action</a>
+      runs at&nbsp;06:00&nbsp;UTC, diffs this catalog against
+      <a href="https://ollama.com/library" target="_blank" rel="noopener">ollama.com/library</a>,
+      and opens an issue when new models appear so a human can curate
+      them in. Model space moves fast; the page tries to keep up.
+    </span>
+  </div>
 </section>
 
 <section class="audience-section" id="the-80-20-router">

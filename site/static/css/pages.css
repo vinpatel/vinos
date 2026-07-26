@@ -261,6 +261,46 @@
 .for-strip-link { background: var(--bg-1); }
 .for-strip-link:hover { background: var(--bg-2); border-color: rgba(51,204,255,0.35); }
 .audience-hero .audience-eyebrow { background: var(--bg-1); }
+
+/* Models catalog freshness chip — sits under the audience-lede on /models/.
+   Signals "this catalog is not stale" without shouting. */
+.models-freshness {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-top: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid rgba(51,204,255,0.22);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r-2);
+  background: rgba(51,204,255,0.05);
+}
+.models-freshness-dot {
+  flex: 0 0 auto;
+  width: 8px; height: 8px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(51,204,255,0.12);
+  animation: modelsPulse 2.4s ease-in-out infinite;
+}
+@keyframes modelsPulse {
+  0%,100% { box-shadow: 0 0 0 4px rgba(51,204,255,0.12); }
+  50%     { box-shadow: 0 0 0 8px rgba(51,204,255,0.04); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .models-freshness-dot { animation: none; }
+}
+.models-freshness-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--fg-1);
+  line-height: 1.55;
+}
+.models-freshness-label strong { color: var(--fg-0); font-weight: 600; }
+.models-freshness-label a {
+  color: var(--accent);
+  border-bottom: 1px dashed rgba(51,204,255,0.4);
+}
+.models-freshness-label a:hover { border-bottom-color: var(--accent); }
 .audience-proof img { background: var(--bg-1); }
 .prose .small-print { background: var(--bg-1); border-left-color: var(--line-strong); }
 .foot-mark em, .wordmark em, .foot-line .foot-accent { color: var(--accent); }
