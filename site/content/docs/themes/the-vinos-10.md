@@ -38,9 +38,9 @@ Default first-boot theme: **cosmos**.
 | **cosmos** | Milky Way over an alpine lake reflection | tokyonight | Pascal Debrunner |
 | **dusk** | Distant snow range under sunset alpenglow | gruvbox-dark | Pascal Debrunner |
 
-<figure class="doc-shot doc-shot-pending" id="shot-12">
-  <div class="doc-shot-slot">Screenshot pending: full desktop with cosmos active</div>
-  <figcaption>cosmos — see SCREENSHOTS_NEEDED.md #shot-12.</figcaption>
+<figure class="doc-shot" id="shot-12">
+  <img src="/img/screenshots/theme-cosmos.jpg" alt="Full desktop with the cosmos theme active — Milky Way over an alpine lake, waybar with time and workspaces, vinOS brand mark bottom-right" width="1920" height="1200" loading="lazy">
+  <figcaption>cosmos — captured on v2.0.5 · Pascal Debrunner via Unsplash.</figcaption>
 </figure>
 
 <figure class="doc-shot doc-shot-pending" id="shot-14">

@@ -26,7 +26,7 @@ for real `<img>` tags.
 
 - [ ] **shot-10** · `menu-root.png` — `vinos-menu` open, Install submenu visible.
 - [ ] **shot-11** · `theme-picker.png` — `vinos-theme --pick` walker overlay, ten themes listed with preview thumbnails.
-- [ ] **shot-12** · `theme-cosmos.png` — Full desktop with the cosmos theme active (Milky Way wallpaper, waybar, walker peek).
+- [x] **shot-12** · `theme-cosmos.jpg` — Full desktop with the cosmos theme active (Milky Way wallpaper, waybar, walker peek). **Captured 2026-07-26 · 1920×1200 JPEG q88, 450 KB.**
 - [ ] **shot-13** · `theme-summit.png` — Full desktop with the summit theme active (Ama Dablam at dawn, light mode).
 - [ ] **shot-14** · `theme-circuit.png` — Full desktop with the circuit theme active (dark techy 3D blocks).
 
