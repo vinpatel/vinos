@@ -59,30 +59,44 @@ vscode_pin() {
   esac
 }
 
-# Watermark: composite the vinOS mono logo at 5% width, bottom-right,
-# ~55% opacity so it reads as a signature, not a stamp.
+# Watermark: composite the vinOS mono logo bottom-right, sized + inset by
+# PERCENTAGE of source dimensions so the mark survives cover-crop on every
+# common display ratio and reads clearly at every resolution.
 #
-# Inset offsets are TUNED FOR COVER-CROP on non-16:9 displays. The
-# wallpaper is 3840x2160 (16:9); target display for vinOS is the T2
-# 15" MBP at 2880x1800 (16:10). Swaybg/hyprland cover-fill scales to
-# height and crops horizontally — 160px per side on the T2. A 48px
-# inset put the logo partly off-screen. Increased to 200px+80px so the
-# glyph survives cover-crop on all common ratios (16:10, 3:2, 4:3).
+# Position math — insets are source-relative percentages, cover-crop safe:
+#   16:9    (native, no crop)          → 10% inset ≈ 192px from display edge
+#   16:10   (T2 MBP, ~160px crop/side) → 10% inset ≈ 187px from display edge
+#   3:2     (M1/M2 MBP, ~267px crop)   → 10% inset ≈ 104px from display edge
+#   4:3     (~480px crop, very rare)   → clipped; accepted trade-off
+#   21:9    (ultrawide, vertical crop) → 4% bottom inset ≈ 45px, still visible
+#
+# Rendering: rsvg at 2× target, then Lanczos downsample for a crisp edge.
+# Opacity 0.80 (was 0.55) so the mark reads as a signature, not a ghost.
 watermark_wallpaper() {
   local src="$1" dst="$2" logo_variant="$3"
   local logo_svg
   [[ "$logo_variant" == "dark" ]] && logo_svg="$LOGO_DARK" || logo_svg="$LOGO_WHITE"
 
-  local w; w=$(magick identify -format '%w' "$src")
-  local lw=$(( w * 5 / 100 )); [[ "$lw" -lt 80 ]] && lw=80
+  local w h
+  w=$(magick identify -format '%w' "$src")
+  h=$(magick identify -format '%h' "$src")
+
+  # Logo width: 8% of source, clamped 160-320px.
+  local lw=$(( w * 8 / 100 ))
+  [[ "$lw" -lt 160 ]] && lw=160
+  [[ "$lw" -gt 320 ]] && lw=320
+
+  local inset_r=$(( w * 10 / 100 ))
+  local inset_b=$(( h * 4 / 100 ))
 
   local tmp_logo; tmp_logo="$(mktemp --suffix=.png)"
-  rsvg-convert -w "$lw" "$logo_svg" -o "$tmp_logo"
+  rsvg-convert -w "$(( lw * 2 ))" "$logo_svg" -o "$tmp_logo"
 
   magick "$src" \
-    \( "$tmp_logo" -alpha set -channel A -evaluate multiply 0.55 +channel \) \
-    -gravity SouthEast -geometry +200+80 -composite \
-    -strip -quality 90 "$dst"
+    \( "$tmp_logo" -resize "${lw}x" -filter Lanczos \
+                   -alpha set -channel A -evaluate multiply 0.80 +channel \) \
+    -gravity SouthEast -geometry "+${inset_r}+${inset_b}" -composite \
+    -strip -quality 92 "$dst"
   rm -f "$tmp_logo"
 }
 
