@@ -18,6 +18,35 @@ layout: "single"
 </section>
 
 <section class="audience-section">
+  <h2>By role — <span class="accent">who you are.</span></h2>
+  <div class="for-strip" style="margin-top: 0; padding-top: 0; border-top: 0;">
+    <div class="for-strip-links" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+      <a href="/for/founders/" class="for-strip-link">
+        <span class="for-strip-label">→ For founders</span>
+        <span class="for-strip-desc">Get your Sunday back. Inbox, PRs, brief, shutdown — on a schedule, on your laptop.</span>
+      </a>
+      <a href="/for/engineers/" class="for-strip-link">
+        <span class="for-strip-label">→ For engineers</span>
+        <span class="for-strip-desc">Agents that live next to your code. Drop <code>.vinos/routines.yaml</code> in the repo.</span>
+      </a>
+      <a href="/for/enterprise/" class="for-strip-link">
+        <span class="for-strip-label">→ For IT decision-makers</span>
+        <span class="for-strip-desc">The agentic OS with guardrails built in. Local-first. Cost-capped. Sandboxed. Auditable.</span>
+      </a>
+      <a href="/for/platform/" class="for-strip-link">
+        <span class="for-strip-label">→ For platform teams</span>
+        <span class="for-strip-desc">Runs on your laptop. Ships to your cluster. Systemd on the box, CronJobs in K8s.</span>
+      </a>
+      <a href="/for/researchers/" class="for-strip-link">
+        <span class="for-strip-label">→ For researchers</span>
+        <span class="for-strip-desc">Local models. Your papers stay yours. Pin the model, share the routine, reproduce the synthesis.</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="audience-section">
+  <h2>By use case — <span class="accent">what you're solving.</span></h2>
   <div class="for-strip" style="margin-top: 0; padding-top: 0; border-top: 0;">
     <div class="for-strip-links" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
       <a href="/for/developers/" class="for-strip-link">

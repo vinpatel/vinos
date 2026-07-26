@@ -1,0 +1,58 @@
+{{/*
+  persona-strip partial · 5-card audience router
+  Renders below the hero on the homepage. Also reused (headless) on /for/.
+  args: none — content is fixed per the site's audience taxonomy.
+*/}}
+<section class="section-block persona-strip" aria-labelledby="persona-strip-heading">
+  <header class="section-head">
+    <div class="section-eyebrow">for</div>
+    <h2 id="persona-strip-heading">Five ways this <span class="accent">shows up in your day.</span></h2>
+    <p class="section-lede">
+      Same ISO. Same routines. Different job to be done. Pick the angle
+      that matches yours — each page names the pain and the fix in your
+      language.
+    </p>
+  </header>
+
+  <div class="persona-grid" role="list">
+    <a href="/for/founders/" class="persona-card" role="listitem">
+      <span class="persona-glyph" aria-hidden="true">▪</span>
+      <span class="persona-role">Founders</span>
+      <p class="persona-pain">I lose Sundays to inbox, PRs, and writing.</p>
+      <p class="persona-payoff">Get your <span class="accent">Sunday</span> back.</p>
+      <span class="persona-cta">How this works for you →</span>
+    </a>
+
+    <a href="/for/engineers/" class="persona-card" role="listitem">
+      <span class="persona-glyph" aria-hidden="true">◆</span>
+      <span class="persona-role">Engineers</span>
+      <p class="persona-pain">AI tools live outside our repo. Agents need to travel with the code.</p>
+      <p class="persona-payoff">Agents that live <span class="accent">next to your code.</span></p>
+      <span class="persona-cta">How this works for you →</span>
+    </a>
+
+    <a href="/for/enterprise/" class="persona-card" role="listitem">
+      <span class="persona-glyph" aria-hidden="true">▲</span>
+      <span class="persona-role">IT decision-makers</span>
+      <p class="persona-pain">Copilot is $40/seat and our data goes to their servers.</p>
+      <p class="persona-payoff">The agentic OS with <span class="accent">guardrails</span> built in.</p>
+      <span class="persona-cta">How this works for you →</span>
+    </a>
+
+    <a href="/for/platform/" class="persona-card" role="listitem">
+      <span class="persona-glyph" aria-hidden="true">●</span>
+      <span class="persona-role">Platform teams</span>
+      <p class="persona-pain">Every AI tool is a SaaS bolt-on. We want it in the cluster.</p>
+      <p class="persona-payoff">Runs on your laptop. Ships to your <span class="accent">cluster.</span></p>
+      <span class="persona-cta">How this works for you →</span>
+    </a>
+
+    <a href="/for/researchers/" class="persona-card" role="listitem">
+      <span class="persona-glyph" aria-hidden="true">◈</span>
+      <span class="persona-role">Researchers</span>
+      <p class="persona-pain">Every LLM tool wants my papers on their servers.</p>
+      <p class="persona-payoff">Local models. Your <span class="accent">papers</span> stay yours.</p>
+      <span class="persona-cta">How this works for you →</span>
+    </a>
+  </div>
+</section>

@@ -1,0 +1,76 @@
+{{/*
+  cluster-portability partial · side-by-side (routine yaml → k8s cronjob)
+  Shown on the homepage between the 80/20 router and the theme gallery.
+*/}}
+<section class="section-block" aria-labelledby="cluster-heading">
+  <header class="section-head">
+    <div class="section-eyebrow">laptop → cluster</div>
+    <h2 id="cluster-heading">Same agents. Your laptop or your <span class="accent">kubernetes.</span></h2>
+    <p class="section-lede">
+      vinOS routines are portable. Systemd timers on your machine today;
+      K8s CronJobs on your cluster tomorrow. Same
+      <code>.vinos/routines.yaml</code>. Same 80/20 router. Same ledger.
+      Same rules.
+    </p>
+  </header>
+
+  <div class="cluster-splits">
+    {{ partial "code-block.html" (dict
+      "file" ".vinos/routines.yaml"
+      "lang" "yaml"
+      "code" `# runs today · systemd user timer
+apiVersion: vinos.computer/v1
+kind: RoutineSet
+metadata:
+  project: startup-inc
+
+routines:
+  - name: pr-review
+    schedule:
+      oncalendar: "*-*-* 09,13,17:00:00"
+      timezone: America/New_York
+    agent:
+      route: auto            # 80% local
+      model: llama3.1:8b
+      escalate_to: claude-sonnet-4-6
+    budget:
+      max_dollars_per_day: 0.50
+      on_exceed: skip`
+    ) }}
+
+    {{ partial "code-block.html" (dict
+      "file" "k8s/pr-review-cronjob.yaml   ·   v2.1 · vinos-cloud"
+      "lang" "yaml"
+      "code" `# same spec · exported for the cluster
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pr-review
+  namespace: vinos-agents
+spec:
+  schedule: "0 9,13,17 * * *"     # translated from oncalendar
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: routine
+              image: ghcr.io/vinpatel/vinos-cloud:2.1
+              args: ["run", "pr-review"]
+              envFrom:
+                - secretRef: { name: vinos-api-keys }
+              volumeMounts:
+                - { name: state, mountPath: /var/lib/vinos }
+          volumes:
+            - name: state
+              persistentVolumeClaim: { claimName: vinos-ledger }`
+    ) }}
+  </div>
+
+  <p class="section-foot">
+    <a class="section-foot-link" href="/docs/v2/roadmap/">
+      vinOS Cloud (Docker + Helm) ships in v2.1 — read the roadmap →
+    </a>
+  </p>
+</section>

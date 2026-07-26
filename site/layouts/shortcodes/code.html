@@ -1,0 +1,11 @@
+{{/*
+  code shortcode — wraps the code-block partial.
+  Usage:
+    {{< code file="path" lang="toml" >}}
+    ...code...
+    {{< /code >}}
+*/}}
+{{- $file := .Get "file" | default "" -}}
+{{- $lang := .Get "lang" | default "" -}}
+{{- $inner := trim .Inner "\n" -}}
+{{ partial "code-block.html" (dict "code" $inner "file" $file "lang" $lang) }}
