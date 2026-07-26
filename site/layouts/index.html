@@ -1,11 +1,63 @@
 {{ define "main" }}
 <div class="page">
 
-  {{/* ─────────────── HERO (experiential · cosmos wallpaper bg) ─────────────── */}}
+  {{/* ─────────────── HERO (cosmos wallpaper · new messaging) ─────────────── */}}
   {{ partial "experiential/hero-cosmos.html" . }}
 
-  {{/* ─────────────── LIVE THEME RE-SKINNER ─────────────── */}}
+  {{/* ─────────────── LIVE THEME RE-SKINNER (hero-adjacent) ─────────────── */}}
   {{ partial "experiential/theme-reskinner.html" . }}
+
+  {{/* ─────────────── ROUTINE PLAYBACK (the money moment) ─────────────── */}}
+  {{ partial "experiential/routine-playback.html" . }}
+
+  {{/* ─────────────── THREE OUTCOMES ─────────────── */}}
+  <section class="section-block">
+    <header class="section-head">
+      <div class="section-eyebrow">what you get</div>
+      <h2>Three things that ship <span class="accent">the day you install it.</span></h2>
+    </header>
+
+    <div class="outcomes">
+      <article class="outcome">
+        <div class="outcome-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="7" width="24" height="20" rx="2"/>
+            <path d="M4 13h24"/><path d="M10 4v6"/><path d="M22 4v6"/>
+            <path d="M9 18h8"/><path d="M9 22h5"/>
+          </svg>
+        </div>
+        <h3>A brief on your login screen <span class="accent">every morning.</span></h3>
+        <p class="outcome-sub">Reads your inbox, calendar, GitHub. Costs a penny.</p>
+        <div class="outcome-tool"><code>day-brief</code> · <span class="dim">llama3.1:8b · 06:00</span></div>
+      </article>
+
+      <article class="outcome">
+        <div class="outcome-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 10l6 6-6 6"/><path d="M14 22h12"/>
+            <circle cx="24" cy="8" r="4"/><path d="M20 8h8"/>
+          </svg>
+        </div>
+        <h3>PR reviews <span class="accent">while you're in a meeting.</span></h3>
+        <p class="outcome-sub">Every 30 minutes. Local model first — Claude only for tricky diffs.</p>
+        <div class="outcome-tool"><code>github-review</code> · <span class="dim">route = "auto"</span></div>
+      </article>
+
+      <article class="outcome">
+        <div class="outcome-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 8h20v18H6z"/><path d="M6 14h20"/>
+            <circle cx="10" cy="11" r="1" fill="currentColor"/>
+            <circle cx="13" cy="11" r="1" fill="currentColor"/>
+            <path d="M10 20l4-4 4 4 4-4"/>
+          </svg>
+        </div>
+        <h3>Agents that <span class="accent">travel with your code.</span></h3>
+        <p class="outcome-sub">Drop <code>.vinos/routines.yaml</code> in any repo. Your team inherits the same set.</p>
+        <div class="outcome-tool"><code>vinos-routine load .</code> · <span class="dim">git-native</span></div>
+      </article>
+    </div>
+  </section>
 
   {{/* ─────────────── STAT ROW ─────────────── */}}
   {{ partial "stat-card.html" (dict "stats" (slice
@@ -16,32 +68,6 @@
     (dict "n" "5" "unit" " starters" "label" "shipped · disabled"
           "hint" "day-brief · github-review · evening-shutdown · research-recap · focus-mode.")
   )) }}
-
-  {{/* ─────────────── THREE THINGS ─────────────── */}}
-  <section class="section-block">
-    <header class="section-head">
-      <div class="section-eyebrow">what makes it different</div>
-      <h2>Three things vinOS does <span class="accent">that nothing else does.</span></h2>
-    </header>
-
-    {{ partial "feature-row.html" (dict "features" (slice
-      (dict
-        "num" "01"
-        "title" "Agents that run without you"
-        "body" "A <strong>routine</strong> is a declarative TOML file: agent, schedule, tools, output, budget. The runtime is a systemd user timer + a whitelist-enforced tool loop. Your agent wakes at 6&nbsp;am, does the work, drops the brief on your login screen — and shuts up."
-        "foot" "<code>vinos-routine enable day-brief</code> · one command, one timer.")
-      (dict
-        "num" "02"
-        "title" "The 80/20 router"
-        "body" "Every routine picks a local model (Ollama) by default and escalates to Claude only when the task requires reasoning the local model can't do. 500 routines/day × 20% × $0.03 = <strong>$90/mo</strong> vs. <strong>$450/mo</strong> all-premium."
-        "foot" "<code>route = &quot;auto&quot;</code> in the routine TOML.")
-      (dict
-        "num" "03"
-        "title" "Portable — next to your code"
-        "body" "Drop a <code>.vinos/routines.yaml</code> in any repo — the way <code>.github/workflows/</code> did for CI. A teammate clones the repo, runs <code>vinos-routine load .</code>, and inherits the same agent set on their machine."
-        "foot" "<a href='/spec/'>routines.yaml spec →</a>")
-    )) }}
-  </section>
 
   {{/* ─────────────── DAY TIMELINE ─────────────── */}}
   <section class="section-block">
@@ -133,37 +159,7 @@ max_dollars = 0.10             # per run · hard cap`
     </p>
   </section>
 
-  {{/* ─────────────── ARCHITECTURE ─────────────── */}}
-  <section class="section-block">
-    <header class="section-head">
-      <div class="section-eyebrow">architecture</div>
-      <h2>A <span class="accent">thin, readable</span> layer on stock Arch.</h2>
-      <p class="section-lede">
-        vinOS is not a fork. It's a thin, readable layer — leave any time and
-        nothing follows.
-      </p>
-    </header>
-
-    <div class="arch" role="img" aria-label="vinOS architecture — four layers, top to bottom">
-<pre>
-┌───────────────────────────────────────────────────────────────┐
-│  <span class="layer">your agents</span>          <span class="note"># .vinos/routines/*.toml · systemd timers</span>│
-│  day-brief · github-review · evening-shutdown · +2 starters   │
-├───────────────────────────────────────────────────────────────┤
-│  <span class="layer">agent runtime</span>          <span class="note"># 80/20 router · SQLite ledger · tool loop</span>│
-│  ollama · claude-code · vinos-routine · vinos-ai              │
-├───────────────────────────────────────────────────────────────┤
-│  <span class="layer">vinos overlay</span>            <span class="note"># 279 pkgs · 88 vinos-* bins</span>    │
-│  hyprland · walker · waybar · foot · mako · greetd            │
-├───────────────────────────────────────────────────────────────┤
-│  <span class="layer">stock arch linux</span>          <span class="note"># rolling · pacman · systemd</span>  │
-│  linux 6.x · linux-t2 (Apple T2) · glibc · wayland            │
-└───────────────────────────────────────────────────────────────┘
-</pre>
-    </div>
-  </section>
-
-  {{/* ─────────────── INSTALL ─────────────── */}}
+  {{/* ─────────────── INSTALL (moved down · after demo + value prop) ─────────────── */}}
   <section class="section-block">
     <header class="section-head">
       <div class="section-eyebrow">install</div>
@@ -195,6 +191,11 @@ max_dollars = 0.10             # per run · hard cap`
         </div>
       </li>
     </ol>
+    <p class="section-foot">
+      <a class="section-foot-link" href="/docs/">
+        Architecture, spec, and full docs →
+      </a>
+    </p>
   </section>
 
   {{/* ─────────────── FINAL CTA ─────────────── */}}

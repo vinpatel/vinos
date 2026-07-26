@@ -1,0 +1,61 @@
+{{/*
+  routine-playback partial · scripted terminal playback of day-brief
+  Click ▶ → the terminal types the command, the trace lines fade in, and a
+  brief panel populates line-by-line. Vanilla JS in experiential.js, module
+  key `data-exp-playback`. prefers-reduced-motion → everything appears at
+  once. IntersectionObserver → auto-plays once when scrolled into view.
+*/}}
+<section class="section-block playback-section" id="watch-a-routine-run" aria-labelledby="playback-heading">
+  <header class="section-head">
+    <div class="section-eyebrow">the money moment</div>
+    <h2 id="playback-heading">Watch a routine <span class="accent">run.</span></h2>
+    <p class="section-lede">
+      Hit play. This is a real <code>day-brief</code> routine executing on
+      <em>cosmos</em> — scripted for the demo, but the flow is exactly what
+      happens on your machine every morning at 06:00.
+    </p>
+  </header>
+
+  <div class="playback" data-exp-playback>
+    <div class="playback-grid">
+      <div class="playback-terminal terminal" role="figure" aria-label="routine playback terminal">
+        <div class="terminal-head">
+          <span class="terminal-dots" aria-hidden="true"><span class="r"></span><span class="y"></span><span class="g"></span></span>
+          <span class="terminal-title">vinos-routine · day-brief</span>
+        </div>
+        <div class="terminal-body">
+          <pre data-playback-stream aria-live="polite" aria-atomic="false"><span class="prompt">$</span> <span class="cursor" data-playback-cursor aria-hidden="true"></span></pre>
+        </div>
+      </div>
+
+      <aside class="playback-brief" aria-label="rendered brief">
+        <div class="playback-brief-head">
+          <span class="playback-brief-tag">~/.local/state/vinos/brief.md</span>
+          <span class="playback-brief-status" data-playback-brief-status>waiting…</span>
+        </div>
+        <div class="playback-brief-body" data-playback-brief></div>
+      </aside>
+    </div>
+
+    <div class="playback-foot">
+      <div class="playback-cost" data-playback-cost>
+        <span class="dim">$ cost</span>
+        <span class="playback-cost-val"><span class="accent">$0.000</span> local · $0.00 escalated</span>
+      </div>
+      <div class="playback-controls">
+        <button type="button" class="playback-btn playback-btn--play" data-playback-play aria-label="play routine">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          <span data-playback-play-label>Play</span>
+        </button>
+        <button type="button" class="playback-btn" data-playback-pause aria-label="pause">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+          Pause
+        </button>
+        <button type="button" class="playback-btn" data-playback-skip aria-label="skip to end">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 4 15 12 5 20 5 4"/><rect x="17" y="4" width="2" height="16"/></svg>
+          Skip
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

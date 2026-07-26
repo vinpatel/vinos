@@ -337,6 +337,209 @@
     events.forEach(function (e) { io.observe(e); });
   }
 
+  /* ══════════════════ 6. routine playback ══════════════════ */
+  // Scripted playback of a day-brief routine. Terminal types the command,
+  // trace lines fade in on a timer, brief panel populates line-by-line.
+  // prefers-reduced-motion → dump everything at once. IntersectionObserver
+  // → auto-play once when scrolled into view (first time only).
+  var PB_TRACE = [
+    { txt: '→ routine    day-brief',                                   d: 120 },
+    { txt: '→ schedule   0 6 * * *          (daily · 06:00 local)', d: 90 },
+    { txt: '→ model      llama3.1:8b          (local · ollama)',    d: 90 },
+    { txt: '→ tools      calendar, inbox, github, weather',            d: 90 },
+    { txt: '',                                                              d: 60 },
+    { txt: '✓ context assembled       (3 sources · 412 tokens)',  d: 260, cls: 'ok' },
+    { txt: '✓ agent step 1/3           llama3.1:8b · 0.8s',       d: 340, cls: 'ok' },
+    { txt: '✓ agent step 2/3           llama3.1:8b · 1.1s',       d: 340, cls: 'ok' },
+    { txt: '✓ agent step 3/3           llama3.1:8b · 0.6s',       d: 300, cls: 'ok' },
+    { txt: '✓ rendered brief           → ~/.local/state/vinos/brief.md', d: 240, cls: 'ok' },
+    { txt: '',                                                              d: 40 }
+  ];
+  var PB_BRIEF = [
+    { h: 1, t: 'Today · Fri 25 Jul' },
+    { h: 2, t: 'Top 3' },
+    { l: '1. Ship v2.0.5 ISO to dl.vinos.computer' },
+    { l: '2. Review 3 open PRs on vinpatel/vinos' },
+    { l: '3. Draft the routines.yaml spec' },
+    { h: 2, t: 'Signals' },
+    { l: '• 1 new sponsor via GitHub' },
+    { l: '• 4 stars overnight' },
+    { l: '• 2 issues opened (labels: enhancement, docs)' },
+    { h: 2, t: 'Reflect' },
+    { l: 'Yesterday you shipped $0.30 in local-model savings.' }
+  ];
+
+  function initPlayback() {
+    var wrap = $('[data-exp-playback]'); if (!wrap) return;
+    var stream = $('[data-playback-stream]', wrap);
+    var cursor = $('[data-playback-cursor]', wrap);
+    var brief  = $('[data-playback-brief]', wrap);
+    var briefStatus = $('[data-playback-brief-status]', wrap);
+    var playBtn = $('[data-playback-play]', wrap);
+    var playLbl = $('[data-playback-play-label]', wrap);
+    var pauseBtn= $('[data-playback-pause]', wrap);
+    var skipBtn = $('[data-playback-skip]', wrap);
+    if (!stream || !cursor || !brief || !playBtn) return;
+
+    var CMD = 'vinos-routine run day-brief';
+    var timers = [];
+    var state = { running: false, done: false, paused: false, autoPlayed: false };
+
+    function clearTimers() {
+      timers.forEach(function (t) { clearTimeout(t); });
+      timers.length = 0;
+    }
+    function reset() {
+      clearTimers();
+      state.running = false; state.done = false; state.paused = false;
+      stream.innerHTML = '<span class="prompt">$</span> ';
+      stream.appendChild(cursor);
+      brief.innerHTML = '';
+      briefStatus.textContent = 'waiting…';
+      playLbl.textContent = 'Play';
+    }
+    function writeLine(text, cls) {
+      // Insert a text line before the cursor.
+      var span = document.createElement('span');
+      if (cls) span.className = cls;
+      span.textContent = text;
+      stream.insertBefore(span, cursor);
+      stream.insertBefore(document.createTextNode('\n'), cursor);
+    }
+    function writeChar(ch) {
+      stream.insertBefore(document.createTextNode(ch), cursor);
+    }
+    function renderBriefEntry(entry) {
+      var el;
+      if (entry.h === 1)       { el = document.createElement('h4'); el.textContent = entry.t; el.className = 'pb-brief-h1'; }
+      else if (entry.h === 2)  { el = document.createElement('h5'); el.textContent = entry.t; el.className = 'pb-brief-h2'; }
+      else                     { el = document.createElement('p');  el.textContent = entry.l; el.className = 'pb-brief-l'; }
+      el.classList.add('pb-brief-in');
+      brief.appendChild(el);
+    }
+    function dumpAll() {
+      // Reduced-motion / skip path — render everything instantly.
+      clearTimers();
+      stream.innerHTML = '';
+      var p = document.createElement('span'); p.className = 'prompt'; p.textContent = '$';
+      stream.appendChild(p);
+      stream.appendChild(document.createTextNode(' ' + CMD + '\n'));
+      PB_TRACE.forEach(function (line) {
+        if (!line.txt) { stream.appendChild(document.createTextNode('\n')); return; }
+        var s = document.createElement('span');
+        if (line.cls) s.className = line.cls;
+        s.textContent = line.txt;
+        stream.appendChild(s);
+        stream.appendChild(document.createTextNode('\n'));
+      });
+      var tail = document.createElement('span'); tail.className = 'prompt'; tail.textContent = '$';
+      stream.appendChild(tail);
+      stream.appendChild(document.createTextNode(' '));
+      stream.appendChild(cursor);
+      brief.innerHTML = '';
+      PB_BRIEF.forEach(renderBriefEntry);
+      briefStatus.textContent = 'ready';
+      state.done = true; state.running = false;
+      playLbl.textContent = 'Play again';
+    }
+    function schedule(fn, ms) {
+      var t = setTimeout(function () {
+        // filter self out
+        var i = timers.indexOf(t); if (i >= 0) timers.splice(i, 1);
+        fn();
+      }, ms);
+      timers.push(t);
+    }
+    function play() {
+      if (state.running || state.done) {
+        if (state.done) reset();
+        else return;
+      }
+      state.running = true; playLbl.textContent = 'Playing…';
+      briefStatus.textContent = 'running…';
+      if (REDUCED) { dumpAll(); return; }
+
+      // Type the command char-by-char.
+      var i = 0;
+      function typeNext() {
+        if (i >= CMD.length) {
+          writeChar('\n');
+          schedule(traceStep(0), 260);
+          return;
+        }
+        writeChar(CMD.charAt(i++));
+        schedule(typeNext, 30);
+      }
+      typeNext();
+    }
+    function traceStep(idx) {
+      return function () {
+        if (idx >= PB_TRACE.length) {
+          // Start rendering the brief; the tail prompt lands last.
+          briefStatus.textContent = 'rendered';
+          renderBriefStep(0)();
+          return;
+        }
+        var line = PB_TRACE[idx];
+        if (line.txt) writeLine(line.txt, line.cls);
+        else writeChar('\n');
+        schedule(traceStep(idx + 1), line.d);
+      };
+    }
+    function renderBriefStep(idx) {
+      return function () {
+        if (idx >= PB_BRIEF.length) {
+          writeLine('$ ', 'prompt');
+          // The literal "$ " above wrote a newline; drop the trailing NL so
+          // the caret sits on that prompt line.
+          if (stream.lastChild && stream.lastChild.nodeType === 3 && stream.lastChild.textContent === '\n') {
+            stream.removeChild(stream.lastChild);
+          }
+          state.done = true; state.running = false;
+          playLbl.textContent = 'Play again';
+          return;
+        }
+        renderBriefEntry(PB_BRIEF[idx]);
+        schedule(renderBriefStep(idx + 1), 180);
+      };
+    }
+
+    playBtn.addEventListener('click', play);
+    pauseBtn && pauseBtn.addEventListener('click', function () {
+      if (state.done || !state.running) return;
+      // Simple pause: cancel pending timers; a subsequent Play resumes with a
+      // fresh run (documented in the label). Keeps the state machine simple.
+      clearTimers(); state.running = false; state.paused = true;
+      playLbl.textContent = 'Resume';
+    });
+    skipBtn && skipBtn.addEventListener('click', function () { dumpAll(); });
+
+    // Auto-play once when the section scrolls into view.
+    if ('IntersectionObserver' in window && !REDUCED) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting && !state.autoPlayed) {
+            state.autoPlayed = true;
+            play();
+            io.disconnect();
+          }
+        });
+      }, { threshold: 0.35 });
+      io.observe(wrap);
+    }
+
+    // Header/hero anchor clicks: scroll here and trigger play if idle.
+    $$('[data-exp-scroll-play]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        // Delay slightly so the scroll settles before the autotype starts.
+        window.setTimeout(function () {
+          if (!state.running && !state.done) play();
+          else if (state.done) { reset(); play(); }
+        }, 500);
+      });
+    });
+  }
+
   /* ══════════════════ boot ══════════════════ */
   function boot() {
     initHeroParallax();
@@ -344,6 +547,7 @@
     initRouter();
     initCostTicker();
     initDayTimeline();
+    initPlayback();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);

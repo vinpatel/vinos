@@ -10,18 +10,20 @@
       {{- range .Site.Menus.main -}}
         {{- $ext := hasPrefix .URL "http" -}}
         {{- $active := eq .URL $current -}}
-        {{- if ne .Identifier "github" -}}
+        {{- if eq .Identifier "download" -}}
+          <a class="site-nav-cta" href="{{ .URL }}" target="_blank" rel="noopener">Download {{ $.Site.Params.version }}</a>
+        {{- else if eq .Identifier "github" -}}
+          <a class="site-nav-ext" href="{{ .URL }}" target="_blank" rel="noopener" aria-label="vinOS on GitHub">
+            GitHub
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M7 17L17 7"/><path d="M8 7h9v9"/>
+            </svg>
+          </a>
+        {{- else -}}
           <a href="{{ .URL | relURL }}"
              {{ if $active }}class="is-current" aria-current="page"{{ end }}>{{ .Name }}</a>
         {{- end -}}
       {{- end -}}
-      <a class="site-nav-ext" href="{{ .Site.Params.github }}" target="_blank" rel="noopener" aria-label="vinOS on GitHub">
-        GitHub
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M7 17L17 7"/><path d="M8 7h9v9"/>
-        </svg>
-      </a>
-      <a class="site-nav-cta" href="{{ .Site.Params.sponsorGH }}" target="_blank" rel="noopener">Sponsor</a>
     </nav>
   </div>
 </header>

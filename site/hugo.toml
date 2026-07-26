@@ -35,44 +35,24 @@ enableGitInfo = false
     codeFences   = true
 
 [[menu.main]]
-  identifier = "install"
-  name       = "Install"
-  url        = "/install/"
+  identifier = "see"
+  name       = "See it work"
+  url        = "/#watch-a-routine-run"
   weight     = 10
 [[menu.main]]
-  identifier = "routines"
-  name       = "Routines"
-  url        = "/routines/"
-  weight     = 15
-[[menu.main]]
-  identifier = "utilities"
-  name       = "Utilities"
-  url        = "/utilities/"
+  identifier = "docs"
+  name       = "Docs"
+  url        = "/docs/"
   weight     = 20
 [[menu.main]]
   identifier = "models"
   name       = "Models"
   url        = "/models/"
-  weight     = 25
-[[menu.main]]
-  identifier = "bundles"
-  name       = "Bundles"
-  url        = "/bundles/"
   weight     = 30
 [[menu.main]]
-  identifier = "spec"
-  name       = "Spec"
-  url        = "/spec/"
-  weight     = 35
-[[menu.main]]
-  identifier = "about"
-  name       = "About"
-  url        = "/about/"
-  weight     = 38
-[[menu.main]]
-  identifier = "docs"
-  name       = "Docs"
-  url        = "/docs/"
+  identifier = "download"
+  name       = "Download"
+  url        = "https://archive.org/details/vinos-1.1.0-x86_64"
   weight     = 40
 [[menu.main]]
   identifier = "github"
