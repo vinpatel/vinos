@@ -540,9 +540,116 @@
     });
   }
 
+  /* ══════════════════ 7. hero life — waybar clock + agent activity ══════════════════
+     Makes the hero feel like an operating system managing agents for a
+     startup founder. Live clock, rotating agent-activity strip in the
+     waybar center, cycling notification toast, ambient live-typing at
+     the terminal tail prompt. Small, cheap, no dependencies. */
+  var HERO_AGENTS = [
+    { app: 'day-brief',        note: 'rendered · 3 priorities · $0.00',  money: '$0.00' },
+    { app: 'pr-review',        note: 'reviewed 4 PRs · escalated 1',     money: '$0.03' },
+    { app: 'inbox-triage',     note: 'triaged 12 emails · 0 urgent',     money: '$0.00' },
+    { app: 'evening-shutdown', note: 'wrote day-log · $0.30 saved',      money: '$0.00' },
+    { app: 'research-recap',   note: 'read 2 papers · 4 cards generated',money: '$0.00' }
+  ];
+  var HERO_TAIL_LINES = [
+    'checking github…',
+    'reading inbox…',
+    'thinking (llama3.1)…',
+    'ollama warm · idle',
+    ''
+  ];
+  function initHeroLife() {
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Live waybar clock — updates every 30s (cheap, no visible jitter).
+    var clock = $('[data-hwb-clock]');
+    if (clock) {
+      var tick = function () {
+        var d = new Date();
+        var h = String(d.getHours()).padStart(2, '0');
+        var m = String(d.getMinutes()).padStart(2, '0');
+        clock.textContent = h + ':' + m;
+      };
+      tick();
+      window.setInterval(tick, 30 * 1000);
+    }
+
+    // Rotating agent activity in the waybar center: cycles through
+    // HERO_AGENTS every 5s, updates the app name + money delta.
+    var waybarApp   = $('.home-hero-waybar .hwb-app');
+    var waybarMoney = $('.home-hero-waybar .hwb-money');
+    // Rotating notification: same source, refreshes toast body every 8s
+    // in-place so it feels like a running mako. Small opacity dip on
+    // change to signal freshness.
+    var toast       = $('.hos-toast');
+    var toastTitle  = $('.hos-toast-title');
+    var toastNote   = $('.hos-toast-note');
+    var idx = 0;
+    function bumpAgent() {
+      idx = (idx + 1) % HERO_AGENTS.length;
+      var a = HERO_AGENTS[idx];
+      if (waybarApp && waybarMoney) {
+        waybarApp.firstChild && (waybarApp.firstChild.textContent = a.app + ' · rendered · ');
+        waybarMoney.textContent = a.money;
+      }
+      if (toast && toastTitle && toastNote) {
+        toast.style.opacity = '0.35';
+        window.setTimeout(function () {
+          toastTitle.textContent = a.app + ' ready';
+          // Rebuild note with accent spans around counts / money.
+          var n = a.note
+            .replace(/(\d+)\s+priorit/,   '<span class="accent">$1</span> priorit')
+            .replace(/(\d+)\s+PRs?/,      '<span class="accent">$1</span> PRs')
+            .replace(/(\d+)\s+email/,     '<span class="accent">$1</span> email')
+            .replace(/(\d+)\s+urgent/,    '<span class="accent">$1</span> urgent')
+            .replace(/(\d+)\s+paper/,     '<span class="accent">$1</span> paper')
+            .replace(/(\d+)\s+card/,      '<span class="accent">$1</span> card')
+            .replace(/\$(\d+\.\d+)/g,     '<span class="accent">$$$1</span>');
+          toastNote.innerHTML = n;
+          toast.style.opacity = '1';
+        }, 220);
+      }
+    }
+    if (!reduced && (waybarApp || toast)) {
+      window.setInterval(bumpAgent, 5000);
+    }
+
+    // Ambient tail-prompt activity in the mock terminal: pseudo-typing
+    // that rotates HERO_TAIL_LINES with a caret. Small — the routine-
+    // playback below the fold is the real animation; this is atmosphere.
+    var live = $('[data-hos-live]');
+    if (live && !reduced) {
+      var lineIdx = 0, charIdx = 0, dwell = 0, dir = 1;
+      function step() {
+        var target = HERO_TAIL_LINES[lineIdx];
+        if (dir === 1) {
+          // Typing
+          if (charIdx <= target.length) {
+            live.textContent = target.slice(0, charIdx);
+            charIdx += 1;
+          } else {
+            dwell += 1;
+            if (dwell > 20) { dir = -1; dwell = 0; }
+          }
+        } else {
+          // Erasing
+          if (charIdx > 0) {
+            charIdx -= 1;
+            live.textContent = target.slice(0, charIdx);
+          } else {
+            lineIdx = (lineIdx + 1) % HERO_TAIL_LINES.length;
+            dir = 1;
+          }
+        }
+      }
+      window.setInterval(step, 110);
+    }
+  }
+
   /* ══════════════════ boot ══════════════════ */
   function boot() {
     initHeroParallax();
+    initHeroLife();
     initReskinner();
     initRouter();
     initCostTicker();
