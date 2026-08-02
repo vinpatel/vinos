@@ -1,0 +1,11 @@
+# vinOS post-update pacman hook: reinstall voxtype after a system upgrade
+# (voxtype is user-scope and can be masked by an upgrade). Best-effort.
+[Trigger]
+Operation = Upgrade
+Type = Package
+Target = *
+
+[Action]
+Description = vinOS: refresh voxtype if installed
+When = PostTransaction
+Exec = /bin/sh -c 'command -v voxtype >/dev/null 2>&1 && systemctl --user restart voxtype.service 2>/dev/null || true'

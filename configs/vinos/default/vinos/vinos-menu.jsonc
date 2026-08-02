@@ -1,0 +1,149 @@
+// vinOS root menu — clean-room, no third-party PWA entries.
+// Users add their own via `vinos-webapp-add <url>`.
+
+{
+  "root": [
+    {
+      "icon": "󰎫",
+      "label": "Apps",
+      "action": "vinos-menu toggle apps"
+    },
+    {
+      "icon": "󰄄",
+      "label": "AI",
+      "action": "vinos-menu toggle ai"
+    },
+    {
+      "icon": "󰚉",
+      "label": "Routines",
+      "action": "vinos-menu toggle routines"
+    },
+    {
+      "icon": "",
+      "label": "Capture",
+      "action": "vinos-menu toggle capture"
+    },
+    {
+      "icon": "",
+      "label": "Screenshot",
+      "aliases": ["screenshot", "screen"],
+      "action": "vinos-capture-screenshot"
+    },
+    {
+      "icon": "󰑮",
+      "label": "System",
+      "action": "vinos-menu toggle system"
+    },
+    {
+      "icon": "󰆦",
+      "label": "Style",
+      "action": "vinos-menu toggle style"
+    },
+    {
+      "icon": "󰤨",
+      "label": "Network",
+      "action": "vinos-menu toggle network"
+    },
+    {
+      "icon": "󰋚",
+      "label": "Learn",
+      "action": "vinos-menu toggle learn"
+    },
+    {
+      "icon": "󰚙",
+      "label": "Setup",
+      "action": "vinos-menu toggle setup"
+    },
+    {
+      "icon": "",
+      "label": "Install more",
+      "action": "vinos-menu toggle install"
+    }
+  ],
+
+  "ai": [
+    {"icon": "", "label": "Chat (default model)",    "action": "foot --title 'vinOS AI' -e vinos-ai chat"},
+    {"icon": "", "label": "Claude Code",             "action": "foot --title 'Claude Code' -e claude"},
+    {"icon": "", "label": "Model status",            "action": "foot -e vinos-ai status; read -p 'press enter'"},
+    {"icon": "", "label": "Installed models",        "action": "foot -e vinos-ai models; read -p 'press enter'"},
+    {"icon": "", "label": "Pull a model",            "action": "foot -e bash -c 'read -p \"model name (e.g. llama3.2:8b): \" m && ollama pull \"$m\"'"},
+    {"icon": "", "label": "Explain a command",       "action": "foot -e bash -c 'read -p \"command: \" c && vinos-explain \"$c\"; read -p press enter'"},
+    {"icon": "", "label": "Fix a failing command",   "action": "foot -e bash -c 'read -p \"command: \" c && vinos-fix \"$c\"; read -p press enter'"}
+  ],
+
+  "routines": [
+    {"icon": "", "label": "List routines",           "action": "foot -e vinos-routine list; read -p 'press enter'"},
+    {"icon": "", "label": "Run day-brief",           "action": "foot -e vinos-routine run day-brief; read -p 'press enter'"},
+    {"icon": "", "label": "Run evening-shutdown",    "action": "foot -e vinos-routine run evening-shutdown; read -p 'press enter'"},
+    {"icon": "", "label": "Run pr-review",           "action": "foot -e vinos-routine run pr-review; read -p 'press enter'"},
+    {"icon": "", "label": "Today's brief",           "action": "foot -e vinos-brief; read -p 'press enter'"},
+    {"icon": "", "label": "Personal standup",        "action": "foot -e vinos-standup; read -p 'press enter'"},
+    {"icon": "", "label": "Add a routine (edit TOML)","action": "foot -e nvim ~/.vinos/routines/new.toml"}
+  ],
+
+  "apps": [
+    {"icon": "", "label": "Terminal",                "action": "foot"},
+    {"icon": "", "label": "Browser",                 "action": "chromium"},
+    {"icon": "", "label": "Files",                   "action": "nautilus"},
+    {"icon": "", "label": "Notes (Obsidian)",        "action": "obsidian"},
+    {"icon": "", "label": "Signal",                  "action": "signal-desktop"},
+    {"icon": "", "label": "Spotify",                 "action": "spotify"},
+    {"icon": "", "label": "1Password",               "action": "1password"}
+  ],
+
+  "capture": [
+    {"icon": "", "label": "Screenshot region",       "action": "vinos-capture-screenshot region"},
+    {"icon": "", "label": "Screenshot window",       "action": "vinos-capture-screenshot window"},
+    {"icon": "", "label": "Screenshot full screen",  "action": "vinos-capture-screenshot full"},
+    {"icon": "", "label": "Extract text from screen","action": "vinos-capture-text-extraction"}
+  ],
+
+  "system": [
+    {"icon": "󰤄", "label": "Lock",                    "action": "hyprlock"},
+    {"icon": "󰤁", "label": "Suspend",                 "action": "systemctl suspend"},
+    {"icon": "󰤁", "label": "Reboot",                  "action": "systemctl reboot"},
+    {"icon": "󰤁", "label": "Shutdown",                "action": "systemctl poweroff"},
+    {"icon": "", "label": "Log out",                 "action": "hyprctl dispatch exit"},
+    {"icon": "", "label": "Health check (doctor)",   "action": "foot -e vinos-doctor; read -p 'press enter'"},
+    {"icon": "", "label": "Hardware report",         "action": "foot -e vinos-hw-report; read -p 'press enter'"}
+  ],
+
+  "style": [
+    {"icon": "", "label": "Change theme",            "action": "vinos-theme-pick"},
+    {"icon": "", "label": "Next background",         "action": "vinos-background-next"},
+    {"icon": "", "label": "Pick background",         "action": "vinos-background-pick"},
+    {"icon": "", "label": "Toggle nightlight",       "action": "vinos-toggle-nightlight"},
+    {"icon": "", "label": "Toggle top bar",          "action": "vinos-toggle-topbar"}
+  ],
+
+  "network": [
+    {"icon": "", "label": "Wi-Fi",                   "action": "foot --title 'vinOS Wi-Fi' -e impala"},
+    {"icon": "", "label": "Bluetooth",               "action": "foot --title 'vinOS Bluetooth' -e bluetuith"},
+    {"icon": "", "label": "iwctl (advanced Wi-Fi)",  "action": "foot -e iwctl"}
+  ],
+
+  "learn": [
+    {"icon": "", "label": "Keybindings",             "action": "vinos-cheatsheet"},
+    {"icon": "", "label": "Welcome tour",            "action": "vinos-welcome"},
+    {"icon": "", "label": "vinOS docs (offline)",    "action": "chromium file:///usr/share/doc/vinos/index.html"},
+    {"icon": "", "label": "vinOS docs (online)",     "action": "chromium https://vinos.computer/docs/"}
+  ],
+
+  "setup": [
+    {"icon": "", "label": "Edit Hyprland config",    "action": "foot -e nvim ~/.config/hypr/hyprland.conf"},
+    {"icon": "", "label": "Edit keybindings",        "action": "foot -e nvim ~/.config/hypr/hyprland.conf"},
+    {"icon": "", "label": "Edit waybar",             "action": "foot -e nvim ~/.config/waybar/config"},
+    {"icon": "", "label": "Edit routines dir",       "action": "foot -e nvim ~/.vinos/routines/"}
+  ],
+
+  "install": [
+    {"icon": "", "label": "AI stack (Ollama + Claude Code + more)", "action": "foot -e sudo vinos-install-ai; read -p 'press enter'"},
+    {"icon": "", "label": "Developer tools",         "action": "foot -e sudo vinos-install-dev; read -p 'press enter'"},
+    {"icon": "", "label": "Web browser (Firefox + Chromium)", "action": "foot -e sudo vinos-install-browser; read -p 'press enter'"},
+    {"icon": "", "label": "Media apps (mpv + spotify + …)", "action": "foot -e sudo vinos-install-media; read -p 'press enter'"},
+    {"icon": "", "label": "Comms (Signal + Slack + …)", "action": "foot -e sudo vinos-install-comms; read -p 'press enter'"},
+    {"icon": "", "label": "Office (LibreOffice)",    "action": "foot -e sudo vinos-install-office; read -p 'press enter'"},
+    {"icon": "", "label": "Gaming (Steam + …)",      "action": "foot -e sudo vinos-install-gaming; read -p 'press enter'"},
+    {"icon": "", "label": "Productivity",            "action": "foot -e sudo vinos-install-productivity; read -p 'press enter'"}
+  ]
+}

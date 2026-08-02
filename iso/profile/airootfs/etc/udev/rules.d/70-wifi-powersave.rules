@@ -1,0 +1,6 @@
+# Disable wifi power-save on all wireless interfaces. brcmfmac (T2 Mac
+# BCM4364/4377) drops the 4-way handshake mid-negotiation when powersave
+# kicks in, which iwd surfaces as "wrong password". Off by default here;
+# users who want battery savings can opt back in via `iw dev <if> set
+# power_save on`.
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="wl*", RUN+="/usr/bin/iw dev %k set power_save off"

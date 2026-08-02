@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# vinos-waybar-ai — waybar custom-module JSON output.
+# One line of JSON: {"text": "…", "tooltip": "…", "class": "…"}
+# Refreshed every 5s by waybar's custom module.
+#
+# Shows: 🧠 <model> · <tokens today> · <active routines> · $<monthly spend>
+# Click: opens vinos-ai status in a foot popup
+# Right-click: opens vinos-menu ai
+
+set -euo pipefail
+
+# Helpers — fail silently if underlying commands absent so pill stays quiet
+# on a system where AI stack isn't installed yet (pre-vinos-install-ai).
+_have() { command -v "$1" >/dev/null 2>&1; }
+
+# ─── Model in use ───
+MODEL="${VINOS_AI_MODEL:-none}"
+if _have ollama && ollama ps 2>/dev/null | tail -n +2 | head -1 | grep -q .; then
+  # First loaded model (if any)
+  MODEL=$(ollama ps 2>/dev/null | awk 'NR==2 {print $1}' 2>/dev/null || echo "$MODEL")
+fi
+
+# Shorten model names for the pill
+MODEL_SHORT=$(echo "$MODEL" | sed 's|:.*||' | sed 's|^[a-z]*/||' | head -c 12)
+
+# ─── Tokens used today ───
+TOKENS_DAILY_FILE="$HOME/.vinos/ai/tokens-$(date +%Y-%m-%d).log"
+if [[ -f "$TOKENS_DAILY_FILE" ]]; then
+  TOKENS_TODAY=$(awk '{s+=$1} END {print s+0}' "$TOKENS_DAILY_FILE" 2>/dev/null || echo 0)
+else
+  TOKENS_TODAY=0
+fi
+# Format: 1234 → 1.2k, 12345 → 12k, 123456 → 123k
+if (( TOKENS_TODAY >= 100000 )); then
+  TOKENS_STR="$((TOKENS_TODAY / 1000))k"
+elif (( TOKENS_TODAY >= 10000 )); then
+  TOKENS_STR="$((TOKENS_TODAY / 1000))k"
+elif (( TOKENS_TODAY >= 1000 )); then
+  TOKENS_STR="$(awk -v t="$TOKENS_TODAY" 'BEGIN{printf "%.1fk", t/1000}')"
+else
+  TOKENS_STR="$TOKENS_TODAY"
+fi
+
+# ─── Active routines ───
+ROUTINE_STATE_DIR="${VINOS_ROUTINES_STATE:-$HOME/.vinos/routines/state}"
+ACTIVE=0
+if [[ -d "$ROUTINE_STATE_DIR" ]]; then
+  # Count routines with a running pid file
+  for pid_file in "$ROUTINE_STATE_DIR"/*/current.pid; do
+    [[ -f "$pid_file" ]] || continue
+    pid=$(cat "$pid_file" 2>/dev/null || echo)
+    if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+      ACTIVE=$((ACTIVE + 1))
+    fi
+  done
+fi
+
+# ─── Monthly Claude spend ───
+SPEND_FILE="$HOME/.vinos/ai/spend-$(date +%Y-%m).log"
+if [[ -f "$SPEND_FILE" ]]; then
+  SPEND=$(awk '{s+=$1} END {printf "%.0f", s+0}' "$SPEND_FILE" 2>/dev/null || echo 0)
+else
+  SPEND=0
+fi
+
+# ─── Pill class (colors the pill differently on state) ───
+CLASS="idle"
+if (( ACTIVE > 0 )); then
+  CLASS="running"
+elif (( TOKENS_TODAY > 100000 )); then
+  CLASS="hot"
+fi
+
+# ─── Compose the text ───
+if [[ "$MODEL" == "none" ]] && (( TOKENS_TODAY == 0 )); then
+  TEXT="AI"
+elif (( ACTIVE > 0 )); then
+  TEXT="${MODEL_SHORT} · ${TOKENS_STR}t · ${ACTIVE} live"
+else
+  TEXT="${MODEL_SHORT} · ${TOKENS_STR}t · \$${SPEND}"
+fi
+
+# ─── Tooltip: multi-line richer info ───
+TOOLTIP=$(cat <<EOF
+🧠 <b>vinOS AI</b>
+Model: ${MODEL:-none}
+Tokens today: ${TOKENS_TODAY}
+Active routines: ${ACTIVE}
+Spend this month: \$${SPEND}
+
+Click: open status
+Right-click: AI menu
+EOF
+)
+
+# JSON escape tooltip (newlines → \n, quotes → \")
+TOOLTIP_JSON=$(printf '%s' "$TOOLTIP" | python3 -c 'import json,sys;print(json.dumps(sys.stdin.read()))' 2>/dev/null || \
+              printf '"%s"' "$(echo "$TOOLTIP" | sed 's|"|\\"|g' | tr '\n' ' ')")
+
+# Emit waybar-JSON
+printf '{"text":"%s","tooltip":%s,"class":"%s"}\n' "$TEXT" "$TOOLTIP_JSON" "$CLASS"

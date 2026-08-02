@@ -1,0 +1,67 @@
+# vinOS starship prompt — brand-accent cyan, git-aware, timing on failure.
+# Sharp attack, one line, no visual noise.
+
+add_newline = false
+format = """
+$directory$git_branch$git_status$cmd_duration
+$character"""
+
+[character]
+success_symbol = "[❯](bold #33ccff)"
+error_symbol   = "[❯](bold #ff6b6b)"
+vimcmd_symbol  = "[❮](bold #bb9af7)"
+
+[directory]
+style = "bold #67d9a4"
+truncation_length = 3
+truncate_to_repo = true
+truncation_symbol = "…/"
+
+[git_branch]
+symbol = " "
+format = " [$symbol$branch]($style)"
+style = "bold #33ccff"
+
+[git_status]
+format = "[$all_status$ahead_behind]($style) "
+style  = "bold #ffb74d"
+conflicted = "="
+ahead      = "⇡${count} "
+behind     = "⇣${count} "
+diverged   = "⇕⇡${ahead_count}⇣${behind_count} "
+untracked  = "?${count} "
+stashed    = "$${count} "
+modified   = "!${count} "
+staged     = "+${count} "
+renamed    = "»${count} "
+deleted    = "✘${count} "
+
+[cmd_duration]
+min_time = 500
+format = " [$duration]($style)"
+style  = "dim #fg-dim"
+
+[python]
+symbol = " "
+style  = "bold #33ccff"
+
+[nodejs]
+symbol = " "
+style  = "bold #67d9a4"
+
+[rust]
+symbol = " "
+style  = "bold #ff8080"
+
+[golang]
+symbol = " "
+style  = "bold #33ccff"
+
+[docker_context]
+symbol = " "
+style  = "bold #33ccff"
+
+[kubernetes]
+disabled = false
+symbol = "☸ "
+style  = "bold #bb9af7"

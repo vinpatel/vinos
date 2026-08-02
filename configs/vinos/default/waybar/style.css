@@ -1,0 +1,180 @@
+/* vinOS waybar style — clean-room CSS
+ * Brand accent (#33ccff) pinned regardless of theme.
+ * Rounded pill segments. Subtle shadows. Consistent typography.
+ */
+
+* {
+  font-family: "Inter", "JetBrains Mono Nerd Font", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  min-height: 0;
+  color: #e6e6e6;
+}
+
+window#waybar {
+  background: transparent;
+  color: #e6e6e6;
+  transition: background-color 0.3s ease;
+}
+
+window#waybar.hidden {
+  opacity: 0;
+}
+
+/* Left / center / right groupings — glass pill background */
+.modules-left, .modules-center, .modules-right {
+  background: rgba(10, 14, 20, 0.75);
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin: 0 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* Individual module tuning */
+#workspaces {
+  padding: 0 4px;
+}
+#workspaces button {
+  padding: 2px 8px;
+  margin: 0 1px;
+  color: rgba(230, 230, 230, 0.55);
+  background: transparent;
+  border-radius: 999px;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#workspaces button.active {
+  color: #33ccff;
+  background: rgba(51, 204, 255, 0.14);
+}
+#workspaces button:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+#workspaces button.urgent {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.14);
+}
+
+#window {
+  padding: 0 12px;
+  color: rgba(230, 230, 230, 0.75);
+}
+
+#submap {
+  padding: 2px 8px;
+  background: rgba(51, 204, 255, 0.2);
+  color: #33ccff;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+#clock {
+  padding: 2px 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* ─── Agent-native pills ─── */
+
+#custom-vinos-ai {
+  padding: 2px 10px;
+  margin: 0 2px;
+  color: #33ccff;
+  background: rgba(51, 204, 255, 0.08);
+  border-radius: 999px;
+  border: 1px solid rgba(51, 204, 255, 0.2);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#custom-vinos-ai:hover {
+  background: rgba(51, 204, 255, 0.16);
+  border-color: rgba(51, 204, 255, 0.4);
+}
+#custom-vinos-ai.running {
+  color: #ffffff;
+  background: rgba(51, 204, 255, 0.24);
+  border-color: rgba(51, 204, 255, 0.6);
+  animation: pulse-cyan 1.8s infinite;
+}
+#custom-vinos-ai.hot {
+  color: #ff9f0a;
+  background: rgba(255, 159, 10, 0.10);
+  border-color: rgba(255, 159, 10, 0.3);
+}
+@keyframes pulse-cyan {
+  0%   { box-shadow: 0 0 0 0 rgba(51, 204, 255, 0.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(51, 204, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(51, 204, 255, 0); }
+}
+
+#custom-vinos-routines {
+  padding: 2px 10px;
+  margin: 0 2px;
+  color: #bb9af7;
+  background: rgba(187, 154, 247, 0.08);
+  border-radius: 999px;
+  border: 1px solid rgba(187, 154, 247, 0.2);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#custom-vinos-routines:hover {
+  background: rgba(187, 154, 247, 0.16);
+  border-color: rgba(187, 154, 247, 0.4);
+}
+#custom-vinos-routines.active {
+  color: #ffffff;
+  background: rgba(187, 154, 247, 0.24);
+  animation: pulse-purple 1.8s infinite;
+}
+@keyframes pulse-purple {
+  0%   { box-shadow: 0 0 0 0 rgba(187, 154, 247, 0.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(187, 154, 247, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(187, 154, 247, 0); }
+}
+
+/* ─── System pills ─── */
+
+#network, #bluetooth, #pulseaudio, #battery, #tray {
+  padding: 2px 8px;
+  margin: 0 1px;
+  color: rgba(230, 230, 230, 0.85);
+}
+
+#network:hover, #bluetooth:hover, #pulseaudio:hover, #battery:hover {
+  color: #ffffff;
+}
+
+#battery.warning {
+  color: #ffb74d;
+}
+#battery.critical {
+  color: #ff6b6b;
+  animation: pulse-red 1s infinite;
+}
+#battery.charging {
+  color: #33ccff;
+}
+@keyframes pulse-red {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+#custom-power {
+  padding: 2px 12px;
+  color: rgba(230, 230, 230, 0.75);
+  transition: color 0.18s ease;
+}
+#custom-power:hover {
+  color: #ff6b6b;
+}
+
+/* Tooltip styling */
+tooltip {
+  background: rgba(10, 14, 20, 0.95);
+  border: 1px solid rgba(51, 204, 255, 0.3);
+  border-radius: 8px;
+  padding: 6px;
+}
+tooltip label {
+  color: #e6e6e6;
+}
