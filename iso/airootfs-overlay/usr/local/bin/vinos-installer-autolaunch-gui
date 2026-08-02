@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# vinos-installer-autolaunch-gui — Hyprland exec-once hook.
+# If the kernel cmdline requested an install boot (vinos.action=install),
+# open the installer full-screen over the wallpaper. Otherwise no-op so
+# a normal live boot is unaffected.
+set -euo pipefail
+
+if ! grep -qE '(^|[[:space:]])vinos\.action=install([[:space:]]|$)' /proc/cmdline 2>/dev/null; then
+  exit 0
+fi
+
+# Give Hyprland a moment to finish mapping the wallpaper + waybar so the
+# installer window comes up on top of a fully-rendered desktop, not black.
+sleep 2
+
+# One instance guard.
+if pgrep -f 'vinos-install-disk' >/dev/null 2>&1; then
+  exit 0
+fi
+
+# Launch the terminal, then fullscreen the newly-focused window.
+setsid foot \
+  --title "vinOS Installer" \
+  --app-id vinos-installer \
+  -e sudo -E /usr/local/bin/vinos-install-disk \
+  >/dev/null 2>&1 &
+
+# Wait for the window to map, then take it fullscreen. Address 1 = fully
+# fullscreen (client + monitor bezels off).
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+  if hyprctl clients -j 2>/dev/null | grep -q 'vinos-installer'; then
+    hyprctl dispatch focuswindow 'title:^vinOS Installer$' >/dev/null 2>&1 || true
+    hyprctl dispatch fullscreen 1 >/dev/null 2>&1 || true
+    break
+  fi
+  sleep 0.5
+done
