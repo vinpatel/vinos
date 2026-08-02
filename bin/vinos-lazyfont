@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-# vinos-lazyfont — set the system font from an installed family.
-# vinOS-branded passthrough to omarchy-font-set. See NOTICES.md for the
-# heritage.
+# vinos-lazyfont — set foot font.
 set -euo pipefail
-exec omarchy-font-set "$@"
+font="${1:-}"
+[[ -n "$font" ]] || { echo "usage: vinos-lazyfont <font-name>"; exit 1; }
+conf="$HOME/.config/foot/foot.ini"
+[[ -f "$conf" ]] || { echo "$conf not found" >&2; exit 1; }
+current_size=$(grep -oE ':size=[0-9.]+' "$conf" | head -1 || echo ':size=11')
+sed -i -E "s|^font=.*|font=${font}${current_size}|" "$conf"
+echo "font: $font"

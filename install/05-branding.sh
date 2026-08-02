@@ -22,15 +22,11 @@ OS_REL_BAK="$(_rootpath /etc/os-release.arch.bak)"
 
 log "05-branding: installing shared assets under $SHARE"
 _sudo install -d -m 0755 "$SHARE" "$SHARE/bin" "$SHARE/themes" "$SHARE/docs" \
-                             "$SHARE/archinstall" "$LOCAL_BIN"
+                             "$LOCAL_BIN"
 _sudo rsync -a --delete "$REPO/assets/logo/"  "$SHARE/logo/"
 _sudo install -Dm 0644 "$REPO/VERSION"         "$SHARE/VERSION"
 if [[ -f "$REPO/docs/KEYBINDINGS.txt" ]]; then
   _sudo install -Dm 0644 "$REPO/docs/KEYBINDINGS.txt" "$SHARE/docs/KEYBINDINGS.txt"
-fi
-# archinstall profile templates for vinos-install-disk (Path B).
-if [[ -d "$REPO/iso/profiles/archinstall" ]]; then
-  _sudo rsync -a --delete "$REPO/iso/profiles/archinstall/" "$SHARE/archinstall/"
 fi
 
 # I8: themes/ system. Each theme is a directory with theme.conf +
@@ -59,14 +55,14 @@ fi
 # the agentic OS story). Overridable via VINOS_THEME= env before
 # install.sh / iso/build.sh. Legacy theme names (v1: aurora/daybreak;
 # v2.0.2: TitleCase Void; v2.0.3: lowercase void) auto-migrate to cosmos.
-# All 10 vinOS themes live at /usr/share/omarchy/themes/ alongside
+# All 10 vinOS themes live at /usr/share/vinos/themes/ alongside
 # Omarchy's, using lowercase-kebab names to match convention.
 _active_theme="${VINOS_THEME:-cosmos}"
 case "$_active_theme" in
   aurora|Aurora|Void|void|daybreak|polar-night) _active_theme="cosmos" ;;
 esac
 _active_theme="$(printf '%s' "$_active_theme" | tr 'A-Z' 'a-z')"
-_sudo ln -sfn "/usr/share/omarchy/themes/${_active_theme}/wallpaper.png" "$SHARE/wallpaper.png"
+_sudo ln -sfn "/usr/share/vinos/themes/${_active_theme}/wallpaper.png" "$SHARE/wallpaper.png"
 
 log "05-branding: installing vinos-* commands"
 _sudo rsync -a "$REPO/bin/" "$SHARE/bin/"
@@ -75,16 +71,6 @@ for f in "$SHARE/bin/"vinos-*; do
   _sudo ln -sfn "/usr/share/vinos/bin/$(basename "$f")" "$LOCAL_BIN/$(basename "$f")"
 done
 
-# v2.0.6 rebrand pass: user-facing Omarchy menu still lists actions as
-# `omarchy-<name>`. For every wrapper we ship in bin/vinos-*, rewrite
-# the installed menu jsonc to call the vinos-* alias instead — so users
-# see one consistent brand at the CLI. The vendored source in
-# configs/omarchy/ stays untouched. Script is idempotent + only rewrites
-# actions whose vinos-* wrapper actually exists on PATH.
-if [[ -x "$REPO/install/vinos-menu-rebrand.sh" ]]; then
-  log "05-branding: rebranding installed omarchy-menu.jsonc → vinos-* actions"
-  "$REPO/install/vinos-menu-rebrand.sh"
-fi
 
 # libexec/ — helper scripts (python, etc.) that vinos-* commands invoke.
 # Not on PATH. Currently: vinos-routine-run.py for the routine agent loop.

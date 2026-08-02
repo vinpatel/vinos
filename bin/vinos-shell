@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# vinos-shell — send an IPC call to the running desktop shell.
-# vinOS-branded passthrough to omarchy-shell. See NOTICES.md for the
-# heritage.
+# vinos-shell — walker IPC passthrough.
 set -euo pipefail
-exec omarchy-shell "$@"
+case "${1:-}" in
+  shell) exec walker "${@:2}" ;;
+  *) exec walker "$@" ;;
+esac

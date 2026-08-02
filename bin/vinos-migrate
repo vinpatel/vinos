@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
-# vinos-migrate — run pending config migrations. vinOS-branded
-# passthrough to omarchy-migrate. See NOTICES.md for the heritage.
+# vinos-migrate — apply pending config-schema migrations.
 set -euo pipefail
-exec omarchy-migrate "$@"
+MIG_SRC="/usr/share/vinos/migrations"
+MIG_STATE="$HOME/.local/state/vinos/migrations"
+mkdir -p "$MIG_STATE"
+[[ -d "$MIG_SRC" ]] || { echo "no migrations"; exit 0; }
+pending=()
+for m in "$MIG_SRC"/*.sh; do
+  [[ -f "$m" ]] || continue
+  name=$(basename "$m" .sh)
+  [[ -f "$MIG_STATE/$name" ]] || pending+=("$m")
+done
+(( ${#pending[@]} == 0 )) && { echo "vinos-migrate: all applied."; exit 0; }
+echo "vinos-migrate: ${#pending[@]} pending"
+for m in "${pending[@]}"; do
+  n=$(basename "$m" .sh); echo "→ $n"
+  bash "$m" && touch "$MIG_STATE/$n"
+done

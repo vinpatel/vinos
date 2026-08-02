@@ -52,14 +52,14 @@ log "02-desktop: installing AUR apps (UX-critical only)"
 install_aur walker yaru-icon-theme bibata-cursor-theme
 
 # Agentic-flow tools: docker for sandboxed agent runs, lazydocker as the
-# TUI vendored omarchy Docker.desktop launches. dua-cli for the Disk Usage
+# TUI Docker.desktop launches. dua-cli for the Disk Usage
 # launcher (both apps were shipping desktop entries but the underlying
 # binaries were missing).
 install_aur lazydocker
 
 # Omarchy 4.0.0.alpha uses a Lua-based Hyprland config parsed at runtime
-# by omarchy-shell (a quickshell script). Without quickshell-git the
-# vendored configs/omarchy/config/hypr/ tree is inert.
+# by walker (launcher) + waybar. Without quickshell-git some
+# advanced overlay panels are inert.
 install_aur quickshell-git
 
 # Optional Hyprland plugins via hyprpm. hyprpm ships with hyprland,

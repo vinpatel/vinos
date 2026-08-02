@@ -100,14 +100,14 @@ vendor="$(lsblk -n -d -o VENDOR "$DEV_PATH" | awk '{$1=$1;print}')"
 
 printf '\nAbout to WIPE %s\n  size: %s\n  vendor: %s\n  model: %s\n\n' \
        "$DEV_PATH" "$size" "$vendor" "$model"
-printf 'Type the device name EXACTLY as shown above to confirm: '
+printf "Type '%s' to confirm you want to WIPE this device: " "$DEV_PATH"
 read -r confirm_dev
 [[ "$confirm_dev" == "$DEV_PATH" ]] || die "device name mismatch — aborting"
 
 # Confirmation 2: model string (skip if unknown so users with generic USBs
 # can still flash).
 if [[ "$model" != "(unknown)" ]]; then
-  printf 'Type the MODEL string EXACTLY as shown above to confirm: '
+  printf "Type '%s' to confirm (second check — model string): " "$model"
   read -r confirm_model
   [[ "$confirm_model" == "$model" ]] || die "model mismatch — aborting"
 fi

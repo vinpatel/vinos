@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# vinos-theme-pick — open the walker-driven theme picker. vinOS-branded
-# passthrough to omarchy-theme-switcher. See NOTICES.md for the heritage.
+# vinos-theme-pick — walker theme picker.
 set -euo pipefail
-exec omarchy-theme-switcher "$@"
+command -v walker >/dev/null || { vinos-theme-list; exit 0; }
+pick=$(vinos-theme-list | sed 's/^[● ] //' | walker -d -m dmenu -p "Pick a theme…" 2>/dev/null)
+[[ -n "$pick" ]] && exec vinos-theme-set "$pick"

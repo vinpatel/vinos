@@ -377,11 +377,12 @@ for i in 1 2 3 4 5; do
 done
 if ! mountpoint -q /mnt/caps; then
   echo "FATAL: could not mount 9p share; bailing"
-  echo "===INJECTOR_FAIL===" >/dev/ttyS0 2>/dev/null
+  echo "===INJECTOR_MOUNT_FAIL===" >/dev/ttyS0 2>/dev/null
   cat "$LOG" >/dev/ttyS0 2>/dev/null
-  echo "===INJECTOR_FAIL_END===" >/dev/ttyS0 2>/dev/null
+  echo "===INJECTOR_MOUNT_FAIL_END===" >/dev/ttyS0 2>/dev/null
   exit 1
 fi
+echo "===INJECTOR_MOUNT_OK===" >/dev/ttyS0 2>/dev/null
 echo "mount OK; contents:"
 ls -la /mnt/caps
 
@@ -393,6 +394,10 @@ echo "runner installed: $(ls -la /usr/local/bin/vinos-shot-runner)"
 
 chmod 0777 /mnt/caps
 
+# Diagnostic: does the vinos user even exist on this live image?
+VINOS_UID=$(id -u vinos 2>/dev/null || echo MISSING)
+echo "===INJECTOR_VINOS_UID=$VINOS_UID===" >/dev/ttyS0 2>/dev/null
+
 # Wait up to 3min for greetd to autologin the vinos user and Hyprland
 # to be running under uid 1000. Cold boots on this box regularly stall
 # ~90-120s on ldconfig — pass 1's 120s window was too tight.
@@ -403,10 +408,14 @@ done
 
 HYPR_PID=$(pgrep -u vinos -x Hyprland | head -1)
 if [ -z "$HYPR_PID" ]; then
+  echo "===INJECTOR_HYPR_TIMEOUT===" >/dev/ttyS0 2>/dev/null
+  ps -eo user,pid,cmd --no-headers 2>/dev/null | head -40 >/dev/ttyS0 2>/dev/null
+  echo "===INJECTOR_HYPR_TIMEOUT_END===" >/dev/ttyS0 2>/dev/null
   echo "no Hyprland pid after 180s — bailing" >>/mnt/caps/serial-inject.log
   touch /mnt/caps/DONE
   exit 0
 fi
+echo "===INJECTOR_HYPR_UP_pid=$HYPR_PID===" >/dev/ttyS0 2>/dev/null
 
 XDG_RUNTIME_DIR=/run/user/1000
 HYPRLAND_INSTANCE=$(ls -1 "$XDG_RUNTIME_DIR/hypr" 2>/dev/null | head -1)
@@ -428,7 +437,9 @@ setsid runuser -u vinos -- env \
   PATH=/usr/local/bin:/usr/bin:/bin \
   /usr/local/bin/vinos-shot-runner </dev/null >>/mnt/caps/serial-inject.log 2>&1 &
 
-echo "runner launched, pid=$!" >>/mnt/caps/serial-inject.log
+RUNNER_PID=$!
+echo "runner launched, pid=$RUNNER_PID" >>/mnt/caps/serial-inject.log
+echo "===INJECTOR_RUNNER_LAUNCHED_pid=$RUNNER_PID===" >/dev/ttyS0 2>/dev/null
 INJECT_EOF
 
 B64=$(base64 -w0 <"$INJECT")
@@ -449,13 +460,44 @@ log "logging in via serial and injecting runner"
 if ! wait_for "vinos-live login" 360; then
   log "  WARN: never saw a login prompt in 360s — kicking anyway"
 fi
+# Login flow. On the vinOS live ISO, root has NO password — but the
+# agetty (`--login-program /usr/bin/login`) may or may not prompt for
+# one. Send username, wait briefly, then send an empty password just
+# in case. Pass-2 fragile-bit: pass-1's script skipped the password
+# send and got "Password:" → treated our subsequent b64 chunk as the
+# password → Login incorrect → 60s getty timeout kicked us out mid-run.
 sleep 2
-send ""
+send ""            # nudge getty in case it lost sync
 sleep 1
 send "root"
-sleep 3
+sleep 2
+send ""            # blank password (root has none on live)
+# Wait for the root shell prompt. Root's PS1 on archiso ends in "# ".
+# If we don't see it in 20s, fall through anyway.
+prompt_ready=0
+for _ in $(seq 1 20); do
+  # Check for either a bash prompt char (# at end of line) OR the
+  # motd banner "Welcome to vinOS" that only appears post-login.
+  if grep -a -q -E '(vinos-live|root@vinos)[^:]*#|Welcome to vinOS' "$SER_LOG" 2>/dev/null; then
+    prompt_ready=1
+    break
+  fi
+  sleep 1
+done
+if [[ "$prompt_ready" -eq 1 ]]; then
+  log "  root shell ready — injecting"
+else
+  log "  WARN: no shell prompt detected — injecting anyway"
+fi
+# Silence job-control chatter + speed up subsequent commands.
+send "stty -echo; set +m"
+sleep 0.3
 send "rm -f /tmp/inj.b64"
 sleep 0.4
+# Chunk the base64 blob. Each chunk is 200 chars of payload wrapped
+# in a printf. Pass-1 used 100 chars/line and 0.08s sleep — total
+# runtime was ~5s for a 5KB blob, which is safely under agetty's
+# 60s timeout. Keep those numbers.
 step=100
 for ((i=0; i<${#B64}; i+=step)); do
   send "printf %s ${B64:i:step} >>/tmp/inj.b64"

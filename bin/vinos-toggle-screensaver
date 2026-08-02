@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-# vinos-toggle-screensaver — toggle the screensaver on/off. vinOS-branded
-# passthrough to omarchy-toggle-screensaver. See NOTICES.md for the
-# heritage.
+# vinos-toggle-screensaver — toggle hypridle.
 set -euo pipefail
-exec omarchy-toggle-screensaver "$@"
+if pidof hypridle >/dev/null; then
+  pkill hypridle
+  command -v notify-send >/dev/null && notify-send -a vinos "vinOS" "Screensaver OFF"
+else
+  hypridle >/dev/null 2>&1 & disown
+  command -v notify-send >/dev/null && notify-send -a vinos "vinOS" "Screensaver ON"
+fi

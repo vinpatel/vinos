@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
-# vinos-background — set the desktop wallpaper. vinOS-branded
-# passthrough to omarchy-theme-bg-set. See NOTICES.md for the heritage.
+# vinos-background — set a wallpaper file as desktop background.
 set -euo pipefail
-exec omarchy-theme-bg-set "$@"
+wp="${1:-}"
+[[ -f "$wp" ]] || { echo "usage: vinos-background <path-to-image>" >&2; exit 1; }
+mkdir -p "$HOME/.config/vinos"
+cp -f "$wp" "$HOME/.config/vinos/wallpaper.png"
+if command -v hyprctl >/dev/null; then
+  hyprctl hyprpaper unload all >/dev/null 2>&1 || true
+  hyprctl hyprpaper preload "$HOME/.config/vinos/wallpaper.png" >/dev/null 2>&1 || true
+  hyprctl hyprpaper wallpaper ,"$HOME/.config/vinos/wallpaper.png" >/dev/null 2>&1 || true
+fi
+echo "vinos-background: set to $wp"

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# vinos-plymouth — set the Plymouth boot splash to match the active
-# theme. vinOS-branded passthrough to omarchy-plymouth-set-by-theme.
-# See NOTICES.md for the heritage.
+# vinos-plymouth — set plymouth theme.
 set -euo pipefail
-exec omarchy-plymouth-set-by-theme "$@"
+command -v plymouth-set-default-theme >/dev/null || { echo "plymouth not installed" >&2; exit 1; }
+theme="${1:-vinos}"
+[[ -d "/usr/share/plymouth/themes/$theme" ]] || { echo "theme '$theme' not found" >&2; ls /usr/share/plymouth/themes/; exit 1; }
+sudo plymouth-set-default-theme -R "$theme"
+echo "plymouth theme: $theme"

@@ -1,6 +1,22 @@
 #!/usr/bin/env bash
-# vinos-theme-set — apply an installed theme by name. vinOS-branded
-# passthrough to omarchy-theme-set (unmodified Omarchy MIT script).
-# See NOTICES.md for the heritage.
+# vinos-theme-set — apply an installed theme by name.
 set -euo pipefail
-exec omarchy-theme-set "$@"
+THEME_DIR_SYSTEM="/usr/share/vinos/themes"
+THEME_DIR_USER="$HOME/.config/vinos/themes"
+STATE_DIR="$HOME/.local/state/vinos"
+[[ $# -eq 1 ]] || { echo "usage: vinos-theme-set <name>"; vinos-theme-list; exit 1; }
+name="$1"
+if   [[ -d "$THEME_DIR_USER/$name"   ]]; then src="$THEME_DIR_USER/$name"
+elif [[ -d "$THEME_DIR_SYSTEM/$name" ]]; then src="$THEME_DIR_SYSTEM/$name"
+else echo "vinos-theme-set: unknown theme '$name'" >&2; exit 1; fi
+mkdir -p "$STATE_DIR/current"
+ln -sfn "$src" "$STATE_DIR/current/theme"
+if [[ -f "$src/wallpaper.png" ]]; then
+  mkdir -p "$HOME/.config/vinos"
+  cp -f "$src/wallpaper.png" "$HOME/.config/vinos/wallpaper.png"
+  command -v hyprctl >/dev/null && hyprctl hyprpaper reload ,"$HOME/.config/vinos/wallpaper.png" >/dev/null 2>&1 || true
+fi
+pkill -SIGUSR2 waybar 2>/dev/null || true
+command -v hyprctl >/dev/null && hyprctl reload >/dev/null 2>&1 || true
+command -v notify-send >/dev/null && notify-send -a vinos-theme "vinOS theme" "Applied: $name"
+echo "vinos-theme-set: applied $name"

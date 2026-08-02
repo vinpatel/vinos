@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# vinos-restart-hyprland — reload the running Hyprland session (config
-# + rules). vinOS-branded passthrough to omarchy-refresh-hyprland. See
-# NOTICES.md for the heritage.
+# vinos-restart-hyprland — reload hyprland + waybar.
 set -euo pipefail
-exec omarchy-refresh-hyprland "$@"
+command -v hyprctl >/dev/null || { echo "hyprctl not found" >&2; exit 1; }
+hyprctl reload
+pkill -SIGUSR2 waybar 2>/dev/null || true
+command -v notify-send >/dev/null && notify-send -a vinos "vinOS" "Reloaded Hyprland + waybar"

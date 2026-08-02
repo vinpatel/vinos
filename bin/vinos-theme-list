@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
-# vinos-theme-list — list installed themes. vinOS-branded passthrough
-# to omarchy-theme-list. See NOTICES.md for the heritage.
+# vinos-theme-list — list installed themes.
 set -euo pipefail
-exec omarchy-theme-list "$@"
+CURRENT=""
+[[ -L "$HOME/.local/state/vinos/current/theme" ]] && CURRENT=$(basename "$(readlink -f "$HOME/.local/state/vinos/current/theme")" 2>/dev/null || echo)
+for base in /usr/share/vinos/themes "$HOME/.config/vinos/themes"; do
+  [[ -d "$base" ]] || continue
+  for d in "$base"/*/; do
+    [[ -d "$d" ]] || continue
+    n=$(basename "$d")
+    if [[ "$n" == "$CURRENT" ]]; then printf '● %s\n' "$n"; else printf '  %s\n' "$n"; fi
+  done
+done

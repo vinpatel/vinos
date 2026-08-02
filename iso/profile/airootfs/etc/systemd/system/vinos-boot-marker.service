@@ -6,7 +6,7 @@ Wants=multi-user.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-StandardOutput=journal+console
+StandardOutput=journal
 ExecStart=/usr/local/bin/vinos-boot-marker
 
 [Install]

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# vinos-lock — lock the screen. vinOS-branded passthrough to
-# omarchy-system-lock (unmodified Omarchy MIT script). See NOTICES.md
-# for the heritage.
+# vinos-lock — lock the screen.
 set -euo pipefail
-exec omarchy-system-lock "$@"
+if command -v hyprlock >/dev/null; then pidof hyprlock >/dev/null || exec hyprlock
+elif command -v swaylock >/dev/null; then exec swaylock -f
+else exec loginctl lock-session
+fi

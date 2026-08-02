@@ -1,6 +1,22 @@
 #!/usr/bin/env bash
-# vinos-background-next — cycle to the next wallpaper in the active
-# theme. vinOS-branded passthrough to omarchy-theme-bg-next. See
-# NOTICES.md for the heritage.
+# vinos-background-next — cycle wallpaper.
 set -euo pipefail
-exec omarchy-theme-bg-next "$@"
+current_link="$HOME/.local/state/vinos/current/theme"
+candidates=()
+if [[ -L "$current_link" ]] && [[ -d "$(readlink -f "$current_link")/backgrounds" ]]; then
+  while IFS= read -r -d '' f; do candidates+=("$f"); done \
+    < <(find "$(readlink -f "$current_link")/backgrounds" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -print0 | sort -z)
+fi
+if (( ${#candidates[@]} == 0 )) && [[ -d /usr/share/vinos/wallpapers ]]; then
+  while IFS= read -r -d '' f; do candidates+=("$f"); done \
+    < <(find /usr/share/vinos/wallpapers -maxdepth 2 -type f \( -iname '*.png' -o -iname '*.jpg' \) -print0 | sort -z)
+fi
+(( ${#candidates[@]} > 0 )) || { echo "vinos-background-next: no wallpapers" >&2; exit 1; }
+current_real=$(readlink -f "$HOME/.config/vinos/wallpaper.png" 2>/dev/null || echo)
+next="${candidates[0]}"
+for i in "${!candidates[@]}"; do
+  if [[ "${candidates[$i]}" == "$current_real" ]]; then
+    next="${candidates[$(( (i + 1) % ${#candidates[@]} ))]}"; break
+  fi
+done
+exec vinos-background "$next"
