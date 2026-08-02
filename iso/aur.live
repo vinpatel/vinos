@@ -1,48 +1,55 @@
-# ISO-only AUR packages (installed via the local [vinos-aur] repo,
-# NOT pulled by install/*.sh on installer path).
-#
-# Format: one package per line, comments and blanks ignored.
-# gen-packages.sh merges these into both packages.x86_64 (so mkarchiso
-# pacstraps them from vinos-aur) and aur.list (so aur-build.sh knows
-# to build them).
-#
-# NOTE: T2 Mac support packages (linux-t2, apple-bcm-firmware,
-# apple-t2-audio-config, tiny-dfr, t2fanrd) are NOT AUR — they live
-# in the community [arch-mact2] pacman repo (see iso/profile/pacman.conf
-# + iso/packages.live). Do NOT add them here.
+# vinOS AUR packages installed via local [vinos-aur] repo.
+# gen-packages.sh merges these into packages.x86_64 + aur.list.
+# aur-build.sh builds them in alphabetical order and caches in .aur-cache.
 
-# walker's new 2.16+ architecture split "elephant" into a separate
-# AUR package that walker-bin depends on at runtime. aur-build.sh
-# builds elephant first (alphabetical order) and pushes it into
-# [vinos-aur] so walker-bin's makepkg -s can resolve it.
+# Walker launcher engine (2.16+ split into elephant + walker-bin)
 elephant
 
-# OOBE-parity: vendor DKMS drivers baked into the squashfs. Each builds
-# against the shipped `linux` kernel headers at mkarchiso time, so the
-# live boot already has the module (no first-boot DKMS wait).
-# macbook12-spi-driver-dkms — pre-2018 butterfly-keyboard MBPs (T2 stack
-#                             handles 2018+; this covers 2015-2017)
-#
-# Deferred to install/06-hardware.sh (post-install) because the AUR
-# entries are either gone (asdcontrol, dell-xps-touchpad-haptics — no
-# PKGBUILD in AUR as of 2026-07) or their upstream source URL 404s
-# (yt6801-dkms). 06-hardware.sh already retries with warn-and-continue.
+# T2 keyboard driver (older 2015-2017 MBPs — pre-2018 butterfly kb)
 macbook12-spi-driver-dkms
 
-# OOBE-parity: shell-referenced userspace that only lives in AUR.
-# xdg-terminal-exec — resolves $TERMINAL / handlr terminal preference
-#                     for walker + hyprland keybind that opens a shell.
+# xdg-terminal-exec — walker / hypr keybind terminal resolver
 xdg-terminal-exec
 
-# OOBE-parity: apps bound to keybindings in config/hypr/hyprland.conf.
-# Super+M → spotify · Super+/ → 1password · terminal ops → 1password-cli.
-# aur-build.sh caches these in iso/.aur-cache so rebuilds are fast (~90 s).
+# Media apps — bound to keybindings
 spotify
+
+# 1Password (CLI + GUI) — bound to Super+/
 1password
 1password-cli
 
-# Convenience AUR-only utilities on the base tier.
-# tzupdate     — auto-set system timezone from IP (live boot + laptops).
-# ttf-ia-writer — designer serif "iA Writer" font family (base polish).
+# System conveniences
 tzupdate
 ttf-ia-writer
+
+# ─── Phase B additions ───
+
+# Agent development conveniences (AUR only)
+ollama-bin
+claude-code
+aichat
+open-webui-bin
+
+# Container ecosystem — extras beyond base packages
+k9s
+lazydocker
+lazykube
+
+# Terminal alternatives (build from AUR)
+
+# Modern editors (AUR)
+zed
+
+# Additional agent-native tools
+ttf-nerd-fonts-symbols-mono
+
+# ─── Phase B: agent SDKs + sops etc. moved from packages.live ───
+python-anthropic
+python-openai
+ttf-inter
+ufw-docker
+mise
+sops
+yay
+python-typer
+python-tomli-w
