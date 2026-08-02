@@ -1,0 +1,86 @@
+# vinOS walker launcher config
+# Clean-room. Preserves keyboard-first UX; adds AI-augmented search row.
+
+[general]
+theme = "vinos-dark"
+hotreload_theme = false
+close_when_open = false
+launch_prefix = ""
+disable_click_to_close = false
+force_keyboard_focus = true
+
+[keybinds]
+close = "Escape"
+next = "Tab"
+prev = "Shift+Tab"
+open = "Enter"
+select_below = "Down"
+select_above = "Up"
+
+[builtins]
+
+[builtins.applications]
+weight = 5
+placeholder = "Search apps · ai · files · ⌘K …"
+context_aware = true
+show_icon_when_single = true
+prioritize_new = true
+
+[builtins.commands]
+weight = 4
+placeholder = ""
+
+[builtins.calc]
+weight = 4
+require_number = false
+
+[builtins.clipboard]
+weight = 3
+image_height = 200
+max_entries = 20
+placeholder = "Clipboard history …"
+
+[builtins.custom_commands]
+weight = 3
+
+[[builtins.custom_commands.commands]]
+name = "→ Ask vinOS AI"
+cmd = "foot --title 'vinOS AI' -e sh -c 'echo \"%TERM\" | vinos-ai chat; read -p press enter'"
+
+[[builtins.custom_commands.commands]]
+name = "→ Run a routine"
+cmd = "vinos-menu routines"
+
+[[builtins.custom_commands.commands]]
+name = "→ Screenshot region"
+cmd = "vinos-capture-screenshot region"
+
+[[builtins.custom_commands.commands]]
+name = "→ Focus 25 min"
+cmd = "vinos-focus 25m"
+
+[[builtins.custom_commands.commands]]
+name = "→ Switch theme"
+cmd = "vinos-theme-pick"
+
+[[builtins.custom_commands.commands]]
+name = "→ Connect Wi-Fi"
+cmd = "foot --title 'vinOS Wi-Fi' -e impala"
+
+[builtins.dmenu]
+weight = 3
+
+[builtins.finder]
+weight = 2
+concurrency = 8
+use_fd = true
+ignore_gitignore = true
+extensions = ["md", "txt", "pdf", "png", "jpg", "docx", "xlsx", "js", "ts", "py", "go", "rs", "sh"]
+
+[builtins.runner]
+weight = 2
+excludes = []
+
+[builtins.symbols]
+weight = 2
+placeholder = "Emoji / symbols …"

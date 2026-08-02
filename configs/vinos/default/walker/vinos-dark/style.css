@@ -1,0 +1,76 @@
+/* vinOS walker theme — dark, cyan accent, glass card */
+
+@define-color accent #33ccff;
+@define-color accent2 #bb9af7;
+@define-color bg rgba(10, 14, 20, 0.95);
+@define-color bg-card rgba(20, 26, 34, 0.85);
+@define-color fg #e6e6e6;
+@define-color fg-dim rgba(230, 230, 230, 0.55);
+
+* {
+  font-family: "Inter", "JetBrains Mono Nerd Font", sans-serif;
+  font-size: 14px;
+  color: @fg;
+}
+
+window {
+  background: transparent;
+}
+
+#window {
+  background: @bg;
+  border-radius: 14px;
+  border: 1px solid rgba(51, 204, 255, 0.25);
+  padding: 8px;
+  margin: 40px;
+  min-width: 640px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+#search {
+  background: transparent;
+  color: @fg;
+  padding: 12px 16px;
+  font-size: 18px;
+  font-weight: 500;
+  border: none;
+  caret-color: @accent;
+}
+
+#search placeholder {
+  color: @fg-dim;
+}
+
+#list {
+  background: transparent;
+  padding: 4px;
+}
+
+#item {
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: @fg;
+  margin: 2px 0;
+  transition: background 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#item:hover, #item:selected {
+  background: rgba(51, 204, 255, 0.14);
+  color: #ffffff;
+}
+
+#item image {
+  margin-right: 12px;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+#item label {
+  font-weight: 500;
+}
+
+#item.custom_command label {
+  color: @accent;
+  font-style: italic;
+}

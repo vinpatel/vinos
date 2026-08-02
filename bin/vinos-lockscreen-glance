@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# vinos-lockscreen-glance — one-line summary shown on hyprlock.
+# Format: <uptime> · <unread notif count> · <next routine> · <weather>
+
+set -uo pipefail
+
+# Uptime, short form
+UP=$(uptime -p 2>/dev/null | sed 's|up ||; s| minutes|m|; s| minute|m|; s| hours|h|; s| hour|h|; s| days|d|; s| day|d|; s|,||g')
+
+# Unread notifications
+UNREAD=""
+if command -v makoctl >/dev/null 2>&1; then
+  n=$(makoctl list 2>/dev/null | grep -c '^Group:' 2>/dev/null || echo 0)
+  [[ "$n" -gt 0 ]] && UNREAD="  •  $n unread"
+fi
+
+# Next routine — from vinos-routine list --json (parses schedule)
+NEXT=""
+if command -v vinos-routine >/dev/null 2>&1; then
+  next_r=$(vinos-routine next 2>/dev/null | head -1 || echo)
+  [[ -n "$next_r" ]] && NEXT="  •  next: $next_r"
+fi
+
+# Weather — from vinos-weather-status (cached, offline-safe)
+WEATHER=""
+if command -v vinos-weather-status >/dev/null 2>&1; then
+  w=$(vinos-weather-status 2>/dev/null | head -1 || echo)
+  [[ -n "$w" ]] && WEATHER="  •  $w"
+fi
+
+printf 'up %s%s%s%s' "$UP" "$UNREAD" "$NEXT" "$WEATHER"
