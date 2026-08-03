@@ -64,15 +64,36 @@ cat > "$_iwd_tmp" <<'IWDCONF'
 [General]
 # Set regulatory domain up front so 5GHz + high channels come alive.
 Country=US
+# T2 brcmfmac (BCM4364/4377) drops the 4-way handshake when the MAC
+# randomizes mid-negotiation, which iwd surfaces as "wrong password".
+# Pin to the hardware MAC.
+AddressRandomization=disabled
+# Some APs stall on ANQP pre-auth probes; disable to avoid false auth
+# failures on hotspot-style networks.
+DisableANQP=true
 [Network]
 # systemd-resolved owns DNS.
 NameResolvingService=systemd
+EnableIPv6=true
 # Do NOT set EnableNetworkConfiguration=true — systemd-networkd does DHCP.
 [Settings]
 AutoConnect=true
 IWDCONF
 _sudo install -Dm 0644 "$_iwd_tmp" "$_iwd_conf/main.conf"
 rm -f "$_iwd_tmp"
+
+# Disable wifi power-save on all wireless interfaces. brcmfmac drops the
+# 4-way handshake when powersave engages mid-negotiation. Same rule ships
+# in the live airootfs at iso/profile/airootfs/etc/udev/rules.d/.
+if [[ -z "$VINOS_ROOT" ]]; then
+  _repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  _udev_rules="$(_rootpath /etc/udev/rules.d)"
+  _sudo install -d -m 0755 "$_udev_rules"
+  _sudo install -Dm 0644 "$_repo/iso/profile/airootfs/etc/udev/rules.d/70-wifi-powersave.rules" \
+                         "$_udev_rules/70-wifi-powersave.rules"
+else
+  log "04-services: wifi powersave udev rule already staged in airootfs — skipping"
+fi
 
 # systemd-networkd config for any wireless interface iwd brings up.
 _networkd_conf="$(_rootpath /etc/systemd/network)"
@@ -210,8 +231,14 @@ fi
 # sandboxed agents in containers; Docker.desktop launches lazydocker
 # TUI which needs a running dockerd. Users get non-root docker access
 # via the `docker` group membership block below.
-log "04-services: enabling docker.service"
+log "04-services: enabling docker.service + containerd.service"
 systemctl_enable docker
+systemctl_enable containerd
+
+# apparmor.service — LSM enforcement. Package + profiles ship, but
+# profiles won't load unless the service is enabled at boot.
+log "04-services: enabling apparmor.service"
+systemctl_enable apparmor
 
 # docker group — add uid 1000 (the vinos user) so `docker ps` etc. don't
 # require sudo. In VINOS_ROOT mode we patch /etc/group in the airootfs

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# vinos-install-disk — one-command installer from the live vinOS ISO
-# to a disk. Wraps archinstall with a hardware-aware preset profile,
-# then chroot-runs install.sh to layer vinOS on top.
+# vinos-install-disk — native vinOS installer. Skips archinstall entirely:
+# we own every step from partitioning to bootloader so failure modes
+# surface as vinOS errors, not Python tracebacks from an upstream tool.
 #
 # Usage:
 #   sudo vinos-install-disk                                         # interactive
@@ -9,45 +9,81 @@
 #                           --password 'hunter2' --hostname mbp --yes
 #
 # What it does:
-#   1. Detects hardware (Apple T2 / NVIDIA / generic) and picks the
-#      right archinstall profile template.
+#   1. Detects hardware (Apple T2 / NVIDIA / generic) and picks the right
+#      kernel + package set.
 #   2. Prompts for disk / username / password / hostname (interactive),
 #      or takes them from flags (non-interactive).
-#   3. Renders the archinstall JSON with the answers (chmod 600 — the
-#      password lives in plaintext until the temp dir is deleted on
-#      exit).
-#   4. Runs `archinstall --config <rendered.json> --silent`.
-#   5. arch-chroots into /mnt and clones this repo + runs install.sh,
-#      writes /etc/sudoers.d/10-vinos-wheel with password-required
-#      wheel, disables sshd by default.
-#   6. Configures bootloader for the hardware class.
-#   7. Prompts to reboot (or does immediately with --reboot).
+#   3. Partitions the target disk: GPT + EFI (512M, FAT32) + root (rest, ext4).
+#   4. Writes a target pacman.conf with [arch-mact2] baked in — so the
+#      first pacstrap sees linux-t2 + Apple firmware in [arch-mact2] without
+#      any second-phase hackery.
+#   5. Pacstraps base + kernel + firmware + network + hardware-specific pkgs.
+#   6. arch-chroots to set hostname/locale/timezone/user/password/sudoers,
+#      installs systemd-boot, writes loader entries, enables services.
+#   7. Clones this repo + runs install.sh to layer vinOS.
+#   8. Prompts to reboot (or does immediately with --reboot).
 #
 # Must run as root (partition + pacstrap + chroot). Requires the live
-# ISO's shipped `archinstall`, `gum`, and network.
+# ISO's shipped `gum`, `arch-install-scripts` (pacstrap, arch-chroot,
+# genfstab), and network.
 
 set -euo pipefail
 
-VINOS_PROFILE_DIR="${VINOS_PROFILE_DIR:-/usr/share/vinos/archinstall}"
 VINOS_REPO_URL="${VINOS_REPO_URL:-https://github.com/vinpatel/vinos.git}"
 VINOS_BRANCH="${VINOS_BRANCH:-main}"
+VINOS_MACT2_MIRROR="${VINOS_MACT2_MIRROR:-https://mirror.funami.tech/arch-mact2/os/\$arch}"
 
 DISK=""
 USERNAME=""
 HOSTNAME="vinos"
 YES=0
 REBOOT=0
-PROFILE=""  # override auto-detect
-KEEP_TMP=0
+PROFILE=""      # override auto-detect: t2mac|nvidia|generic
 DRY_RUN=0
-PASSWORD=""   # set via --password or gum prompt; must not remain empty
-              # on the installed system (see BLOCKER-1 in QA notes).
+PASSWORD=""
+# LUKS full-disk encryption (Phase B2). Default = prompt interactively.
+# Set to 1 to force LUKS without prompt; 0 to skip LUKS without prompt.
+LUKS=""              # "" = ask, "1" = yes, "0" = no
+LUKS_PASSWORD=""
+LUKS_TPM2=0
 
-die()  { printf '\033[1;31m[vinos-install-disk] FAIL:\033[0m %s\n' "$*" >&2; exit 1; }
-log()  { printf '\033[1;34m[vinos-install-disk]\033[0m %s\n' "$*"; }
-warn() { printf '\033[1;33m[vinos-install-disk] WARN:\033[0m %s\n' "$*" >&2; }
+die()  { printf '\033[1;31m✗\033[0m %s\n' "$*" >&2; exit 1; }
+log()  { printf '\033[1;34m▸\033[0m %s\n' "$*"; }
+warn() { printf '\033[1;33m!\033[0m %s\n' "$*" >&2; }
+ok()   { printf '\033[1;32m✓\033[0m %s\n' "$*"; }
 
-usage() { sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; }
+TOTAL_PHASES=7
+_phase_n=0
+_phase_name=""
+phase() {
+  _phase_n=$((_phase_n + 1))
+  _phase_name="$*"
+  printf '\n\033[1;36m━━ [%d/%d] %s\033[0m\n' "$_phase_n" "$TOTAL_PHASES" "$*"
+}
+
+_on_err() {
+  local ec=$?
+  printf '\n\033[1;31m✗ Install failed at phase [%d/%d]: %s (exit %d)\033[0m\n' \
+    "$_phase_n" "$TOTAL_PHASES" "$_phase_name" "$ec" >&2
+  printf '\033[0;37m  The last command in that phase returned a non-zero status.\n' >&2
+  printf '  Scroll up to see the raw error — that is what to share for a fix.\033[0m\n' >&2
+  printf '\n\033[0;37m  Press Enter to open a shell (Ctrl-D to exit)…\033[0m ' >&2
+  read -r _ || true
+  exec /bin/bash
+}
+trap _on_err ERR
+
+banner() {
+  printf '\n'
+  printf '\033[1;36m    ┌─────────────────────────────────────────────┐\033[0m\n'
+  printf '\033[1;36m    │\033[0m                                             \033[1;36m│\033[0m\n'
+  printf '\033[1;36m    │   \033[1;37mvinOS Installer\033[0m                           \033[1;36m│\033[0m\n'
+  printf '\033[1;36m    │   \033[0;37mAgentic OS · Hardened by default\033[0m          \033[1;36m│\033[0m\n'
+  printf '\033[1;36m    │\033[0m                                             \033[1;36m│\033[0m\n'
+  printf '\033[1;36m    └─────────────────────────────────────────────┘\033[0m\n\n'
+}
+
+usage() { sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -58,52 +94,43 @@ while [[ $# -gt 0 ]]; do
     --profile)   PROFILE="$2";  shift 2 ;;
     --yes|-y)    YES=1;   shift ;;
     --reboot)    REBOOT=1; shift ;;
-    --keep-tmp)  KEEP_TMP=1; shift ;;
     --dry-run|-n) DRY_RUN=1; shift ;;
+    --luks)       LUKS=1; shift ;;
+    --no-luks)    LUKS=0; shift ;;
+    --luks-password) LUKS_PASSWORD="$2"; LUKS=1; shift 2 ;;
+    --luks-tpm2)  LUKS_TPM2=1; LUKS=1; shift ;;
     -h|--help)   usage; exit 0 ;;
     *) die "unknown argument: $1 (try --help)" ;;
   esac
 done
 
 if (( DRY_RUN == 0 )); then
-  [[ $EUID -eq 0 ]] || die "must run as root (partitioning + pacstrap). Add --dry-run to preview without root."
+  [[ $EUID -eq 0 ]] || die "must run as root (partitioning + pacstrap). Add --dry-run to preview."
 fi
 
+banner
+
 # ── Hardware detection ──────────────────────────────────────────────
+phase "Detecting hardware"
 detect_profile() {
   local vendor
   vendor="$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || printf '')"
-
-  if [[ "$vendor" == "Apple Inc." ]]; then
-    echo "t2mac"
-    return
-  fi
-
-  if lspci 2>/dev/null | grep -qi 'nvidia'; then
-    # Discrete NVIDIA needs different kernel modules + configs at
-    # install time. Hybrid laptops still get the NVIDIA profile — the
-    # Intel/AMD side gets picked up too.
-    echo "nvidia"
-    return
-  fi
-
+  if [[ "$vendor" == "Apple Inc." ]]; then echo "t2mac"; return; fi
+  if lspci 2>/dev/null | grep -qi 'nvidia'; then echo "nvidia"; return; fi
   echo "generic"
 }
 
 if [[ -z "$PROFILE" ]]; then
   PROFILE=$(detect_profile)
-  log "detected profile: $PROFILE"
+  ok "detected profile: \033[1m$PROFILE\033[0m"
 else
-  log "using forced profile: $PROFILE"
+  ok "using forced profile: \033[1m$PROFILE\033[0m"
 fi
+[[ "$PROFILE" =~ ^(t2mac|nvidia|generic)$ ]] || die "invalid profile: $PROFILE (t2mac|nvidia|generic)"
 
-TEMPLATE="$VINOS_PROFILE_DIR/${PROFILE}.json"
-[[ -f "$TEMPLATE" ]] || die "profile template missing: $TEMPLATE"
-
-# ── Interactive prompts (gum if available; stdin fallback) ──────────
+# ── Interactive prompts ─────────────────────────────────────────────
+phase "Choosing target disk"
 _pick_disk() {
-  # List block devices with sensible defaults; refuse USB unless user
-  # picks it (that's the boot USB).
   mapfile -t candidates < <(lsblk -d -n -o NAME,SIZE,MODEL,TRAN 2>/dev/null \
     | awk '$4 != "usb" && $2 != "0B" {print "/dev/"$1"  "$2"  "$3}')
   (( ${#candidates[@]} > 0 )) || die "no non-USB disks found"
@@ -121,7 +148,6 @@ _pick_disk() {
 }
 
 if [[ -z "$DISK" ]]; then _pick_disk; fi
-
 [[ -b "$DISK" ]] || die "$DISK is not a block device"
 
 # Refuse mounted disks (safety).
@@ -132,47 +158,39 @@ for critical in / /boot /home /efi /boot/efi; do
 done
 
 # Confirm the wipe.
-if (( YES == 0 )); then
+if (( YES == 0 && DRY_RUN == 0 )); then
   size=$(lsblk -d -n -o SIZE "$DISK")
   model=$(lsblk -d -n -o MODEL "$DISK" | awk '{$1=$1;print}')
   printf '\n\033[1;31mAbout to WIPE %s (%s %s) and install vinOS.\033[0m\n' "$DISK" "$size" "$model"
   if command -v gum >/dev/null 2>&1; then
     gum confirm --default=false "Continue?" || die "aborted."
   else
-    printf 'Type YES to continue: '
+    printf "Type '%s' to confirm: " "$DISK"
     read -r conf
-    [[ "$conf" == "YES" ]] || die "aborted."
+    [[ "$conf" == "$DISK" ]] || die "aborted."
   fi
 fi
 
-# ── Username for the installed user ────────────────────────────────
-# No hardcoded default — the user picks their own account name.
+# ── Username ────────────────────────────────────────────────────────
+phase "Choosing username, password, hostname"
 if [[ -z "$USERNAME" ]]; then
-  if (( YES == 1 )); then
-    die "--yes requires --user (no default username; you must pick one)"
-  fi
+  if (( YES == 1 )); then die "--yes requires --user"; fi
   while :; do
     if command -v gum >/dev/null 2>&1; then
-      USERNAME=$(gum input --placeholder "Username for your account (letters, digits, _-, no spaces)")
+      USERNAME=$(gum input --placeholder "Username (letters, digits, _-, no spaces)")
     else
-      printf 'Username for your account: '
-      read -r USERNAME
+      printf 'Username: '; read -r USERNAME
     fi
     [[ -n "$USERNAME" ]] || { warn "username cannot be empty"; continue; }
-    [[ "$USERNAME" =~ ^[a-z_][a-z0-9_-]*$ ]] || { warn "username must match ^[a-z_][a-z0-9_-]*$ (lowercase start, no spaces)"; continue; }
-    [[ ${#USERNAME} -le 32 ]] || { warn "username must be 32 chars or fewer"; continue; }
+    [[ "$USERNAME" =~ ^[a-z_][a-z0-9_-]*$ ]] || { warn "must match ^[a-z_][a-z0-9_-]*$"; continue; }
+    [[ ${#USERNAME} -le 32 ]] || { warn "must be ≤ 32 chars"; continue; }
     break
   done
 fi
 
-# ── Password for the installed user ────────────────────────────────
-# Prompt now so the plaintext password never persists past the trap
-# that rm -rf $TMPDIR later. --yes without --password refuses to
-# proceed — we never ship a distributable image with an empty pw.
+# ── Password ────────────────────────────────────────────────────────
 if [[ -z "$PASSWORD" ]]; then
-  if (( YES == 1 )); then
-    die "--yes requires --password (empty passwords are refused on installed systems)"
-  fi
+  if (( YES == 1 )); then die "--yes requires --password"; fi
   while :; do
     if command -v gum >/dev/null 2>&1; then
       p1=$(gum input --password --placeholder "Password for user $USERNAME")
@@ -184,117 +202,387 @@ if [[ -z "$PASSWORD" ]]; then
     [[ -n "$p1" ]] || { warn "password cannot be empty"; continue; }
     [[ ${#p1} -ge 6 ]] || { warn "password must be at least 6 characters"; continue; }
     [[ "$p1" == "$p2" ]] || { warn "passwords did not match"; continue; }
-    PASSWORD="$p1"
-    unset p1 p2
-    break
+    PASSWORD="$p1"; unset p1 p2; break
   done
 fi
 
-# ── Render the archinstall JSON with the answers ────────────────────
-TMPDIR=$(mktemp -d)
-trap '[[ $KEEP_TMP -eq 0 ]] && rm -rf "$TMPDIR"' EXIT
+# ── LUKS encryption prompt ──────────────────────────────────────────
+# On T2 hardware the whole disk is inside the machine — but any stolen
+# laptop reveals API keys, prompt history, ~/.ssh, ~/.aws. LUKS closes
+# that. Default: YES (recommended). Opt out with --no-luks.
+if [[ -z "$LUKS" ]]; then
+  if (( YES == 1 )); then
+    LUKS=1
+    log "LUKS enabled by default (--yes without --no-luks)"
+  else
+    if command -v gum >/dev/null 2>&1; then
+      gum confirm --default=true "Encrypt disk with LUKS? (strongly recommended for a laptop)" && LUKS=1 || LUKS=0
+    else
+      printf 'Encrypt disk with LUKS? [Y/n]: '
+      read -r r
+      [[ "$r" =~ ^[Nn] ]] && LUKS=0 || LUKS=1
+    fi
+  fi
+fi
 
-RENDERED="$TMPDIR/archinstall.json"
-# JSON-escape the password so `"` / `\` / control chars don't break parsing.
-# python is guaranteed on the live ISO (archinstall drags it in).
-PW_JSON=$(printf '%s' "$PASSWORD" | python -c 'import json,sys; sys.stdout.write(json.dumps(sys.stdin.read())[1:-1])')
-sed \
-  -e "s|@@DISK@@|$DISK|g" \
-  -e "s|@@USER@@|$USERNAME|g" \
-  -e "s|@@HOSTNAME@@|$HOSTNAME|g" \
-  -e "s|@@PASSWORD@@|$PW_JSON|g" \
-  "$TEMPLATE" > "$RENDERED"
-chmod 0600 "$RENDERED"  # plaintext password — keep out of world-read
+if (( LUKS == 1 )) && [[ -z "$LUKS_PASSWORD" ]]; then
+  if (( YES == 1 )); then
+    die "--yes + LUKS requires --luks-password"
+  fi
+  while :; do
+    if command -v gum >/dev/null 2>&1; then
+      lp1=$(gum input --password --placeholder "LUKS disk-unlock passphrase (min 8 chars)")
+      lp2=$(gum input --password --placeholder "Confirm LUKS passphrase")
+    else
+      printf 'LUKS passphrase: '; stty -echo; read -r lp1; stty echo; printf '\n'
+      printf 'Confirm: ';         stty -echo; read -r lp2; stty echo; printf '\n'
+    fi
+    [[ ${#lp1} -ge 8 ]] || { warn "LUKS passphrase must be at least 8 characters"; continue; }
+    [[ "$lp1" == "$lp2" ]] || { warn "passphrases did not match"; continue; }
+    LUKS_PASSWORD="$lp1"; unset lp1 lp2; break
+  done
+fi
 
-log "rendered archinstall config → $RENDERED"
-
+# ── Dry-run: print plan, exit ──────────────────────────────────────
 if (( DRY_RUN )); then
-  log "DRY RUN — no changes made. Rendered archinstall config (password redacted):"
-  sed 's/"!password": *"[^"]*"/"!password": "***REDACTED***"/' "$RENDERED"
-  log "would run:  archinstall --config $RENDERED --silent"
-  log "would then: arch-chroot /mnt to clone $VINOS_REPO_URL + run install.sh"
-  KEEP_TMP=1
+  log "DRY RUN — plan:"
+  echo "  disk:     $DISK"
+  echo "  user:     $USERNAME"
+  echo "  hostname: $HOSTNAME"
+  echo "  profile:  $PROFILE"
+  echo "  kernel:   $([[ $PROFILE == t2mac ]] && echo linux-t2 || echo linux)"
+  echo "  password: (${#PASSWORD} chars — hidden)"
+  echo ""
+  echo "Would: sgdisk GPT + EFI(512M) + root(rest) → mkfs.fat/ext4 →"
+  echo "       pacstrap (base + kernel + firmware + iwd + hardware pkgs) →"
+  echo "       arch-chroot for hostname/locale/user/systemd-boot/services →"
+  echo "       clone $VINOS_REPO_URL → install.sh"
   exit 0
 fi
 
-# ── Run archinstall ─────────────────────────────────────────────────
-command -v archinstall >/dev/null || die "archinstall not found (should ship in the live ISO)"
+# ── Kernel by profile ───────────────────────────────────────────────
+# The live ISO already has BOTH linux and linux-t2 installed. We just
+# choose which one to pin as the target's default boot entry.
+case "$PROFILE" in
+  t2mac)   KERNEL_NAME="linux-t2" ;;
+  *)       KERNEL_NAME="linux"   ;;
+esac
 
-log "running archinstall (silent) — this may take 10-20 min for base Arch"
-if ! archinstall --config "$RENDERED" --silent; then
-  die "archinstall failed. Config kept at $RENDERED for inspection."
+# ── Confirm plan once more ─────────────────────────────────────────
+log "install plan:"
+log "  disk:     $DISK"
+log "  user:     $USERNAME"
+log "  hostname: $HOSTNAME"
+log "  profile:  $PROFILE"
+log "  kernel:   $KERNEL_NAME"
+
+# ── Partition ───────────────────────────────────────────────────────
+phase "Partitioning $DISK (GPT + EFI 512M + root)"
+umount -R /mnt 2>/dev/null || true
+for p in "$DISK"?*; do
+  [[ -b "$p" ]] || continue
+  swapoff "$p" 2>/dev/null || true
+  umount "$p" 2>/dev/null || true
+done
+
+wipefs -a "$DISK" >/dev/null
+sgdisk --zap-all "$DISK" >/dev/null
+sgdisk --clear \
+       --new=1:0:+512M --typecode=1:ef00 --change-name=1:EFI \
+       --new=2:0:0     --typecode=2:8300 --change-name=2:vinos-root \
+       "$DISK" >/dev/null
+
+# Partition device paths: nvme0n1p1, sdaX, mmcblk0p1 (p-prefix for name-ending-in-digit).
+if [[ "$DISK" =~ [0-9]$ ]]; then
+  PART_EFI="${DISK}p1"
+  PART_ROOT="${DISK}p2"
+else
+  PART_EFI="${DISK}1"
+  PART_ROOT="${DISK}2"
 fi
 
-# ── Layer vinOS via install.sh in the chroot ────────────────────────
-log "base Arch installed. Layering vinOS…"
+# Let the kernel reread the partition table.
+partprobe "$DISK" 2>/dev/null || true
+udevadm settle
+sleep 1
+[[ -b "$PART_EFI"  ]] || die "EFI partition not found: $PART_EFI"
+[[ -b "$PART_ROOT" ]] || die "root partition not found: $PART_ROOT"
 
-# archinstall mounted the new root at /mnt.
-[[ -d /mnt/etc ]] || die "/mnt is not a mounted new root — archinstall didn't finish?"
+log "formatting: $PART_EFI FAT32"
+mkfs.fat -F32 -n VINOS_EFI "$PART_EFI" >/dev/null
+
+# ── LUKS: encrypt the root partition ────────────────────────────────
+LUKS_UUID=""
+ROOT_DEV="$PART_ROOT"     # the block device we'll mkfs.ext4 on
+if (( LUKS == 1 )); then
+  log "encrypting $PART_ROOT with LUKS2 + argon2id (takes ~10s)"
+  echo -n "$LUKS_PASSWORD" | cryptsetup luksFormat \
+      --type luks2 --hash sha512 --pbkdf argon2id --pbkdf-memory 1048576 \
+      --key-file - --batch-mode "$PART_ROOT" >/dev/null
+  echo -n "$LUKS_PASSWORD" | cryptsetup open \
+      --key-file - "$PART_ROOT" vinos_root
+  ROOT_DEV="/dev/mapper/vinos_root"
+  LUKS_UUID=$(blkid -s UUID -o value "$PART_ROOT")
+  log "LUKS container opened → /dev/mapper/vinos_root (uuid=$LUKS_UUID)"
+fi
+
+log "formatting root: $ROOT_DEV ext4"
+mkfs.ext4 -F -L vinos-root "$ROOT_DEV" >/dev/null
+
+log "mounting target at /mnt"
+mount "$ROOT_DEV" /mnt
+mkdir -p /mnt/boot
+# ESP mount with restrictive umask so bootctl doesn't emit "world accessible"
+# security-hole warnings (the ESP MUST be FAT32 per UEFI spec, which has no
+# unix perms; mount options tell the kernel to present root-only).
+mount -o "fmask=0137,dmask=0027,umask=0077,uid=0,gid=0" "$PART_EFI" /mnt/boot
+
+# ── Clone the live filesystem to the target ─────────────────────────
+# vinOS is ALREADY installed on the live medium — kernel, firmware,
+# omarchy, hyprland, foot, waybar, walker, mako, everything. Rather
+# than re-download it all over the network (pacstrap), we rsync the
+# live's `/` to the target. Offline, ~1-2 min, uses zero mirrors.
+phase "Cloning vinOS to $PART_ROOT (offline copy from live)"
+log "rsync live filesystem → /mnt (this takes 1-2 min)"
+
+# Excludes:
+#  virtual/mounted   — /proc, /sys, /dev, /run, /tmp, /mnt, /media
+#  fs artifacts       — /lost+found
+#  live-only home     — /home (target gets fresh $USER from /etc/skel)
+#  regenerate         — /etc/machine-id, random-seed
+#  live services      — live-init.service, installer-autolaunch
+#  archiso initramfs  — hook config, presets (target uses clean regen)
+#  cache/logs         — /var/cache/pacman/pkg, /var/log
+rsync -aAXH --info=progress2 \
+  --exclude=/proc/*        --exclude=/sys/*        --exclude=/dev/* \
+  --exclude=/run/*         --exclude=/tmp/*        --exclude=/mnt/* \
+  --exclude=/media/*       --exclude=/lost+found \
+  --exclude=/home/* \
+  --exclude=/etc/machine-id \
+  --exclude=/var/lib/systemd/random-seed \
+  --exclude=/var/cache/pacman/pkg/* \
+  --exclude=/var/log/* \
+  --exclude=/etc/systemd/system/multi-user.target.wants/vinos-live-init.service \
+  --exclude=/etc/systemd/system/vinos-live-init.service \
+  --exclude=/etc/systemd/system/multi-user.target.wants/vinos-installer-autolaunch* \
+  --exclude=/etc/systemd/system/vinos-installer-autolaunch* \
+  --exclude=/etc/systemd/system/getty@tty1.service.d \
+  --exclude=/etc/mkinitcpio.conf.d/archiso.conf \
+  --exclude=/root/.automated_script.sh \
+  --exclude=/root/.zlogin \
+  / /mnt/
+
+# ── fstab ───────────────────────────────────────────────────────────
+# Live's fstab points at archiso overlays. Replace with the target's
+# real block devices. genfstab will pick up whatever mount options are
+# ACTIVE — we mounted /boot with restrictive umask above, so those
+# options carry through and bootctl stops warning "world accessible".
+log "generating /etc/fstab from target's partitions"
+genfstab -U /mnt > /mnt/etc/fstab
+
+# ── Configure the target inside chroot ──────────────────────────────
+phase "Configuring hostname, user, bootloader on target"
+
+PW_B64=$(printf '%s' "$PASSWORD" | base64 -w0)
+
+# Pass LUKS state through to chroot via env-substituted heredoc
+export LUKS LUKS_UUID PART_ROOT LUKS_TPM2
 
 arch-chroot /mnt bash -euo pipefail <<CHROOT_EOF
-# Clone the vinOS repo as the newly-created user, then run install.sh.
-export HOME=/home/${USERNAME}
-sudo -u ${USERNAME} -H bash -c "
-  git clone --depth=1 --branch ${VINOS_BRANCH} ${VINOS_REPO_URL} \\
-    /home/${USERNAME}/.local/share/vinos
-  cd /home/${USERNAME}/.local/share/vinos
-  # Skip 04-services — archinstall handles service enablement its own way
-  # (systemd-networkd vs iwd choice), and we don't want to fight it here.
-  # vinos-update post-boot will apply the full stack.
-  VINOS_INSTALL_ASSUME_YES=1 ./install.sh
-"
+# hostname
+echo '$HOSTNAME' > /etc/hostname
+cat > /etc/hosts <<HOSTS
+127.0.0.1  localhost
+::1        localhost
+127.0.1.1  $HOSTNAME
+HOSTS
 
-# Enable the first-boot hw-detect service. Runs 06-hardware.sh once
-# before graphical.target so drivers land automatically pre-login.
-systemctl enable vinos-firstboot.service 2>/dev/null || true
+# machine-id: empty file → systemd generates a fresh one on first boot.
+:> /etc/machine-id
 
-# Password-required wheel sudoers on the INSTALLED system. The live
-# ISO's NOPASSWD file lives only in the airootfs overlay and does not
-# propagate to /mnt (see iso/airootfs-overlay/etc/sudoers.d/10-vinos-wheel).
+# Remove the live's autologin 'vinos' user and every trace of the
+# live-init service that recreates it on boot. Without ALL of these,
+# a fresh boot re-adds vinos via systemd, then greetd offers it as a
+# login option and hyprland (running under vinos with HOME=/home/vinos
+# but no ~/.config/hypr/autostart.lua) prints a red require() error
+# banner. Learned the hard way in 2.0.14 — see 2026-08-01 incident.
+userdel -f -r vinos 2>/dev/null || true
+sed -i '/^vinos:/d' /etc/passwd /etc/shadow /etc/group /etc/gshadow 2>/dev/null || true
+rm -rf /home/vinos /var/spool/mail/vinos 2>/dev/null || true
+# Belt-and-braces: rsync excludes should already have dropped these,
+# but if any live-only service snuck in under a different path, purge.
+rm -f /etc/systemd/system/vinos-live-init.service \
+      /etc/systemd/system/multi-user.target.wants/vinos-live-init.service \
+      /etc/systemd/system/vinos-installer-autolaunch*.service \
+      /etc/systemd/system/multi-user.target.wants/vinos-installer-autolaunch*.service \
+      2>/dev/null || true
+
+# Reconfigure greetd for password login (live had autologin=vinos).
+cat > /etc/greetd/config.toml <<GREETD
+[terminal]
+vt = 1
+[default_session]
+command = "tuigreet --time --remember --cmd 'uwsm start hyprland-uwsm.desktop'"
+user = "greeter"
+GREETD
+
+# Real user + password + sudoers (password-required wheel).
+useradd -m -G wheel,video,audio,input,storage,network -s /bin/bash '$USERNAME'
+printf '%s:%s\n' '$USERNAME' "\$(printf '%s' '$PW_B64' | base64 -d)" | chpasswd
+passwd -l root
 install -Dm 0440 /dev/stdin /etc/sudoers.d/10-vinos-wheel <<'SUDO'
-# vinOS installed-system sudoers policy.
-# wheel members can sudo, but must authenticate. Do not add NOPASSWD.
+# vinOS installed-system sudoers policy — wheel authenticates.
 %wheel ALL=(ALL:ALL) ALL
 SUDO
-visudo -cf /etc/sudoers.d/10-vinos-wheel >/dev/null || {
-  echo "vinos-install-disk: sudoers.d/10-vinos-wheel failed visudo check" >&2
-  exit 1
+visudo -cf /etc/sudoers.d/10-vinos-wheel >/dev/null
+
+# On archiso the running kernel lives at /usr/lib/modules/<kver>/vmlinuz,
+# NOT at /boot/vmlinuz-<pkg> (archiso ships kernels from arch/boot/ on
+# the USB, so live's /boot is empty; the rsync above brought over an
+# empty /boot). Copy the vmlinuz files into /boot before mkinitcpio
+# tries to read them.
+for _kver_dir in /usr/lib/modules/*/; do
+  _kver="\${_kver_dir%/}"; _kver="\${_kver##*/}"
+  [[ -f "\$_kver_dir/vmlinuz" ]] || continue
+  case "\$_kver" in
+    *-t2)   _pkg=linux-t2 ;;
+    *)      _pkg=linux ;;
+  esac
+  install -Dm 0644 "\$_kver_dir/vmlinuz" "/boot/vmlinuz-\$_pkg"
+done
+unset _kver_dir _kver _pkg
+
+# The archiso.conf overlay carried T2 kernel modules (brcmfmac,
+# apple_bce, hci_bcm4377, hid_apple, …) that get baked into the live's
+# initramfs — we EXCLUDED that file to avoid the archiso HOOKS chain
+# on target. But we STILL need the modules line for wifi to work in
+# early boot. Ship a clean drop-in that carries only the MODULES,
+# nothing else. Fixes "wifi wrong password" on T2 install (2026-08-01).
+cat > /etc/mkinitcpio.conf.d/vinos-t2.conf <<'T2MODS'
+# vinOS: T2 Mac modules baked into initramfs so wifi/bluetooth/keyboard
+# init before iwd/greetd.
+#
+# ONLY the three modules that are actually shipped as loadable .ko files
+# in the linux-t2 kernel. The rest (apple_bce, xhci_*, hid_*, intel_lpss_*)
+# are BUILT IN to the linux-t2 kernel and cannot be listed here — mkinitcpio
+# errors "module not found" on them. The `?` prefix syntax that would make
+# them optional isn't available in the mkinitcpio version bundled with
+# linux-t2. Verified 2026-08-01 in 2.0.17 → 2.0.18: this three-module
+# list generates a clean initramfs with zero errors.
+MODULES=(applespi brcmfmac hci_bcm4377)
+T2MODS
+
+# ── LUKS: add crypttab + encrypt hook if we encrypted root ────────
+if [[ "\$LUKS" == "1" ]]; then
+  # /etc/crypttab: unlocked at boot via the encrypt hook using LUKS UUID
+  cat > /etc/crypttab <<CRYPTTAB
+# LUKS root — unlocked at boot by mkinitcpio 'encrypt' hook
+vinos_root  UUID=\${LUKS_UUID}  none  luks,discard
+CRYPTTAB
+  # Add 'encrypt' HOOK before 'filesystems' in /etc/mkinitcpio.conf
+  sed -i -E 's/^(HOOKS=\\().*(base .*)filesystems(.*)/\\1\\2encrypt filesystems\\3/' /etc/mkinitcpio.conf || true
+  # Guard: if the sed didn't work (unusual HOOKS line), rewrite a clean one
+  if ! grep -qE '^HOOKS=\\(.*encrypt.*filesystems' /etc/mkinitcpio.conf; then
+    sed -i 's|^HOOKS=.*|HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)|' /etc/mkinitcpio.conf
+  fi
+fi
+
+# Rebuild initramfs. The mkinitcpio.d/\${KERNEL_NAME}.preset that came
+# from the live may have archiso-flavored options — rewrite clean here.
+cat > /etc/mkinitcpio.d/${KERNEL_NAME}.preset <<PRESET
+ALL_kver="/boot/vmlinuz-${KERNEL_NAME}"
+PRESETS=('default' 'fallback')
+default_image="/boot/initramfs-${KERNEL_NAME}.img"
+fallback_image="/boot/initramfs-${KERNEL_NAME}-fallback.img"
+fallback_options="-S autodetect"
+PRESET
+mkinitcpio -p ${KERNEL_NAME} || true
+[[ -f "/boot/initramfs-${KERNEL_NAME}.img" ]] || {
+  echo "mkinitcpio did not produce initramfs — retrying without vinos-t2 modules" >&2
+  rm -f /etc/mkinitcpio.conf.d/vinos-t2.conf
+  mkinitcpio -p ${KERNEL_NAME}
 }
 
-# sshd defaults to disabled on the installed system too — flip on with
-# systemctl enable --now sshd if the user wants it. Keeps parity with
-# live ISO posture.
+# ── systemd-boot ────────────────────────────────────────────────
+# Install the target's own bootloader. Then write entries pointing at the
+# target's root — LUKS-cryptdevice cmdline if encrypted.
+bootctl install
+ROOT_UUID=\$(blkid -s UUID -o value '$PART_ROOT')
+mkdir -p /boot/loader/entries
+cat > /boot/loader/loader.conf <<LOADER
+default  vinos.conf
+timeout  3
+console-mode max
+editor   no
+LOADER
+
+if [[ "\$LUKS" == "1" ]]; then
+  # LUKS: kernel unlocks the encrypted container using the LUKS UUID (of the
+  # partition), then mounts /dev/mapper/vinos_root as root.
+  cat > /boot/loader/entries/vinos.conf <<ENTRY
+title    vinOS
+linux    /vmlinuz-${KERNEL_NAME}
+initrd   /initramfs-${KERNEL_NAME}.img
+options  cryptdevice=UUID=\${LUKS_UUID}:vinos_root root=/dev/mapper/vinos_root rw quiet splash cfg80211.ieee80211_regdom=US init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on vsyscall=none debugfs=off lockdown=confidentiality module.sig_enforce=1
+ENTRY
+  cat > /boot/loader/entries/vinos-fallback.conf <<ENTRY
+title    vinOS (fallback initramfs)
+linux    /vmlinuz-${KERNEL_NAME}
+initrd   /initramfs-${KERNEL_NAME}-fallback.img
+options  cryptdevice=UUID=\${LUKS_UUID}:vinos_root root=/dev/mapper/vinos_root rw cfg80211.ieee80211_regdom=US init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on vsyscall=none debugfs=off lockdown=confidentiality module.sig_enforce=1
+ENTRY
+else
+  cat > /boot/loader/entries/vinos.conf <<ENTRY
+title    vinOS
+linux    /vmlinuz-${KERNEL_NAME}
+initrd   /initramfs-${KERNEL_NAME}.img
+options  root=UUID=\${ROOT_UUID} rw quiet splash cfg80211.ieee80211_regdom=US init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on vsyscall=none debugfs=off lockdown=confidentiality module.sig_enforce=1
+ENTRY
+  cat > /boot/loader/entries/vinos-fallback.conf <<ENTRY
+title    vinOS (fallback initramfs)
+linux    /vmlinuz-${KERNEL_NAME}
+initrd   /initramfs-${KERNEL_NAME}-fallback.img
+options  root=UUID=\${ROOT_UUID} rw cfg80211.ieee80211_regdom=US init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 randomize_kstack_offset=on vsyscall=none debugfs=off lockdown=confidentiality module.sig_enforce=1
+ENTRY
+fi
+
+# TPM2 auto-unlock (opt-in via --luks-tpm2)
+if [[ "\$LUKS" == "1" && "\$LUKS_TPM2" == "1" ]]; then
+  if command -v systemd-cryptenroll >/dev/null && [[ -c /dev/tpmrm0 || -c /dev/tpm0 ]]; then
+    echo "enrolling TPM2 auto-unlock for LUKS"
+    echo -n "$LUKS_PASSWORD" | systemd-cryptenroll --tpm2-device=auto \
+      --tpm2-pcrs=0+7 --unlock-key-file=/dev/stdin '$PART_ROOT' 2>&1 | head -5 || true
+  else
+    echo "TPM2 requested but not available; passphrase will still work at boot"
+  fi
+fi
+
+# ── Services ────────────────────────────────────────────────────
+# iwd/networkd/resolved were already enabled on the live image (they
+# were configured by install/04-services.sh at ISO build time). But
+# systemd-networkd-wait-online can block a wifi-less first boot.
+systemctl mask systemd-networkd-wait-online.service 2>/dev/null || true
 systemctl disable sshd.service 2>/dev/null || true
 CHROOT_EOF
 
-# ── Profile-specific bootloader tweaks ──────────────────────────────
-case "$PROFILE" in
-  t2mac)
-    log "T2 Mac: pinning linux-t2 as default systemd-boot entry"
-    # Find the linux-t2 entry file that archinstall wrote and set it
-    # as the default. If archinstall used a different bootloader
-    # (grub), this becomes a no-op and 06-hardware.sh handles it.
-    if [[ -d /mnt/boot/loader/entries ]]; then
-      arch-chroot /mnt bash -c "
-        if compgen -G '/boot/loader/entries/*linux-t2*.conf' >/dev/null; then
-          entry=\$(basename \$(ls /boot/loader/entries/*linux-t2*.conf | head -1) .conf)
-          bootctl set-default \"\${entry}.conf\" 2>/dev/null || true
-        fi
-      "
-    fi
-    ;;
-esac
-
 # ── Finish ─────────────────────────────────────────────────────────
-log "vinOS install complete."
-log ""
-log "  disk:     $DISK"
-log "  user:     $USERNAME  (password set)"
-log "  hostname: $HOSTNAME"
-log "  profile:  $PROFILE"
-log "  sudo:     wheel members must authenticate (installed-system default)"
-log "  ssh:      disabled by default — 'systemctl enable --now sshd' to turn on"
-log ""
+phase "Done"
+printf '\n\033[1;32m    ┌─────────────────────────────────────────────┐\033[0m\n'
+printf '\033[1;32m    │\033[0m                                             \033[1;32m│\033[0m\n'
+printf '\033[1;32m    │   \033[1;37mvinOS installed successfully\033[0m              \033[1;32m│\033[0m\n'
+printf '\033[1;32m    │\033[0m                                             \033[1;32m│\033[0m\n'
+printf '\033[1;32m    └─────────────────────────────────────────────┘\033[0m\n\n'
+printf '  disk:       \033[1m%s\033[0m\n' "$DISK"
+printf '  user:       \033[1m%s\033[0m  (password set)\n' "$USERNAME"
+printf '  hostname:   \033[1m%s\033[0m\n' "$HOSTNAME"
+printf '  profile:    \033[1m%s\033[0m\n' "$PROFILE"
+printf '  kernel:     \033[1m%s\033[0m\n' "$KERNEL_NAME"
+printf '  bootloader: \033[1msystemd-boot\033[0m (default entry: vinos.conf)\n'
+printf '\n\033[0;37m  After reboot: login as %s. sudo requires password.\n\033[0m' "$USERNAME"
+printf '\033[0;37m  Optional: run \033[1msudo vinos-install-ai\033[0;37m to add the local LLM stack.\033[0m\n\n'
+
+sync
+umount -R /mnt 2>/dev/null || true
 
 if (( REBOOT )); then
   log "rebooting in 5s (Ctrl-C to cancel)…"
