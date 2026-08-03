@@ -267,42 +267,47 @@ fi
 unset _mods_line _forbidden
 
 # ─────────────────────────────────────────────────────────────────
-say "Phase B — Omarchy removal (checks #20-#26)"
+say "Phase B — Omarchy fork architecture (checks #20-#26)"
 # ─────────────────────────────────────────────────────────────────
+# vinOS is an official upstream-tracked fork of Omarchy (git subtree).
+# These checks verify the fork model is intact — NOT that Omarchy was
+# removed. Old "Omarchy removal" checks were inverted 2026-08-03 after
+# the strategic pivot to fork-and-attribute model.
 
-# #20: configs/omarchy/ deleted from repo
+# #20: configs/omarchy/ deleted from repo (stale vendored copy — superseded by omarchy/ subtree)
 if [[ -d "$REPO/configs/omarchy" ]]; then
-  fail "configs/omarchy/ still exists in repo — clean-room rewrite not applied" "omarchy-decoupling-roadmap"
+  fail "configs/omarchy/ still exists in repo — stale vendored copy, delete it (omarchy/ subtree is source of truth)" "final-architecture-2026-08-02"
 else
-  ok "configs/omarchy/ removed from repo"
+  ok "configs/omarchy/ removed (superseded by omarchy/ subtree)"
 fi
 
-# #21: install/vinos-menu-rebrand.sh deleted
-if [[ -f "$REPO/install/vinos-menu-rebrand.sh" ]]; then
-  fail "install/vinos-menu-rebrand.sh still exists — menu now ships correct from build" "omarchy-decoupling-roadmap"
+# #21: omarchy/ subtree PRESENT (foundation)
+if [[ -d "$REPO/omarchy" ]] && [[ -f "$REPO/omarchy/LICENSE" ]] && [[ -f "$REPO/omarchy/version" ]]; then
+  _omarchy_ver=$(<"$REPO/omarchy/version")
+  ok "omarchy/ subtree present (v$_omarchy_ver, DHH © MIT)"
 else
-  ok "install/vinos-menu-rebrand.sh removed"
+  fail "omarchy/ subtree MISSING — fork model broken. Add via: git subtree add --prefix=omarchy https://github.com/basecamp/omarchy master --squash" "final-architecture-2026-08-02"
 fi
 
-# #22: no omarchy-* commands referenced from bin/vinos-*
-if grep -l 'omarchy-\|/usr/share/omarchy\|\.local/state/omarchy' "$REPO"/bin/vinos-* 2>/dev/null | head -1 | grep -q .; then
-  fail "bin/vinos-* still calls omarchy-* — rewrites incomplete" "omarchy-decoupling-roadmap"
+# #22: install/03-configs.sh sources omarchy/ subtree (fork model)
+if grep -q 'OMARCHY_SRC="\$REPO/omarchy"\|omarchy/config\|omarchy/default\|omarchy/bin' "$REPO/install/03-configs.sh"; then
+  ok "install/03-configs.sh sources omarchy/ subtree (fork foundation) + configs/vinos/ (overlay)"
 else
-  ok "bin/vinos-* has no omarchy dependencies"
+  fail "install/03-configs.sh does NOT deploy omarchy/ subtree — fork foundation not laid down at build" "final-architecture-2026-08-02"
 fi
 
-# #23: install/03-configs.sh sources configs/vinos, not configs/omarchy
-if grep -q 'OMARCHY_SRC\|configs/omarchy' "$REPO/install/03-configs.sh"; then
-  fail "install/03-configs.sh still references configs/omarchy" "omarchy-decoupling-roadmap"
-else
-  ok "install/03-configs.sh sources configs/vinos/ exclusively"
-fi
-
-# #24: /usr/share/omarchy NOT in shipped airootfs
+# #23: /usr/share/omarchy IS populated in shipped airootfs (fork foundation present)
 if [[ -d "$ROOT/usr/share/omarchy" ]] && [[ -n "$(ls "$ROOT/usr/share/omarchy" 2>/dev/null)" ]]; then
-  fail "/usr/share/omarchy still populated in shipped ISO" "omarchy-decoupling-roadmap"
+  ok "/usr/share/omarchy populated (fork foundation shipped)"
 else
-  ok "/usr/share/omarchy not shipped"
+  fail "/usr/share/omarchy NOT populated — Omarchy foundation didn't ship (users get vinOS overlay on nothing)" "final-architecture-2026-08-02"
+fi
+
+# #24: attribution — NOTICES.md ships with the ISO
+if [[ -f "$ROOT/usr/share/doc/vinos/NOTICES.md" ]] || [[ -f "$ROOT/usr/share/doc/vinos/CREDITS.md" ]]; then
+  ok "attribution shipped (NOTICES/CREDITS in /usr/share/doc/vinos/)"
+else
+  fail "attribution files missing from ISO — Omarchy MIT compliance requires them shipped" "final-architecture-2026-08-02"
 fi
 
 # #25: vinos-menu.jsonc ships (no omarchy-menu.jsonc)
@@ -536,15 +541,30 @@ fi
 say "Phase B — Keybinding preservation (checks #53-#63)"
 # ─────────────────────────────────────────────────────────────────
 
-# The vinOS keybinding files must contain each preserved chord.
-_bindings_dir="$ROOT/usr/share/vinos/default/hypr/bindings"
+# Keybindings live in Omarchy's shipped tree at /usr/share/omarchy/default/hypr/.
+# The fork architecture means Omarchy owns the keybinding chain — vinOS
+# overlay tweaks specific values (via configs/vinos/) but the default
+# binding files come from omarchy/default/hypr/ (subtree).
+_bindings_search=(
+  "$ROOT/usr/share/omarchy/default/hypr"
+  "$ROOT/etc/skel/.config/hypr"
+  "$ROOT/usr/share/vinos/default/hypr"
+)
 
 _check_bind() {
   local chord="$1" needle="$2" mem="$3"
-  if [[ -d "$_bindings_dir" ]] && grep -rq -- "$needle" "$_bindings_dir/" 2>/dev/null; then
-    ok "chord preserved: $chord → $needle"
+  local found=""
+  for _dir in "${_bindings_search[@]}"; do
+    [[ -d "$_dir" ]] || continue
+    if grep -rq -- "$needle" "$_dir/" 2>/dev/null; then
+      found="$_dir"
+      break
+    fi
+  done
+  if [[ -n "$found" ]]; then
+    ok "chord preserved: $chord → $needle (found in $(basename "$found"))"
   else
-    fail "chord regressed: $chord (needle '$needle' not in bindings)" "$mem"
+    fail "chord regressed: $chord (needle '$needle' not found in Omarchy or vinOS bindings)" "$mem"
   fi
 }
 

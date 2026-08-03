@@ -107,6 +107,14 @@ imagemagick
 uwsm
 socat
 
+# Phase B — Security posture + container-optimized OOB
+# audit         — auditd for AppArmor DENIED visibility
+# containerd    — container runtime alongside docker
+# kubectl       — Kubernetes CLI (vinos-install-k8s bootstraps a node)
+audit
+containerd
+kubectl
+
 # I11-post: shell-referenced userspace for vinos-* keybind helpers.
 # Every binary below is invoked by a shipped Hyprland binding — omitting
 # any of them silently breaks a keystroke that the website advertises.
