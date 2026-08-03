@@ -1,140 +1,169 @@
 #!/usr/bin/env bash
-# 03-configs.sh — deploy vinOS desktop configs into target filesystem.
-# Clean-room; no Omarchy code, no /usr/share/omarchy paths.
+# 03-configs.sh — Omarchy-fork desktop config deployment.
 #
-# Source-of-truth layout (all under repo's configs/vinos/):
-#   configs/vinos/hypr/*.conf              → /etc/skel/.config/hypr/
-#   configs/vinos/default/hypr/            → /usr/share/vinos/default/hypr/
-#   configs/vinos/default/waybar/          → /etc/skel/.config/waybar/
-#   configs/vinos/default/mako/config      → /etc/skel/.config/mako/config
-#   configs/vinos/default/walker/          → /etc/skel/.config/walker/
-#   configs/vinos/default/foot/foot.ini    → /etc/skel/.config/foot/foot.ini
-#   configs/vinos/default/vinos/vinos-menu.jsonc → /usr/share/vinos/default/vinos/vinos-menu.jsonc
-#   configs/vinos/brand/themes/<name>/     → /usr/share/vinos/themes/<name>/
+# vinOS is an upstream-tracked fork of Omarchy (git subtree at omarchy/).
+# This script deploys the desktop config chain in the correct order:
 #
-# Everything else installed via 05-branding.sh (bins), 02-desktop.sh
-# (packages + service enable), 04-services.sh (network + firewall).
+#   1. Omarchy foundation (from omarchy/ subtree)
+#      - omarchy/config/*  → /etc/skel/.config/*   (per-user configs — polished defaults)
+#      - omarchy/default/* → /usr/share/omarchy/default/*  (system defaults — Omarchy binaries look here)
+#      - omarchy/bin/*     → /usr/share/omarchy/bin/* + /usr/local/bin/ symlinks
+#      - omarchy/themes/*  → /usr/share/omarchy/themes/*
+#
+#   2. vinOS overlay (from configs/vinos/) — layered on top of Omarchy
+#      - configs/vinos/default/waybar/*     → /etc/skel/.config/waybar/  (AI pill + brand accent — overrides Omarchy)
+#      - configs/vinos/default/mako/config  → /etc/skel/.config/mako/config  (routine channel)
+#      - configs/vinos/default/vinos/       → /usr/share/vinos/default/vinos/  (vinos-menu entries)
+#      - configs/vinos/brand/themes/*       → /usr/share/omarchy/themes/<name>/ (vinOS themes coexist with Omarchy's)
+#
+# Attribution: Omarchy © David Heinemeier Hansson, MIT. vinOS overlay © Vin Patel, MIT.
+# See NOTICES.md at repo root.
+#
+# Runs under VINOS_ROOT (ISO build) via _rootpath — all paths respect the build prefix.
 
 set -euo pipefail
 # shellcheck source=../lib/common.sh
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/lib/common.sh"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+OMARCHY_SRC="$REPO/omarchy"
 VINOS_SRC="$REPO/configs/vinos"
-[[ -d "$VINOS_SRC" ]] || { log "03-configs: $VINOS_SRC missing — nothing to deploy"; exit 0; }
 
-# Helper: rsync a subtree into target root under $prefix (honors VINOS_ROOT).
-_deploy() {
-  local src="$1" prefix="$2"
-  [[ -e "$src" ]] || return 0
-  local dest; dest="$(_rootpath "$prefix")"
-  _sudo install -d -m 0755 "$(dirname "$dest")"
-  log "03-configs: deploying $(basename "$src") → $prefix"
-  if [[ -d "$src" ]]; then
-    _sudo install -d -m 0755 "$dest"
-    _sudo rsync -a --exclude='.git' "$src/" "$dest/"
-  else
-    _sudo install -Dm 0644 "$src" "$dest"
-  fi
+[[ -d "$OMARCHY_SRC" ]] || {
+  log "03-configs: FATAL — $OMARCHY_SRC missing. Run: git subtree add --prefix=omarchy https://github.com/basecamp/omarchy master --squash"
+  exit 1
+}
+[[ -d "$VINOS_SRC" ]] || {
+  log "03-configs: FATAL — $VINOS_SRC missing"
+  exit 1
 }
 
-# ── User-facing skel configs ───────────────────────────────────────
-_deploy "$VINOS_SRC/hypr"                       /etc/skel/.config/hypr
-_deploy "$VINOS_SRC/default/waybar"             /etc/skel/.config/waybar
-_deploy "$VINOS_SRC/default/mako/config"        /etc/skel/.config/mako/config
-_deploy "$VINOS_SRC/default/walker"             /etc/skel/.config/walker
-_deploy "$VINOS_SRC/default/foot/foot.ini"      /etc/skel/.config/foot/foot.ini
-
-# ── System-wide defaults (sourced by user configs) ────────────────
-_deploy "$VINOS_SRC/default/hypr"               /usr/share/vinos/default/hypr
-_deploy "$VINOS_SRC/default/vinos"              /usr/share/vinos/default/vinos
-
-# ── vinOS themes → /usr/share/vinos/themes/ ────────────────────────
-if [[ -d "$VINOS_SRC/brand/themes" ]]; then
-  dest="$(_rootpath /usr/share/vinos/themes)"
+# ────────────────────────────────────────────────────────────────────
+# Helper: rsync a subtree into target root (honors VINOS_ROOT prefix).
+# ────────────────────────────────────────────────────────────────────
+_deploy_dir() {
+  local src="$1" prefix="$2"
+  [[ -d "$src" ]] || return 0
+  local dest; dest="$(_rootpath "$prefix")"
   _sudo install -d -m 0755 "$dest"
-  log "03-configs: installing vinOS themes → /usr/share/vinos/themes"
+  log "03-configs: $(basename "$src")/ → $prefix/"
+  _sudo rsync -a --exclude='.git' "$src/" "$dest/"
+}
+
+_deploy_file() {
+  local src="$1" dest_path="$2"
+  [[ -f "$src" ]] || return 0
+  local dest; dest="$(_rootpath "$dest_path")"
+  _sudo install -Dm 0644 "$src" "$dest"
+}
+
+# ════════════════════════════════════════════════════════════════════
+# LAYER 1 — Omarchy foundation
+# ════════════════════════════════════════════════════════════════════
+
+log "03-configs: [Layer 1] deploying Omarchy foundation from omarchy/ subtree"
+
+# 1a. Per-user configs → /etc/skel/.config/
+#     Live user is created from /etc/skel, so this gives them the full
+#     Omarchy desktop as-shipped by DHH.
+_deploy_dir "$OMARCHY_SRC/config"                /etc/skel/.config
+
+# 1b. System defaults → /usr/share/omarchy/default/
+#     Omarchy binaries (omarchy-menu, omarchy-theme-set, etc.) look
+#     here for defaults via $OMARCHY_PATH.
+_deploy_dir "$OMARCHY_SRC/default"               /usr/share/omarchy/default
+
+# 1c. Themes → /usr/share/omarchy/themes/
+_deploy_dir "$OMARCHY_SRC/themes"                /usr/share/omarchy/themes
+
+# 1d. Omarchy binaries → /usr/share/omarchy/bin/ + /usr/local/bin/ symlinks
+_share_bin="$(_rootpath /usr/share/omarchy/bin)"
+_local_bin="$(_rootpath /usr/local/bin)"
+_sudo install -d -m 0755 "$_share_bin" "$_local_bin"
+if [[ -d "$OMARCHY_SRC/bin" ]]; then
+  log "03-configs: omarchy/bin/* → /usr/share/omarchy/bin/ + /usr/local/bin/ symlinks"
+  _sudo rsync -a "$OMARCHY_SRC/bin/" "$_share_bin/"
+  _sudo chmod 0755 "$_share_bin"/omarchy-*
+  for _b in "$OMARCHY_SRC/bin/"omarchy-*; do
+    [[ -f "$_b" ]] || continue
+    _name="$(basename "$_b")"
+    _sudo ln -sfn "/usr/share/omarchy/bin/$_name" "$_local_bin/$_name"
+  done
+  unset _b _name
+fi
+
+# 1e. Applications (desktop entries) → /usr/share/applications/
+_deploy_dir "$OMARCHY_SRC/applications"          /usr/share/applications
+
+# 1f. Migrations → /usr/share/omarchy/migrations/
+_deploy_dir "$OMARCHY_SRC/migrations"            /usr/share/omarchy/migrations
+
+# 1g. OMARCHY_PATH env → /etc/environment.d/ so all sessions see it
+_env_d="$(_rootpath /etc/environment.d)"
+_sudo install -d -m 0755 "$_env_d"
+echo 'OMARCHY_PATH=/usr/share/omarchy' | _sudo tee "$_env_d/10-omarchy-path.conf" >/dev/null
+
+# ════════════════════════════════════════════════════════════════════
+# LAYER 2 — vinOS overlay (on top of Omarchy)
+# ════════════════════════════════════════════════════════════════════
+
+log "03-configs: [Layer 2] applying vinOS overlay from configs/vinos/"
+
+# 2a. Waybar override — the AI status pill + brand accent #33ccff.
+#     Overrides Omarchy's default waybar so vinOS chrome ships instead.
+_deploy_dir "$VINOS_SRC/default/waybar"          /etc/skel/.config/waybar
+
+# 2b. Mako override — vinOS routines notification channel.
+if [[ -f "$VINOS_SRC/default/mako/config" ]]; then
+  _deploy_file "$VINOS_SRC/default/mako/config"  /etc/skel/.config/mako/config
+fi
+
+# 2c. vinos-menu entries → /usr/share/vinos/default/vinos/
+_deploy_dir "$VINOS_SRC/default/vinos"           /usr/share/vinos/default/vinos
+
+# 2d. vinOS themes coexist with Omarchy's under /usr/share/omarchy/themes/
+#     (lowercase-kebab names match Omarchy convention — see 05-branding.sh).
+if [[ -d "$VINOS_SRC/brand/themes" ]]; then
+  _themes_dest="$(_rootpath /usr/share/omarchy/themes)"
+  _sudo install -d -m 0755 "$_themes_dest"
   for _t in "$VINOS_SRC/brand/themes"/*/; do
     [[ -d "$_t" ]] || continue
     _tname="$(basename "$_t" | tr 'A-Z' 'a-z')"
-    _sudo rsync -a --exclude='.git' --exclude='build-themes.sh' "$_t" "$dest/$_tname/"
-    log "  + $_tname"
+    log "03-configs: vinOS theme $_tname → /usr/share/omarchy/themes/$_tname/"
+    _sudo rsync -a --exclude='.git' --exclude='build-themes.sh' "$_t" "$_themes_dest/$_tname/"
   done
-  unset _t _tname dest
+  unset _t _tname _themes_dest
 fi
 
-# ── Per-theme foot.ini from colors.toml (foot.include= source) ────
-_themes_dst="$(_rootpath /usr/share/vinos/themes)"
-if [[ -d "$_themes_dst" ]]; then
-  log "03-configs: generating foot.ini per theme (from colors.toml)"
-  _generated=0
-  for _tdir in "$_themes_dst"/*/; do
-    _tdir="${_tdir%/}"
-    _colors="$_tdir/colors.toml"
-    [[ -f "$_colors" ]] || continue
-    _get() {
-      local val
-      val=$(grep -E "^$1[[:space:]]*=" "$_colors" 2>/dev/null \
-              | head -1 \
-              | sed -nE 's/.*"#?([A-Fa-f0-9]{6})".*/\1/p' \
-              | tr 'A-F' 'a-f')
-      printf '%s' "${val:-${2:-}}"
-    }
-    _fg=$(_get foreground);           _bg=$(_get background)
-    _dbg=$(_get dark_background "$_bg")
-    _lfg=$(_get light_foreground "$_fg")
-    _r=$(_get red);    _g=$(_get green);   _y=$(_get yellow); _b=$(_get blue)
-    _m=$(_get magenta); _c=$(_get cyan)
-    _br=$(_get bright_red "$_r");      _bg2=$(_get bright_green "$_g")
-    _by=$(_get bright_yellow "$_y");   _bb=$(_get bright_blue "$_b")
-    _bm=$(_get bright_magenta "$_m");  _bc=$(_get bright_cyan "$_c")
-    [[ -n "$_fg" && -n "$_bg" ]] || continue
-    _foot_tmp="$(mktemp)"
-    cat > "$_foot_tmp" <<FOOT
-# Generated by vinOS install/03-configs.sh from colors.toml
-[colors-dark]
-foreground=$_fg
-background=$_bg
-regular0=$_dbg
-regular1=$_r
-regular2=$_g
-regular3=$_y
-regular4=$_b
-regular5=$_m
-regular6=$_c
-regular7=$_lfg
-bright0=$_dbg
-bright1=$_br
-bright2=$_bg2
-bright3=$_by
-bright4=$_bb
-bright5=$_bm
-bright6=$_bc
-bright7=$_fg
-FOOT
-    _sudo install -Dm 0644 "$_foot_tmp" "$_tdir/foot.ini"
-    rm -f "$_foot_tmp"
-    _generated=$((_generated + 1))
+# 2e. Attribution — ship NOTICES.md + CREDITS.md alongside the binaries.
+_doc="$(_rootpath /usr/share/doc/vinos)"
+_sudo install -d -m 0755 "$_doc"
+[[ -f "$REPO/NOTICES.md" ]] && _sudo install -Dm 0644 "$REPO/NOTICES.md" "$_doc/NOTICES.md"
+
+# ────────────────────────────────────────────────────────────────────
+# Migration pre-stamping — mark every shipped Omarchy migration as
+# "done" so the live user's first login doesn't try to run them all.
+# ────────────────────────────────────────────────────────────────────
+_skel_mig="$(_rootpath /etc/skel/.local/state/omarchy/migrations)"
+if [[ -d "$OMARCHY_SRC/migrations" ]]; then
+  _sudo install -d -m 0755 "$_skel_mig"
+  log "03-configs: pre-stamping $(ls "$OMARCHY_SRC/migrations" | wc -l) Omarchy migrations as done"
+  for _m in "$OMARCHY_SRC/migrations"/*; do
+    [[ -f "$_m" ]] || continue
+    _sudo touch "$_skel_mig/$(basename "$_m")"
   done
-  log "03-configs: wrote foot.ini for $_generated themes"
-  unset _tdir _colors _fg _bg _r _g _y _b _m _c _br _bg2 _by _bb _bm _bc _dbg _lfg _foot_tmp _generated
+  unset _m
 fi
 
-# ── Default theme: cosmos (Milky Way over alpine lake) ────────────
+# ────────────────────────────────────────────────────────────────────
+# Active theme symlink — /usr/share/vinos/wallpaper.png points to
+# the active theme's wallpaper. Cosmos is the default. Overridable via
+# VINOS_THEME= env before install.sh / iso/build.sh.
+# ────────────────────────────────────────────────────────────────────
 _active_theme="${VINOS_THEME:-cosmos}"
 _active_theme="$(printf '%s' "$_active_theme" | tr 'A-Z' 'a-z')"
+_share="$(_rootpath /usr/share/vinos)"
+_sudo install -d -m 0755 "$_share"
+_sudo ln -sfn "/usr/share/omarchy/themes/${_active_theme}/wallpaper.png" "$_share/wallpaper.png"
 
-# Seed the skel state dir so a first-boot user has the theme active
-_state_skel="$(_rootpath /etc/skel/.local/state/vinos/current)"
-_sudo install -d -m 0755 "$_state_skel"
-if [[ -d "$(_rootpath /usr/share/vinos/themes/${_active_theme})" ]]; then
-  _sudo ln -sfn "/usr/share/vinos/themes/${_active_theme}" "$_state_skel/theme"
-  # Wallpaper: seed /etc/skel/.config/vinos/wallpaper.png as a symlink into theme
-  _wallpaper_skel="$(_rootpath /etc/skel/.config/vinos)"
-  _sudo install -d -m 0755 "$_wallpaper_skel"
-  _sudo ln -sfn "/usr/share/vinos/themes/${_active_theme}/wallpaper.png" "$_wallpaper_skel/wallpaper.png"
-  log "03-configs: default theme = $_active_theme (cosmos wallpaper)"
-fi
-unset _active_theme _state_skel _wallpaper_skel
-
-log "03-configs: done"
+log "03-configs: done — Omarchy foundation + vinOS overlay deployed"
