@@ -1,0 +1,163 @@
+// vinOS waybar — clean-room config
+// Layout: left = workspaces + window title
+//         center = clock
+//         right = AI pill · routines · tray · net · bt · audio · battery · power
+
+{
+  "layer": "top",
+  "position": "top",
+  "height": 32,
+  "spacing": 6,
+  "margin-top": 4,
+  "margin-left": 8,
+  "margin-right": 8,
+  "reload_style_on_change": true,
+
+  "modules-left": [
+    "hyprland/workspaces",
+    "hyprland/submap",
+    "hyprland/window"
+  ],
+
+  "modules-center": [
+    "clock"
+  ],
+
+  "modules-right": [
+    "custom/vinos-ai",
+    "custom/vinos-routines",
+    "tray",
+    "network",
+    "bluetooth",
+    "pulseaudio",
+    "battery",
+    "custom/power"
+  ],
+
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "on-click": "activate",
+    "sort-by-number": true,
+    "format-icons": {
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "6": "󰄄",
+      "7": "7",
+      "8": "8",
+      "9": "9",
+      "10": "0",
+      "urgent": "!",
+      "focused": "●",
+      "default": ""
+    }
+  },
+
+  "hyprland/window": {
+    "format": "{}",
+    "max-length": 60,
+    "rewrite": {
+      "(.*) — Mozilla Firefox": "$1 · Firefox",
+      "(.*) - Chromium": "$1 · Chromium",
+      "vinOS AI": "🧠 AI",
+      "Claude Code": "🤖 Claude Code"
+    }
+  },
+
+  "hyprland/submap": {
+    "format": "  {}  ",
+    "max-length": 20,
+    "tooltip": false
+  },
+
+  "clock": {
+    "interval": 30,
+    "format": "{:%a %d %b · %H:%M}",
+    "format-alt": "{:%Y-%m-%d %H:%M:%S}",
+    "tooltip-format": "<big>{:%B %Y}</big>\n<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "mode-mon-col": 3,
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "format": {
+        "months": "<span color='#33ccff'><b>{}</b></span>",
+        "days": "<span color='#e6e6e6'>{}</span>",
+        "weeks": "<span color='#33ccff'>W{}</span>",
+        "weekdays": "<span color='#bb9af7'>{}</span>",
+        "today": "<span color='#33ccff'><b>{}</b></span>"
+      }
+    }
+  },
+
+  "custom/vinos-ai": {
+    "exec": "vinos-waybar-ai",
+    "return-type": "json",
+    "interval": 5,
+    "format": "🧠 {}",
+    "on-click": "foot --title 'vinOS AI status' -e sh -c 'vinos-ai status; read -p \"press enter\"'",
+    "on-click-right": "vinos-menu ai"
+  },
+
+  "custom/vinos-routines": {
+    "exec": "vinos-waybar-routines",
+    "return-type": "json",
+    "interval": 30,
+    "format": "󰚉 {}",
+    "on-click": "foot --title 'vinOS Routines' -e sh -c 'vinos-routine list; read -p \"press enter\"'",
+    "on-click-right": "vinos-menu routines"
+  },
+
+  "tray": {
+    "icon-size": 18,
+    "spacing": 6
+  },
+
+  "network": {
+    "format-wifi": "󰤨 {essid}",
+    "format-ethernet": "󰈁 {ifname}",
+    "format-linked": "󰈁 (no IP)",
+    "format-disconnected": "󰤯",
+    "tooltip-format": "{ifname} · {ipaddr}/{cidr}",
+    "tooltip-format-wifi": "{essid} · {signalStrength}%",
+    "on-click": "foot --title 'vinOS Wi-Fi' -e impala"
+  },
+
+  "bluetooth": {
+    "format": "󰂯",
+    "format-disabled": "󰂲",
+    "format-connected": "󰂱 {num_connections}",
+    "tooltip-format": "{controller_alias}\t{controller_address}",
+    "on-click": "foot --title 'vinOS Bluetooth' -e bluetuith"
+  },
+
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "󰝟",
+    "format-icons": {
+      "default": ["󰕿", "󰖀", "󰕾"]
+    },
+    "on-click": "pamixer -t",
+    "on-click-right": "pavucontrol"
+  },
+
+  "battery": {
+    "states": {
+      "warning": 30,
+      "critical": 15
+    },
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "󰚥 {capacity}%",
+    "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+    "tooltip-format": "{time} left"
+  },
+
+  "custom/power": {
+    "format": "󰐥",
+    "on-click": "vinos-menu system",
+    "tooltip": false
+  }
+}
