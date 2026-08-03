@@ -92,8 +92,10 @@ if [[ -d "$OMARCHY_SRC/bin" ]]; then
   unset _b _name
 fi
 
-# 1e. Applications (desktop entries) → /usr/share/applications/
-_deploy_dir "$OMARCHY_SRC/applications"          /usr/share/applications
+# 1e. Skip omarchy/applications/* — mix of legit .desktop entries and PWA
+#     junk (Basecamp/ChatGPT/Discord/HEY/etc). The pacman packages install
+#     their own .desktop files; deploying Omarchy's would collide.
+#     Per feedback_clean_vinos_brand: no third-party PWA junk in menu.
 
 # 1f. Migrations → /usr/share/omarchy/migrations/
 _deploy_dir "$OMARCHY_SRC/migrations"            /usr/share/omarchy/migrations
