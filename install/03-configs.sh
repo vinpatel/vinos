@@ -111,7 +111,14 @@ echo 'OMARCHY_PATH=/usr/share/omarchy' | _sudo tee "$_env_d/10-omarchy-path.conf
 
 log "03-configs: [Layer 2] applying vinOS overlay from configs/vinos/"
 
-# 2a. Waybar override — the AI status pill + brand accent #33ccff.
+# 2a. Hyprland overlay — brand accent + vinOS custom bindings.
+#     Omarchy's hyprland.lua auto-sources ~/.config/hypr/*.conf files
+#     that user drops in. Our brand-accent.conf pins #33ccff on borders,
+#     and vinos-bindings.conf adds agent-workflow chords (Super+A → AI,
+#     Super+R → routines, etc.) without replacing Omarchy's defaults.
+_deploy_dir "$VINOS_SRC/default/hypr"            /etc/skel/.config/hypr
+
+# 2b. Waybar override — the AI status pill + brand accent #33ccff.
 #     Overrides Omarchy's default waybar so vinOS chrome ships instead.
 _deploy_dir "$VINOS_SRC/default/waybar"          /etc/skel/.config/waybar
 
