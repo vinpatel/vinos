@@ -1,5 +1,5 @@
 iso/out/
-iso/qa/
+# iso/qa/ removed — QA scripts belong in git
 iso/.aur-cache/
 iso/aurrepo/
 iso/aur.failed
