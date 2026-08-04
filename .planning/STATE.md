@@ -54,6 +54,11 @@ Cloud API (via LiteLLM):
 - Claude Opus 4.7 → `vinos-architect`
 - OpenRouter Kimi K2.7-Code → `vinos-kimi` (on-demand only, needs OPENROUTER_API_KEY)
 
+Deferred routing (referenced in prep-harness.sh but not wired into proxy.yaml):
+- Hermes — no active routine currently routes to it; add a `vinos-*` model_name
+  when a specific role needs it (candidate: alternate reviewer). Defer to
+  Phase 04+ where new capabilities land alongside LUKS/hardening.
+
 ## Constraints (immovable)
 
 1. v1.0.18 is the floor. No future ship regresses any harness assertion valid at 1.0.18.

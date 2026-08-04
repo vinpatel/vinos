@@ -140,6 +140,7 @@ run_attribution() {
     "CONTRIBUTING.md"
     "CODE_OF_CONDUCT.md"
     "iso/archive/build-logs/"
+    "iso/out/"                      # Build artifacts + build logs (transient)
     # ── Phase 05 audit backlog: legitimate heritage refs awaiting the
     # attribution-wrapper pass. See .planning/phases/05-v1-0-21-attribution.
     "bin/vinos-lock"
