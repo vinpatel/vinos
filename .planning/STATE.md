@@ -10,7 +10,7 @@
 - **v1.1.0** — permanent archival gold copy (T2 wifi verified). NEVER overwrite.
 - **v1.0.18** — Phase A CLOSED baseline. First working install-to-disk. NOT yet tagged in git (Phase 01 fixes).
 - **v1.0.19** — next ship. Docs freeze + backup discipline. Built entirely on top of Omarchy.
-- **v2.1.0** — experimental branch, PARKED. Not merged. Features re-planned from clean 1.0.18.
+- **v2.1.0** — DROPPED 2026-08-04. Not merged. Features not carried forward. See memory `feedback_v2_abandoned_2026_08_04`. Roadmap builds forward from v1.0.19 on the Omarchy fork.
 
 ## Team
 
