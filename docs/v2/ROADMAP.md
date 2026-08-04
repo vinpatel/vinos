@@ -1,105 +1,36 @@
-# vinOS roadmap
+# vinOS Roadmap
 
-Public, best-effort. Shipping order not fixed — priority follows what
-sponsors and users tell us matters. See individual specs under
-`docs/v2/` for detail.
+> **This file is a stub.** The authoritative roadmap lives elsewhere.
 
-## Shipped
+## For the master plan
 
-- **v2.0.3** — theme picker fix (lowercase-at-install + pre-warm cache)
-- **v2.0.4** — 10 rebuilt themes (Unsplash HD wallpapers + battle-tested
-  palettes), Docker + dua-cli for agentic flows, cosmos as default
-- **v2.0.5** — tool-enabled routines with bwrap sandbox, five signature
-  vinos-* utilities (standup, commit, focus, fix, explain), portable
-  `.vinos/routines.yaml` project spec + loader, wallpaper watermark
-  position fix
+Read **[docs/v2/PLAN-2026-08-03.md](./PLAN-2026-08-03.md)** — the current 12-week ship queue from v1.0.19 through v1.0.28 dual-edition GA.
 
-## In flight
+## For the executable phase queue
 
-- **v2.0.6** — 80/20 auto-router, cron-string → OnCalendar translator,
-  routine memory (persistent/shared), `vinos-*` wrapper set to hide
-  omarchy-* commands from user-facing surfaces
-- **v2.0.7** — routine gallery on vinos.computer with community
-  submission flow, `vinos-routine install <slug>` command, per-routine
-  waybar widget
+Read **[.planning/ROADMAP.md](../../.planning/ROADMAP.md)** — the GSD-driven phase list with per-phase SPEC.md at `.planning/phases/NN-slug/`.
 
-## Site — near-term
+## For historical context
 
-- End-to-end install video (~2-3 min MP4) captured from QEMU. Embedded
-  at the top of the homepage and `/docs/getting-started/download-and-flash/`.
-  Shows: boot menu → live desktop → `vinos-install-disk` → reboot →
-  first-boot. Needs non-interactive install flow or scripted keypresses
-  via QEMU monitor.
-- 24 UI screenshots from booted v2.0.5 to replace `SCREENSHOTS_NEEDED.md`
-  placeholders across `/docs/`.
-- CDN + `dl.vinos.computer` custom domain per Cloudflare R2 setup.
+The prior roadmap (v2.0.5 era) was superseded 2026-08-03. It stopped at v2.0.7 and listed "Forking Omarchy" as a non-goal — both since reversed:
+- We ship v1.0.19+ next, not v2.0.x
+- Omarchy is now vendored at `omarchy/` as a git subtree, pinned to 3.8.4 (see `docs/v2/ARCHITECTURE.md` Layer 2)
 
-## v2.1 — vinOS Cloud (headless trim-down)
+The prior roadmap contents are preserved in `git log docs/v2/ROADMAP.md` for archaeological purposes.
 
-The runtime — MINUS Hyprland, Waybar, walker, themes, Plymouth —
-packaged for cloud execution. Same `.vinos/routines.yaml` runs on the
-laptop AND on a $5/mo Hetzner VPS 24/7 without the laptop being on.
-Unlocks the "agents that run without you" story completely — currently
-agents pause when the laptop sleeps.
+## Version lines
 
-Ship targets:
+| Line | Purpose | Status |
+|---|---|---|
+| v1.0.x | Current dev + ship line (v1.0.18 baseline, ships v1.0.19 through v1.0.28 GA) | Active |
+| v1.1.0 | Permanent archival gold copy (2026-07 T2-verified) | Frozen forever |
+| v2.x | Experimental branch parked as `experiments/2.1.0-2026-08-03` — LUKS + Omarchy + AI pill work that will be re-planned freshly on top of v1.0.18 | Parked |
 
-- `ghcr.io/vinpatel/vinos-cloud` — Docker image (~200 MB, Alpine or
-  minimal Arch base). Contains `vinos-routine` CLI + libexec + Ollama
-  client + sqlite. Mount `.vinos/routines.yaml` as config.
-- Systemd Nspawn image for bare-metal ops shops.
-- Kubernetes Helm chart — `helm install vinos-agents vinos/agents` —
-  CronJobs per routine, PVC for state/ledger, Secret for API keys.
-- Fly.io / Cloud Run / Hetzner-Cloud one-clicks for founders who want
-  zero infra.
+## Why the redirect
 
-The runtime is already Python + bash + SQLite + optional Ollama HTTP
-client — extremely portable. Only vinOS-specific coupling: systemd
-user timers (replace with cron in containers) + mako notifications
-(replace with webhook POSTs to Slack/Discord/email).
+The master plan changes faster than a single doc could. Keeping ROADMAP.md as a stub with pointers means:
+1. No stale-info trap ("what does the roadmap say?" → always the current PLAN doc)
+2. GSD phase execution reads from `.planning/ROADMAP.md` (its native format)
+3. Human-readable rationale lives in `PLAN-2026-08-03.md` (the source of truth)
 
-Positioning vs pure-hosted alternatives (Zapier, n8n Cloud): vinOS
-Cloud runs on YOUR cloud, YOUR data, YOUR keys.
-
-Blocked on: v2.0.6 (auto-router + loader stabilization).
-
-## v2.2 — team-shared routines
-
-Multi-tenant vinos-routine: many `.vinos/routines.yaml` bundles from
-different repos running against one shared Ollama + one shared ledger
-+ per-repo API keys. Aimed at engineering teams who want a shared
-agent pool without each engineer running their own instance.
-
-## v2.3+ — long-tail directions
-
-Not committed, listed for signal:
-
-- Delta ISO updates via zsync (users pay only bytes-that-changed)
-- Encrypted `vinos-persist` LUKS partition by default when
-  `--with-persistence` is set on flash
-- Rootless Docker as default (avoid the `vinos in docker group` =
-  effective root path)
-- macOS-style menubar integration (via waybar-menu-plugin)
-- Voice-triggered routine invocation (whisper.cpp local)
-- Ollama model mirror on dl.vinos.computer for offline installs
-
-## Not doing
-
-Explicit non-goals — flagged so contributors don't waste time:
-
-- Reimplementing QuickShell (Omarchy's QML overlay). Too much code
-  for zero product upside. Users don't care whose QML renders their
-  volume OSD.
-- Forking Omarchy. Contribute the foot.ini per-theme generator fix
-  upstream if the maintainers want it; keep the routine framework
-  proprietary to vinOS.
-- Rewriting the 367 Omarchy bash scripts. Rebrand user-visible ones
-  via `vinos-*` wrappers; leave everything else alone.
-- Adding CachyOS repos. One upstream simpler; the "free wins"
-  (hardened kernel, BTRFS+Snapper) are achievable with our own overlay.
-
-## How to add to this roadmap
-
-Every entry needs (a) a target version, (b) a shipping trigger — what
-needs to be true before we start — (c) an honest one-line description
-of the user-visible outcome. Vaporware entries get flagged with `??`.
+If you're contributing to vinOS or evaluating it: **read `PLAN-2026-08-03.md` first.**
