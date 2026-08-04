@@ -42,10 +42,8 @@
 Installed (Ollama):
 - `qwen3-coder:30b` (18 GB) — GSD executor + researcher
 - `qwen2.5-coder:7b` (4.7 GB) — GSD checker
-- `qwen2.5-coder:32b` (background pull, completes soon) — alternate executor
-
-Downloading:
-- `kimi-code` (Kimi-Linear-48B-A3B-Instruct-Q4_K_M, ~30 GB) — local Kimi variant, 3B active per token
+- `qwen2.5-coder:32b` (19 GB) — alternate executor
+- `kimi-code:latest` (30 GB, Kimi-Linear-48B-A3B-Instruct-Q4_K_M) — local Kimi variant, 3B active per token (pull completed 2026-08-03)
 
 Not installed (unusable on this hardware):
 - Kimi-K2.7-Code full quants (300+ GB, would disk-mmap at 0.3 tok/s)

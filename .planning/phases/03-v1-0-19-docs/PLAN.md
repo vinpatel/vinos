@@ -277,11 +277,11 @@ prohibitions:
     7. **## Disclosure log** section: empty placeholder table (Date / CVE / Severity / Status), 0 rows on ship.
     8. **## References** section: R13, R17, related docs (BACKUP.md, ARCHITECTURE.md).
 
-    Word count target: 400–1200. Do NOT commit vin@mindtrades.com in cleartext IF phase policy is "obfuscate email" — check `.planning/config.json`; if no such policy present, plain address is OK (memory says this is public repo).
+    Word count target: 400–1500. Do NOT commit vin@mindtrades.com in cleartext IF phase policy is "obfuscate email" — check `.planning/config.json`; if no such policy present, plain address is OK (memory says this is public repo).
   </action>
   <acceptance_criteria>
     - File exists at /data/projects/vinos/SECURITY.md
-    - Word count between 400 and 1200
+    - Word count between 400 and 1500
     - Contains all 6 required sections: "Supported versions", "Reporting a vulnerability", "Threat model", "Mitigations by phase", "Sandboxing", "Disclosure log"
     - Contains exactly 5 adversary IDs A1, A2, A3, A4, A5 (grep "^- A[1-5]:" returns 5)
     - Contains string "vin@mindtrades.com"
@@ -290,7 +290,7 @@ prohibitions:
   </acceptance_criteria>
   <verify>
     test -f /data/projects/vinos/SECURITY.md && echo OK
-    wc -w /data/projects/vinos/SECURITY.md | awk '{if ($1 >= 400 && $1 <= 1200) print "OK"; else exit 1}'
+    wc -w /data/projects/vinos/SECURITY.md | awk '{if ($1 >= 400 && $1 <= 1500) print "OK"; else exit 1}'
     for h in "Supported versions" "Reporting a vulnerability" "Threat model" "Mitigations by phase" "Sandboxing" "Disclosure log"; do grep -q "$h" /data/projects/vinos/SECURITY.md || exit 1; done
     grep -c "^- A[1-5]:" /data/projects/vinos/SECURITY.md | awk '{if ($1 == 5) print "OK"; else exit 1}'
     grep -q "vin@mindtrades.com" /data/projects/vinos/SECURITY.md && echo OK

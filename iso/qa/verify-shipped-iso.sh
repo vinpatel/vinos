@@ -521,12 +521,20 @@ else
   fail "waybar style missing brand accent" "omarchy-decoupling-roadmap"
 fi
 
-# #51: hyprland brand-accent.conf pins window border color
-_hp="$ROOT/usr/share/vinos/default/hypr/brand-accent.conf"
-if [[ -f "$_hp" ]] && grep -q '33ccff' "$_hp"; then
+# #51: hyprland brand-accent.conf pins window border color.
+# In the Omarchy-fork model it lives in /etc/skel (deployed by 03-configs.sh)
+# so the live user inherits it. Also check /usr/share/vinos/default/hypr/
+# as an alternate location for future flexibility.
+_hp=""
+for _cand in \
+  "$ROOT/etc/skel/.config/hypr/brand-accent.conf" \
+  "$ROOT/usr/share/vinos/default/hypr/brand-accent.conf"; do
+  [[ -f "$_cand" ]] && { _hp="$_cand"; break; }
+done
+if [[ -n "$_hp" ]] && grep -q '33ccff' "$_hp"; then
   ok "hyprland brand accent conf shipped (window border pinned cyan)"
 else
-  fail "hyprland brand-accent.conf missing" "omarchy-decoupling-roadmap"
+  fail "hyprland brand-accent.conf missing" "final-architecture-2026-08-02"
 fi
 
 # #52: mako has separate channel for vinos-routine notifications
@@ -708,6 +716,73 @@ _check_bind "Super+Ctrl+B"     "bluetuith"                "omarchy-decoupling-ro
 _check_bind "Super+Ctrl+T"     "vinos-theme-pick"         "omarchy-decoupling-roadmap"
 _check_bind "Super+Escape"     "vinos-menu system"        "omarchy-decoupling-roadmap"
 _check_bind "Super+;"          "cliphist"                 "omarchy-decoupling-roadmap"
+
+# ─────────────────────────────────────────────────────────────────
+say "docs-freeze (Phase 03 / v1.0.19)"
+# ─────────────────────────────────────────────────────────────────
+
+# 1. Version stamp in shipped ISO
+if grep -q '^VERSION=1\.0\.19' "$ROOT/etc/vinos-release" 2>/dev/null; then
+  ok "/etc/vinos-release stamped VERSION=1.0.19"
+else
+  fail "/etc/vinos-release missing VERSION=1.0.19 stamp" \
+       "phase-03-v1-0-19-docs/PLAN.md Task 11"
+fi
+
+# 2. docs/v2/ARCHITECTURE.md present in repo (docs live in git, not airootfs)
+if [[ -f "$REPO/docs/v2/ARCHITECTURE.md" ]]; then
+  ok "docs/v2/ARCHITECTURE.md present in repo (four-layer stack)"
+else
+  fail "docs/v2/ARCHITECTURE.md missing from repo" \
+       "phase-03-v1-0-19-docs/PLAN.md Task 1"
+fi
+
+# 3. docs/v2/BACKUP.md present in repo (R8/R9)
+if [[ -f "$REPO/docs/v2/BACKUP.md" ]]; then
+  ok "docs/v2/BACKUP.md present in repo (backup + rollback discipline)"
+else
+  fail "docs/v2/BACKUP.md missing from repo" \
+       "phase-03-v1-0-19-docs/PLAN.md Task 2"
+fi
+
+# 4. docs/v2/TESTING.md present in repo (17 QA gates enumerated)
+if [[ -f "$REPO/docs/v2/TESTING.md" ]]; then
+  ok "docs/v2/TESTING.md present in repo (17 QA gates)"
+else
+  fail "docs/v2/TESTING.md missing from repo" \
+       "phase-03-v1-0-19-docs/PLAN.md Task 3"
+fi
+
+# 5. SECURITY.md present at repo root (R17)
+if [[ -f "$REPO/SECURITY.md" ]]; then
+  ok "SECURITY.md present at repo root (R17 threat model + disclosure)"
+else
+  fail "SECURITY.md missing from repo root" \
+       "phase-03-v1-0-19-docs/PLAN.md Task 4"
+fi
+
+# 6. No unattributed "Omarchy" in shipped user-facing surfaces
+_hits_raw=$(grep -rIn "Omarchy" \
+    "$ROOT/etc/motd" \
+    "$ROOT/etc/os-release" \
+    "$ROOT/usr/share/vinos/" 2>/dev/null || true)
+if [[ -z "$_hits_raw" ]]; then
+  _hits_count=0
+else
+  _hits_filtered=$(printf '%s\n' "$_hits_raw" | grep -v NOTICES.md || true)
+  if [[ -z "$_hits_filtered" ]]; then
+    _hits_count=0
+  else
+    _hits_count=$(printf '%s\n' "$_hits_filtered" | wc -l)
+  fi
+fi
+if (( _hits_count == 0 )); then
+  ok "no unattributed 'Omarchy' in /etc/motd, /etc/os-release, /usr/share/vinos/"
+else
+  fail "$_hits_count unattributed 'Omarchy' reference(s) in shipped surfaces" \
+       "feedback-clean-vinos-brand"
+fi
+unset _hits_raw _hits_filtered _hits_count
 
 # ─────────────────────────────────────────────────────────────────
 say "summary"
