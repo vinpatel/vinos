@@ -1,0 +1,80 @@
+{
+  "$comment": "Single source of truth for vinOS agentic dev flow. Read by GSD, Hermes, LiteLLM. Do NOT edit copies — edit this file, then re-symlink.",
+
+  "project": {
+    "name": "vinOS",
+    "code": "VINOS",
+    "baseline_version": "1.0.18",
+    "next_version": "1.0.19",
+    "response_language": "en",
+    "repo_root": "/data/projects/vinos"
+  },
+
+  "model_endpoints": {
+    "$comment": "All GSD roles hit the LiteLLM proxy. Proxy routes internally.",
+    "api_base": "http://localhost:4000",
+    "api_key_env": "LITELLM_MASTER_KEY"
+  },
+
+  "models": {
+    "$comment": "Model aliases resolved by LiteLLM. Real backends in configs/vinos/litellm/proxy.yaml.",
+    "planner_model": "vinos-planner",
+    "researcher_model": "vinos-researcher",
+    "executor_model": "vinos-executor",
+    "checker_model": "vinos-checker",
+    "reviewer_model": "vinos-reviewer",
+    "architect_model": "vinos-architect",
+    "kimi_flagship": "vinos-kimi",
+    "kimi_local": "vinos-kimi-local"
+  },
+
+  "workflow": {
+    "research_enabled": true,
+    "plan_checker_enabled": true,
+    "nyquist_validation_enabled": true,
+    "commit_docs": true,
+    "auto_advance": true,
+    "mvp_mode": false,
+    "tdd_mode": false,
+    "ui_phase": false,
+    "ui_safety_gate": false,
+    "plan_drift_precheck": true,
+    "discuss_mode": "discuss"
+  },
+
+  "budget": {
+    "per_run_usd": 0.50,
+    "per_day_usd": 20.00,
+    "escalation_per_run_usd": 2.00,
+    "on_exceed": "notify",
+    "ledger_path": "~/.vinos/dev-flow-ledger.sqlite"
+  },
+
+  "capabilities": {
+    "security": {
+      "enabled": true,
+      "security_asvs_level": 1,
+      "security_block_on": "high"
+    },
+    "pattern-mapper": { "enabled": true },
+    "intel":          { "enabled": true },
+    "drift":          { "enabled": true },
+    "ai-integration": { "enabled": false }
+  },
+
+  "context_window": 200000,
+
+  "dev_loop": {
+    "$comment": "Iteration pyramid — avoid ISO burns. See docs/v2/DEV-LOOP.md.",
+    "container_test_cmd": "iso/qa/container-test.sh",
+    "qemu_test_cmd":      "iso/qa/oneshot.sh",
+    "harness_cmd":        "iso/qa/verify-shipped-iso.sh",
+    "usb_burn_gate":      "hardware-only"
+  },
+
+  "hermes_integration": {
+    "$comment": "Hermes reads model config from ~/.hermes/config.json which is symlinked here.",
+    "endpoint": "http://localhost:4000",
+    "auth_env": "LITELLM_MASTER_KEY"
+  }
+}

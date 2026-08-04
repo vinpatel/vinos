@@ -1,0 +1,119 @@
+# vinOS LiteLLM proxy — uniform API across:
+#   * local Ollama (Qwen3/Qwen2.5 coder models)
+#   * Anthropic (Claude Sonnet/Opus for planner + reviewer roles)
+#   * OpenRouter (Kimi K2 optional heavy-task escalation)
+#
+# Symlink this to ~/.litellm/config.yaml on the dev server:
+#   ln -sf /data/projects/vinos/configs/vinos/litellm/proxy.yaml ~/.litellm/config.yaml
+#
+# Start proxy:
+#   source ~/.vinos-venv/bin/activate
+#   litellm --config ~/.litellm/config.yaml --port 4000
+#
+# Env vars required (drop into ~/.vinos-secrets/env):
+#   ANTHROPIC_API_KEY=...
+#   OPENROUTER_API_KEY=...  (optional — only for Kimi K2 escalation)
+#   LITELLM_MASTER_KEY=...  (proxy auth token)
+
+model_list:
+
+  # ─── Local Ollama executors (the 80% path) ─────────────────────────────
+  # Route GSD executor + researcher here. Zero marginal cost.
+
+  - model_name: vinos-executor           # primary local coder (GSD executor role)
+    litellm_params:
+      model: ollama_chat/qwen3-coder:30b
+      api_base: http://localhost:11434
+      timeout: 300
+
+  - model_name: vinos-checker            # independent checker (GSD checker role)
+    litellm_params:
+      model: ollama_chat/qwen2.5-coder:7b
+      api_base: http://localhost:11434
+      timeout: 120
+
+  - model_name: vinos-researcher         # phase researcher (same weights as executor)
+    litellm_params:
+      model: ollama_chat/qwen3-coder:30b
+      api_base: http://localhost:11434
+      timeout: 300
+
+  # Once qwen2.5-coder:32b finishes pulling, uncomment as extra option:
+  # - model_name: qwen-coder-32b
+  #   litellm_params:
+  #     model: ollama_chat/qwen2.5-coder:32b
+  #     api_base: http://localhost:11434
+  #     timeout: 300
+
+  # ─── Anthropic (the 20% path) ──────────────────────────────────────────
+  # Planner, reviewer, security review, one-way commits.
+
+  - model_name: vinos-planner            # GSD planner role
+    litellm_params:
+      model: anthropic/claude-sonnet-4-6
+      api_key: os.environ/ANTHROPIC_API_KEY
+      max_tokens: 64000
+
+  - model_name: vinos-reviewer           # code + security review
+    litellm_params:
+      model: anthropic/claude-sonnet-4-6
+      api_key: os.environ/ANTHROPIC_API_KEY
+      max_tokens: 64000
+
+  - model_name: vinos-architect          # heavy reasoning (opus)
+    litellm_params:
+      model: anthropic/claude-opus-4-7
+      api_key: os.environ/ANTHROPIC_API_KEY
+      max_tokens: 64000
+
+  # ─── OpenRouter Kimi K2 (optional heavy-task escalation) ───────────────
+  # Only fires when local model self-reports low confidence + task tagged reasoning.
+
+  - model_name: vinos-kimi
+    litellm_params:
+      model: openrouter/moonshotai/kimi-k2
+      api_key: os.environ/OPENROUTER_API_KEY
+      max_tokens: 32000
+
+# ─── Router config ────────────────────────────────────────────────────────
+
+router_settings:
+  routing_strategy: simple-shuffle
+  redis_host: null                       # no external redis — local memory routing
+  fallbacks:
+    - vinos-executor: [vinos-checker, vinos-kimi, vinos-planner]
+    - vinos-kimi: [vinos-planner]
+    - vinos-planner: [vinos-architect]
+  retry_policy:
+    num_retries: 2
+    timeout: 300
+
+# ─── LiteLLM behavior ─────────────────────────────────────────────────────
+
+litellm_settings:
+  # Prompt caching for Anthropic (huge cost win on long contexts)
+  cache: true
+  cache_params:
+    type: disk
+    disk_cache_dir: ~/.litellm/cache
+
+  # Drop noisy params some model backends don't like
+  drop_params: true
+
+  # Set a sane request timeout — GSD phases can take a while
+  request_timeout: 600
+
+  # Verbose telemetry so we can audit the 80/20 split later
+  set_verbose: false
+  json_logs: true
+
+# ─── Proxy general settings ───────────────────────────────────────────────
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: sqlite:////home/vinpatel/.litellm/telemetry.db
+  disable_spend_logs: false
+  ui_username: vinos
+  # Budget guard: hard-stop if the daily spend hits the ceiling
+  max_budget: 20                          # USD, resets daily
+  budget_duration: 24h

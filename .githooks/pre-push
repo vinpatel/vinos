@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#
+# vinOS pre-push hook — runs vinos-dev-test routine before push.
+# Blocks push on failure. Warns if pushing to main without a signed tag.
+#
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+REMOTE="$1"
+URL="$2"
+
+# Read the ref list from stdin (format: <local ref> <local sha> <remote ref> <remote sha>)
+while read -r local_ref local_sha remote_ref remote_sha ; do
+  # Warn on force-push to main
+  if [[ "$remote_ref" == "refs/heads/main" && "$remote_sha" != "0000000000000000000000000000000000000000" ]]; then
+    # Check if this is a fast-forward
+    if ! git merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null; then
+      echo "pre-push: WARNING — non-fast-forward push to main. This is a force-push."
+      echo "pre-push: this rewrites history on the remote. Confirm via ACK."
+      # Rely on --force-with-lease safety net; don't block here, but log
+    fi
+  fi
+done
+
+# Skip test routine if not ready
+if [[ ! -x "${REPO_ROOT}/iso/qa/tier2-container.sh" ]]; then
+  echo "pre-push: tier2-container.sh not present yet — skipping (Phase 03 will land it)"
+  exit 0
+fi
+
+if command -v vinos-routine &>/dev/null; then
+  vinos-routine run "${REPO_ROOT}/configs/vinos/routines/dev/vinos-dev-test.toml" --trigger pre-push
+  exit $?
+fi
+
+"${REPO_ROOT}/iso/qa/tier2-container.sh"

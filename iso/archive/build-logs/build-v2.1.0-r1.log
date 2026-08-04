@@ -1,0 +1,1998 @@
+[1;34m[iso-build][0m regenerating packages.x86_64 (drift check)
+wrote /data/projects/vinos/iso/profile/packages.x86_64 (413 packages)
+wrote /data/projects/vinos/iso/aur.list (22 AUR packages)
+[1;34m[iso-build][0m building vinOS 2.1.0 via docker (privileged, KVM optional)
+== regenerating packages.x86_64 ==
+wrote /vinos/iso/profile/packages.x86_64 (413 packages)
+wrote /vinos/iso/aur.list (22 AUR packages)
+== assembling airootfs (VINOS_ROOT mode: 03/05/02/04) ==
+[vinOS 12:52:03] 03-configs: deploying hypr → /etc/skel/.config/hypr
+[vinOS 12:52:04] 03-configs: deploying waybar → /etc/skel/.config/waybar
+[vinOS 12:52:04] 03-configs: deploying config → /etc/skel/.config/mako/config
+[vinOS 12:52:04] 03-configs: deploying walker → /etc/skel/.config/walker
+[vinOS 12:52:04] 03-configs: deploying foot.ini → /etc/skel/.config/foot/foot.ini
+[vinOS 12:52:04] 03-configs: deploying hypr → /usr/share/vinos/default/hypr
+[vinOS 12:52:04] 03-configs: deploying vinos → /usr/share/vinos/default/vinos
+[vinOS 12:52:04] 03-configs: installing vinOS themes → /usr/share/vinos/themes
+[vinOS 12:52:04]   + bloom
+[vinOS 12:52:04]   + circuit
+[vinOS 12:52:04]   + cosmos
+[vinOS 12:52:04]   + crater
+[vinOS 12:52:04]   + dusk
+[vinOS 12:52:04]   + egret
+[vinOS 12:52:04]   + prism
+[vinOS 12:52:04]   + reef
+[vinOS 12:52:05]   + ridge
+[vinOS 12:52:05]   + summit
+[vinOS 12:52:05] 03-configs: generating foot.ini per theme (from colors.toml)
+[vinOS 12:52:06] 03-configs: wrote foot.ini for 10 themes
+[vinOS 12:52:06] 03-configs: default theme = cosmos (cosmos wallpaper)
+[vinOS 12:52:06] 03-configs: done
+[vinOS 12:52:06] 05-branding: installing shared assets under /vinos/iso/profile/airootfs/usr/share/vinos
+[vinOS 12:52:07] 05-branding: installing vinos-* commands
+[vinOS 12:52:08] 05-branding: installing libexec/ → /vinos/iso/profile/airootfs/usr/share/vinos/libexec/
+[vinOS 12:52:08] 05-branding: installing routines → /etc/vinos/routines
+[vinOS 12:52:08] 05-branding: installing vinos Plymouth theme
+[vinOS 12:52:08] 05-branding: writing /vinos/iso/profile/airootfs/etc/os-release
+[vinOS 12:52:08] 05-branding: done — /vinos/iso/profile/airootfs/etc/os-release identifies vinOS 2.1.0
+[vinOS 12:52:08] 02-desktop: installing Hyprland stack + core UX apps
+[vinOS 12:52:08] install_pkg (VINOS_ROOT mode, no-op): hyprland waybar alacritty foot mako grim slurp swaybg wl-clipboard xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprland-guiutils qt5-wayland qt6-wayland polkit-gnome greetd greetd-tuigreet ttf-jetbrains-mono-nerd woff2-font-awesome noto-fonts noto-fonts-emoji noto-fonts-cjk fontconfig pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber pavucontrol wiremix nautilus sushi nautilus-python gnome-disk-utility udiskie networkmanager papirus-icon-theme ufw apparmor firejail zram-generator linux-hardened linux-hardened-headers gnome-calculator libqalculate plymouth hypridle hyprlock hyprpicker hyprsunset swayosd satty gtk4-layer-shell kvantum kvantum-qt5 qt6ct gnome-keyring gnome-themes-extra libsecret pamixer playerctl brightnessctl gum mesa vulkan-radeon vulkan-intel libva-mesa-driver libva-intel-driver intel-media-driver bluez bluez-utils bluetui alsa-firmware alsa-ucm-conf alsa-utils sof-firmware power-profiles-daemon thermald acpid bolt ffmpegthumbnailer gvfs-mtp gvfs-nfs gvfs-smb zram-generator kernel-modules-hook docker docker-compose dua-cli
+[vinOS 12:52:08] 02-desktop: installing AUR apps (UX-critical only)
+[vinOS 12:52:08] install_aur (VINOS_ROOT mode, no-op): walker yaru-icon-theme bibata-cursor-theme
+[vinOS 12:52:08] install_aur (VINOS_ROOT mode, no-op): lazydocker
+[vinOS 12:52:08] install_aur (VINOS_ROOT mode, no-op): quickshell-git
+[vinOS 12:52:08] 02-desktop: wiring Plymouth boot splash (installer mode only)
+[vinOS 12:52:08] 02-desktop: writing /etc/greetd/config.toml (tuigreet → Hyprland)
+[vinOS 12:52:09] airootfs: enabled greetd (graphical.target.wants) + default.target=graphical
+[vinOS 12:52:09] 02-desktop: done
+[vinOS 12:52:09] 04-services: VINOS_ROOT mode — deferring ufw runtime config to first boot
+[vinOS 12:52:09] airootfs: enabled ufw.service (multi-user.target.wants)
+[vinOS 12:52:09] 04-services: floppy blacklist already staged in airootfs — skipping
+[vinOS 12:52:09] 04-services: configuring iwd (auth) + systemd-networkd (dhcp) + resolved
+[vinOS 12:52:09] 04-services: wifi powersave udev rule already staged in airootfs — skipping
+[vinOS 12:52:09] airootfs: enabled iwd.service (multi-user.target.wants)
+[vinOS 12:52:09] airootfs: enabled systemd-networkd.service (multi-user.target.wants)
+[vinOS 12:52:09] airootfs: enabled systemd-resolved.service (multi-user.target.wants)
+[vinOS 12:52:09] 04-services: /etc/resolv.conf → resolved stub
+[vinOS 12:52:09] 04-services: enabling bluetooth + thermald + acpid + power-profiles-daemon + bolt
+[vinOS 12:52:09] airootfs: enabled bluetooth.service (multi-user.target.wants)
+[vinOS 12:52:09] airootfs: enabled thermald.service (multi-user.target.wants)
+[vinOS 12:52:09] airootfs: enabled acpid.service (multi-user.target.wants)
+[vinOS 12:52:09] airootfs: enabled power-profiles-daemon.service (multi-user.target.wants)
+[vinOS 12:52:09] airootfs: enabled bolt.service (multi-user.target.wants)
+[vinOS 12:52:09] 04-services: installing vinos-firstboot.service
+[vinOS 12:52:09] 04-services: vinos-firstboot staged (not enabled on live ISO)
+[vinOS 12:52:09] 04-services: layering configs/vinos/security/etc → /etc
+[vinOS 12:52:09] 04-services: enabling docker.service
+[vinOS 12:52:09] airootfs: enabled docker.service (multi-user.target.wants)
+[vinOS 12:52:09] 04-services: installing vinos-routine@ systemd user templates
+[vinOS 12:52:09] 04-services: done
+== applying live-only airootfs overlay ==
+== building [vinos-aur] via iso/aur-build.sh ==
+:: Synchronizing package databases...
+ core downloading...
+ extra downloading...
+resolving dependencies...
+looking for conflicting packages...
+
+Package (44)            Old Version                  New Version                  Net Change  Download Size
+
+core/autoconf                                        2.73-1                         2.25 MiB       0.64 MiB
+core/automake                                        1.18.1-1                       1.64 MiB       0.62 MiB
+core/bison                                           3.8.2-8                        2.52 MiB       0.75 MiB
+extra/boost-libs                                     1.91.0-2                      50.77 MiB       6.15 MiB
+extra/cpio                                           2.15-3                         0.98 MiB       0.22 MiB
+core/db5.3                                           5.3.28-7                       6.48 MiB       1.26 MiB
+core/debugedit                                       5.3-1                          0.13 MiB       0.05 MiB
+core/diffutils                                       3.12-2                         1.50 MiB       0.33 MiB
+core/elfutils                                        0.195-1                        3.63 MiB       0.62 MiB
+core/fakeroot                                        1:1.37.2-3                     0.14 MiB       0.08 MiB
+core/flex                                            2.6.4-6                        0.84 MiB       0.29 MiB
+core/gc                                              8.2.12-1                       0.76 MiB       0.23 MiB
+core/gcc                                             16.1.1+r595+g171d15ac6959-1  220.83 MiB      57.93 MiB
+extra/gdb                                            17.2-1                        31.93 MiB       8.16 MiB
+extra/gdb-common                                     17.2-1                         1.13 MiB       0.12 MiB
+core/groff                                           1.24.1-1                       9.01 MiB       2.40 MiB
+core/guile                                           3.0.11-1                      54.49 MiB       8.39 MiB
+core/libasan            16.1.1+r346+g4e03491b401d-1  16.1.1+r595+g171d15ac6959-1    0.00 MiB       0.51 MiB
+core/libgcc             16.1.1+r346+g4e03491b401d-1  16.1.1+r595+g171d15ac6959-1    0.00 MiB       0.08 MiB
+core/libhwasan          16.1.1+r346+g4e03491b401d-1  16.1.1+r595+g171d15ac6959-1    0.00 MiB       0.27 MiB
+core/libisl                                          0.28-1                         5.90 MiB       0.94 MiB
+core/liblsan            16.1.1+r346+g4e03491b401d-1  16.1.1+r595+g171d15ac6959-1    0.00 MiB       0.22 MiB
+core/libmpc                                          1.4.1-1                        0.19 MiB       0.09 MiB
+core/libstdc++          16.1.1+r346+g4e03491b401d-1  16.1.1+r595+g171d15ac6959-1    0.00 MiB       0.84 MiB
+core/libtool                                         2.6.2-3                        2.34 MiB       0.42 MiB
+core/libtsan            16.1.1+r346+g4e03491b401d-1  16.1.1+r595+g171d15ac6959-1    0.00 MiB       0.45 MiB
+core/libubsan           16.1.1+r346+g4e03491b401d-1  16.1.1+r595+g171d15ac6959-1    0.00 MiB       0.20 MiB
+core/m4                                              1.4.21-2                       0.71 MiB       0.27 MiB
+core/make                                            4.4.1-3                        1.66 MiB       0.51 MiB
+core/mpdecimal                                       4.0.1-3                        0.32 MiB       0.10 MiB
+core/patch                                           2.8-1                          0.17 MiB       0.08 MiB
+core/perl                                            5.42.2-1                      70.11 MiB      20.44 MiB
+extra/perl-error                                     0.17030-3                      0.04 MiB       0.02 MiB
+extra/perl-mailtools                                 2.22-3                         0.10 MiB       0.06 MiB
+extra/perl-timedate                                  2.35-1                         0.15 MiB       0.06 MiB
+core/pkgconf                                         3.0.4-1                        0.33 MiB       0.12 MiB
+core/python                                          3.14.6-1                      73.41 MiB      13.51 MiB
+extra/source-highlight                               3.1.9-18                       3.24 MiB       0.67 MiB
+core/texinfo                                         7.3-1                         12.67 MiB       2.12 MiB
+core/which                                           2.25-1                         0.03 MiB       0.02 MiB
+extra/zlib-ng                                        2.3.3-1                        0.28 MiB       0.11 MiB
+core/base-devel                                      1-2                            0.00 MiB       0.00 MiB
+extra/git                                            2.55.0-1                      31.33 MiB       7.11 MiB
+core/sudo                                            1.9.17.p2-6                    7.85 MiB       1.86 MiB
+
+Total Download Size:   139.31 MiB
+Total Installed Size:  607.98 MiB
+Net Upgrade Size:      599.90 MiB
+
+:: Proceed with installation? [Y/n] 
+:: Retrieving packages...
+ gcc-16.1.1+r595+g171d15ac6959-1-x86_64 downloading...
+ perl-5.42.2-1-x86_64 downloading...
+ python-3.14.6-1-x86_64 downloading...
+ guile-3.0.11-1-x86_64 downloading...
+ gdb-17.2-1-x86_64 downloading...
+ git-2.55.0-1-x86_64 downloading...
+ boost-libs-1.91.0-2-x86_64 downloading...
+ groff-1.24.1-1-x86_64 downloading...
+ texinfo-7.3-1-x86_64 downloading...
+ sudo-1.9.17.p2-6-x86_64 downloading...
+ db5.3-5.3.28-7-x86_64 downloading...
+ libisl-0.28-1-x86_64 downloading...
+ libstdc++-16.1.1+r595+g171d15ac6959-1-x86_64 downloading...
+ bison-3.8.2-8-x86_64 downloading...
+ source-highlight-3.1.9-18-x86_64 downloading...
+ autoconf-2.73-1-any downloading...
+ automake-1.18.1-1-any downloading...
+ elfutils-0.195-1-x86_64 downloading...
+ libasan-16.1.1+r595+g171d15ac6959-1-x86_64 downloading...
+ make-4.4.1-3-x86_64 downloading...
+ libtsan-16.1.1+r595+g171d15ac6959-1-x86_64 downloading...
+ libtool-2.6.2-3-x86_64 downloading...
+ diffutils-3.12-2-x86_64 downloading...
+ flex-2.6.4-6-x86_64 downloading...
+ libhwasan-16.1.1+r595+g171d15ac6959-1-x86_64 downloading...
+ m4-1.4.21-2-x86_64 downloading...
+ gc-8.2.12-1-x86_64 downloading...
+ cpio-2.15-3-x86_64 downloading...
+ liblsan-16.1.1+r595+g171d15ac6959-1-x86_64 downloading...
+ libubsan-16.1.1+r595+g171d15ac6959-1-x86_64 downloading...
+ gdb-common-17.2-1-x86_64 downloading...
+ pkgconf-3.0.4-1-x86_64 downloading...
+ zlib-ng-2.3.3-1-x86_64 downloading...
+ mpdecimal-4.0.1-3-x86_64 downloading...
+ libmpc-1.4.1-1-x86_64 downloading...
+ patch-2.8-1-x86_64 downloading...
+ libgcc-16.1.1+r595+g171d15ac6959-1-x86_64 downloading...
+ fakeroot-1:1.37.2-3-x86_64 downloading...
+ perl-timedate-2.35-1-any downloading...
+ perl-mailtools-2.22-3-any downloading...
+ debugedit-5.3-1-x86_64 downloading...
+ perl-error-0.17030-3-any downloading...
+ which-2.25-1-x86_64 downloading...
+ base-devel-1-2-any downloading...
+checking keyring...
+checking package integrity...
+loading package files...
+checking for file conflicts...
+:: Processing package changes...
+installing m4...
+upgrading libgcc...
+upgrading libstdc++...
+installing diffutils...
+installing db5.3...
+installing perl...
+installing autoconf...
+installing automake...
+installing bison...
+installing cpio...
+installing elfutils...
+installing boost-libs...
+Optional dependencies for boost-libs
+    openmpi: for mpi support
+installing mpdecimal...
+installing python...
+Optional dependencies for python
+    python-setuptools: for building Python packages using tooling that is usually bundled with Python
+    python-pip: for installing Python packages using tooling that is usually bundled with Python
+    python-pipx: for installing Python software not packaged on Arch Linux
+    sqlite: for a default database integration [installed]
+    xz: for lzma [installed]
+    tk: for tkinter
+upgrading libasan...
+upgrading libhwasan...
+upgrading liblsan...
+upgrading libtsan...
+upgrading libubsan...
+installing gc...
+installing guile...
+installing gdb-common...
+installing source-highlight...
+Optional dependencies for source-highlight
+    lesspipe: src-hilite-lesspipe.sh
+installing gdb...
+installing debugedit...
+installing fakeroot...
+installing flex...
+installing libisl...
+installing libmpc...
+installing gcc...
+Optional dependencies for gcc
+    lib32-gcc-libs: for generating code for 32-bit ABI
+installing groff...
+Optional dependencies for groff
+    netpbm: for use together with man -H command interaction in browsers
+    psutils: for use together with man -H command interaction in browsers
+    libxaw: for gxditview
+    perl-file-homedir: for use with glilypond
+installing libtool...
+installing make...
+installing patch...
+Optional dependencies for patch
+    ed: for patch -e functionality
+installing pkgconf...
+installing sudo...
+installing texinfo...
+Optional dependencies for texinfo
+    perl-archive-zip: EPUB file output via texi2any
+installing which...
+installing base-devel...
+installing perl-error...
+installing perl-timedate...
+installing perl-mailtools...
+installing zlib-ng...
+installing git...
+Optional dependencies for git
+    git-zsh-completion: upstream zsh completion
+    tk: gitk and git gui
+    openssh: ssh transport and crypto
+    man: show help with `git command --help`
+    perl-libwww: git svn
+    perl-term-readkey: git svn and interactive.singlekey setting
+    perl-io-socket-ssl: git send-email TLS support
+    perl-authen-sasl: git send-email TLS support
+    perl-cgi: gitweb (web interface) support
+    python: git svn & git p4 [installed]
+    subversion: git svn
+    org.freedesktop.secrets: keyring credential helper
+    libsecret: libsecret credential helper [installed]
+    less: the default pager for git
+:: Running post-transaction hooks...
+(1/5) Creating system user accounts...
+Creating group 'git' with GID 969.
+Creating user 'git' (git daemon user) with UID 969 and GID 969.
+(2/5) Creating temporary files...
+/usr/lib/tmpfiles.d/journal-nocow.conf:26: Failed to resolve specifier: uninitialized /etc/ detected, skipping.
+All rules containing unresolvable specifiers will be skipped.
+(3/5) Reloading system manager configuration...
+  Skipped: Current root is not booted.
+(4/5) Arming ConditionNeedsUpdate...
+(5/5) Checking for old perl modules...
+[1;34m[aur-build][0m 1password — already built, skipping
+[1;34m[aur-build][0m 1password-cli — already built, skipping
+[1;34m[aur-build][0m aichat — building via makepkg
+Cloning into 'aichat'...
+==> Making package: aichat 0.20.0-1 (Sun Aug  2 12:53:09 2026)
+==> Checking runtime dependencies...
+==> Checking buildtime dependencies...
+==> Installing missing dependencies...
+:: There are 2 providers available for cargo:
+:: Repository extra
+   1) rust  2) rustup
+
+Enter a number (default=1): 
+resolving dependencies...
+looking for conflicting packages...
+
+Package (12)        New Version     Net Change  Download Size
+
+extra/compiler-rt   22.1.8-1         54.94 MiB       4.60 MiB
+extra/hwloc         2.14.0-1          1.71 MiB       0.57 MiB
+extra/libblake3     1.8.4-1           0.12 MiB       0.03 MiB
+core/libedit        20260512_3.1-1    0.27 MiB       0.11 MiB
+extra/libgit2       1:1.9.6-1         3.16 MiB       0.99 MiB
+extra/libpciaccess  0.19-1            0.06 MiB       0.02 MiB
+extra/lld           22.1.8-1          7.14 MiB       2.07 MiB
+extra/llhttp        9.3.1-1           0.11 MiB       0.03 MiB
+extra/llvm-libs     22.1.8-2        163.70 MiB      40.96 MiB
+extra/onetbb        2023.1.0-1        2.01 MiB       0.39 MiB
+extra/mold          2.41.0-1         22.64 MiB       2.60 MiB
+extra/rust          1:1.97.1-1      305.62 MiB      78.43 MiB
+
+Total Download Size:   130.82 MiB
+Total Installed Size:  561.48 MiB
+
+:: Proceed with installation? [Y/n] 
+:: Retrieving packages...
+ rust-1:1.97.1-1-x86_64 downloading...
+ llvm-libs-22.1.8-2-x86_64 downloading...
+ compiler-rt-22.1.8-1-x86_64 downloading...
+ mold-2.41.0-1-x86_64 downloading...
+ lld-22.1.8-1-x86_64 downloading...
+ libgit2-1:1.9.6-1-x86_64 downloading...
+ hwloc-2.14.0-1-x86_64 downloading...
+ onetbb-2023.1.0-1-x86_64 downloading...
+ libedit-20260512_3.1-1-x86_64 downloading...
+ llhttp-9.3.1-1-x86_64 downloading...
+ libblake3-1.8.4-1-x86_64 downloading...
+ libpciaccess-0.19-1-x86_64 downloading...
+checking keyring...
+checking package integrity...
+loading package files...
+checking for file conflicts...
+:: Processing package changes...
+installing compiler-rt...
+installing llhttp...
+installing libgit2...
+installing libedit...
+installing llvm-libs...
+installing lld...
+installing rust...
+Optional dependencies for rust
+    gdb: rust-gdb script [installed]
+    lldb: rust-lldb script
+installing libpciaccess...
+installing hwloc...
+Optional dependencies for hwloc
+    cairo: PDF, Postscript, and PNG export support
+    libxml2: full XML import/export support [installed]
+installing onetbb...
+Optional dependencies for onetbb
+    python: for Python module [installed]
+installing libblake3...
+installing mold...
+:: Running post-transaction hooks...
+(1/1) Arming ConditionNeedsUpdate...
+==> Retrieving sources...
+  -> Downloading aichat-0.20.0.tar.gz...
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0
+  0      0   0      0   0      0      0      0                              0100 952.8k   0 952.8k   0      0  2.25M      0                              0100 952.8k   0 952.8k   0      0  2.25M      0                              0100 952.8k   0 952.8k   0      0  2.25M      0                              0
+==> WARNING: Skipping verification of source file PGP signatures.
+==> Validating source files with sha256sums...
+    aichat-0.20.0.tar.gz ... Passed
+==> Extracting sources...
+  -> Extracting aichat-0.20.0.tar.gz with bsdtar
+==> Starting prepare()...
+    Updating crates.io index
+ Downloading crates ...
+  Downloaded http-body-util v0.1.2
+  Downloaded equivalent v1.0.1
+  Downloaded new_debug_unreachable v1.0.6
+  Downloaded version_check v0.9.5
+  Downloaded futures-channel v0.3.30
+  Downloaded fnv v1.0.7
+  Downloaded parking_lot_core v0.9.10
+  Downloaded mac v0.1.1
+  Downloaded uuid v1.10.0
+  Downloaded parking_lot v0.12.3
+  Downloaded lock_api v0.4.12
+  Downloaded num_cpus v1.16.0
+  Downloaded subtle v2.6.1
+  Downloaded hyper-rustls v0.27.2
+  Downloaded signal-hook v0.3.17
+  Downloaded markup5ever v0.12.1
+  Downloaded strum_macros v0.26.4
+  Downloaded rustversion v1.0.17
+  Downloaded heck v0.5.0
+  Downloaded strum v0.26.3
+  Downloaded strip-ansi-escapes v0.2.0
+  Downloaded utf8parse v0.2.2
+  Downloaded scopeguard v1.2.0
+  Downloaded yansi v0.5.1
+  Downloaded json-patch v2.0.0
+  Downloaded futf v0.1.5
+  Downloaded string_cache v0.8.7
+  Downloaded phf_codegen v0.11.2
+  Downloaded generic-array v0.14.7
+  Downloaded nom v7.1.3
+  Downloaded minimal-lexical v0.2.1
+  Downloaded futures-timer v3.0.3
+  Downloaded fd-lock v4.0.2
+  Downloaded mio v0.8.11
+  Downloaded num-traits v0.2.19
+  Downloaded is-terminal v0.4.12
+  Downloaded string_cache_codegen v0.5.2
+  Downloaded phf_generator v0.10.0
+  Downloaded phf_shared v0.11.2
+  Downloaded phf_generator v0.11.2
+  Downloaded sysctl v0.5.5
+  Downloaded memoffset v0.7.1
+  Downloaded env_logger v0.10.2
+  Downloaded bit-set v0.5.3
+  Downloaded bit-vec v0.6.3
+  Downloaded dirs v5.0.1
+  Downloaded dirs-sys v0.4.1
+  Downloaded adler v1.0.2
+  Downloaded crc32fast v1.4.2
+  Downloaded bincode v1.3.3
+  Downloaded simplelog v0.12.2
+  Downloaded termcolor v1.4.1
+  Downloaded shell-words v1.1.0
+  Downloaded sha2 v0.10.8
+  Downloaded futures-macro v0.3.30
+  Downloaded futures-io v0.3.30
+  Downloaded eventsource-stream v0.2.3
+  Downloaded vte_generate_state_changes v0.1.2
+  Downloaded nu-ansi-term v0.50.1
+  Downloaded errno v0.3.9
+  Downloaded bitflags v2.6.0
+  Downloaded filedescriptor v0.8.2
+  Downloaded iana-time-zone v0.1.60
+  Downloaded crossbeam-epoch v0.9.18
+  Downloaded path-absolutize v3.1.1
+  Downloaded path-dedot v3.1.1
+  Downloaded lazy_static v1.5.0
+  Downloaded jsonptr v0.4.7
+  Downloaded newline-converter v0.3.0
+  Downloaded fxhash v0.2.1
+  Downloaded fuzzy-matcher v0.3.7
+  Downloaded thread_local v1.1.8
+  Downloaded dyn-clone v1.0.17
+  Downloaded tendril v0.4.3
+  Downloaded utf-8 v0.7.6
+  Downloaded phf_shared v0.10.0
+  Downloaded siphasher v0.3.11
+  Downloaded precomputed-hash v0.1.1
+  Downloaded phf v0.11.2
+  Downloaded html5ever v0.27.0
+  Downloaded mmap-rs v0.6.1
+  Downloaded enum-as-inner v0.6.0
+  Downloaded heck v0.4.1
+  Downloaded humantime v2.1.0
+  Downloaded cpu-time v1.0.0
+  Downloaded anndists v0.1.2
+  Downloaded hmac v0.12.1
+  Downloaded fancy-regex v0.13.0
+  Downloaded option-ext v0.2.0
+  Downloaded anstyle v1.0.8
+  Downloaded is_terminal_polyfill v1.70.1
+  Downloaded dlib v0.5.2
+  Downloaded onig v6.4.0
+  Downloaded pkg-config v0.3.30
+  Downloaded bitflags v1.3.2
+  Downloaded log v0.4.22
+  Downloaded digest v0.10.7
+  Downloaded block-buffer v0.10.4
+  Downloaded form_urlencoded v1.2.1
+  Downloaded pin-utils v0.1.0
+  Downloaded futures-task v0.3.30
+  Downloaded zeroize v1.8.1
+  Downloaded sync_wrapper v1.0.1
+  Downloaded openssl-probe v0.1.5
+  Downloaded rustc-hash v1.1.0
+  Downloaded byteorder v1.5.0
+  Downloaded tower-layer v0.3.2
+  Downloaded want v0.3.1
+  Downloaded http-body v1.0.1
+  Downloaded atomic-waker v1.1.2
+  Downloaded vte v0.11.1
+  Downloaded signal-hook-mio v0.2.4
+  Downloaded crossbeam-utils v0.8.20
+  Downloaded crossbeam-deque v0.8.5
+  Downloaded diff v0.1.13
+  Downloaded fluent-uri v0.1.4
+  Downloaded html2text v0.12.5
+  Downloaded anyhow v1.0.86
+  Downloaded clap v4.5.13
+  Downloaded async-trait v0.1.81
+  Downloaded cpufeatures v0.2.12
+  Downloaded httpdate v1.0.3
+  Downloaded rayon-core v1.12.1
+  Downloaded aws-smithy-eventstream v0.60.4
+  Downloaded async-recursion v1.1.1
+  Downloaded crypto-common v0.1.6
+  Downloaded rustls-pki-types v1.7.0
+  Downloaded rand_core v0.6.4
+  Downloaded rand_chacha v0.3.1
+  Downloaded pretty_assertions v1.4.0
+  Downloaded hnsw_rs v0.3.0
+  Downloaded percent-encoding v2.3.1
+  Downloaded strsim v0.11.1
+  Downloaded mime v0.3.17
+  Downloaded mime_guess v2.0.5
+  Downloaded libloading v0.8.5
+  Downloaded rustls-pemfile v2.1.2
+  Downloaded ppv-lite86 v0.2.18
+  Downloaded try-lock v0.2.5
+  Downloaded home v0.5.9
+  Downloaded futures-core v0.3.30
+  Downloaded serde_urlencoded v0.7.1
+  Downloaded quinn-udp v0.5.4
+  Downloaded tempfile v3.10.1
+  Downloaded tinyvec_macros v0.1.1
+  Downloaded fastrand v2.1.0
+  Downloaded tower-service v0.3.2
+  Downloaded untrusted v0.9.0
+  Downloaded pin-project-internal v1.1.5
+  Downloaded crossterm v0.25.0
+  Downloaded tracing-attributes v0.1.27
+  Downloaded either v1.13.0
+  Downloaded inquire v0.7.5
+  Downloaded rustls-native-certs v0.7.1
+  Downloaded crossterm v0.27.0
+  Downloaded combine v4.6.7
+  Downloaded reqwest-eventsource v0.6.0
+  Downloaded miniz_oxide v0.7.4
+  Downloaded tokio-socks v0.5.2
+  Downloaded spin v0.9.8
+  Downloaded typenum v1.17.0
+  Downloaded itertools v0.12.1
+  Downloaded base64 v0.22.1
+  Downloaded clap_derive v4.5.13
+  Downloaded clap_lex v0.7.2
+  Downloaded flate2 v1.0.30
+  Downloaded fixedbitset v0.4.2
+  Downloaded tinyvec v1.8.0
+  Downloaded rayon v1.10.0
+  Downloaded aho-corasick v1.1.3
+  Downloaded serde_yaml v0.9.34+deprecated
+  Downloaded unicode-bidi v0.3.15
+  Downloaded smallvec v1.13.2
+  Downloaded chrono v0.4.38
+  Downloaded cc v1.1.7
+  Downloaded rustix v0.38.34
+  Downloaded nix v0.26.4
+  Downloaded regex v1.10.5
+  Downloaded scoped-tls v1.0.1
+  Downloaded ipnet v2.9.0
+  Downloaded httparse v1.9.4
+  Downloaded zerocopy v0.6.6
+  Downloaded anstream v0.6.15
+  Downloaded tokio-rustls v0.26.0
+  Downloaded unsafe-libyaml v0.2.11
+  Downloaded hyper-util v0.1.6
+  Downloaded plist v1.7.0
+  Downloaded once_cell v1.19.0
+  Downloaded unicase v2.7.0
+  Downloaded quinn v0.11.2
+  Downloaded autocfg v1.3.0
+  Downloaded url v2.5.2
+  Downloaded pin-project v1.1.5
+  Downloaded aws-smithy-types v1.2.0
+  Downloaded num-conv v0.1.0
+  Downloaded rand v0.8.5
+  Downloaded tokio-graceful v0.1.6
+  Downloaded tracing v0.1.40
+  Downloaded time-core v0.1.2
+  Downloaded anstyle-query v1.1.1
+  Downloaded slab v0.4.9
+  Downloaded tower v0.4.13
+  Downloaded http v1.1.0
+  Downloaded colorchoice v1.0.2
+  Downloaded base64-simd v0.8.0
+  Downloaded tokio-stream v0.1.15
+  Downloaded time-macros v0.2.18
+  Downloaded vsimd v0.8.0
+  Downloaded anstyle-parse v0.2.5
+  Downloaded num-integer v0.1.46
+  Downloaded bytes-utils v0.1.4
+  Downloaded outref v0.5.1
+  Downloaded tracing-core v0.1.32
+  Downloaded unicode-segmentation v1.11.0
+  Downloaded same-file v1.0.6
+  Downloaded wayland-sys v0.31.4
+  Downloaded unicode-normalization v0.1.23
+  Downloaded wayland-protocols-wlr v0.2.0
+  Downloaded sys-locale v0.3.1
+  Downloaded thiserror-impl v1.0.63
+  Downloaded wl-clipboard-rs v0.8.1
+  Downloaded wayland-scanner v0.31.4
+  Downloaded walkdir v2.5.0
+  Downloaded regex-automata v0.4.7
+  Downloaded tokio-util v0.7.11
+  Downloaded quick-xml v0.32.0
+  Downloaded arboard v3.4.0
+  Downloaded thiserror v1.0.63
+  Downloaded time v0.3.36
+  Downloaded wayland-client v0.31.5
+  Downloaded hyper v1.4.1
+  Downloaded tree_magic_mini v3.1.5
+  Downloaded cfg_aliases v0.1.1
+  Downloaded os_pipe v1.2.0
+  Downloaded wayland-backend v0.3.6
+  Downloaded downcast-rs v1.2.1
+  Downloaded futures-util v0.3.30
+  Downloaded derive-new v0.6.0
+  Downloaded ansi_colours v1.2.3
+  Downloaded ryu v1.0.18
+  Downloaded h2 v0.4.5
+  Downloaded quote v1.0.36
+  Downloaded rustls-webpki v0.102.6
+  Downloaded wayland-protocols v0.31.2
+  Downloaded clap_builder v4.5.13
+  Downloaded reqwest v0.12.5
+  Downloaded memchr v2.7.4
+  Downloaded tokio-macros v2.4.0
+  Downloaded cfg-if v1.0.0
+  Downloaded indexmap v2.3.0
+  Downloaded allocator-api2 v0.2.18
+  Downloaded futures-sink v0.3.30
+  Downloaded smawk v0.3.2
+  Downloaded quick-xml v0.34.0
+  Downloaded signal-hook-registry v1.4.2
+  Downloaded pin-project-lite v0.2.14
+  Downloaded quinn-proto v0.11.3
+  Downloaded num_threads v0.1.7
+  Downloaded x11rb v0.13.1
+  Downloaded urlencoding v2.1.3
+  Downloaded itoa v1.0.11
+  Downloaded unicode-linebreak v0.1.5
+  Downloaded powerfmt v0.2.0
+  Downloaded webpki-roots v0.26.3
+  Downloaded deranged v0.3.11
+  Downloaded getrandom v0.2.15
+  Downloaded regex-syntax v0.8.4
+  Downloaded idna v0.5.0
+  Downloaded unicode-ident v1.0.12
+  Downloaded textwrap v0.16.1
+  Downloaded serde_json v1.0.121
+  Downloaded ahash v0.8.11
+  Downloaded socket2 v0.5.7
+  Downloaded bytemuck v1.16.3
+  Downloaded proc-macro2 v1.0.86
+  Downloaded serde_derive v1.0.204
+  Downloaded bytes v1.7.0
+  Downloaded rustls v0.23.12
+  Downloaded zerocopy-derive v0.6.6
+  Downloaded serde v1.0.204
+  Downloaded unicode-width v0.1.13
+  Downloaded mio v1.0.1
+  Downloaded hashbrown v0.14.5
+  Downloaded onig_sys v69.8.1
+  Downloaded zerocopy v0.7.35
+  Downloaded syntect v5.2.0
+  Downloaded nix v0.28.0
+  Downloaded syn v2.0.72
+  Downloaded x11rb-protocol v0.13.1
+  Downloaded petgraph v0.6.5
+  Downloaded libc v0.2.155
+  Downloaded tokio v1.39.2
+  Downloaded linux-raw-sys v0.4.14
+  Downloaded reedline v0.33.0
+  Downloaded ring v0.17.8
+  Downloaded rgb v0.8.45
+==> Starting build()...
+   Compiling proc-macro2 v1.0.86
+   Compiling unicode-ident v1.0.12
+   Compiling libc v0.2.155
+   Compiling cfg-if v1.0.0
+   Compiling serde v1.0.204
+   Compiling autocfg v1.3.0
+   Compiling version_check v0.9.5
+   Compiling once_cell v1.19.0
+   Compiling cc v1.1.7
+   Compiling log v0.4.22
+   Compiling memchr v2.7.4
+   Compiling smallvec v1.13.2
+   Compiling bytes v1.7.0
+   Compiling itoa v1.0.11
+   Compiling zerocopy v0.7.35
+   Compiling pin-project-lite v0.2.14
+   Compiling allocator-api2 v0.2.18
+   Compiling equivalent v1.0.1
+   Compiling pin-utils v0.1.0
+   Compiling thiserror v1.0.63
+   Compiling futures-core v0.3.30
+   Compiling pkg-config v0.3.30
+   Compiling ahash v0.8.11
+   Compiling parking_lot_core v0.9.10
+   Compiling lock_api v0.4.12
+   Compiling slab v0.4.9
+   Compiling fnv v1.0.7
+   Compiling byteorder v1.5.0
+   Compiling quote v1.0.36
+   Compiling rustix v0.38.34
+   Compiling scopeguard v1.2.0
+   Compiling hashbrown v0.14.5
+   Compiling either v1.13.0
+   Compiling syn v2.0.72
+   Compiling linux-raw-sys v0.4.14
+   Compiling siphasher v0.3.11
+   Compiling ryu v1.0.18
+   Compiling getrandom v0.2.15
+   Compiling num-traits v0.2.19
+   Compiling rand_core v0.6.4
+   Compiling unicase v2.7.0
+   Compiling futures-task v0.3.30
+   Compiling rustls-pki-types v1.7.0
+   Compiling wayland-sys v0.31.4
+   Compiling http v1.1.0
+   Compiling tracing-core v0.1.32
+   Compiling libloading v0.8.5
+   Compiling subtle v2.6.1
+   Compiling typenum v1.17.0
+   Compiling futures-sink v0.3.30
+   Compiling crossbeam-utils v0.8.20
+   Compiling dlib v0.5.2
+   Compiling signal-hook-registry v1.4.2
+   Compiling mio v1.0.1
+   Compiling socket2 v0.5.7
+   Compiling phf_shared v0.10.0
+   Compiling parking_lot v0.12.3
+   Compiling phf_shared v0.11.2
+   Compiling generic-array v0.14.7
+   Compiling serde_json v1.0.121
+   Compiling regex-syntax v0.8.4
+   Compiling powerfmt v0.2.0
+   Compiling base64 v0.22.1
+   Compiling ring v0.17.8
+   Compiling wayland-backend v0.3.6
+   Compiling signal-hook v0.3.17
+   Compiling utf8parse v0.2.2
+   Compiling num-conv v0.1.0
+   Compiling bitflags v1.3.2
+   Compiling untrusted v0.9.0
+   Compiling time-core v0.1.2
+   Compiling httparse v1.9.4
+   Compiling spin v0.9.8
+   Compiling time-macros v0.2.18
+   Compiling deranged v0.3.11
+   Compiling http-body v1.0.1
+   Compiling aho-corasick v1.1.3
+   Compiling scoped-tls v1.0.1
+   Compiling new_debug_unreachable v1.0.6
+   Compiling quick-xml v0.34.0
+   Compiling rustls v0.23.12
+   Compiling try-lock v0.2.5
+   Compiling minimal-lexical v0.2.1
+   Compiling num_threads v0.1.7
+   Compiling atomic-waker v1.1.2
+   Compiling tinyvec_macros v0.1.1
+   Compiling downcast-rs v1.2.1
+   Compiling wayland-client v0.31.5
+   Compiling tinyvec v1.8.0
+   Compiling nom v7.1.3
+   Compiling want v0.3.1
+   Compiling crossbeam-epoch v0.9.18
+   Compiling mio v0.8.11
+   Compiling wayland-scanner v0.31.4
+   Compiling memoffset v0.7.1
+   Compiling futures-channel v0.3.30
+   Compiling httpdate v1.0.3
+   Compiling regex-automata v0.4.7
+   Compiling mac v0.1.1
+   Compiling zeroize v1.8.1
+   Compiling cfg_aliases v0.1.1
+   Compiling tower-layer v0.3.2
+   Compiling percent-encoding v2.3.1
+   Compiling tower-service v0.3.2
+   Compiling rayon-core v1.12.1
+   Compiling time v0.3.36
+   Compiling same-file v1.0.6
+   Compiling form_urlencoded v1.2.1
+   Compiling nix v0.28.0
+   Compiling walkdir v2.5.0
+   Compiling futf v0.1.5
+   Compiling signal-hook-mio v0.2.4
+   Compiling unicode-normalization v0.1.23
+   Compiling mime_guess v2.0.5
+   Compiling crossbeam-deque v0.8.5
+   Compiling rustls-pemfile v2.1.2
+   Compiling onig_sys v69.8.1
+   Compiling heck v0.4.1
+   Compiling openssl-probe v0.1.5
+   Compiling fixedbitset v0.4.2
+   Compiling rustversion v1.0.17
+   Compiling heck v0.5.0
+   Compiling termcolor v1.4.1
+   Compiling anyhow v1.0.86
+   Compiling precomputed-hash v0.1.1
+   Compiling unicode-width v0.1.13
+   Compiling unicode-bidi v0.3.15
+   Compiling utf-8 v0.7.6
+   Compiling rustls-native-certs v0.7.1
+   Compiling tendril v0.4.3
+   Compiling idna v0.5.0
+   Compiling phf v0.11.2
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.6
+   Compiling anstyle-parse v0.2.5
+   Compiling is-terminal v0.4.12
+   Compiling webpki-roots v0.26.3
+   Compiling vte_generate_state_changes v0.1.2
+   Compiling crc32fast v1.4.2
+   Compiling rustls-webpki v0.102.6
+   Compiling outref v0.5.1
+   Compiling vsimd v0.8.0
+   Compiling is_terminal_polyfill v1.70.1
+   Compiling anstyle v1.0.8
+   Compiling regex v1.10.5
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c: In function ‘onig_st_init_strend_table_with_size’:
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:588:5: error: initialization of ‘int (*)(void)’ from incompatible pointer type ‘int (*)(st_str_end_key *, st_str_end_key *)’ [-Wincompatible-pointer-types]
+warning: onig_sys@69.8.1:   588 |     str_end_cmp,
+warning: onig_sys@69.8.1:       |     ^~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:588:5: note: (near initialization for ‘hashType.compare’)
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:550:1: note: ‘str_end_cmp’ declared here
+warning: onig_sys@69.8.1:   550 | str_end_cmp(st_str_end_key* x, st_str_end_key* y)
+warning: onig_sys@69.8.1:       | ^~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:589:5: error: initialization of ‘int (*)(void)’ from incompatible pointer type ‘int (*)(st_str_end_key *)’ [-Wincompatible-pointer-types]
+warning: onig_sys@69.8.1:   589 |     str_end_hash,
+warning: onig_sys@69.8.1:       |     ^~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:589:5: note: (near initialization for ‘hashType.hash’)
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:571:1: note: ‘str_end_hash’ declared here
+warning: onig_sys@69.8.1:   571 | str_end_hash(st_str_end_key* x)
+warning: onig_sys@69.8.1:       | ^~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c: In function ‘onig_st_init_callout_name_table_with_size’:
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:678:5: error: initialization of ‘int (*)(void)’ from incompatible pointer type ‘int (*)(st_callout_name_key *, st_callout_name_key *)’ [-Wincompatible-pointer-types]
+warning: onig_sys@69.8.1:   678 |     callout_name_table_cmp,
+warning: onig_sys@69.8.1:       |     ^~~~~~~~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:678:5: note: (near initialization for ‘hashType.compare’)
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:637:1: note: ‘callout_name_table_cmp’ declared here
+warning: onig_sys@69.8.1:   637 | callout_name_table_cmp(st_callout_name_key* x, st_callout_name_key* y)
+warning: onig_sys@69.8.1:       | ^~~~~~~~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:679:5: error: initialization of ‘int (*)(void)’ from incompatible pointer type ‘int (*)(st_callout_name_key *)’ [-Wincompatible-pointer-types]
+warning: onig_sys@69.8.1:   679 |     callout_name_table_hash,
+warning: onig_sys@69.8.1:       |     ^~~~~~~~~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:679:5: note: (near initialization for ‘hashType.hash’)
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:660:1: note: ‘callout_name_table_hash’ declared here
+warning: onig_sys@69.8.1:   660 | callout_name_table_hash(st_callout_name_key* x)
+warning: onig_sys@69.8.1:       | ^~~~~~~~~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c: In function ‘names_clear’:
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:804:24: error: passing argument 2 of ‘onig_st_foreach’ from incompatible pointer type [-Wincompatible-pointer-types]
+warning: onig_sys@69.8.1:   804 |     onig_st_foreach(t, i_free_name_entry, 0);
+warning: onig_sys@69.8.1:       |                        ^~~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1:       |                        |
+warning: onig_sys@69.8.1:       |                        int (*)(OnigUChar *, NameEntry *, void *) {aka int (*)(unsigned char *, NameEntry *, void *)}
+warning: onig_sys@69.8.1: In file included from oniguruma/src/regparse.c:37:
+warning: onig_sys@69.8.1: oniguruma/src/st.h:55:31: note: expected ‘int (*)(void)’ but argument is of type ‘int (*)(OnigUChar *, NameEntry *, void *)’ {aka ‘int (*)(unsigned char *, NameEntry *, void *)’}
+warning: onig_sys@69.8.1:    55 | int st_foreach _((st_table *, int (*)(ANYARGS), st_data_t));
+warning: onig_sys@69.8.1:       |                               ^~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/st.h:35:18: note: in definition of macro ‘_’
+warning: onig_sys@69.8.1:    35 | # define _(args) args
+warning: onig_sys@69.8.1:       |                  ^~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:789:1: note: ‘i_free_name_entry’ declared here
+warning: onig_sys@69.8.1:   789 | i_free_name_entry(UChar* key, NameEntry* e, void* arg ARG_UNUSED)
+warning: onig_sys@69.8.1:       | ^~~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c: In function ‘onig_foreach_name’:
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:873:24: error: passing argument 2 of ‘onig_st_foreach’ from incompatible pointer type [-Wincompatible-pointer-types]
+warning: onig_sys@69.8.1:   873 |     onig_st_foreach(t, i_names, (HashDataType )&narg);
+warning: onig_sys@69.8.1:       |                        ^~~~~~~
+warning: onig_sys@69.8.1:       |                        |
+warning: onig_sys@69.8.1:       |                        int (*)(OnigUChar *, NameEntry *, INamesArg *) {aka int (*)(unsigned char *, NameEntry *, INamesArg *)}
+warning: onig_sys@69.8.1: oniguruma/src/st.h:55:31: note: expected ‘int (*)(void)’ but argument is of type ‘int (*)(OnigUChar *, NameEntry *, INamesArg *)’ {aka ‘int (*)(unsigned char *, NameEntry *, INamesArg *)’}
+warning: onig_sys@69.8.1:    55 | int st_foreach _((st_table *, int (*)(ANYARGS), st_data_t));
+warning: onig_sys@69.8.1:       |                               ^~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/st.h:35:18: note: in definition of macro ‘_’
+warning: onig_sys@69.8.1:    35 | # define _(args) args
+warning: onig_sys@69.8.1:       |                  ^~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:846:1: note: ‘i_names’ declared here
+warning: onig_sys@69.8.1:   846 | i_names(UChar* key ARG_UNUSED, NameEntry* e, INamesArg* arg)
+warning: onig_sys@69.8.1:       | ^~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c: In function ‘onig_renumber_name_table’:
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:901:24: error: passing argument 2 of ‘onig_st_foreach’ from incompatible pointer type [-Wincompatible-pointer-types]
+warning: onig_sys@69.8.1:   901 |     onig_st_foreach(t, i_renumber_name, (HashDataType )map);
+warning: onig_sys@69.8.1:       |                        ^~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1:       |                        |
+warning: onig_sys@69.8.1:       |                        int (*)(OnigUChar *, NameEntry *, GroupNumMap *) {aka int (*)(unsigned char *, NameEntry *, GroupNumMap *)}
+warning: onig_sys@69.8.1: oniguruma/src/st.h:55:31: note: expected ‘int (*)(void)’ but argument is of type ‘int (*)(OnigUChar *, NameEntry *, GroupNumMap *)’ {aka ‘int (*)(unsigned char *, NameEntry *, GroupNumMap *)’}
+warning: onig_sys@69.8.1:    55 | int st_foreach _((st_table *, int (*)(ANYARGS), st_data_t));
+warning: onig_sys@69.8.1:       |                               ^~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/st.h:35:18: note: in definition of macro ‘_’
+warning: onig_sys@69.8.1:    35 | # define _(args) args
+warning: onig_sys@69.8.1:       |                  ^~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:879:1: note: ‘i_renumber_name’ declared here
+warning: onig_sys@69.8.1:   879 | i_renumber_name(UChar* key ARG_UNUSED, NameEntry* e, GroupNumMap* map)
+warning: onig_sys@69.8.1:       | ^~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c: In function ‘callout_name_table_clear’:
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:1386:24: error: passing argument 2 of ‘onig_st_foreach’ from incompatible pointer type [-Wincompatible-pointer-types]
+warning: onig_sys@69.8.1:  1386 |     onig_st_foreach(t, i_free_callout_name_entry, 0);
+warning: onig_sys@69.8.1:       |                        ^~~~~~~~~~~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1:       |                        |
+warning: onig_sys@69.8.1:       |                        int (*)(st_callout_name_key *, CalloutNameEntry *, void *)
+warning: onig_sys@69.8.1: oniguruma/src/st.h:55:31: note: expected ‘int (*)(void)’ but argument is of type ‘int (*)(st_callout_name_key *, CalloutNameEntry *, void *)’
+warning: onig_sys@69.8.1:    55 | int st_foreach _((st_table *, int (*)(ANYARGS), st_data_t));
+warning: onig_sys@69.8.1:       |                               ^~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/st.h:35:18: note: in definition of macro ‘_’
+warning: onig_sys@69.8.1:    35 | # define _(args) args
+warning: onig_sys@69.8.1:       |                  ^~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:1370:1: note: ‘i_free_callout_name_entry’ declared here
+warning: onig_sys@69.8.1:  1370 | i_free_callout_name_entry(st_callout_name_key* key, CalloutNameEntry* e,
+warning: onig_sys@69.8.1:       | ^~~~~~~~~~~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c: In function ‘setup_ext_callout_list_values’:
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:1884:56: error: passing argument 2 of ‘onig_st_foreach’ from incompatible pointer type [-Wincompatible-pointer-types]
+warning: onig_sys@69.8.1:  1884 |     onig_st_foreach((CalloutTagTable *)ext->tag_table, i_callout_callout_list_set,
+warning: onig_sys@69.8.1:       |                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1:       |                                                        |
+warning: onig_sys@69.8.1:       |                                                        int (*)(OnigUChar *, CalloutTagVal,  void *) {aka int (*)(unsigned char *, long int,  void *)}
+warning: onig_sys@69.8.1: oniguruma/src/st.h:55:31: note: expected ‘int (*)(void)’ but argument is of type ‘int (*)(OnigUChar *, CalloutTagVal,  void *)’ {aka ‘int (*)(unsigned char *, long int,  void *)’}
+warning: onig_sys@69.8.1:    55 | int st_foreach _((st_table *, int (*)(ANYARGS), st_data_t));
+warning: onig_sys@69.8.1:       |                               ^~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/st.h:35:18: note: in definition of macro ‘_’
+warning: onig_sys@69.8.1:    35 | # define _(args) args
+warning: onig_sys@69.8.1:       |                  ^~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:1866:1: note: ‘i_callout_callout_list_set’ declared here
+warning: onig_sys@69.8.1:  1866 | i_callout_callout_list_set(UChar* key, CalloutTagVal e, void* arg)
+warning: onig_sys@69.8.1:       | ^~~~~~~~~~~~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c: In function ‘callout_tag_table_clear’:
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:1932:24: error: passing argument 2 of ‘onig_st_foreach’ from incompatible pointer type [-Wincompatible-pointer-types]
+warning: onig_sys@69.8.1:  1932 |     onig_st_foreach(t, i_free_callout_tag_entry, 0);
+warning: onig_sys@69.8.1:       |                        ^~~~~~~~~~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1:       |                        |
+warning: onig_sys@69.8.1:       |                        int (*)(OnigUChar *, CalloutTagVal,  void *) {aka int (*)(unsigned char *, long int,  void *)}
+warning: onig_sys@69.8.1: oniguruma/src/st.h:55:31: note: expected ‘int (*)(void)’ but argument is of type ‘int (*)(OnigUChar *, CalloutTagVal,  void *)’ {aka ‘int (*)(unsigned char *, long int,  void *)’}
+warning: onig_sys@69.8.1:    55 | int st_foreach _((st_table *, int (*)(ANYARGS), st_data_t));
+warning: onig_sys@69.8.1:       |                               ^~~~~~~~~~~~~~~~
+warning: onig_sys@69.8.1: oniguruma/src/st.h:35:18: note: in definition of macro ‘_’
+warning: onig_sys@69.8.1:    35 | # define _(args) args
+warning: onig_sys@69.8.1:       |                  ^~~~
+warning: onig_sys@69.8.1: oniguruma/src/regparse.c:1922:1: note: ‘i_free_callout_tag_entry’ declared here
+warning: onig_sys@69.8.1:  1922 | i_free_callout_tag_entry(UChar* key, CalloutTagVal e, void* arg ARG_UNUSED)
+warning: onig_sys@69.8.1:       | ^~~~~~~~~~~~~~~~~~~~~~~~
+error: failed to run custom build command for `onig_sys v69.8.1`
+
+Caused by:
+  process didn't exit successfully: `/tmp/tmp.wWr77vSzGH/aichat/src/aichat-0.20.0/target/release/build/onig_sys-c587a4e564a06fbf/build-script-build` (exit status: 1)
+  --- stdout
+  cargo:rerun-if-env-changed=RUSTONIG_DYNAMIC_LIBONIG
+  cargo:rerun-if-env-changed=RUSTONIG_STATIC_LIBONIG
+  cargo:rerun-if-env-changed=RUSTONIG_SYSTEM_LIBONIG
+  OUT_DIR = Some(/tmp/tmp.wWr77vSzGH/aichat/src/aichat-0.20.0/target/release/build/onig_sys-755bb8e4323ae483/out)
+  TARGET = Some(x86_64-unknown-linux-gnu)
+  OPT_LEVEL = Some(z)
+  HOST = Some(x86_64-unknown-linux-gnu)
+  cargo:rerun-if-env-changed=CC_x86_64-unknown-linux-gnu
+  CC_x86_64-unknown-linux-gnu = None
+  cargo:rerun-if-env-changed=CC_x86_64_unknown_linux_gnu
+  CC_x86_64_unknown_linux_gnu = None
+  cargo:rerun-if-env-changed=HOST_CC
+  HOST_CC = None
+  cargo:rerun-if-env-changed=CC
+  CC = None
+  cargo:rerun-if-env-changed=CC_ENABLE_DEBUG_OUTPUT
+  RUSTC_WRAPPER = None
+  cargo:rerun-if-env-changed=CRATE_CC_NO_DEFAULTS
+  CRATE_CC_NO_DEFAULTS = None
+  DEBUG = Some(false)
+  CARGO_CFG_TARGET_FEATURE = Some(fxsr,sse,sse2)
+  cargo:rerun-if-env-changed=CFLAGS_x86_64-unknown-linux-gnu
+  CFLAGS_x86_64-unknown-linux-gnu = None
+  cargo:rerun-if-env-changed=CFLAGS_x86_64_unknown_linux_gnu
+  CFLAGS_x86_64_unknown_linux_gnu = None
+  cargo:rerun-if-env-changed=HOST_CFLAGS
+  HOST_CFLAGS = None
+  cargo:rerun-if-env-changed=CFLAGS
+  CFLAGS = Some(-march=x86-64 -mtune=generic -O2 -pipe -fno-plt -fexceptions         -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security         -fstack-clash-protection -fcf-protection         -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -g -ffile-prefix-map=/tmp/tmp.wWr77vSzGH/aichat/src=/usr/src/debug/aichat -flto=auto)
+  cargo:warning=oniguruma/src/regparse.c: In function ‘onig_st_init_strend_table_with_size’:
+  cargo:warning=oniguruma/src/regparse.c:588:5: error: initialization of ‘int (*)(void)’ from incompatible pointer type ‘int (*)(st_str_end_key *, st_str_end_key *)’ [-Wincompatible-pointer-types]
+  cargo:warning=  588 |     str_end_cmp,
+  cargo:warning=      |     ^~~~~~~~~~~
+  cargo:warning=oniguruma/src/regparse.c:588:5: note: (near initialization for ‘hashType.compare’)
+  cargo:warning=oniguruma/src/regparse.c:550:1: note: ‘str_end_cmp’ declared here
+  cargo:warning=  550 | str_end_cmp(st_str_end_key* x, st_str_end_key* y)
+  cargo:warning=      | ^~~~~~~~~~~
+  cargo:warning=oniguruma/src/regparse.c:589:5: error: initialization of ‘int (*)(void)’ from incompatible pointer type ‘int (*)(st_str_end_key *)’ [-Wincompatible-pointer-types]
+  cargo:warning=  589 |     str_end_hash,
+  cargo:warning=      |     ^~~~~~~~~~~~
+  cargo:warning=oniguruma/src/regparse.c:589:5: note: (near initialization for ‘hashType.hash’)
+  cargo:warning=oniguruma/src/regparse.c:571:1: note: ‘str_end_hash’ declared here
+  cargo:warning=  571 | str_end_hash(st_str_end_key* x)
+  cargo:warning=      | ^~~~~~~~~~~~
+  cargo:warning=oniguruma/src/regparse.c: In function ‘onig_st_init_callout_name_table_with_size’:
+  cargo:warning=oniguruma/src/regparse.c:678:5: error: initialization of ‘int (*)(void)’ from incompatible pointer type ‘int (*)(st_callout_name_key *, st_callout_name_key *)’ [-Wincompatible-pointer-types]
+  cargo:warning=  678 |     callout_name_table_cmp,
+  cargo:warning=      |     ^~~~~~~~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/regparse.c:678:5: note: (near initialization for ‘hashType.compare’)
+  cargo:warning=oniguruma/src/regparse.c:637:1: note: ‘callout_name_table_cmp’ declared here
+  cargo:warning=  637 | callout_name_table_cmp(st_callout_name_key* x, st_callout_name_key* y)
+  cargo:warning=      | ^~~~~~~~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/regparse.c:679:5: error: initialization of ‘int (*)(void)’ from incompatible pointer type ‘int (*)(st_callout_name_key *)’ [-Wincompatible-pointer-types]
+  cargo:warning=  679 |     callout_name_table_hash,
+  cargo:warning=      |     ^~~~~~~~~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/regparse.c:679:5: note: (near initialization for ‘hashType.hash’)
+  cargo:warning=oniguruma/src/regparse.c:660:1: note: ‘callout_name_table_hash’ declared here
+  cargo:warning=  660 | callout_name_table_hash(st_callout_name_key* x)
+  cargo:warning=      | ^~~~~~~~~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/regparse.c: In function ‘names_clear’:
+  cargo:warning=oniguruma/src/regparse.c:804:24: error: passing argument 2 of ‘onig_st_foreach’ from incompatible pointer type [-Wincompatible-pointer-types]
+  cargo:warning=  804 |     onig_st_foreach(t, i_free_name_entry, 0);
+  cargo:warning=      |                        ^~~~~~~~~~~~~~~~~
+  cargo:warning=      |                        |
+  cargo:warning=      |                        int (*)(OnigUChar *, NameEntry *, void *) {aka int (*)(unsigned char *, NameEntry *, void *)}
+  cargo:warning=In file included from oniguruma/src/regparse.c:37:
+  cargo:warning=oniguruma/src/st.h:55:31: note: expected ‘int (*)(void)’ but argument is of type ‘int (*)(OnigUChar *, NameEntry *, void *)’ {aka ‘int (*)(unsigned char *, NameEntry *, void *)’}
+  cargo:warning=   55 | int st_foreach _((st_table *, int (*)(ANYARGS), st_data_t));
+  cargo:warning=      |                               ^~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/st.h:35:18: note: in definition of macro ‘_’
+  cargo:warning=   35 | # define _(args) args
+  cargo:warning=      |                  ^~~~
+  cargo:warning=oniguruma/src/regparse.c:789:1: note: ‘i_free_name_entry’ declared here
+  cargo:warning=  789 | i_free_name_entry(UChar* key, NameEntry* e, void* arg ARG_UNUSED)
+  cargo:warning=      | ^~~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/regparse.c: In function ‘onig_foreach_name’:
+  cargo:warning=oniguruma/src/regparse.c:873:24: error: passing argument 2 of ‘onig_st_foreach’ from incompatible pointer type [-Wincompatible-pointer-types]
+  cargo:warning=  873 |     onig_st_foreach(t, i_names, (HashDataType )&narg);
+  cargo:warning=      |                        ^~~~~~~
+  cargo:warning=      |                        |
+  cargo:warning=      |                        int (*)(OnigUChar *, NameEntry *, INamesArg *) {aka int (*)(unsigned char *, NameEntry *, INamesArg *)}
+  cargo:warning=oniguruma/src/st.h:55:31: note: expected ‘int (*)(void)’ but argument is of type ‘int (*)(OnigUChar *, NameEntry *, INamesArg *)’ {aka ‘int (*)(unsigned char *, NameEntry *, INamesArg *)’}
+  cargo:warning=   55 | int st_foreach _((st_table *, int (*)(ANYARGS), st_data_t));
+  cargo:warning=      |                               ^~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/st.h:35:18: note: in definition of macro ‘_’
+  cargo:warning=   35 | # define _(args) args
+  cargo:warning=      |                  ^~~~
+  cargo:warning=oniguruma/src/regparse.c:846:1: note: ‘i_names’ declared here
+  cargo:warning=  846 | i_names(UChar* key ARG_UNUSED, NameEntry* e, INamesArg* arg)
+  cargo:warning=      | ^~~~~~~
+  cargo:warning=oniguruma/src/regparse.c: In function ‘onig_renumber_name_table’:
+  cargo:warning=oniguruma/src/regparse.c:901:24: error: passing argument 2 of ‘onig_st_foreach’ from incompatible pointer type [-Wincompatible-pointer-types]
+  cargo:warning=  901 |     onig_st_foreach(t, i_renumber_name, (HashDataType )map);
+  cargo:warning=      |                        ^~~~~~~~~~~~~~~
+  cargo:warning=      |                        |
+  cargo:warning=      |                        int (*)(OnigUChar *, NameEntry *, GroupNumMap *) {aka int (*)(unsigned char *, NameEntry *, GroupNumMap *)}
+  cargo:warning=oniguruma/src/st.h:55:31: note: expected ‘int (*)(void)’ but argument is of type ‘int (*)(OnigUChar *, NameEntry *, GroupNumMap *)’ {aka ‘int (*)(unsigned char *, NameEntry *, GroupNumMap *)’}
+  cargo:warning=   55 | int st_foreach _((st_table *, int (*)(ANYARGS), st_data_t));
+  cargo:warning=      |                               ^~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/st.h:35:18: note: in definition of macro ‘_’
+  cargo:warning=   35 | # define _(args) args
+  cargo:warning=      |                  ^~~~
+  cargo:warning=oniguruma/src/regparse.c:879:1: note: ‘i_renumber_name’ declared here
+  cargo:warning=  879 | i_renumber_name(UChar* key ARG_UNUSED, NameEntry* e, GroupNumMap* map)
+  cargo:warning=      | ^~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/regparse.c: In function ‘callout_name_table_clear’:
+  cargo:warning=oniguruma/src/regparse.c:1386:24: error: passing argument 2 of ‘onig_st_foreach’ from incompatible pointer type [-Wincompatible-pointer-types]
+  cargo:warning= 1386 |     onig_st_foreach(t, i_free_callout_name_entry, 0);
+  cargo:warning=      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~
+  cargo:warning=      |                        |
+  cargo:warning=      |                        int (*)(st_callout_name_key *, CalloutNameEntry *, void *)
+  cargo:warning=oniguruma/src/st.h:55:31: note: expected ‘int (*)(void)’ but argument is of type ‘int (*)(st_callout_name_key *, CalloutNameEntry *, void *)’
+  cargo:warning=   55 | int st_foreach _((st_table *, int (*)(ANYARGS), st_data_t));
+  cargo:warning=      |                               ^~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/st.h:35:18: note: in definition of macro ‘_’
+  cargo:warning=   35 | # define _(args) args
+  cargo:warning=      |                  ^~~~
+  cargo:warning=oniguruma/src/regparse.c:1370:1: note: ‘i_free_callout_name_entry’ declared here
+  cargo:warning= 1370 | i_free_callout_name_entry(st_callout_name_key* key, CalloutNameEntry* e,
+  cargo:warning=      | ^~~~~~~~~~~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/regparse.c: In function ‘setup_ext_callout_list_values’:
+  cargo:warning=oniguruma/src/regparse.c:1884:56: error: passing argument 2 of ‘onig_st_foreach’ from incompatible pointer type [-Wincompatible-pointer-types]
+  cargo:warning= 1884 |     onig_st_foreach((CalloutTagTable *)ext->tag_table, i_callout_callout_list_set,
+  cargo:warning=      |                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+  cargo:warning=      |                                                        |
+  cargo:warning=      |                                                        int (*)(OnigUChar *, CalloutTagVal,  void *) {aka int (*)(unsigned char *, long int,  void *)}
+  cargo:warning=oniguruma/src/st.h:55:31: note: expected ‘int (*)(void)’ but argument is of type ‘int (*)(OnigUChar *, CalloutTagVal,  void *)’ {aka ‘int (*)(unsigned char *, long int,  void *)’}
+  cargo:warning=   55 | int st_foreach _((st_table *, int (*)(ANYARGS), st_data_t));
+  cargo:warning=      |                               ^~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/st.h:35:18: note: in definition of macro ‘_’
+  cargo:warning=   35 | # define _(args) args
+  cargo:warning=      |                  ^~~~
+  cargo:warning=oniguruma/src/regparse.c:1866:1: note: ‘i_callout_callout_list_set’ declared here
+  cargo:warning= 1866 | i_callout_callout_list_set(UChar* key, CalloutTagVal e, void* arg)
+  cargo:warning=      | ^~~~~~~~~~~~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/regparse.c: In function ‘callout_tag_table_clear’:
+  cargo:warning=oniguruma/src/regparse.c:1932:24: error: passing argument 2 of ‘onig_st_foreach’ from incompatible pointer type [-Wincompatible-pointer-types]
+  cargo:warning= 1932 |     onig_st_foreach(t, i_free_callout_tag_entry, 0);
+  cargo:warning=      |                        ^~~~~~~~~~~~~~~~~~~~~~~~
+  cargo:warning=      |                        |
+  cargo:warning=      |                        int (*)(OnigUChar *, CalloutTagVal,  void *) {aka int (*)(unsigned char *, long int,  void *)}
+  cargo:warning=oniguruma/src/st.h:55:31: note: expected ‘int (*)(void)’ but argument is of type ‘int (*)(OnigUChar *, CalloutTagVal,  void *)’ {aka ‘int (*)(unsigned char *, long int,  void *)’}
+  cargo:warning=   55 | int st_foreach _((st_table *, int (*)(ANYARGS), st_data_t));
+  cargo:warning=      |                               ^~~~~~~~~~~~~~~~
+  cargo:warning=oniguruma/src/st.h:35:18: note: in definition of macro ‘_’
+  cargo:warning=   35 | # define _(args) args
+  cargo:warning=      |                  ^~~~
+  cargo:warning=oniguruma/src/regparse.c:1922:1: note: ‘i_free_callout_tag_entry’ declared here
+  cargo:warning= 1922 | i_free_callout_tag_entry(UChar* key, CalloutTagVal e, void* arg ARG_UNUSED)
+  cargo:warning=      | ^~~~~~~~~~~~~~~~~~~~~~~~
+
+  --- stderr
+
+
+  error occurred: Command "cc" "-Os" "-ffunction-sections" "-fdata-sections" "-fPIC" "-m64" "-I" "/tmp/tmp.wWr77vSzGH/aichat/src/aichat-0.20.0/target/release/build/onig_sys-755bb8e4323ae483/out" "-I" "oniguruma/src" "-march=x86-64" "-mtune=generic" "-O2" "-pipe" "-fno-plt" "-fexceptions" "-Wp,-D_FORTIFY_SOURCE=3" "-Wformat" "-Werror=format-security" "-fstack-clash-protection" "-fcf-protection" "-fno-omit-frame-pointer" "-mno-omit-leaf-frame-pointer" "-g" "-ffile-prefix-map=/tmp/tmp.wWr77vSzGH/aichat/src=/usr/src/debug/aichat" "-flto=auto" "-DHAVE_UNISTD_H=1" "-DHAVE_SYS_TYPES_H=1" "-DHAVE_SYS_TIME_H=1" "-o" "/tmp/tmp.wWr77vSzGH/aichat/src/aichat-0.20.0/target/release/build/onig_sys-755bb8e4323ae483/out/c77b18e714869709-regparse.o" "-c" "oniguruma/src/regparse.c" with args cc did not execute successfully (status code exit status: 1).
+
+
+warning: build failed, waiting for other jobs to finish...
+==> ERROR: A failure occurred in build().
+    Aborting...
+[1;34m[aur-build][0m aichat — BUILD FAILED, continuing without it
+[1;34m[aur-build][0m bibata-cursor-theme — already built, skipping
+[1;34m[aur-build][0m claude-code — building via makepkg
+Cloning into 'claude-code'...
+==> Making package: claude-code 2.1.220-1 (Sun Aug  2 12:53:43 2026)
+==> Checking runtime dependencies...
+==> Checking buildtime dependencies...
+==> Retrieving sources...
+  -> Downloading cc-legal...
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0100   3591   0   3591   0      0  12263      0                              0100   3591   0   3591   0      0  12259      0                              0100   3591   0   3591   0      0  12255      0                              0
+  -> Downloading claude-2.1.220-x86_64...
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0 40 262.2M  40 107.0M   0      0 103.7M      0   00:02   00:01   00:01 107.1M 83 262.2M  83 218.7M   0      0 107.7M      0   00:02   00:02         109.4M100 262.2M 100 262.2M   0      0 108.3M      0   00:02   00:02         109.4M100 262.2M 100 262.2M   0      0 108.3M      0   00:02   00:02         109.4M100 262.2M 100 262.2M   0      0 108.3M      0   00:02   00:02         109.4M
+==> WARNING: Skipping verification of source file PGP signatures.
+==> Validating source files with sha256sums...
+    cc-legal ... Skipped
+==> Validating source_x86_64 files with sha256sums...
+    claude-2.1.220-x86_64 ... Passed
+==> Extracting sources...
+==> Entering fakeroot environment...
+==> Starting package()...
+==> Tidying install...
+  -> Removing libtool files...
+  -> Removing static library files...
+  -> Purging unwanted files...
+  -> Copying source files needed for debug symbols...
+  -> Compressing man and info pages...
+==> Checking for packaging issues...
+==> Creating package "claude-code"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Leaving fakeroot environment.
+==> Finished making: claude-code 2.1.220-1 (Sun Aug  2 12:53:53 2026)
+[1;34m[aur-build][0m elephant — already built, skipping
+[1;34m[aur-build][0m ghostty — building via makepkg
+Cloning into 'ghostty'...
+==> Making package: ghostty 1.0.0-1 (Sun Aug  2 12:54:00 2026)
+==> Checking runtime dependencies...
+==> Installing missing dependencies...
+resolving dependencies...
+looking for conflicting packages...
+
+Package (110)                    New Version    Net Change  Download Size
+
+extra/adwaita-cursors            50.0-1          11.41 MiB       0.35 MiB
+extra/adwaita-fonts              50.0-1           7.29 MiB       2.13 MiB
+extra/adwaita-icon-theme         50.0-1           1.19 MiB       0.20 MiB
+extra/adwaita-icon-theme-legacy  46.2-3           2.23 MiB       2.17 MiB
+extra/appstream                  1.1.5-1         17.79 MiB       2.35 MiB
+extra/at-spi2-core               2.60.6-1         4.04 MiB       0.58 MiB
+extra/avahi                      1:0.9rc5-1       2.04 MiB       0.45 MiB
+extra/bubblewrap                 0.11.2-1         0.09 MiB       0.04 MiB
+extra/cairo                      1.18.4-1         1.59 MiB       0.61 MiB
+extra/dav1d                      1.5.4-1          1.85 MiB       0.66 MiB
+extra/dconf                      0.49.0-1         0.45 MiB       0.10 MiB
+extra/default-cursors            3-1              0.00 MiB       0.00 MiB
+extra/desktop-file-utils         0.28-1           0.18 MiB       0.04 MiB
+extra/duktape                    2.7.0-7          0.78 MiB       0.17 MiB
+extra/fribidi                    1.0.16-2         0.24 MiB       0.07 MiB
+extra/fuse-common                3.18.2-1         0.00 MiB       0.00 MiB
+extra/fuse3                      3.18.2-1         0.48 MiB       0.13 MiB
+extra/gdk-pixbuf2                2.44.7-1         3.00 MiB       0.49 MiB
+extra/giflib                     6.1.3-2          0.34 MiB       0.10 MiB
+extra/glib-networking            1:2.80.1-1       0.65 MiB       0.14 MiB
+extra/glycin                     2.1.5-2         17.49 MiB       3.78 MiB
+extra/gperftools                 2.18.1-1         2.01 MiB       0.49 MiB
+extra/graphene                   1.10.8-2         0.98 MiB       0.10 MiB
+extra/graphite                   1:1.3.15-1       0.20 MiB       0.08 MiB
+extra/gsettings-desktop-schemas  50.1-1           6.08 MiB       0.79 MiB
+extra/gsettings-system-schemas   50.1-1           0.02 MiB       0.01 MiB
+extra/gssdp                      1.6.6-1          0.24 MiB       0.06 MiB
+extra/gst-plugins-bad-libs       1.28.5-4        14.73 MiB       3.18 MiB
+extra/gst-plugins-base-libs      1.28.5-4        12.84 MiB       2.45 MiB
+extra/gstreamer                  1.28.5-4        11.92 MiB       2.11 MiB
+extra/gtest                      1.17.0-2         1.63 MiB       0.38 MiB
+extra/gtk-update-icon-cache      1:4.22.4-1       0.04 MiB       0.02 MiB
+extra/gtk3                       1:3.24.52-1     52.96 MiB       8.83 MiB
+extra/gupnp                      1:1.6.10-1       0.70 MiB       0.13 MiB
+extra/gupnp-igd                  1.6.0-2          0.11 MiB       0.03 MiB
+extra/hicolor-icon-theme         0.18-1           0.05 MiB       0.01 MiB
+extra/highway                    1.4.0-1         10.04 MiB       1.19 MiB
+extra/iso-codes                  4.20.1-1        22.30 MiB       3.60 MiB
+extra/jbigkit                    2.1-8            0.16 MiB       0.05 MiB
+extra/json-glib                  1.10.8-1         1.01 MiB       0.17 MiB
+extra/lcms2                      2.19.1-1         0.69 MiB       0.23 MiB
+extra/libcloudproviders          0.4.0-1          0.32 MiB       0.05 MiB
+extra/libcolord                  1.4.8-1          1.24 MiB       0.18 MiB
+extra/libcups                    2:2.4.19-1       0.77 MiB       0.27 MiB
+extra/libdaemon                  0.14-6           0.06 MiB       0.02 MiB
+extra/libdatrie                  0.2.14-1         0.49 MiB       0.11 MiB
+extra/libdrm                     2.4.134-1        1.28 MiB       0.35 MiB
+extra/libepoxy                   1.5.10-3         2.64 MiB       0.30 MiB
+extra/libfyaml                   0.9.6-2          1.27 MiB       0.45 MiB
+extra/libglvnd                   1.7.0-3          3.34 MiB       0.32 MiB
+extra/libgudev                   238-3            0.38 MiB       0.04 MiB
+extra/libjpeg-turbo              3.2.0-2          2.65 MiB       0.59 MiB
+extra/libjxl                     0.12.0-1         6.78 MiB       1.86 MiB
+extra/libnice                    0.1.23-1         1.81 MiB       0.31 MiB
+extra/libpipewire                1:1.6.8-1        2.00 MiB       0.50 MiB
+extra/libproxy                   0.5.12-1         0.10 MiB       0.03 MiB
+extra/librsvg                    2:2.62.3-1      10.26 MiB       2.37 MiB
+extra/libsoup3                   3.6.6-2          1.96 MiB       0.39 MiB
+extra/libstemmer                 3.1.1-1          0.64 MiB       0.15 MiB
+extra/libthai                    0.1.30-1         1.24 MiB       0.26 MiB
+extra/libtiff                    4.7.2-1          1.32 MiB       0.40 MiB
+extra/libunwind                  1.8.2-1          0.29 MiB       0.13 MiB
+extra/libva                      2.24.1-1         1.00 MiB       0.20 MiB
+extra/libwebp                    1.6.0-2          1.04 MiB       0.32 MiB
+extra/libx11                     1.8.13-1         9.78 MiB       2.00 MiB
+extra/libxau                     1.0.12-1         0.02 MiB       0.01 MiB
+extra/libxcb                     1.17.0-1         3.87 MiB       0.97 MiB
+extra/libxcomposite              0.4.7-1          0.02 MiB       0.01 MiB
+extra/libxcursor                 1.2.3-1          0.07 MiB       0.03 MiB
+extra/libxdamage                 1.1.7-1          0.02 MiB       0.01 MiB
+extra/libxdmcp                   1.1.5-2          0.13 MiB       0.03 MiB
+extra/libxext                    1.3.7-1          0.30 MiB       0.10 MiB
+extra/libxfixes                  6.0.2-1          0.04 MiB       0.01 MiB
+extra/libxft                     2.3.9-1          0.13 MiB       0.06 MiB
+extra/libxi                      1.8.3-1          0.49 MiB       0.15 MiB
+extra/libxinerama                1.1.6-1          0.02 MiB       0.01 MiB
+extra/libxkbcommon               1.13.2-1         1.05 MiB       0.27 MiB
+extra/libxkbcommon-x11           1.13.2-1         0.10 MiB       0.03 MiB
+extra/libxmlb                    0.3.29-1         1.21 MiB       0.15 MiB
+extra/libxrandr                  1.5.5-1          0.07 MiB       0.03 MiB
+extra/libxrender                 0.9.12-1         0.09 MiB       0.03 MiB
+extra/libxshmfence               1.3.3-1          0.02 MiB       0.01 MiB
+extra/libxtst                    1.2.5-1          0.11 MiB       0.03 MiB
+extra/libxv                      1.0.13-1         0.06 MiB       0.03 MiB
+extra/libxxf86vm                 1.1.7-1          0.03 MiB       0.02 MiB
+extra/lm_sensors                 1:3.6.2-1        0.48 MiB       0.13 MiB
+extra/mesa                       1:26.1.6-1      52.70 MiB      13.25 MiB
+extra/orc                        0.4.42-1         1.36 MiB       0.31 MiB
+extra/pango                      1:1.58.0-1       2.38 MiB       0.43 MiB
+extra/pipewire                   1:1.6.8-1        2.96 MiB       0.69 MiB
+extra/shared-mime-info           2.5.1-2          5.83 MiB       0.75 MiB
+extra/spirv-tools                1:1.4.357.0-1    8.08 MiB       2.09 MiB
+extra/tinysparql                 3.11.1-1         3.88 MiB       1.05 MiB
+extra/vmaf                       3.2.0-1          7.09 MiB       0.48 MiB
+extra/vulkan-icd-loader          1.4.357.0-1      0.62 MiB       0.16 MiB
+extra/wayland                    1.25.0-1         0.84 MiB       0.14 MiB
+extra/xcb-proto                  1.17.0-4         1.03 MiB       0.13 MiB
+extra/xdg-desktop-portal         1.22.1-2         1.83 MiB       0.44 MiB
+extra/xdg-desktop-portal-gtk     1.15.3-1         0.42 MiB       0.10 MiB
+extra/xkeyboard-config           2.48-1          10.24 MiB       0.87 MiB
+extra/xorg-xprop                 1.2.8-1          0.05 MiB       0.03 MiB
+extra/xorgproto                  2025.1-1         1.47 MiB       0.24 MiB
+extra/fontconfig                 2:2.18.2-1       1.32 MiB       0.40 MiB
+extra/freetype2                  2.14.3-1         1.66 MiB       0.52 MiB
+extra/gtk4                       1:4.22.4-1      51.53 MiB       9.14 MiB
+extra/harfbuzz                   14.3.0-1         4.85 MiB       1.28 MiB
+extra/libadwaita                 1:1.9.2-1        5.16 MiB       0.79 MiB
+extra/libpng                     1.6.58-2         0.58 MiB       0.25 MiB
+extra/oniguruma                  6.9.10-1         0.88 MiB       0.22 MiB
+extra/pixman                     0.46.4-1         0.74 MiB       0.28 MiB
+
+Total Download Size:    86.19 MiB
+Total Installed Size:  440.31 MiB
+
+:: Proceed with installation? [Y/n] 
+:: Retrieving packages...
+ mesa-1:26.1.6-1-x86_64 downloading...
+ gtk4-1:4.22.4-1-x86_64 downloading...
+ gtk3-1:3.24.52-1-x86_64 downloading...
+ glycin-2.1.5-2-x86_64 downloading...
+ iso-codes-4.20.1-1-any downloading...
+ gst-plugins-bad-libs-1.28.5-4-x86_64 downloading...
+ gst-plugins-base-libs-1.28.5-4-x86_64 downloading...
+ librsvg-2:2.62.3-1-x86_64 downloading...
+ appstream-1.1.5-1-x86_64 downloading...
+ adwaita-icon-theme-legacy-46.2-3-any downloading...
+ adwaita-fonts-50.0-1-any downloading...
+ gstreamer-1.28.5-4-x86_64 downloading...
+ spirv-tools-1:1.4.357.0-1-x86_64 downloading...
+ libx11-1.8.13-1-x86_64 downloading...
+ libjxl-0.12.0-1-x86_64 downloading...
+ harfbuzz-14.3.0-1-x86_64 downloading...
+ highway-1.4.0-1-x86_64 downloading...
+ tinysparql-3.11.1-1-x86_64 downloading...
+ libxcb-1.17.0-1-x86_64 downloading...
+ xkeyboard-config-2.48-1-any downloading...
+ gsettings-desktop-schemas-50.1-1-any downloading...
+ libadwaita-1:1.9.2-1-x86_64 downloading...
+ shared-mime-info-2.5.1-2-x86_64 downloading...
+ pipewire-1:1.6.8-1-x86_64 downloading...
+ dav1d-1.5.4-1-x86_64 downloading...
+ cairo-1.18.4-1-x86_64 downloading...
+ libjpeg-turbo-3.2.0-2-x86_64 downloading...
+ at-spi2-core-2.60.6-1-x86_64 downloading...
+ freetype2-2.14.3-1-x86_64 downloading...
+ libpipewire-1:1.6.8-1-x86_64 downloading...
+ gperftools-2.18.1-1-x86_64 downloading...
+ gdk-pixbuf2-2.44.7-1-x86_64 downloading...
+ vmaf-3.2.0-1-x86_64 downloading...
+ avahi-1:0.9rc5-1-x86_64 downloading...
+ libfyaml-0.9.6-2-x86_64 downloading...
+ xdg-desktop-portal-1.22.1-2-x86_64 downloading...
+ pango-1:1.58.0-1-x86_64 downloading...
+ libtiff-4.7.2-1-x86_64 downloading...
+ fontconfig-2:2.18.2-1-x86_64 downloading...
+ libsoup3-3.6.6-2-x86_64 downloading...
+ gtest-1.17.0-2-x86_64 downloading...
+ adwaita-cursors-50.0-1-any downloading...
+ libdrm-2.4.134-1-x86_64 downloading...
+ libwebp-1.6.0-2-x86_64 downloading...
+ libglvnd-1.7.0-3-x86_64 downloading...
+ orc-0.4.42-1-x86_64 downloading...
+ libnice-0.1.23-1-x86_64 downloading...
+ libepoxy-1.5.10-3-x86_64 downloading...
+ pixman-0.46.4-1-x86_64 downloading...
+ libxkbcommon-1.13.2-1-x86_64 downloading...
+ libcups-2:2.4.19-1-x86_64 downloading...
+ libthai-0.1.30-1-x86_64 downloading...
+ libpng-1.6.58-2-x86_64 downloading...
+ xorgproto-2025.1-1-any downloading...
+ lcms2-2.19.1-1-x86_64 downloading...
+ oniguruma-6.9.10-1-x86_64 downloading...
+ libva-2.24.1-1-x86_64 downloading...
+ adwaita-icon-theme-50.0-1-any downloading...
+ libcolord-1.4.8-1-x86_64 downloading...
+ duktape-2.7.0-7-x86_64 downloading...
+ json-glib-1.10.8-1-x86_64 downloading...
+ vulkan-icd-loader-1.4.357.0-1-x86_64 downloading...
+ libxmlb-0.3.29-1-x86_64 downloading...
+ libxi-1.8.3-1-x86_64 downloading...
+ libstemmer-3.1.1-1-x86_64 downloading...
+ wayland-1.25.0-1-x86_64 downloading...
+ glib-networking-1:2.80.1-1-x86_64 downloading...
+ fuse3-3.18.2-1-x86_64 downloading...
+ lm_sensors-1:3.6.2-1-x86_64 downloading...
+ xcb-proto-1.17.0-4-any downloading...
+ gupnp-1:1.6.10-1-x86_64 downloading...
+ libunwind-1.8.2-1-x86_64 downloading...
+ libdatrie-0.2.14-1-x86_64 downloading...
+ dconf-0.49.0-1-x86_64 downloading...
+ xdg-desktop-portal-gtk-1.15.3-1-x86_64 downloading...
+ graphene-1.10.8-2-x86_64 downloading...
+ libxext-1.3.7-1-x86_64 downloading...
+ giflib-6.1.3-2-x86_64 downloading...
+ graphite-1:1.3.15-1-x86_64 downloading...
+ fribidi-1.0.16-2-x86_64 downloading...
+ gssdp-1.6.6-1-x86_64 downloading...
+ libxft-2.3.9-1-x86_64 downloading...
+ jbigkit-2.1-8-x86_64 downloading...
+ libcloudproviders-0.4.0-1-x86_64 downloading...
+ libgudev-238-3-x86_64 downloading...
+ desktop-file-utils-0.28-1-x86_64 downloading...
+ bubblewrap-0.11.2-1-x86_64 downloading...
+ libxv-1.0.13-1-x86_64 downloading...
+ libxcursor-1.2.3-1-x86_64 downloading...
+ libxkbcommon-x11-1.13.2-1-x86_64 downloading...
+ libproxy-0.5.12-1-x86_64 downloading...
+ libxrender-0.9.12-1-x86_64 downloading...
+ libxtst-1.2.5-1-x86_64 downloading...
+ gupnp-igd-1.6.0-2-x86_64 downloading...
+ libxrandr-1.5.5-1-x86_64 downloading...
+ libxdmcp-1.1.5-2-x86_64 downloading...
+ xorg-xprop-1.2.8-1-x86_64 downloading...
+ libdaemon-0.14-6-x86_64 downloading...
+ gtk-update-icon-cache-1:4.22.4-1-x86_64 downloading...
+ libxxf86vm-1.1.7-1-x86_64 downloading...
+ libxfixes-6.0.2-1-x86_64 downloading...
+ hicolor-icon-theme-0.18-1-any downloading...
+ libxcomposite-0.4.7-1-x86_64 downloading...
+ libxau-1.0.12-1-x86_64 downloading...
+ libxinerama-1.1.6-1-x86_64 downloading...
+ libxdamage-1.1.7-1-x86_64 downloading...
+ gsettings-system-schemas-50.1-1-any downloading...
+ libxshmfence-1.3.3-1-x86_64 downloading...
+ fuse-common-3.18.2-1-x86_64 downloading...
+ default-cursors-3-1-any downloading...
+checking keyring...
+checking package integrity...
+loading package files...
+checking for file conflicts...
+:: Processing package changes...
+installing libpng...
+installing freetype2...
+Optional dependencies for freetype2
+    harfbuzz: Improved autohinting [pending]
+installing fontconfig...
+Creating fontconfig configuration...
+Rebuilding fontconfig cache...
+installing adwaita-fonts...
+installing hicolor-icon-theme...
+installing adwaita-icon-theme-legacy...
+installing adwaita-cursors...
+installing adwaita-icon-theme...
+installing dconf...
+installing gsettings-system-schemas...
+installing gsettings-desktop-schemas...
+installing xcb-proto...
+installing xorgproto...
+installing libxdmcp...
+installing libxau...
+installing libxcb...
+installing libx11...
+installing libxext...
+installing libxfixes...
+installing libxi...
+installing libxtst...
+installing xorg-xprop...
+installing at-spi2-core...
+installing libxrender...
+installing pixman...
+installing cairo...
+installing desktop-file-utils...
+installing fribidi...
+installing bubblewrap...
+installing libjpeg-turbo...
+installing jbigkit...
+installing libwebp...
+Optional dependencies for libwebp
+    libwebp-utils: WebP conversion and inspection tools
+installing libtiff...
+Optional dependencies for libtiff
+    freeglut: for using tiffgt
+installing lcms2...
+installing giflib...
+installing libunwind...
+installing gperftools...
+installing gtest...
+Optional dependencies for gtest
+    python: gmock generator [installed]
+installing highway...
+installing libjxl...
+Optional dependencies for libjxl
+    java-runtime: for JNI bindings
+installing dav1d...
+Optional dependencies for dav1d
+    dav1d-doc: HTML documentation
+installing graphite...
+Optional dependencies for graphite
+    graphite-docs: Documentation
+installing harfbuzz...
+Optional dependencies for harfbuzz
+    harfbuzz-utils: utilities
+installing libdatrie...
+installing libthai...
+installing libxft...
+installing pango...
+installing librsvg...
+installing glycin...
+Optional dependencies for glycin
+    libheif: Load .avif, .heic and .heif
+installing shared-mime-info...
+installing gdk-pixbuf2...
+Optional dependencies for gdk-pixbuf2
+    libheif: Load .avif, .heic and .heif
+    libopenraw: Load .arw, .cr2, .crw, .dng, .erf, .mrw, .nef, .orf, .pef and .raf
+    libwmf: Load .apm and .wmf
+installing graphene...
+installing gstreamer...
+Optional dependencies for gstreamer
+    python: gst-plugins-doc-cache-generator [installed]
+installing iso-codes...
+installing libdrm...
+Optional dependencies for libdrm
+    cairo: needed for modetest tool [installed]
+installing libxshmfence...
+installing libxxf86vm...
+installing lm_sensors...
+Optional dependencies for lm_sensors
+    rrdtool: for logging with sensord
+    perl: for sensor detection and configuration convert [installed]
+installing spirv-tools...
+installing default-cursors...
+Optional dependencies for default-cursors
+    adwaita-cursors: default cursor theme [installed]
+installing wayland...
+installing mesa...
+Optional dependencies for mesa
+    opengl-man-pages: for the OpenGL API man pages
+installing libglvnd...
+installing libgudev...
+installing libxv...
+installing orc...
+installing gst-plugins-base-libs...
+installing duktape...
+installing libproxy...
+installing glib-networking...
+installing libsoup3...
+Optional dependencies for libsoup3
+    samba: Windows Domain SSO
+installing gssdp...
+Optional dependencies for gssdp
+    gtk4: gssdp-device-sniffer [pending]
+installing gupnp...
+Optional dependencies for gupnp
+    python: gupnp-binding-tool [installed]
+installing gupnp-igd...
+installing libnice...
+Optional dependencies for libnice
+    gstreamer: "nice" GStreamer plugin [installed]
+installing libva...
+Optional dependencies for libva
+    intel-media-driver: backend for Intel GPUs (>= Broadwell)
+    libva-intel-driver: backend for Intel GPUs (<= Haswell)
+    libva-mesa-driver: backend for AMD and NVIDIA GPUs [installed]
+installing xkeyboard-config...
+installing libxkbcommon...
+Optional dependencies for libxkbcommon
+    libxkbcommon-x11: xkbcli interactive-x11 [pending]
+    wayland: xkbcli interactive-wayland [installed]
+installing libxkbcommon-x11...
+installing vulkan-icd-loader...
+Optional dependencies for vulkan-icd-loader
+    vulkan-driver: packaged vulkan driver
+installing vmaf...
+installing gst-plugins-bad-libs...
+installing gtk-update-icon-cache...
+installing libcloudproviders...
+installing libcolord...
+installing libdaemon...
+installing avahi...
+Optional dependencies for avahi
+    gtk3: avahi-discover, avahi-discover-standalone, bshell, bssh, bvnc [pending]
+    libevent: libevent bindings [installed]
+    nss-mdns: NSS support for mDNS
+    python-dbus: avahi-bookmarks, avahi-discover
+    python-gobject: avahi-bookmarks, avahi-discover
+    python-twisted: avahi-bookmarks
+installing libcups...
+installing libepoxy...
+installing libxcursor...
+installing libxdamage...
+installing libxinerama...
+installing libxrandr...
+installing json-glib...
+installing libstemmer...
+installing tinysparql...
+installing libxcomposite...
+installing gtk3...
+Optional dependencies for gtk3
+    evince: Default print preview command
+installing fuse-common...
+installing fuse3...
+installing libpipewire...
+installing pipewire...
+Created symlink '/etc/systemd/user/sockets.target.wants/pipewire.socket' → '/usr/lib/systemd/user/pipewire.socket'.
+Optional dependencies for pipewire
+    gst-plugin-pipewire: GStreamer plugin
+    pipewire-alsa: ALSA configuration
+    pipewire-audio: Audio support
+    pipewire-docs: Documentation
+    pipewire-ffado: FireWire support
+    pipewire-jack-client: PipeWire as JACK client
+    pipewire-jack: JACK replacement
+    pipewire-libcamera: Libcamera support
+    pipewire-onnx: ONNX filter support
+    pipewire-pulse: PulseAudio replacement
+    pipewire-roc: ROC streaming
+    pipewire-session-manager: Session manager
+    pipewire-v4l2: V4L2 interceptor
+    pipewire-x11-bell: X11 bell
+    pipewire-zeroconf: Zeroconf support
+    realtime-privileges: realtime privileges with rt module
+    rtkit: realtime privileges with rtkit module
+installing xdg-desktop-portal...
+Optional dependencies for xdg-desktop-portal
+    gamemode: GameMode portal
+    geoclue: Location portal
+    rtkit: Realtime portal
+    xdg-desktop-portal-impl: Portal backends [pending]
+installing xdg-desktop-portal-gtk...
+Optional dependencies for xdg-desktop-portal-gtk
+    evince: Print preview
+installing gtk4...
+Optional dependencies for gtk4
+    evince: Default print preview command
+installing libfyaml...
+installing libxmlb...
+installing appstream...
+installing libadwaita...
+installing oniguruma...
+:: Running post-transaction hooks...
+( 1/15) Creating system user accounts...
+Creating group 'avahi' with GID 968.
+Creating user 'avahi' (Avahi mDNS/DNS-SD daemon) with UID 968 and GID 968.
+( 2/15) Reloading system manager configuration...
+  Skipped: Current root is not booted.
+( 3/15) Reloading user manager configuration...
+  Skipped: Current root is not booted.
+( 4/15) Updating the MIME type database...
+( 5/15) Reloading device manager configuration...
+  Skipped: Current root is not booted.
+( 6/15) Arming ConditionNeedsUpdate...
+( 7/15) Updating fontconfig configuration...
+( 8/15) Updating the appstream cache...
+✔ Metadata cache was updated successfully.
+( 9/15) Reloading system bus configuration...
+  Skipped: Current root is not booted.
+(10/15) Updating fontconfig cache...
+(11/15) Updating GIO module cache...
+(12/15) Compiling GSettings XML schema files...
+(13/15) Probing GTK3 input method modules...
+(14/15) Updating icon theme caches...
+(15/15) Updating the desktop file MIME type cache...
+==> Checking buildtime dependencies...
+==> Installing missing dependencies...
+error: target not found: zig<0.14.0
+==> ERROR: 'pacman' failed to install missing dependencies.
+==> Missing dependencies:
+  -> zig>=0.13.0
+  -> zig<0.14.0
+  -> pandoc-cli
+==> ERROR: Could not resolve all dependencies.
+[1;34m[aur-build][0m ghostty — BUILD FAILED, continuing without it
+[1;34m[aur-build][0m k9s — building via makepkg
+Cloning into 'k9s'...
+warning: You appear to have cloned an empty repository.
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+==> ERROR: PKGBUILD does not exist.
+[1;34m[aur-build][0m k9s — BUILD FAILED, continuing without it
+[1;34m[aur-build][0m lazydocker — already built, skipping
+[1;34m[aur-build][0m lazykube — building via makepkg
+Cloning into 'lazykube'...
+warning: You appear to have cloned an empty repository.
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+==> ERROR: PKGBUILD does not exist.
+[1;34m[aur-build][0m lazykube — BUILD FAILED, continuing without it
+[1;34m[aur-build][0m macbook12-spi-driver-dkms — already built, skipping
+[1;34m[aur-build][0m ollama-bin — building via makepkg
+Cloning into 'ollama-bin'...
+==> Making package: ollama-bin 0.32.5-1 (Sun Aug  2 12:54:26 2026)
+==> Checking runtime dependencies...
+==> Checking buildtime dependencies...
+==> Retrieving sources...
+  -> Downloading LICENSE-0.32.5...
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0100   1058 100   1058   0      0  13329      0                              0100   1058 100   1058   0      0  13308      0                              0100   1058 100   1058   0      0  13287      0                              0
+  -> Downloading README-0.32.5.md...
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0100  19150 100  19150   0      0 199.4k      0                              0100  19150 100  19150   0      0 199.1k      0                              0100  19150 100  19150   0      0 198.8k      0                              0
+  -> Found ollama.conf
+  -> Found ollama-cuda.conf
+  -> Found ollama-vulkan.conf
+  -> Found ollama.service
+  -> Found ollama-cuda.service
+  -> Found ollama-vulkan.service
+  -> Found sysusers.conf
+  -> Found tmpfiles.d
+  -> Found ollama.install
+  -> Downloading ollama-x86_64-0.32.5.tzst...
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0
+  0      0   0      0   0      0      0      0                              0  7  1.32G   7 107.0M   0      0 89.27M      0   00:15   00:01   00:14 107.1M 16  1.32G  16 218.8M   0      0 99.58M      0   00:13   00:02   00:11 109.5M 24  1.32G  24 330.7M   0      0 103.4M      0   00:13   00:03   00:10 110.3M 32  1.32G  32 442.6M   0      0 105.4M      0   00:12   00:04   00:08 110.7M 40  1.32G  40 554.4M   0      0 106.7M      0   00:12   00:05   00:07 110.9M 49  1.32G  49 665.0M   0      0 107.0M      0   00:12   00:06   00:06 111.2M 57  1.32G  57 780.3M   0      0 108.1M      0   00:12   00:07   00:05 111.9M 65  1.32G  65 892.1M   0      0 108.6M      0   00:12   00:08   00:04 111.9M 74  1.32G  74  0.98G   0      0 109.0M      0   00:12   00:09   00:03 111.9M 82  1.32G  82  1.08G   0      0 109.2M      0   00:12   00:10   00:02 111.9M 90  1.32G  90  1.19G   0      0 109.5M      0   00:12   00:11   00:01 112.6M 98  1.32G  98  1.30G   0      0 109.7M      0   00:12   00:12         111.9M100  1.32G 100  1.32G   0      0 109.7M      0   00:12   00:12         111.9M100  1.32G 100  1.32G   0      0 109.7M      0   00:12   00:12         111.9M100  1.32G 100  1.32G   0      0 109.7M      0   00:12   00:12         111.9M
+==> WARNING: Skipping verification of source file PGP signatures.
+==> Validating source files with sha256sums...
+    LICENSE-0.32.5 ... Passed
+    README-0.32.5.md ... Passed
+    ollama.conf ... Passed
+    ollama-cuda.conf ... Passed
+    ollama-vulkan.conf ... Passed
+    ollama.service ... Passed
+    ollama-cuda.service ... Passed
+    ollama-vulkan.service ... Passed
+    sysusers.conf ... Passed
+    tmpfiles.d ... Passed
+    ollama.install ... Passed
+==> Validating source_x86_64 files with sha256sums...
+    ollama-x86_64-0.32.5.tzst ... Passed
+==> Extracting sources...
+  -> Extracting ollama-x86_64-0.32.5.tzst with bsdtar
+==> Entering fakeroot environment...
+==> Starting package_ollama-bin()...
+==> Tidying install...
+  -> Removing libtool files...
+  -> Removing static library files...
+  -> Purging unwanted files...
+  -> Stripping unneeded symbols from binaries and libraries...
+readelf: Warning: Gap in build notes detected from 0x335641 to 0x3357dd
+readelf: Warning: Gap in build notes detected from 0x3358ca to 0x14eb33f
+readelf: Warning: Gap in build notes detected from 0x3357df to 0x14eb3bf
+readelf: Warning: Gap in build notes detected from 0x3357df to 0x14eb3df
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/bin/ollama': No debugging symbols
+gdb-add-index: No index was created for ./usr/bin/ollama
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-base.so.0.17.0': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-base.so.0.17.0
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-alderlake.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-alderlake.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-cannonlake.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-cannonlake.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-cascadelake.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-cascadelake.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-cooperlake.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-cooperlake.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-haswell.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-haswell.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-icelake.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-icelake.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-ivybridge.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-ivybridge.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-piledriver.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-piledriver.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-sandybridge.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-sandybridge.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-sapphirerapids.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-sapphirerapids.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-skylakex.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-skylakex.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-sse42.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-sse42.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-x64.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-x64.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml-cpu-zen4.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cpu-zen4.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libggml.so.0.17.0': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml.so.0.17.0
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libgomp.so.1.0.0': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libgomp.so.1.0.0
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libllama-common.so.0.0.1': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libllama-common.so.0.0.1
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libllama-quantize-impl.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libllama-quantize-impl.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libllama-server-impl.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libllama-server-impl.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libllama.so.0.0.1': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libllama.so.0.0.1
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/libmtmd.so.0.0.1': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libmtmd.so.0.0.1
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/llama-quantize': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/llama-quantize
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-bin/usr/lib/ollama/llama-server': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/llama-server
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+  -> Compressing man and info pages...
+==> Checking for packaging issues...
+==> Creating package "ollama-bin"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Adding install file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Starting package_ollama-cuda12-bin()...
+==> Tidying install...
+  -> Removing libtool files...
+  -> Removing static library files...
+  -> Purging unwanted files...
+  -> Stripping unneeded symbols from binaries and libraries...
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-cuda12-bin/usr/lib/ollama/libcublas.so.12.8.5.5': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libcublas.so.12.8.5.5
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-cuda12-bin/usr/lib/ollama/libcublasLt.so.12.8.5.5': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libcublasLt.so.12.8.5.5
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-cuda12-bin/usr/lib/ollama/libcudart.so.12.8.90': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libcudart.so.12.8.90
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-cuda12-bin/usr/lib/ollama/libggml-cuda.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cuda.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+  -> Compressing man and info pages...
+==> Checking for packaging issues...
+==> Creating package "ollama-cuda12-bin"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Adding install file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Starting package_ollama-cuda13-bin()...
+==> Tidying install...
+  -> Removing libtool files...
+  -> Removing static library files...
+  -> Purging unwanted files...
+  -> Stripping unneeded symbols from binaries and libraries...
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-cuda13-bin/usr/lib/ollama/libcublas.so.13.1.1.3': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libcublas.so.13.1.1.3
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-cuda13-bin/usr/lib/ollama/libcublasLt.so.13.1.1.3': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libcublasLt.so.13.1.1.3
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-cuda13-bin/usr/lib/ollama/libcudart.so.13.0.96': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libcudart.so.13.0.96
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-cuda13-bin/usr/lib/ollama/libggml-cuda.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-cuda.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+  -> Compressing man and info pages...
+==> Checking for packaging issues...
+==> Creating package "ollama-cuda13-bin"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Adding install file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Starting package_ollama-vulkan-bin()...
+==> Tidying install...
+  -> Removing libtool files...
+  -> Removing static library files...
+  -> Purging unwanted files...
+  -> Stripping unneeded symbols from binaries and libraries...
+Error while writing index for `/tmp/tmp.hNDhlAhy5R/ollama-bin/pkg/ollama-vulkan-bin/usr/lib/ollama/libggml-vulkan.so': No debugging symbols
+gdb-add-index: No index was created for ./usr/lib/ollama/libggml-vulkan.so
+gdb-add-index: [Was there no debuginfo? Was there already an index?]
+  -> Compressing man and info pages...
+==> Checking for packaging issues...
+==> Creating package "ollama-vulkan-bin"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Adding install file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Creating package "ollama-bin-debug"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Leaving fakeroot environment.
+==> Finished making: ollama-bin 0.32.5-1 (Sun Aug  2 12:57:16 2026)
+[1;34m[aur-build][0m open-webui-bin — building via makepkg
+Cloning into 'open-webui-bin'...
+warning: You appear to have cloned an empty repository.
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+==> ERROR: PKGBUILD does not exist.
+[1;34m[aur-build][0m open-webui-bin — BUILD FAILED, continuing without it
+[1;34m[aur-build][0m quickshell-git — already built, skipping
+[1;34m[aur-build][0m spotify — already built, skipping
+[1;34m[aur-build][0m ttf-ia-writer — already built, skipping
+[1;34m[aur-build][0m ttf-nerd-fonts-symbols-mono — building via makepkg
+Cloning into 'ttf-nerd-fonts-symbols-mono'...
+warning: You appear to have cloned an empty repository.
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+==> ERROR: PKGBUILD does not exist.
+[1;34m[aur-build][0m ttf-nerd-fonts-symbols-mono — BUILD FAILED, continuing without it
+[1;34m[aur-build][0m tzupdate — already built, skipping
+[1;34m[aur-build][0m walker — already built, skipping
+[1;34m[aur-build][0m xdg-terminal-exec — already built, skipping
+[1;34m[aur-build][0m yaru-icon-theme — building via makepkg
+Cloning into 'yaru-icon-theme'...
+warning: You appear to have cloned an empty repository.
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: will change to "main" in Git 3.0. To configure the initial branch name
+hint: to use in all of your new repositories, which will suppress this warning,
+hint: call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+hint:
+hint: Disable this message with "git config set advice.defaultBranchName false"
+==> ERROR: PKGBUILD does not exist.
+[1;34m[aur-build][0m yaru-icon-theme — BUILD FAILED, continuing without it
+[1;34m[aur-build][0m zed — building via makepkg
+Cloning into 'zed'...
+==> Making package: zed 1.15.0-1 (Sun Aug  2 12:57:28 2026)
+==> Checking runtime dependencies...
+==> Checking buildtime dependencies...
+==> Installing missing dependencies...
+resolving dependencies...
+looking for conflicting packages...
+
+Package (1)  New Version  Net Change  Download Size
+
+extra/go     2:1.26.5-1   215.65 MiB      39.23 MiB
+
+Total Download Size:    39.23 MiB
+Total Installed Size:  215.65 MiB
+
+:: Proceed with installation? [Y/n] 
+:: Retrieving packages...
+ go-2:1.26.5-1-x86_64 downloading...
+checking keyring...
+checking package integrity...
+loading package files...
+checking for file conflicts...
+:: Processing package changes...
+installing go...
+:: Running post-transaction hooks...
+(1/1) Arming ConditionNeedsUpdate...
+==> Retrieving sources...
+  -> Cloning zed git repo...
+Cloning into bare repository '/tmp/tmp.iuta9555x7/zed/zed'...
+==> WARNING: Skipping verification of source file PGP signatures.
+==> Validating source files with sha256sums...
+    zed ... fatal: not a valid object name: v1.15.0
+==> ERROR: One or more files did not pass the validity check!
+[1;34m[aur-build][0m zed — BUILD FAILED, continuing without it
+[1;34m[aur-build][0m done — 27 package(s) in /vinos/iso/aurrepo
+== dropping failed AUR pkg from packages.x86_64: aichat
+== dropping failed AUR pkg from packages.x86_64: ghostty
+== dropping failed AUR pkg from packages.x86_64: k9s
+== dropping failed AUR pkg from packages.x86_64: lazykube
+== dropping failed AUR pkg from packages.x86_64: open-webui-bin
+== dropping failed AUR pkg from packages.x86_64: ttf-nerd-fonts-symbols-mono
+== dropping failed AUR pkg from packages.x86_64: yaru-icon-theme
+== dropping failed AUR pkg from packages.x86_64: zed
+[mkarchiso] INFO: Validating options...
+[mkarchiso] INFO: Done!
+[mkarchiso] INFO: mkarchiso configuration settings
+[mkarchiso] INFO:              Architecture:   x86_64
+[mkarchiso] INFO:         Working directory:   /tmp/vinos-iso-work.1020241
+[mkarchiso] INFO:    Installation directory:   arch
+[mkarchiso] INFO:                Build date:   2026-08-02T12:57+0000
+[mkarchiso] INFO:          Output directory:   /out
+[mkarchiso] INFO:        Current build mode:   iso
+[mkarchiso] INFO:               Build modes:   iso
+[mkarchiso] INFO:                   GPG key:   None
+[mkarchiso] INFO:                GPG signer:   None
+[mkarchiso] INFO: Code signing certificates:   None
+[mkarchiso] INFO:                   Profile:   /vinos/iso/profile
+[mkarchiso] INFO: Pacman configuration file:   /vinos/iso/profile/pacman.conf
+[mkarchiso] INFO:           Image file name:   vinos-2.1.0-x86_64.iso
+[mkarchiso] INFO:          ISO volume label:   VINOS_202608
+[mkarchiso] INFO:             ISO publisher:   Vin Patel <https://vinpatel.com>
+[mkarchiso] INFO:           ISO application:   vinOS Live
+[mkarchiso] INFO:                Boot modes:   bios.syslinux uefi.systemd-boot
+[mkarchiso] INFO:             Packages File:   /vinos/iso/profile/packages.x86_64
+[mkarchiso] INFO:                  Packages:   1password 1password-cli acpid adwaita-icon-theme age alacritty alsa-firmware alsa-ucm-conf alsa-utils amd-ucode apparmor apple-bcm-firmware apple-t2-audio-config arch-install-scripts arch-mact2-mirrorlist archinstall audacity audit autoconf automake avahi b43-fwcutter base base-devel bash-completion bat bcachefs-tools bibata-cursor-theme bind blueman bluetui bluez bluez-tools bluez-utils bolt brightnessctl brltty broadcom-wl btop btrfs-progs chezmoi chromium clang claude-code cliphist clonezilla cloud-init cmake containerd crun cryptsetup cups cups-browsed cups-filters cups-pdf curl darkhttpd ddrescue dhcpcd diffutils direnv dkms dmidecode dmraid dnsmasq docker docker-buildx docker-compose dosfstools dua-cli dust e2fsprogs easyeffects edk2-shell efibootmgr egl-wayland elephant emacs-nox espeakup ethtool evince exfatprogs expac eza f2fs-tools fastfetch fatresize fcitx5 fcitx5-gtk fcitx5-qt fd ffmpeg ffmpegthumbnailer firefox firejail fish fontconfig foot foot-terminfo freerdp fsarchiver fzf gcc gdb git git-lfs github-cli gnome-calculator gnome-disk-utility gnome-keyring gnome-themes-extra gnupg go gpart gparted gpm gptfdisk gpu-screen-recorder greetd greetd-tuigreet grim grml-zsh-config grub gtk4-layer-shell gum gvfs gvfs-mtp gvfs-nfs gvfs-smb hdparm helix htop hyperv hypridle hyprland hyprland-guiutils hyprlock hyprpaper hyprpicker hyprsunset imagemagick impala imv inetutils intel-lpmd intel-media-driver intel-ucode inxi irssi iw iwd jfsutils jq kdenlive kernel-modules-hook kitty-terminfo kubectl kvantum kvantum-qt5 lazydocker lazygit ldns less lftp lib32-mesa lib32-nvidia-utils libfido2 libqalculate libreoffice-fresh libsecret libusb-compat libva-intel-driver libva-mesa-driver libva-nvidia-driver libxkbcommon linux linux-atm linux-firmware linux-firmware-marvell linux-hardened linux-hardened-headers linux-headers linux-t2 linux-t2-headers livecd-sounds llvm lsof lsscsi ltrace lua luarocks lvm2 lynx macbook12-spi-driver-dkms make mako man-db man-pages mariadb-libs mc mdadm memtest86+ memtest86+-efi mesa meson mise mkinitcpio mkinitcpio-archiso mkinitcpio-nfs-utils mmc-utils modemmanager mpv mtools nano nautilus nautilus-python nbd ncdu ndisc6 neovim networkmanager nfs-utils nilfs-utils ninja nmap nodejs noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra npm nss-mdns ntfs-3g nvidia-open-dkms nvidia-utils nvme-cli obs-studio obsidian ollama-bin open-iscsi open-vm-tools openconnect openpgp-card-tools openssh openvpn pamixer papirus-icon-theme partclone parted partimage pass pavucontrol pciutils pcsclite pinta pipewire pipewire-alsa pipewire-jack pipewire-pulse pkg-config playerctl plocate plymouth pnpm podman polkit-gnome polkit-kde-agent poppler poppler-glib postgresql-libs power-profiles-daemon ppp pptpclient pv python python-anthropic python-httpx python-openai python-pip python-pipx python-poetry-core python-pydantic python-requests python-rich python-tomli python-tomli-w python-typer python-yaml qemu-guest-agent qemu-user-static-binfmt qt5-wayland qt6-wayland qt6ct quickshell-git redis refind reflector rfkill ripgrep rsync ruby runc rust rustup rxvt-unicode-terminfo satty sbctl screen sdparm sequoia-sq sg3_utils signal-desktop slurp smartmontools snapper socat sof-firmware sops spotify sqlite squashfs-tools starship strace sudo sushi swaybg swayosd syslinux system-config-printer systemd-resolvconf t2fanrd tcpdump terminus-font tesseract tesseract-data-eng testdisk thermald thunderbird tigervnc tiny-dfr tldr tlp tlp-rdw tmux tpm2-tools tpm2-tss tree-sitter-cli ttf-fira-code ttf-ia-writer ttf-inter ttf-jetbrains-mono-nerd ttf-liberation tzupdate udftools udiskie ufw ufw-docker unzip usb_modeswitch usbmuxd usbutils uwsm valgrind vim virtualbox-guest-utils-nox vpnc vulkan-intel vulkan-radeon walker waybar webp-pixbuf-loader wf-recorder wget whois wireguard-tools wireless-regdb wireless_tools wiremix wireplumber wl-clipboard woff2-font-awesome wpa_supplicant wtype wvdial xdg-desktop-portal-gtk xdg-desktop-portal-hyprland xdg-terminal-exec xdg-user-dirs xdg-utils xfsprogs xl2tpd xmlstarlet xournalpp yarn yay yq yt-dlp zellij zoxide zram-generator zsh
+[mkarchiso] INFO: Copying custom pacman.conf to work directory...
+[mkarchiso] INFO: Using pacman CacheDir: /var/cache/pacman/pkg/ 
+[mkarchiso] INFO: Copying custom airootfs files...
+[mkarchiso] INFO: Done!
+[mkarchiso] INFO: Installing packages to '/tmp/vinos-iso-work.1020241/x86_64/airootfs/'...
+==> Creating install root at /tmp/vinos-iso-work.1020241/x86_64/airootfs
+==> Installing packages to /tmp/vinos-iso-work.1020241/x86_64/airootfs
+:: Synchronizing package databases...
+ core downloading...
+ extra downloading...
+ arch-mact2 downloading...
+ vinos-aur downloading...
+error: target not found: lib32-mesa
+error: target not found: lib32-nvidia-utils
+error: target not found: python-anthropic
+error: target not found: ttf-inter
+error: target not found: ufw-docker
+error: target not found: yay
+==> ERROR: Failed to install packages to new root

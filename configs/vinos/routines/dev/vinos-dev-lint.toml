@@ -1,0 +1,68 @@
+# vinos-dev-lint — pre-commit static lint
+#
+# Runs on every commit. Local model only (no Claude escalation).
+# Blocks the commit on failure.
+
+name = "vinos-dev-lint"
+version = "1.0.0"
+description = "Static lint: shellcheck + JSON/YAML/TOML validity + attribution grep. Blocks commit on failure."
+
+[trigger]
+type = "git-hook"
+event = "pre-commit"
+scope = "staged-files"           # only lint what's being committed
+
+[model]
+route = "local-only"             # do NOT escalate to Claude — this is deterministic work
+default = "vinos-executor"       # Qwen3-Coder via LiteLLM proxy
+api_base = "http://localhost:4000"
+api_key_env = "LITELLM_MASTER_KEY"
+
+[budget]
+per_run_usd = 0.10               # local = $0, cap is a guardrail if routing goes wrong
+timeout_seconds = 60
+
+[tools]
+allow = [
+  "shell:git",
+  "shell:shellcheck",
+  "shell:jq",
+  "shell:python3",
+  "shell:grep",
+  "shell:find",
+  "file:read",
+]
+deny = [
+  "shell:rm",
+  "shell:sudo",
+  "network:*",
+  "file:write:/etc/*",
+]
+
+[sandbox]
+runtime = "bwrap"
+share = ["/tmp", "/var/tmp"]
+readonly = ["/data/projects/vinos"]
+
+[[step]]
+name = "shellcheck"
+action = "bash iso/qa/tier1-lint.sh --only shellcheck"
+on_failure = "block"
+
+[[step]]
+name = "json-yaml-toml-validity"
+action = "bash iso/qa/tier1-lint.sh --only structured"
+on_failure = "block"
+
+[[step]]
+name = "attribution-grep"
+action = "bash iso/qa/tier1-lint.sh --only attribution"
+on_failure = "block"
+
+[reporting]
+ledger = true
+notify_on_pass = false           # silent success
+notify_on_fail = "stderr"
+
+[human_checkpoint]
+required = false                 # deterministic; no ACK needed

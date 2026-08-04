@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+#
+# vinOS pre-commit hook — runs vinos-dev-lint routine before every commit.
+#
+# Install once per clone:
+#   git config core.hooksPath .githooks
+#
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+ROUTINE="${REPO_ROOT}/configs/vinos/routines/dev/vinos-dev-lint.toml"
+
+# Fast-path: if the lint harness isn't ready yet (early Phase 01), skip cleanly
+if [[ ! -x "${REPO_ROOT}/iso/qa/tier1-lint.sh" ]]; then
+  echo "pre-commit: tier1-lint.sh not present yet — skipping (Phase 03 will land it)"
+  exit 0
+fi
+
+# If vinos-routine is installed, use the routine (goes through ledger + budget)
+if command -v vinos-routine &>/dev/null; then
+  vinos-routine run "$ROUTINE" --trigger pre-commit
+  exit $?
+fi
+
+# Fallback: run the lint harness directly (before Phase 02 wires vinos-routine to git)
+"${REPO_ROOT}/iso/qa/tier1-lint.sh"

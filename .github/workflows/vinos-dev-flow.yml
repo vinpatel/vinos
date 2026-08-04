@@ -1,0 +1,102 @@
+name: vinOS Dev Flow
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Tier 1 — static lint (always runs, blocks merge) ──
+  tier1-lint:
+    name: Tier 1 · Static Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck + jq + python
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck jq python3 python3-pip
+          pip install --user pyyaml
+      - name: Run Tier 1
+        run: bash iso/qa/tier1-lint.sh
+        # If tier1-lint.sh doesn't exist yet, the fallback lints below run.
+        continue-on-error: true
+      - name: Shellcheck fallback
+        run: |
+          find install/ bin/ iso/qa/ -type f -name "*.sh" -exec shellcheck {} + || exit 1
+
+  # ── Tier 2 — container install-script test ──
+  tier2-container:
+    name: Tier 2 · Container Test
+    runs-on: ubuntu-latest
+    needs: tier1-lint
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Tier 2 harness
+        run: |
+          if [[ -x iso/qa/tier2-container.sh ]]; then
+            bash iso/qa/tier2-container.sh
+          else
+            echo "tier2-container.sh not present yet — skipping until Phase 03 lands it"
+          fi
+
+  # ── Autonomous code review (via LiteLLM proxy → Claude Sonnet) ──
+  # Runs on PRs only. Comments findings. Non-blocking; humans still ACK the merge.
+  code-review:
+    name: Autonomous Code Review
+    runs-on: ubuntu-latest
+    needs: tier1-lint
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Compute diff
+        run: |
+          git diff origin/main...HEAD > /tmp/pr.diff
+          wc -l /tmp/pr.diff
+      - name: Post review via LiteLLM
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LITELLM_MASTER_KEY: ${{ secrets.LITELLM_MASTER_KEY }}
+        run: |
+          # Placeholder: full implementation lands in Phase 02 via the autonomous flow itself.
+          # Once configs/vinos/routines/dev/vinos-dev-code-review.toml exists,
+          # this step calls: python libexec/vinos-routine-run.py vinos-dev-code-review --diff /tmp/pr.diff
+          echo "code-review routine not yet authored — Phase 02 deliverable"
+
+  # ── Arch review — fires only on install/ + iso/profile/ changes ──
+  arch-review:
+    name: Arch Review (Claude Opus)
+    runs-on: ubuntu-latest
+    needs: tier1-lint
+    if: |
+      github.event_name == 'pull_request' &&
+      contains(github.event.pull_request.changed_files, 'install/') ||
+      contains(github.event.pull_request.changed_files, 'iso/profile/')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder
+        run: echo "arch-review routine — Phase 02 deliverable"
+
+  # ── Security review — fires on SECURITY.md, install/, iso/, bin/vinos-* changes ──
+  security-review:
+    name: Security Review (Claude Opus)
+    runs-on: ubuntu-latest
+    needs: tier1-lint
+    if: |
+      github.event_name == 'pull_request' &&
+      contains(github.event.pull_request.changed_files, 'SECURITY.md') ||
+      contains(github.event.pull_request.changed_files, 'install/') ||
+      contains(github.event.pull_request.changed_files, 'bin/vinos-')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder
+        run: echo "security-review routine — Phase 02 deliverable"

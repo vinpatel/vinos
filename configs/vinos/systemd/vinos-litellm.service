@@ -1,0 +1,37 @@
+[Unit]
+Description=vinOS LiteLLM proxy — uniform model API for GSD / Hermes / dev routines
+Documentation=file:///data/projects/vinos/configs/vinos/litellm/README.md
+After=network.target ollama.service
+Wants=ollama.service
+
+[Service]
+Type=simple
+
+# Secrets — expects ANTHROPIC_API_KEY, OPENROUTER_API_KEY (optional), LITELLM_MASTER_KEY
+# in ~/.vinos-secrets/env (mode 0600).
+EnvironmentFile=%h/.vinos-secrets/env
+
+# Config lives in the repo; symlinked to ~/.litellm/config.yaml
+ExecStart=%h/.vinos-venv/bin/litellm --config %h/.litellm/config.yaml --port 4000 --host 127.0.0.1
+
+Restart=on-failure
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.litellm %h/.vinos-secrets
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+# Logs
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vinos-litellm
+
+[Install]
+WantedBy=default.target
