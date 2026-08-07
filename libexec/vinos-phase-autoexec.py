@@ -78,11 +78,11 @@ SYSTEM = """You are the vinOS autonomous phase executor.
 Read the current phase's PLAN.md and recent git commits. Propose ONE small, safe edit that advances the phase.
 
 Hard rules:
+- Your target MUST be one of the files listed in "Files not yet authored" in the user message. Do not touch anything on the "Already authored" list — that would be a regression.
 - Only edit files under .planning/ (except config.json), docs/, or root SECURITY.md / README.md / NOTICES.md.
 - NEVER touch install/, bin/, libexec/, iso/profile/, omarchy/, or configs/vinos/{default,security,mac,brand,t2,limine,systemd,litellm}/.
 - Prefer additive edits. Total content <= 500 lines.
-- If a similar edit already exists on an autonomous/* branch listed in the user message, pick a DIFFERENT task or different file. Do not resubmit the same proposal.
-- If nothing safe advances the plan, return action=skip.
+- If the "Files not yet authored" list is empty, return action=skip with reason="phase targets complete".
 - Return ONLY valid JSON — no prose, no code fences.
 
 JSON shape:
@@ -164,6 +164,52 @@ def path_allowed(path: str) -> bool:
     return any(re.match(p, path) for p in ALLOWED_PATH_PATTERNS)
 
 
+DONE_MIN_LINES = 20
+
+
+def phase_targets(phase_dir: str) -> tuple[list[str], list[str]]:
+    """Parse the phase PLAN.md frontmatter files_modified list and split it
+    into (done, todo) based on which target files already have substantive
+    content. Filters out any path autoexec is not allowed to touch anyway.
+
+    A file counts as "done" if it exists AND has >= DONE_MIN_LINES lines —
+    otherwise it's a stub or missing and belongs on the todo list.
+    """
+    plan_path = REPO / ".planning/phases" / phase_dir / "PLAN.md"
+    if not plan_path.is_file():
+        return [], []
+    plan = plan_path.read_text()
+
+    m = re.search(r"<frontmatter>(.*?)</frontmatter>", plan, re.DOTALL)
+    if not m:
+        return [], []
+    fm = m.group(1)
+
+    fstart = fm.find("files_modified:")
+    if fstart < 0:
+        return [], []
+
+    targets: list[str] = []
+    for line in fm[fstart:].splitlines()[1:]:
+        stripped = line.strip()
+        if stripped.startswith("- "):
+            targets.append(stripped[2:].strip())
+        elif stripped and not line.startswith(" "):
+            break
+
+    done: list[str] = []
+    todo: list[str] = []
+    for t in targets:
+        if not path_allowed(t):
+            continue
+        p = REPO / t
+        if p.is_file() and len(p.read_text().splitlines()) >= DONE_MIN_LINES:
+            done.append(t)
+        else:
+            todo.append(t)
+    return done, todo
+
+
 def call_model(system: str, user: str) -> str:
     body = {
         "model": MODEL,
@@ -224,19 +270,27 @@ def main() -> int:
     if not phase_dir:
         log("skipped", reason="no phase dir with PLAN.md found")
         return 0
+    done, todo = phase_targets(phase_dir)
+    if not todo:
+        log("skipped", reason=f"phase {phase_dir} targets complete", done=len(done))
+        return 0
+
     plan_full = (REPO / ".planning/phases" / phase_dir / "PLAN.md").read_text()
-    # Prefer the Tasks section — that's where the actionable list lives.
     tasks_start = plan_full.find("## Tasks")
     plan = plan_full[tasks_start:tasks_start + MAX_PLAN_CHARS] if tasks_start >= 0 else plan_full[:MAX_PLAN_CHARS]
     commits = recent_commits()
-
     proposals = existing_proposals()
+
+    todo_str = "\n".join(f"- {t}" for t in todo)
+    done_str = "\n".join(f"- {t}" for t in done[:10]) or "(nothing yet)"
 
     user_msg = (
         f"Active phase directory: {phase_dir}\n\n"
+        f"Files not yet authored — pick ONE of these:\n{todo_str}\n\n"
+        f"Already authored (do NOT touch — that's a regression):\n{done_str}\n\n"
+        f"Autonomous branches already proposed:\n{proposals}\n\n"
         f"Recent commits (newest first):\n{commits}\n\n"
-        f"Autonomous branches already proposed — pick something DIFFERENT:\n{proposals}\n\n"
-        f"Phase PLAN.md (truncated):\n{plan}\n\n"
+        f"PLAN.md tasks section (for context):\n{plan}\n\n"
         "Return your JSON proposal now — nothing else."
     )
 
@@ -266,6 +320,9 @@ def main() -> int:
         return 2
     if not path_allowed(path):
         log("path_denied", path=path)
+        return 2
+    if path not in todo:
+        log("path_not_in_todo", path=path, todo=todo)
         return 2
 
     content = proposal.get("content", "")
