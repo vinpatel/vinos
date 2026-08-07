@@ -1,0 +1,10 @@
+NAME=vinOS
+PRETTY_NAME="vinOS @VERSION@ Live"
+ID=vinos
+VERSION="@VERSION@"
+VERSION_ID=@VERSION@
+BUILD_ID=@BUILD_ID@
+HOME_URL="https://vinos.computer/"
+DOCUMENTATION_URL="https://vinos.computer/docs"
+BUG_REPORT_URL="https://github.com/vinpatel/vinos/issues"
+LIVE=1

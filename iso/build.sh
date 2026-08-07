@@ -109,19 +109,7 @@ docker run --rm --privileged \
     unset VINOS_ROOT
 
     echo '== stamping /etc/vinos-release =='
-    mkdir -p \$AIROOT/etc
-    cat > \$AIROOT/etc/vinos-release <<VINOSREL
-NAME=vinOS
-PRETTY_NAME="vinOS $VINOS_VERSION Live"
-ID=vinos
-VERSION="$VINOS_VERSION"
-VERSION_ID=$VINOS_VERSION
-BUILD_ID=\$(date -u +%Y%m%dT%H%M%SZ)
-HOME_URL="https://vinos.computer/"
-DOCUMENTATION_URL="https://vinos.computer/docs"
-BUG_REPORT_URL="https://github.com/vinpatel/vinos/issues"
-LIVE=1
-VINOSREL
+    AIROOT=\$AIROOT bash /vinos/iso/stamp-release.sh
 
     echo '== applying live-only airootfs overlay =='
     rsync -a /vinos/iso/airootfs-overlay/ \$AIROOT/
