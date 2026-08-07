@@ -8,7 +8,6 @@
 set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-ROUTINE="${REPO_ROOT}/configs/vinos/routines/dev/vinos-dev-lint.toml"
 
 # Fast-path: if the lint harness isn't ready yet (early Phase 01), skip cleanly
 if [[ ! -x "${REPO_ROOT}/iso/qa/tier1-lint.sh" ]]; then
@@ -16,11 +15,7 @@ if [[ ! -x "${REPO_ROOT}/iso/qa/tier1-lint.sh" ]]; then
   exit 0
 fi
 
-# If vinos-routine is installed, use the routine (goes through ledger + budget)
-if command -v vinos-routine &>/dev/null; then
-  vinos-routine run "$ROUTINE" --trigger pre-commit
-  exit $?
-fi
-
-# Fallback: run the lint harness directly (before Phase 02 wires vinos-routine to git)
+# Run tier1-lint directly. The vinos-routine wrapping planned in PLAN-2026-08-03
+# expects a routine schema (trigger/step) that libexec/vinos-routine-run.py does
+# not yet parse — so we skip that indirection until schemas converge.
 "${REPO_ROOT}/iso/qa/tier1-lint.sh"
