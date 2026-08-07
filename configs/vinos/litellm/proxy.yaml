@@ -45,6 +45,16 @@ model_list:
   #     api_base: http://localhost:11434
   #     timeout: 300
 
+  # kimi-code (Kimi-Linear-48B-A3B) shelved: llama.cpp does not yet support the
+  # kimi-linear architecture, so no Ollama version will run it — see llama.cpp#26185.
+  # DeepSeek-Coder-V2 Lite gives us the equivalent profile (16B MoE, 2.4B active).
+
+  - model_name: vinos-autoexec           # autonomous phase executor (DeepSeek-V2 Lite MoE, ~2.4B active/token)
+    litellm_params:
+      model: ollama_chat/deepseek-coder-v2:16b-lite-instruct-q4_0
+      api_base: http://localhost:11434
+      timeout: 900
+
   # ─── Anthropic (the 20% path) ──────────────────────────────────────────
   # Planner, reviewer, security review, one-way commits.
 
@@ -111,8 +121,9 @@ litellm_settings:
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
-  database_url: sqlite:////home/vinpatel/.litellm/telemetry.db
-  disable_spend_logs: false
+  # No database_url — local dev doesn't need LiteLLM's spend DB (would require PostgreSQL).
+  # Spend tracking lives in ~/.vinos/dev-flow-ledger.sqlite via libexec/vinos-routine-run.py.
+  disable_spend_logs: true
   ui_username: vinos
   # Budget guard: hard-stop if the daily spend hits the ceiling
   max_budget: 20                          # USD, resets daily

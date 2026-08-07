@@ -1,0 +1,20 @@
+[Unit]
+Description=vinOS autonomous phase execution
+After=network-online.target ollama.service vinos-litellm.service
+Requires=vinos-litellm.service
+Wants=ollama.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=-%h/.vinos-secrets/env
+Environment=HOME=%h
+# CPU-only inference — DeepSeek-V2 Lite MoE (16B/2.4B active) hits 27 tok/s on CPU
+# vs 9 tok/s for qwen 7B dense, and produces higher-quality edits.
+Environment=VINOS_AUTOEXEC_MODEL=vinos-autoexec
+WorkingDirectory=/data/projects/vinos
+ExecStart=/usr/bin/python3 /data/projects/vinos/libexec/vinos-phase-autoexec.py
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vinos-autoexec
+# Sanity timeout — model call bounded by MODEL_TIMEOUT_S=900 in Python
+TimeoutStartSec=1200

@@ -1,0 +1,12 @@
+[Unit]
+Description=vinOS autonomous phase execution schedule
+
+[Timer]
+# Every 2 hours, on the even hour. Reliable + predictable + easy to reason about.
+OnCalendar=*-*-* 00/2:00:00
+Persistent=true
+RandomizedDelaySec=3min
+Unit=vinos-autoexec.service
+
+[Install]
+WantedBy=timers.target

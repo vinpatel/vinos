@@ -1,0 +1,51 @@
+# dev-heartbeat — every 30 min, log where dev stands.
+# Pure Ollama path. Works today without any cloud key.
+[routine]
+name = "dev-heartbeat"
+description = "Every 30m: current phase, recent commits, blockers"
+enabled = true
+
+[schedule]
+oncalendar = "*:0/30"
+timezone   = "local"
+jitter     = "2m"
+
+[agent]
+route = "ollama"
+model = "qwen3-coder:30b"
+system = """
+You are the vinOS development heartbeat. Give the founder a 60-second read
+on where the project stands *right now*. No fluff, no preamble.
+
+Return markdown with exactly three sections:
+
+## State
+2 bullets pulled from .planning/STATE.md: current phase + baseline version.
+
+## Since last heartbeat
+2-4 bullets from `git log`: what commits landed. If none, say "no new commits".
+
+## Attention
+1-2 bullets: uncommitted work in `git status`, or blockers you can infer.
+If nothing to flag, say "clean tree, no blockers detected".
+
+Total ≤ 200 words. No sign-off.
+"""
+
+tools = [
+  "read:/data/projects/vinos/.planning/STATE.md",
+  "shell:git log --oneline -10",
+  "shell:cd /data/projects/vinos && git status --short",
+]
+shell_timeout_sec = 15
+network = false
+
+[output]
+type   = "brief"
+title  = "Heartbeat · {{date}}"
+notify = false
+
+[budget]
+max_tokens_per_run  = 1500
+max_dollars_per_day = 0.00
+on_exceed = "skip"
