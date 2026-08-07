@@ -26,6 +26,8 @@ declare -i FAILS=0
 MODE="${1:-all}"
 if [[ "$MODE" == "--only" ]]; then
   MODE="${2:-all}"
+elif [[ "$MODE" == "--all" ]]; then
+  MODE="all"
 fi
 
 log()  { echo -e "$*" >&2; }
@@ -62,21 +64,25 @@ run_shellcheck() {
 run_structured() {
   log "── structured file validity ──"
 
-  # JSON
-  local json_files json_errors=0
-  mapfile -t json_files < <(
-    find .planning/ configs/vinos/ .github/ -type f -name "*.json" 2>/dev/null | \
-    grep -v -E "/node_modules/|/omarchy/" || true
-  )
-  for f in "${json_files[@]}"; do
-    # Allow comments starting with $comment (JSON-with-comments convention we use)
-    if ! jq . "$f" >/dev/null 2>&1; then
-      fail "invalid JSON: $f"
-      json_errors+=1
+  # JSON — needs jq; skip cleanly if missing (matches shellcheck/yaml pattern)
+  if ! command -v jq >/dev/null 2>&1; then
+    skip "JSON: jq not installed (pacman -S jq)"
+  else
+    local json_files json_errors=0
+    mapfile -t json_files < <(
+      find .planning/ configs/vinos/ .github/ -type f -name "*.json" 2>/dev/null | \
+      grep -v -E "/node_modules/|/omarchy/" || true
+    )
+    for f in "${json_files[@]}"; do
+      # Allow comments starting with $comment (JSON-with-comments convention we use)
+      if ! jq . "$f" >/dev/null 2>&1; then
+        fail "invalid JSON: $f"
+        json_errors+=1
+      fi
+    done
+    if [[ $json_errors -eq 0 && ${#json_files[@]} -gt 0 ]]; then
+      ok "JSON: ${#json_files[@]} files valid"
     fi
-  done
-  if [[ $json_errors -eq 0 && ${#json_files[@]} -gt 0 ]]; then
-    ok "JSON: ${#json_files[@]} files valid"
   fi
 
   # YAML — needs pyyaml; skip cleanly if missing (matches shellcheck pattern)
@@ -99,20 +105,24 @@ run_structured() {
     fi
   fi
 
-  # TOML
-  local toml_files toml_errors=0
-  mapfile -t toml_files < <(
-    find configs/vinos/ -type f -name "*.toml" 2>/dev/null | \
-    grep -v -E "/omarchy/" || true
-  )
-  for f in "${toml_files[@]}"; do
-    if ! python3 -c "import tomllib,sys; tomllib.load(open('$f','rb'))" 2>/dev/null; then
-      fail "invalid TOML: $f"
-      toml_errors+=1
+  # TOML — needs python3 with tomllib (3.11+); skip cleanly if missing
+  if ! python3 -c "import tomllib" 2>/dev/null; then
+    skip "TOML: python3 tomllib not available (need Python 3.11+ with tomllib)"
+  else
+    local toml_files toml_errors=0
+    mapfile -t toml_files < <(
+      find configs/vinos/ -type f -name "*.toml" 2>/dev/null | \
+      grep -v -E "/omarchy/" || true
+    )
+    for f in "${toml_files[@]}"; do
+      if ! python3 -c "import tomllib,sys; tomllib.load(open('$f','rb'))" 2>/dev/null; then
+        fail "invalid TOML: $f"
+        toml_errors+=1
+      fi
+    done
+    if [[ $toml_errors -eq 0 && ${#toml_files[@]} -gt 0 ]]; then
+      ok "TOML: ${#toml_files[@]} files valid"
     fi
-  done
-  if [[ $toml_errors -eq 0 && ${#toml_files[@]} -gt 0 ]]; then
-    ok "TOML: ${#toml_files[@]} files valid"
   fi
 }
 

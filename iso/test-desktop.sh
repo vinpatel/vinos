@@ -77,13 +77,17 @@ docker run --rm "${KVM_ARGS[@]}" \
   '
 
 # Convert to PNG for easy inspection using the archlinux image with
-# imagemagick — the tester image likely does not have magick.
+# imagemagick. Full -Syu because a stale archlinux:latest cache layer
+# can carry a glibc older than what current imagemagick expects
+# (seen in the wild: 'GLIBC_2.44 not found' with -Sy but not -Syu).
+# `|| true` on the block so a converter blip never fails the smoke test —
+# the PPMs are the primary artifact, PNGs are nice-to-have.
 docker run --rm -v "$OUT":/out archlinux:latest bash -c '
-  pacman -Sy --noconfirm imagemagick >/dev/null 2>&1
+  pacman -Syu --noconfirm imagemagick >/dev/null 2>&1
   for f in /out/desktop-*.ppm; do
-    magick "$f" "${f%.ppm}.png" && echo "  converted $(basename "${f%.ppm}.png")"
+    magick "$f" "${f%.ppm}.png" 2>&1 | tail -2 && echo "  converted $(basename "${f%.ppm}.png")"
   done
-'
+' || true
 
 log "PNGs at $OUT/desktop-*.png"
 ls -la "$OUT"/desktop-*.png
