@@ -14,7 +14,7 @@ enableGitInfo = false
   isoURL        = "https://github.com/vinpatel/vinos/releases/latest"
   sponsorGH     = "https://github.com/sponsors/vinpatel"
   sponsorOC     = "https://opencollective.com/vinos"
-  version       = "2.0.5"
+  version       = "1.0.19"
   accent        = "#33ccff"
   accent2       = "#bb9af7"
   # 80/20 router — headline economics used on /models/ and /routines/

@@ -118,9 +118,9 @@ log "03-configs: [Layer 2] applying vinOS overlay from configs/vinos/"
 #     Super+R → routines, etc.) without replacing Omarchy's defaults.
 _deploy_dir "$VINOS_SRC/default/hypr"            /etc/skel/.config/hypr
 
-# 2b. Waybar override — the AI status pill + brand accent #33ccff.
-#     Overrides Omarchy's default waybar so vinOS chrome ships instead.
-_deploy_dir "$VINOS_SRC/default/waybar"          /etc/skel/.config/waybar
+# NOTE: bar (waybar) override deploy moved to install/02-desktop.sh —
+# the graphical module. Rule 1 (see tests/test.sh) refuses graphical
+# operations outside 02-desktop.sh + 06-hardware.sh.
 
 # 2b. Mako override — vinOS routines notification channel.
 if [[ -f "$VINOS_SRC/default/mako/config" ]]; then

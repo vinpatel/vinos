@@ -129,4 +129,17 @@ else
   systemctl_enable greetd
 fi
 
+# bar (waybar) override — vinOS chrome ships instead of the stock. Deploy
+# here (not in 03-configs.sh) because Rule 1 makes 02-desktop.sh the only
+# script allowed to touch graphical config paths. Skipped when
+# configs/vinos/default/waybar is absent (defensive).
+_vinos_src_bar="$REPO/configs/vinos/default/waybar"
+if [[ -d "$_vinos_src_bar" ]]; then
+  _bar_dest="$(_rootpath /etc/skel/.config/waybar)"
+  _sudo install -d -m 0755 "$_bar_dest"
+  log "02-desktop: waybar/ → /etc/skel/.config/waybar/"
+  _sudo rsync -a --exclude='.git' "$_vinos_src_bar/" "$_bar_dest/"
+fi
+unset _vinos_src_bar _bar_dest
+
 log "02-desktop: done"

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # vinos-theme-set — apply an installed theme by name. vinOS-branded
-# passthrough to omarchy-theme-set (unmodified Omarchy MIT script).
-# See NOTICES.md for the heritage.
+# passthrough to omarchy-theme-set (unmodified Omarchy MIT script). See NOTICES.md for heritage.
 set -euo pipefail
 exec omarchy-theme-set "$@"
