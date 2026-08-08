@@ -41,6 +41,214 @@ Two personas, two distros, one brand, one runtime API:
 
 ---
 
+## Menu system design (`vinos-dev` UX layer)
+
+Three tiers of navigation, one visual language, keyboard-first with mouse-optional:
+
+### Tier 1 — App launcher (Super+Space)
+
+**Backend:** `walker` (already in v1.1.0). Fuzzy-search text-mode launcher — fast, keyboard-first.
+
+- Type to filter apps, files, shell commands, math, emojis, symbols, clipboard history, websearches
+- Sub-100 ms response — walker is Go-based, native Wayland
+- One row per result with Nerd Font icon + name + subtle secondary text
+- Enter = launch, Ctrl+Enter = launch in terminal, Alt+Enter = launch as root
+
+**Configured for beauty:**
+```
+window {
+  gtk-halign = center
+  gtk-valign = center
+  width = 720
+  margin_top = 200
+}
+list {
+  height = 400
+  max_entries = 12
+  scrollbar_policy = never
+}
+theme = vinos-aurora   # matches Hyprland border gradient
+```
+
+### Tier 2 — Visual app grid (Super+Ctrl+Space)
+
+**Backend:** `nwg-drawer` — full-screen icon grid, macOS Launchpad-style. **MISSING in v1.1.0.**
+
+- Full-screen background blur (Hyprland decoration passes through)
+- Grid of every installed `.desktop` app with big icons
+- Type-to-filter narrows down in-place
+- Arrow keys or mouse-hover to select
+- Escape = dismiss without launching
+- Categorized rows (Development, Media, Games, Utilities, etc.) driven by XDG category
+- Recent apps pinned to first row
+
+**Why both Tier 1 + Tier 2:** power users hit Super+Space and type; visual users hit Super+Ctrl+Space and click. Same app set, two entry points. Discoverability wins.
+
+### Tier 3 — vinOS menu (Super+Alt+Space)
+
+**Backend:** `walker -m menu` with a custom vinOS menu tree fed from `/usr/lib/vinos/menu/root.json`.
+
+The full tree — every setting, action, and toggle reachable in ≤ 3 keystrokes:
+
+```
+vinOS ⌘
+├── 🖥  Apps                     → nwg-drawer
+├── ⚙  System
+│   ├── 📶 WiFi                  → impala (TUI)
+│   ├── 🔵 Bluetooth             → bluetui
+│   ├── 🔊 Audio                 → pavucontrol / wiremix
+│   ├── 🖥  Displays              → nwg-displays + vinos-hyprland-monitor-*
+│   ├── ⚡ Power profile          → power-profiles-daemon (perf | balanced | saver)
+│   ├── 🔒 Lock                   → hyprlock
+│   ├── 🔁 Restart                → systemctl reboot
+│   └── ⏻ Shutdown                → systemctl poweroff
+├── 🤖 AI
+│   ├── 💬 Claude Code           → foot -e claude
+│   ├── 🧠 Local models          → ollama list / pull / rm submenu
+│   ├── 🔌 MCP servers           → vinos-mcp list / add / remove submenu
+│   ├── 🎛  LiteLLM proxy         → status + restart + logs
+│   └── 📜 Recent sessions       → journalctl -u claude-code
+├── 🪟 Windows
+│   ├── ◇  Toggle transparency   → vinos-hyprland-window-transparency-toggle
+│   ├── ▨  Toggle gaps            → vinos-hyprland-window-gaps-toggle
+│   ├── ⬜  Toggle borders         → vinos-hyprland-toggle-disabled/enabled
+│   ├── ⛶  Fullscreen             → hyprctl dispatch fullscreen
+│   ├── ▧  Float / Center          → vinos-hyprland-window-single-square-aspect-toggle
+│   └── ✕  Close all               → vinos-hyprland-window-close-all
+├── 📸 Capture
+│   ├── ✂  Screenshot (region)   → grim -g "$(slurp)" | satty
+│   ├── 🪟 Screenshot (window)    → grim -g "$(hyprctl activewindow -j | jq …)" | wl-copy
+│   ├── 🖼  Screenshot (screen)   → grim | wl-copy
+│   ├── 🎥 Record screen         → wf-recorder → ~/Videos/
+│   └── 📝 OCR clipboard         → vinos-capture-text-extraction
+├── 🎨 Theme
+│   ├── ✨ Aurora (current)
+│   ├── ❄  Nord
+│   ├── 🍂 Gruvbox Dark
+│   ├── 🌸 Catppuccin
+│   └── 🖼  Wallpaper pick        → nwg-look wallpaper submenu
+├── 📁 Files
+│   ├── 🏠 Home                   → nautilus ~
+│   ├── ⬇  Downloads              → nautilus ~/Downloads
+│   ├── 💻 Projects               → nautilus ~/projects
+│   └── 🕰  Recent                 → xdg-open recent list
+├── 🛠  Development
+│   ├── ➕ New project            → git clone prompt
+│   ├── 📂 Recent projects       → foot in most-recent workdir
+│   ├── 🐳 Containers             → podman ps → picker
+│   ├── 📦 Distrobox              → distrobox list → enter
+│   └── ⌨  Terminal               → foot
+├── ❓ Help
+│   ├── ⌨  Keybindings            → vinos-cheatsheet
+│   ├── 🩺 Doctor                 → foot -e vinos-doctor
+│   └── ℹ  About                  → vinos-about
+└── ⎋ Session
+    ├── 🔒 Lock                   → hyprlock
+    ├── 💤 Sleep                  → systemctl suspend
+    ├── 🚪 Log out                → hyprctl dispatch exit
+    ├── 🔁 Restart                → systemctl reboot
+    └── ⏻ Shutdown                → systemctl poweroff
+```
+
+**Navigation:**
+- `/` to fuzzy-search across the entire tree (jumps directly to matching leaf)
+- `hjkl` or arrows to navigate
+- Enter to descend or execute
+- `Escape` to go back one level (or dismiss at root)
+- `Backspace` also goes back
+- Number keys `1-9` jump to that entry's position on the current level
+
+**Visual consistency across all three tiers:**
+
+| Attribute | Value |
+|---|---|
+| Rounded corners | 12px (matches Hyprland `decoration.rounding`) |
+| Background | 90 % opacity, blurred (`decoration.blur.enabled`) |
+| Accent color | `#33ccff` gradient → `#bb9af7` (matches Hyprland border) |
+| Font (UI) | Inter (`inter-font`) |
+| Font (mono) | JetBrains Mono Nerd (already shipped) |
+| Icon theme | Yaru (already shipped) |
+| Icon size | 32px in grid, 20px in list |
+| Selected animation | 200 ms cubic-bezier ease-out (matches `animation = layers` config) |
+
+### Missing Hyprland packages — what to add for v1.2.0
+
+v1.1.0 ships **hyprland, hypridle, hyprlock, hyprpicker, hyprsunset, hyprland-guiutils, xdg-desktop-portal-hyprland**. To hit the menu design above + fully-baked Hyprland experience:
+
+**Category A — official Hyprland pkgs we should add (all in Arch official):**
+| Package | Purpose | Why we need it |
+|---|---|---|
+| `hyprcursor` | Cursor theme system (successor to Xcursor) | Config already sets `HYPRCURSOR_THEME` and `HYPRCURSOR_SIZE` but the loader isn't installed — cursor is silently falling back to Xcursor |
+| `hyprpolkitagent` | Native Hyprland polkit agent | Replace `polkit-gnome` for cleaner integration + fewer GTK deps |
+| `hyprshot` | Screenshot helper wrapping grim+slurp | Simpler than the current hand-wired grim+slurp+satty pipeline; keeps the good parts optional |
+| `hyprutils` | Common utility library | Currently pulled in as a transitive dep; making it explicit avoids surprise breakage |
+| `hyprwayland-scanner` | Wayland protocol scanner | Needed if we ever compile Hyprland plugins locally |
+| `hyprland-protocols` | Extra Wayland protocol definitions | Enables newer Hyprland IPC features |
+| `hyprland-qtutils` | Qt helper utilities for Hyprland | Better Qt app integration (settings dialogs) |
+| `hyprpm` | Official Hyprland plugin manager | Users can `hyprpm add <plugin>` — parity with modern Hyprland workflow |
+
+**Category B — Hyprland ecosystem plugins (via `hyprpm` or AUR):**
+| Package | Purpose |
+|---|---|
+| `hyprexpo` | Workspaces overview (macOS Mission Control-style — Super+Tab shows all workspaces as a grid). Big UX win. |
+| `hyprbars` | Optional title bars for floating windows |
+| `hyprsplit` | Per-monitor workspace groups |
+| `hyprgrass` | Touch gesture support (three-finger swipe → workspace, pinch → overview) — relevant on T2 MacBooks |
+| `hyprscroller` | Scrollable tiling layout (PaperWM-style alternative to dwindle) |
+| `hyprdim` | Dim unfocused windows |
+
+**Category C — menu/drawer/notifier packages (Arch official):**
+| Package | Purpose |
+|---|---|
+| **`nwg-drawer`** | Full-screen visual app grid (Super+Ctrl+Space Tier 2 backend) — **NEW, required** |
+| **`nwg-displays`** | GUI display config for the vinOS menu → System → Displays entry — **NEW, required** |
+| **`nwg-look`** | GTK theme switcher for vinOS menu → Theme submenu — **NEW, required** |
+| **`swaync`** | Sway/Hyprland notification center with a settings-panel UX — **replaces mako for the "control center" feel**. Mako stays for headless/minimal setups; swaync is the dev-persona default. |
+| **`wlogout`** | Beautiful logout screen (Session → Log out enters this) — **NEW, required** |
+| **`fuzzel`** | Backup launcher (fallback if walker has issues) — **NEW, optional** |
+| **`inter-font`** | UI font — matches the visual language spec above — **NEW, required** |
+
+**Category D — clipboard / capture / recording (Arch official):**
+| Package | Purpose |
+|---|---|
+| **`cliphist`** | Clipboard history — feeds walker's clipboard mode — **NEW, required** |
+| **`wl-clip-persist`** | Keep clipboard contents after closing source app — quality-of-life — **NEW, required** |
+| **`wf-recorder`** | Screen recorder — feeds Capture → Record screen — **NEW, required** |
+| **`grimblast`** | Higher-level screenshot wrapper (Hyprland-aware) — **NEW, optional** |
+| **`ydotool`** | Wayland-native key/mouse automation (xdotool successor) — needed by some Claude Code MCP tools — **NEW, required** |
+| **`wtype`** | Simpler text-input tool — **NEW, optional** |
+
+**Category E — animated wallpaper (choose one):**
+| Package | Notes |
+|---|---|
+| `swww` | Animated wallpaper daemon with transition effects. Fits the "beautiful" ask. |
+| `hyprpaper` | Official Hyprland static wallpaper daemon. Simpler, more stable. |
+| `mpvpaper` | Video wallpapers via mpv. Heavier. |
+| ~~`swaybg`~~ | Current in v1.1.0. Solid but static-only. |
+
+**Recommendation:** switch to `swww` — supports smooth transitions when theme changes trigger a wallpaper swap, and has been proven stable on Hyprland since 0.30+.
+
+### Menu implementation approach
+
+- **Menu tree source:** `/usr/lib/vinos/menu/root.json` (declarative, hand-editable, PR-friendly)
+- **Renderer:** `walker -m vinos-menu` reads the JSON, feeds walker's menu mode
+- **Icons:** Nerd Font glyphs where terminal-friendly, Yaru SVG icons where walker renders them
+- **Themes:** menu accent/blur follows the currently-selected vinOS theme — theme swap re-renders the menu automatically
+- **Extensibility:** users can drop files into `~/.config/vinos/menu/*.json` to add custom entries (per-user personalization without forking the system menu)
+
+### What ships as v1.2.0 Phase A2 ("`vinos-menu` binding activation")
+
+1. Add all Category A, C, D packages to `packages.x86_64`
+2. Ship `hyprpm add hyprexpo` in `install/first-run/` (Category B plugin — opt-in via first-run wizard)
+3. Write `/usr/lib/vinos/menu/root.json` with the tree above
+4. Bind Super+Space → walker · Super+Ctrl+Space → nwg-drawer · Super+Alt+Space → walker -m vinos-menu
+5. Style walker + nwg-drawer + swaync + wlogout with the vinos-aurora theme (CSS drop-ins)
+6. Test each menu path in QEMU with `iso/test-desktop.sh` screendumps
+
+Package delta from v1.1.0 for this feature: **+18 packages, all Arch official, ~40 MB total**. No AUR beyond what v1.1.0 already ships.
+
+---
+
 ## Persona 2 — `vinos-vm` (Ubuntu 24.04 LTS cloud worker)
 
 ### 2.1 Base
@@ -201,6 +409,11 @@ write_files:
       VINOS_ORCHESTRATOR_URL=https://af.example.com
       VINOS_ORCHESTRATOR_TOKEN=<vault-reference>
       VINOS_WORKER_LABELS=gpu=false,region=us-east-1
+      VINOS_RUNNER=claude              # or: codex | aider | custom
+      VINOS_RUNNER_MODEL=opus-4-7
+      # For air-gapped mode with local models only:
+      #   VINOS_RUNNER=aider
+      #   VINOS_RUNNER_MODEL=ollama/qwen3-coder:30b
 ```
 
 That's it. VM is agent-ready in ~30-45 s.
@@ -225,6 +438,62 @@ That's it. VM is agent-ready in ~30-45 s.
 - **Size discipline:** post-build `debfoster --autoremove` + `apt clean` + `journalctl --vacuum-time=1s` + zero-fill unused blocks before qcow2 compression. Target < 800 MB compressed.
 
 ---
+
+## Two-tier model architecture
+
+vinOS operates on a **frontier-decides / local-grinds** split, not a single-model story:
+
+| Tier | Runtime | Cost | Role |
+|---|---|---|---|
+| **Frontier** | Claude Code (Anthropic API) | pay per token | Plans, reviews, decides, handles novel work, orchestrates. Small call volume, high per-call value. |
+| **Workhorse** | Ollama local (Qwen3-Coder / DeepSeek-Coder / Kimi) | free after hardware | Grinds bulk mechanical work — apply N similar fixes, refactor M files, generate boilerplate, run background code review. High call volume, low per-call value. |
+
+**On `vinos-dev`:**
+- Ollama ships preinstalled. First-run wizard offers to download a starter model (Qwen3-Coder 30B recommended). No models preloaded in the ISO — would bloat by 18-30 GB.
+- **LiteLLM proxy** at `http://localhost:4000/v1` fronts both Anthropic and Ollama with named roles: `vinos-planner` / `vinos-reviewer` / `vinos-architect` route to Claude; `vinos-executor` / `vinos-checker` / `vinos-autoexec` route to local models. Apps target one endpoint; the proxy decides.
+- Waybar AI pill shows both tiers' status side-by-side (Claude session activity + local model presence + today's approximate spend).
+
+**On `vinos-vm`:**
+- Local models are **opt-in only** (`vinos install ai-local`). Most cloud VMs have no GPU — CPU inference on a 30B model is unusable for real work.
+- GPU-equipped instances (AWS g5, GCP A100, Hetzner GPU boxes) get local inference automatically once enabled.
+- **Air-gapped mode:** setting `VINOS_RUNNER=aider --model ollama/qwen3-coder:30b` makes the VM never hit the Anthropic API — everything local. Useful for compliance / on-prem / paranoid deployments.
+
+## Runner adapter interface
+
+vinOS is **runner-agnostic at the OS layer.** Claude Code ships as the default because it's the best headless agentic CLI in 2026, but the worker doesn't hard-code it. Users swap runners with one env var; new runners land as ~150 lines of bash each.
+
+**Config:** `/etc/vinos/agent.env`
+```
+VINOS_RUNNER=claude              # or: codex | aider | custom
+VINOS_RUNNER_MODEL=opus-4-7      # runner-specific model name
+```
+
+**Adapter files** at `/usr/lib/vinos/runners/`:
+```
+claude.sh    # default — wraps `claude -p ... --output-format stream-json`
+codex.sh     # OpenAI Codex CLI adapter
+aider.sh     # aider adapter (supports local Ollama models directly)
+custom.sh    # documented template for user-written adapters
+```
+
+**Every adapter implements 4 verbs:**
+
+| Verb | Contract |
+|---|---|
+| `runner_check` | Is the CLI installed + authenticated? Return 0 = ready, non-zero = missing/broken with stderr diag |
+| `runner_run <prompt_file> <workspace> <mission_id>` | Execute mission, stream `event\t<json>` lines to stdout, exit 0 on success |
+| `runner_cancel <mission_id>` | Graceful stop of an in-flight mission (SIGTERM the process tree, 30 s grace, then SIGKILL) |
+| `runner_capabilities` | Emit JSON listing what this runner supports (`streaming`, `mcp`, `tool_use`, `subagents`, `file_edit`) so missions can advertise required capabilities |
+
+The worker (`vinos agent run`) sources the configured adapter, invokes `runner_run`, and forwards the streamed events to the orchestrator. It doesn't know or care which runner is active.
+
+**Why this matters:**
+- If Anthropic changes pricing / policy / product direction, swap runners with one env var
+- Compliance customers who require "no external API" get an air-gapped mode for free
+- New agentic CLIs get first-class support without a codebase rewrite
+- MCP servers are shared across all runners (MCP is now cross-vendor), so the tool surface is portable
+
+**Claude stays the shipped default because it wins on:** best-in-class headless mode, MCP-native, prompt caching (~90 % cost reduction on repeated context), 1M context on Opus, enterprise compliance (SOC 2, HIPAA, ISO 27001) already attested. But we're not locked to it.
 
 ## The `vinos` CLI — light, memorable, POSIX
 
@@ -309,8 +578,9 @@ vinos-agent-worker.service (~30-45 s total elapsed)
   │   ├── if empty → sleep 30 s → repeat
   │   └── if mission →
   │       ├── materialize to /var/lib/vinos/work/<mission_id>/
-  │       ├── spawn `claude -p "$MISSION_PROMPT" --output-format stream-json` in sandbox
-  │       ├── stream logs to journal + POST /missions/<id>/logs
+  │       ├── source /usr/lib/vinos/runners/${VINOS_RUNNER:-claude}.sh
+  │       ├── runner_run $PROMPT $WORKSPACE $MISSION_ID   # adapter drives Claude Code / Codex / Aider / etc.
+  │       ├── stream events (JSON per line) to journal + POST /missions/<id>/logs
   │       ├── on completion: POST /missions/<id>/result with git diff + artifacts
   │       └── mark done, poll next
 ────────────────────────────────────────────────────────────────
@@ -372,12 +642,19 @@ WantedBy=multi-user.target
 Content that lives in **both** `.pkg.tar.zst` for dev and `.deb` for vm, from the same source tree:
 
 - `/usr/bin/vinos` — top-level dispatcher
-- `/usr/lib/vinos/cmd/*.sh` — subcommand implementations
-- `/usr/lib/vinos/registry/mcp-servers.json` — curated MCP registry
-- `/etc/vinos/` — config templates
+- `/usr/lib/vinos/cmd/*.sh` — subcommand implementations (14 subcommands)
+- `/usr/lib/vinos/runners/*.sh` — runner adapters (`claude.sh` default; `codex.sh`, `aider.sh`, `custom.sh` shipped)
+- `/usr/lib/vinos/registry/mcp-servers.json` — curated MCP registry (portable across runners)
+- `/etc/vinos/` — config templates including `agent.env` with `VINOS_RUNNER=claude` default
 - `/etc/systemd/system/vinos-agent-worker.service` — systemd unit (dev opts in, vm opts in by default)
-- `/etc/apparmor.d/vinos-claude` — apparmor profile
-- Bash test suite under `/usr/lib/vinos/tests/` for `vinos doctor`
+- `/etc/apparmor.d/vinos-runner` — generic apparmor profile applied to whichever runner is active
+- Bash test suite under `/usr/lib/vinos/tests/` for `vinos doctor` (includes per-runner `runner_check` invocations)
+
+**LiteLLM proxy overlay (dev only)** — `configs/vinos/litellm/proxy.yaml`:
+- Runs on `vinos-dev` as `litellm.service`; listens on `http://localhost:4000/v1`
+- Routes named model roles (`vinos-planner`, `vinos-executor`, `vinos-checker`, etc.) to either Anthropic or Ollama based on the two-tier policy
+- Apps target one endpoint; the proxy handles routing + retry + cost tracking
+- **Not** shipped on `vinos-vm` (VMs use `VINOS_RUNNER` directly; no proxy layer needed)
 
 **Both packages are built from the same monorepo path** (`vinos-runtime/`) via a Makefile that emits either `.pkg.tar.zst` (via `makepkg`) or `.deb` (via `debhelper`). Same source, different metadata.
 

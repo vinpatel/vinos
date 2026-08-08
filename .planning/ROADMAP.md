@@ -36,9 +36,12 @@ Both products share a **distro-agnostic bash runtime** installed identically as 
 
 - Single `vinos` CLI (14 subcommands, learnable in 5 min)
 - `vinos-agent-worker.service` (systemd unit, defaults on/off by product)
-- `vinos-mcp` MCP server registry CLI
+- **Runner-agnostic worker** — Claude Code is the shipped default, but `VINOS_RUNNER=claude|codex|aider|custom` swaps runners in one env var. Each runner is ~150 lines of bash in `/usr/lib/vinos/runners/*.sh` implementing 4 verbs (`runner_check`, `runner_run`, `runner_cancel`, `runner_capabilities`)
+- `vinos-mcp` MCP server registry CLI (MCP is now cross-vendor, so servers are portable across runners)
 - `vinos-doctor` 25-check diagnostic
 - Shared configs in `/etc/vinos/`
+
+**Two-tier model policy (both products):** frontier reasoning via Claude Code (Anthropic API), workhorse volume via local Ollama models. On `vinos-dev`, a **LiteLLM proxy** at `localhost:4000/v1` fronts both with named roles (`vinos-planner` → Claude, `vinos-executor` → local Qwen3-Coder, etc.). On `vinos-vm`, local models are opt-in via `vinos install ai-local` — off by default because most cloud VMs lack GPUs.
 
 **Users see one brand, one CLI, one experience — even though the OS underneath is different.**
 
@@ -72,7 +75,7 @@ Split the single v1.1.0 base into two distinct products. Publish first v1.2.0 re
 - B2 · Publish signed apt repo at `apt.vinos.computer` (GPG-signed, Cloudflare-hosted)
 - B3 · Packer template + Ansible provisioner for Ubuntu 24.04 minimal + vinOS layer
 - B4 · Multi-arch image build (amd64 + arm64 qcow2)
-- B5 · `vinos-agent-worker` polling loop + orchestrator protocol v1
+- B5 · `vinos-agent-worker` polling loop + orchestrator protocol v1 + **runner abstraction** (Claude default; Codex + Aider adapters ship in the same milestone)
 - B6 · Full `vinos` CLI (14 subcommands, all tested)
 - B7 · Multi-cloud image publish: DigitalOcean + Hetzner first, AWS + Azure + GCE second
 - B8 · Ship `vinos-vm-1.2.0-{amd64,arm64}.qcow2` + apt repo v1
@@ -95,6 +98,7 @@ Split the single v1.1.0 base into two distinct products. Publish first v1.2.0 re
 - Sunset/EOL calendar published
 
 **vinos-dev polish**
+- **LiteLLM proxy service** — runs on `vinos-dev` as `litellm.service`, listens on `localhost:4000/v1`, routes named model roles (`vinos-planner`/`vinos-reviewer`/`vinos-architect` → Claude, `vinos-executor`/`vinos-checker`/`vinos-autoexec` → local Ollama). Apps target one endpoint; the proxy handles routing + retry + cost tracking. Shipped as `litellm.service` systemd unit + `configs/vinos/litellm/proxy.yaml`.
 - Theme system with 4 themes (aurora + nord + gruvbox-dark + catppuccin)
 - Waybar AI status pill (model + session + burn)
 - `vinos vm-testbed` CLI for local Ubuntu VM testing
