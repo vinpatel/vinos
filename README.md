@@ -153,20 +153,36 @@ Read the bundle definitions: [`docs/BUNDLES.md`](docs/BUNDLES.md).
 
 ## Docs
 
-- [`docs/INSTALL.md`](docs/INSTALL.md) — install paths (fresh USB, existing Arch, T2 Mac)
+**Start with [`docs/README.md`](docs/README.md)** — the documentation index. It routes you to the right doc based on what you're trying to do.
+
+### For users
 - [`docs/QUICKSTART.md`](docs/QUICKSTART.md) — first-boot walkthrough
-- [`docs/BUNDLES.md`](docs/BUNDLES.md) — every opt-in bundle
+- [`docs/INSTALL.md`](docs/INSTALL.md) — install paths (fresh USB, existing Arch, T2 Mac)
+- [`docs/USB.md`](docs/USB.md) — flashing live USBs
 - [`docs/HARDWARE.md`](docs/HARDWARE.md) — verified-hardware matrix
 - [`docs/KEYBINDINGS.txt`](docs/KEYBINDINGS.txt) — the cheat sheet `Super+K` shows
-- [`docs/USB.md`](docs/USB.md) — flashing live USBs
+- [`docs/BUNDLES.md`](docs/BUNDLES.md) — every opt-in bundle
 - [`docs/PREFLIGHT.md`](docs/PREFLIGHT.md) — the mandatory pre-flash gate
-- [`overlays/README.md`](overlays/README.md) — persona forks (education, health)
-- [`iso/README.md`](iso/README.md) — the ISO build path
+
+### For reviewers (understanding how vinOS is built)
+- [`docs/VISION.md`](docs/VISION.md) — why vinOS exists, the two-product framing, the north star
+- [`docs/ARCHITECTURE-v1.1.0.md`](docs/ARCHITECTURE-v1.1.0.md) — the frozen baseline architecture reference
+- [`docs/DECISIONS.md`](docs/DECISIONS.md) — every big design decision (why Ubuntu for the VM, why no Omarchy, why runner-agnostic, etc.)
+- [`.planning/RULES.md`](.planning/RULES.md) — durable rules that govern all future work
+- [`.planning/ROADMAP.md`](.planning/ROADMAP.md) — milestones v1.2.0 → v1.4.0
+- [`.planning/research/PERSONAS.md`](.planning/research/PERSONAS.md) — full dual-persona design spec
+
+### For contributors
+- [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) — dev setup, commit style, review flow
+- [`docs/BUILDING.md`](docs/BUILDING.md) — reproduce the ISO from source, step-by-step
+- [`iso/README.md`](iso/README.md) — the ISO build subsystem
 - [`ATTRIBUTIONS.md`](ATTRIBUTIONS.md) — prior-art credits
 
 ## Contributing
 
-Every script is Bash, shellcheck-clean, under ~80 lines. Config lives in `config/` and gets rsync'd to `~/.config/`. Forks live in `overlays/`.
+Every script is Bash, shellcheck-clean, under ~80 lines. Config lives in `config/` and gets rsync'd to `~/.config/`.
+
+Read [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) before your first PR — vinOS has strong opinions (no Omarchy code, no commit trailers, ship-gate mandatory) that are easier to honor if you know them upfront.
 
 **Best first contribution:** [flash the ISO on a new hardware family and file a hardware report](https://github.com/vinpatel/vinos/issues/new?template=hardware-report.yml). Every report widens the compatibility matrix.
 
