@@ -167,7 +167,7 @@ Read the bundle definitions: [`docs/BUNDLES.md`](docs/BUNDLES.md).
 ### For reviewers (understanding how vinOS is built)
 - [`docs/VISION.md`](docs/VISION.md) — why vinOS exists, the two-product framing, the north star
 - [`docs/ARCHITECTURE-v1.1.0.md`](docs/ARCHITECTURE-v1.1.0.md) — the frozen baseline architecture reference
-- [`docs/DECISIONS.md`](docs/DECISIONS.md) — every big design decision (why Ubuntu for the VM, why no Omarchy, why runner-agnostic, etc.)
+- [`docs/DESIGN-DECISIONS.md`](docs/DESIGN-DECISIONS.md) — every big design decision (why Ubuntu for the VM, why no Omarchy, why runner-agnostic, etc.)
 - [`.planning/RULES.md`](.planning/RULES.md) — durable rules that govern all future work
 - [`.planning/ROADMAP.md`](.planning/ROADMAP.md) — milestones v1.2.0 → v1.4.0
 - [`.planning/research/PERSONAS.md`](.planning/research/PERSONAS.md) — full dual-persona design spec

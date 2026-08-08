@@ -20,7 +20,7 @@ Read in this order if you're evaluating vinOS or trying to understand the design
 
 1. **[VISION.md](VISION.md)** — why vinOS exists, the two-product framing, and the north star
 2. **[ARCHITECTURE-v1.1.0.md](ARCHITECTURE-v1.1.0.md)** — the frozen baseline: exact packages, kernels, boot flow, UX layer, everything reproducible
-3. **[DECISIONS.md](DECISIONS.md)** — the design decisions log — every big choice with date, context, and rationale (why Ubuntu for the VM, why no Omarchy, why runner-agnostic, etc.)
+3. **[DESIGN-DECISIONS.md](DESIGN-DECISIONS.md)** — the design decisions log — every big choice with date, context, and rationale (why Ubuntu for the VM, why no Omarchy, why runner-agnostic, etc.)
 4. **[../.planning/RULES.md](../.planning/RULES.md)** — the durable rules that govern all future work
 5. **[../.planning/ROADMAP.md](../.planning/ROADMAP.md)** — where we're going (milestones v1.2.0 → v1.4.0)
 6. **[../.planning/research/PERSONAS.md](../.planning/research/PERSONAS.md)** — the full dual-persona design spec (packages, security, CLI, agentic runtime)
@@ -43,7 +43,7 @@ vinos/
 │   ├── README.md                          # this file
 │   ├── VISION.md                          # why vinOS
 │   ├── ARCHITECTURE-v1.1.0.md             # frozen baseline reference
-│   ├── DECISIONS.md                       # design decisions log (ADR-style)
+│   ├── DESIGN-DECISIONS.md                       # design decisions log (ADR-style)
 │   ├── BUILDING.md                        # build the ISO from source
 │   ├── CONTRIBUTING.md                    # for new contributors
 │   ├── INSTALL.md                         # install methods

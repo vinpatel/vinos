@@ -204,7 +204,7 @@ Layers:
 3. **Regression harness** (`iso/qa/verify-shipped-iso.sh`) — asserts every past fix is intact
 4. **QEMU** — boot the ISO headless, take screendumps at 30s / 90s / 150s, assert desktop reached
 
-**Never hand a user an ISO that hasn't passed all four layers.** This is a hard rule ([ADR-001](DECISIONS.md#adr-001)).
+**Never hand a user an ISO that hasn't passed all four layers.** This is a hard rule ([ADR-001](DESIGN-DECISIONS.md#adr-001)).
 
 Note: `iso/qa/oneshot.sh` and `verify-shipped-iso.sh` shipped in a post-v1.1.0 milestone; the v1.1.0 tag does NOT contain them yet. They ship in v1.2.0.
 

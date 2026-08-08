@@ -1,6 +1,6 @@
 # Contributing to vinOS
 
-Thanks for wanting to help. vinOS is a small project with strong opinions — reading this doc + [VISION.md](VISION.md) + [DECISIONS.md](DECISIONS.md) first will save both of us time.
+Thanks for wanting to help. vinOS is a small project with strong opinions — reading this doc + [VISION.md](VISION.md) + [DESIGN-DECISIONS.md](DESIGN-DECISIONS.md) first will save both of us time.
 
 ## Ground rules (read these first)
 
@@ -8,7 +8,7 @@ vinOS's durable rules live in [`../.planning/RULES.md`](../.planning/RULES.md). 
 
 - **Baseline:** all new work branches from `v1.1.0`. Do not build on top of `main` if `main` diverges from `v1.1.0` unexpectedly — file an issue instead.
 - **No Omarchy code, ever.** Zero Omarchy code, configs, forks, or overlays. Commit messages don't reference the name. If you want a feature Omarchy has, read their public repo for ideas and write our own from scratch.
-- **Ship-gate:** never send anyone an ISO that hasn't passed `iso/qa/oneshot.sh`. This is a hard rule ([ADR-001](DECISIONS.md#adr-001)).
+- **Ship-gate:** never send anyone an ISO that hasn't passed `iso/qa/oneshot.sh`. This is a hard rule ([ADR-001](DESIGN-DECISIONS.md#adr-001)).
 - **Preserve `v1.1.0` forever.** Never overwrite, rebuild, or delete the `v1.1.0` ISO or re-point the `v1.1.0` git tag.
 - **ISO retention:** keep last 3 built ISOs + `v1.1.0` permanent. Prune older only after new build passes the regression harness.
 
@@ -57,7 +57,7 @@ Every top-level directory has a purpose:
 - **Add / drop a package:** edit `iso/packages.live` (live-ISO-specific) or install scripts (installed-system-specific), regenerate via `iso/gen-packages.sh`
 - **Fix a boot-menu entry:** edit `iso/profile/efiboot/loader/entries/*.conf` (UEFI) or `iso/profile/syslinux/*.cfg` (BIOS)
 - **Change the live-user setup:** edit `iso/airootfs-overlay/etc/systemd/system/vinos-live-init.service`
-- **Add a decision doc:** append an ADR to `docs/DECISIONS.md` (top of file; higher numbers first)
+- **Add a decision doc:** append an ADR to `docs/DESIGN-DECISIONS.md` (top of file; higher numbers first)
 
 ## Commit style
 
@@ -66,7 +66,7 @@ Every top-level directory has a purpose:
 - **Body wrapped at 72 columns**, explains the *why* (the *what* is in the diff).
 - **No trailer.** vinOS commits do not include `Co-Authored-By: Claude` or similar — repo is public and sponsor-facing. This is a hard rule.
 - **Small, atomic commits.** One logical change per commit. If you find yourself writing "and also" in the body, split.
-- **Never** the word "omarchy" in a commit message ([ADR-007](DECISIONS.md#adr-007)).
+- **Never** the word "omarchy" in a commit message ([ADR-007](DESIGN-DECISIONS.md#adr-007)).
 
 ### Examples of good commits
 
@@ -142,7 +142,7 @@ Format for a new ADR:
 ### Supersedes (optional)
 ```
 
-Copy the template from the bottom of [DECISIONS.md](DECISIONS.md).
+Copy the template from the bottom of [DESIGN-DECISIONS.md](DESIGN-DECISIONS.md).
 
 ## Filing bugs
 
@@ -170,7 +170,7 @@ File at [github.com/vinpatel/vinos/discussions](https://github.com/vinpatel/vino
 Because vinOS is developed with Claude Code as the driver, contributors who use Claude Code (or similar tools) should:
 
 - **Point Claude Code at [`../.planning/RULES.md`](../.planning/RULES.md)** — durable rules the AI must honor
-- **Point Claude Code at [`VISION.md`](VISION.md) + [`DECISIONS.md`](DECISIONS.md)** — the "why" behind the codebase
+- **Point Claude Code at [`VISION.md`](VISION.md) + [`DESIGN-DECISIONS.md`](DESIGN-DECISIONS.md)** — the "why" behind the codebase
 - **Point Claude Code at [`ARCHITECTURE-v1.1.0.md`](ARCHITECTURE-v1.1.0.md)** — the frozen baseline it must not regress
 
 AI-assisted PRs are welcome, but the human PR author is responsible for the change — review AI output as carefully as you'd review a colleague's diff.

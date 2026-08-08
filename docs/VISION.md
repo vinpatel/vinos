@@ -82,7 +82,7 @@ VINOS_RUNNER=codex    # OpenAI Codex CLI
 VINOS_RUNNER=custom   # user-written adapter
 ```
 
-Each adapter is ~150 lines of bash implementing 4 verbs. MCP servers work across all runners (MCP is cross-vendor now). Air-gapped mode is a config choice, not a rewrite. See [DECISIONS.md](DECISIONS.md) § "Why Claude Code as default, not lock-in" for the full argument.
+Each adapter is ~150 lines of bash implementing 4 verbs. MCP servers work across all runners (MCP is cross-vendor now). Air-gapped mode is a config choice, not a rewrite. See [DESIGN-DECISIONS.md](DESIGN-DECISIONS.md) § "Why Claude Code as default, not lock-in" for the full argument.
 
 ## Why two distros — one brand, one CLI
 
@@ -133,4 +133,4 @@ Beyond v1.4.0, direction depends on what real-world usage teaches us. See [ROADM
 
 ---
 
-*If you're reviewing vinOS, read [ARCHITECTURE-v1.1.0.md](ARCHITECTURE-v1.1.0.md) next for the concrete baseline, then [DECISIONS.md](DECISIONS.md) for how we got here.*
+*If you're reviewing vinOS, read [ARCHITECTURE-v1.1.0.md](ARCHITECTURE-v1.1.0.md) next for the concrete baseline, then [DESIGN-DECISIONS.md](DESIGN-DECISIONS.md) for how we got here.*
