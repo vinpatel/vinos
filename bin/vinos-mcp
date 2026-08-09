@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+# vinos-mcp — MCP server registry CLI for vinOS.
+#
+# vinOS ships a curated registry of MCP (Model Context Protocol) servers
+# at /usr/lib/vinos/registry/mcp-servers.json. This CLI is the user-
+# facing interface for browsing that registry, installing entries into
+# a portable per-user config, and removing them.
+#
+# The user config lives at ~/.config/vinos/mcp/servers.json in a shape
+# that Claude Code, Codex CLI, and Aider can all consume (via each
+# runner adapter's `runner_mcp_apply` hook). MCP itself is now cross-
+# vendor, so a single vinOS-managed config feeds every runner.
+#
+# Verbs:
+#   vinos-mcp registry              print the curated registry (JSON)
+#   vinos-mcp list                  print the user's installed servers
+#   vinos-mcp add <name>            add a registry entry to user config
+#   vinos-mcp remove <name>         remove an entry from user config
+#   vinos-mcp show <name>           print one registry entry's details
+#
+# Environment overrides (mostly for tests):
+#   VINOS_MCP_REGISTRY  path to registry JSON  (default: /usr/lib/vinos/registry/mcp-servers.json)
+#   VINOS_MCP_USER      path to user config JSON (default: $HOME/.config/vinos/mcp/servers.json)
+#
+# Exit codes:
+#   0  success
+#   1  usage error (unknown verb, missing argument)
+#   2  registry entry not found
+#   3  runtime dependency missing (jq)
+
+set -euo pipefail
+
+VINOS_MCP_REGISTRY="${VINOS_MCP_REGISTRY:-/usr/lib/vinos/registry/mcp-servers.json}"
+VINOS_MCP_USER="${VINOS_MCP_USER:-$HOME/.config/vinos/mcp/servers.json}"
+
+die()  { printf '\033[1;31m[vinos-mcp] ERROR:\033[0m %s\n' "$*" >&2; exit "${2:-1}"; }
+info() { printf '\033[1;34m[vinos-mcp]\033[0m %s\n' "$*"; }
+warn() { printf '\033[1;33m[vinos-mcp] warn:\033[0m %s\n' "$*" >&2; }
+
+command -v jq >/dev/null 2>&1 || die "jq is required (install with: sudo pacman -S jq)" 3
+
+# Ensure the user config exists as a valid empty JSON if we're about to
+# read or write it. Callers that only touch the registry skip this.
+_ensure_user_config() {
+  if [[ ! -f "$VINOS_MCP_USER" ]]; then
+    install -d -m 0755 "$(dirname "$VINOS_MCP_USER")"
+    printf '{"mcpServers": {}}\n' > "$VINOS_MCP_USER"
+    chmod 0600 "$VINOS_MCP_USER"
+  fi
+  # Repair a corrupt/empty file — jq empty fails → rewrite as empty.
+  if ! jq empty "$VINOS_MCP_USER" >/dev/null 2>&1; then
+    warn "$VINOS_MCP_USER was invalid JSON — rewriting as empty"
+    printf '{"mcpServers": {}}\n' > "$VINOS_MCP_USER"
+  fi
+}
+
+_registry_has() {
+  local name="$1"
+  jq -e --arg n "$name" '.servers[$n]' "$VINOS_MCP_REGISTRY" >/dev/null 2>&1
+}
+
+usage() {
+  cat <<EOF
+vinos-mcp — MCP server registry CLI
+
+Usage:
+  vinos-mcp registry              print the curated registry (JSON)
+  vinos-mcp list                  print the user's installed servers
+  vinos-mcp show <name>           print one registry entry's details
+  vinos-mcp add <name>            add a registry entry to user config
+  vinos-mcp remove <name>         remove an entry from user config
+
+Registry:  $VINOS_MCP_REGISTRY
+User cfg:  $VINOS_MCP_USER
+
+Curated servers:
+$(jq -r '.servers | keys[] | "  - \(.)"' "$VINOS_MCP_REGISTRY" 2>/dev/null || echo "  (registry unreadable)")
+EOF
+}
+
+cmd_registry() {
+  [[ -f "$VINOS_MCP_REGISTRY" ]] || die "registry not found: $VINOS_MCP_REGISTRY" 3
+  jq . "$VINOS_MCP_REGISTRY"
+}
+
+cmd_list() {
+  _ensure_user_config
+  # Empty mcpServers → print a friendly empty state; else emit JSON so
+  # it composes with jq / other tools.
+  local n
+  n=$(jq -r '.mcpServers | length' "$VINOS_MCP_USER")
+  if [[ "$n" == "0" ]]; then
+    printf 'no MCP servers installed. Run "vinos-mcp registry" to see available.\n'
+    return 0
+  fi
+  jq '.mcpServers' "$VINOS_MCP_USER"
+}
+
+cmd_show() {
+  local name="${1:-}"
+  [[ -n "$name" ]] || die "show requires a server name" 1
+  _registry_has "$name" || die "no such server in registry: $name" 2
+  jq --arg n "$name" '.servers[$n]' "$VINOS_MCP_REGISTRY"
+}
+
+cmd_add() {
+  local name="${1:-}"
+  [[ -n "$name" ]] || die "add requires a server name" 1
+  _registry_has "$name" || die "no such server in registry: $name (run 'vinos-mcp registry' to list)" 2
+
+  _ensure_user_config
+
+  # Idempotence: if already installed, no-op with a friendly message.
+  if jq -e --arg n "$name" '.mcpServers[$n]' "$VINOS_MCP_USER" >/dev/null 2>&1; then
+    info "'$name' already installed — nothing to do"
+    return 0
+  fi
+
+  # Extract only the runtime keys the runners consume (command/args/env).
+  # description/requires/docs are registry-level metadata, not runner input.
+  local tmp; tmp=$(mktemp)
+  trap 'rm -f "$tmp"' RETURN
+  jq --arg n "$name" \
+     --slurpfile reg "$VINOS_MCP_REGISTRY" \
+     '.mcpServers[$n] = ($reg[0].servers[$n] | {command, args, env})' \
+     "$VINOS_MCP_USER" > "$tmp"
+  mv "$tmp" "$VINOS_MCP_USER"
+  chmod 0600 "$VINOS_MCP_USER"
+  info "added '$name' to $VINOS_MCP_USER"
+  info "  (run each MCP-capable runner's activation step to pick it up:"
+  info "   Claude Code auto-syncs on next start; other runners see their adapter)"
+}
+
+cmd_remove() {
+  local name="${1:-}"
+  [[ -n "$name" ]] || die "remove requires a server name" 1
+
+  _ensure_user_config
+
+  if ! jq -e --arg n "$name" '.mcpServers[$n]' "$VINOS_MCP_USER" >/dev/null 2>&1; then
+    info "'$name' is not installed — nothing to do"
+    return 0
+  fi
+
+  local tmp; tmp=$(mktemp)
+  trap 'rm -f "$tmp"' RETURN
+  jq --arg n "$name" 'del(.mcpServers[$n])' "$VINOS_MCP_USER" > "$tmp"
+  mv "$tmp" "$VINOS_MCP_USER"
+  chmod 0600 "$VINOS_MCP_USER"
+  info "removed '$name' from $VINOS_MCP_USER"
+}
+
+# ── dispatch ────────────────────────────────────────────────────────
+verb="${1:-}"
+shift || true
+
+case "$verb" in
+  registry) cmd_registry "$@" ;;
+  list)     cmd_list "$@" ;;
+  show)     cmd_show "$@" ;;
+  add)      cmd_add "$@" ;;
+  remove|rm) cmd_remove "$@" ;;
+  ""|-h|--help|help) usage ;;
+  *) die "unknown verb: $verb (try 'vinos-mcp --help')" 1 ;;
+esac

@@ -1,0 +1,56 @@
+{
+  "schema_version": "1",
+  "generated": "2026-08-09",
+  "source": "https://github.com/vinpatel/vinos",
+  "notes": "Curated MCP server registry shipped by vinOS. Each entry defines a portable server definition consumable by any MCP-capable runner (Claude Code, Codex, Aider, etc). vinos-mcp adds/removes entries into ~/.config/vinos/mcp/servers.json which each runner's adapter syncs into its own settings on activation.",
+  "servers": {
+    "filesystem": {
+      "description": "Read/write local files scoped to the given paths. Defaults to $HOME on add — override with 'vinos-mcp add filesystem --path /some/dir'.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "$HOME"],
+      "env": {},
+      "requires": {"node": ">=18"},
+      "docs": "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem"
+    },
+    "github": {
+      "description": "Read GitHub repos, issues, PRs, code search. Requires GITHUB_PERSONAL_ACCESS_TOKEN in env.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {"GITHUB_PERSONAL_ACCESS_TOKEN": "@env:GITHUB_PERSONAL_ACCESS_TOKEN"},
+      "requires": {"node": ">=18", "env": ["GITHUB_PERSONAL_ACCESS_TOKEN"]},
+      "docs": "https://github.com/modelcontextprotocol/servers/tree/main/src/github"
+    },
+    "fetch": {
+      "description": "Fetch arbitrary URLs and return sanitized content. No credentials required. Rate limits apply to remote hosts.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"],
+      "env": {},
+      "requires": {"node": ">=18"},
+      "docs": "https://github.com/modelcontextprotocol/servers/tree/main/src/fetch"
+    },
+    "sequential-thinking": {
+      "description": "Structured multi-step reasoning primitive. Useful for chain-of-thought scaffolding when the model needs to plan before acting.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "env": {},
+      "requires": {"node": ">=18"},
+      "docs": "https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking"
+    },
+    "playwright": {
+      "description": "Headless browser automation via Playwright — navigate, click, extract, screenshot. Installs Chromium on first launch.",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp"],
+      "env": {},
+      "requires": {"node": ">=18", "disk_mb": 500},
+      "docs": "https://github.com/microsoft/playwright-mcp"
+    },
+    "sqlite": {
+      "description": "Query and mutate a local SQLite database. Path defaults to ~/.local/share/vinos/mcp-sqlite/default.db; override on add.",
+      "command": "uvx",
+      "args": ["mcp-server-sqlite", "--db-path", "$HOME/.local/share/vinos/mcp-sqlite/default.db"],
+      "env": {},
+      "requires": {"python": ">=3.10", "uvx": true},
+      "docs": "https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite"
+    }
+  }
+}
