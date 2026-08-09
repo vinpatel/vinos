@@ -8,4 +8,9 @@ PRESETS=('archiso')
 ALL_kver='/boot/vmlinuz-linux-t2'
 archiso_config='/etc/mkinitcpio.conf.d/archiso.conf'
 
+# Preset-level FILES= override — see linux.preset for rationale.
+# Ensures the vinOS Plymouth theme is in the T2 kernel's initramfs
+# even when a kernel update path skips archiso.conf.
+archiso_files=(/etc/plymouth/plymouthd.conf /usr/share/plymouth/themes/vinos/vinos.plymouth /usr/share/plymouth/themes/vinos/vinos.script /usr/share/plymouth/themes/vinos/frame-00.png /usr/share/plymouth/themes/vinos/frame-01.png)
+
 archiso_image="/boot/initramfs-linux-t2.img"

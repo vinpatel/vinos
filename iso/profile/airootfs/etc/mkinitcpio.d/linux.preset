@@ -5,4 +5,10 @@ PRESETS=('archiso')
 ALL_kver='/boot/vmlinuz-linux'
 archiso_config='/etc/mkinitcpio.conf.d/archiso.conf'
 
+# Preset-level FILES= override so post-install kernel updates (which
+# regenerate initramfs outside the archiso build path) still bake in
+# the vinOS Plymouth theme assets. archiso.conf carries the same list;
+# this preset-level override is the belt-and-suspenders coverage.
+archiso_files=(/etc/plymouth/plymouthd.conf /usr/share/plymouth/themes/vinos/vinos.plymouth /usr/share/plymouth/themes/vinos/vinos.script /usr/share/plymouth/themes/vinos/frame-00.png /usr/share/plymouth/themes/vinos/frame-01.png)
+
 archiso_image="/boot/initramfs-linux.img"

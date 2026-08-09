@@ -12,8 +12,10 @@
 #   bios (default) — BIOS boot with SeaBIOS.
 #   uefi           — UEFI boot via OVMF.
 #   both           — bios + uefi sequentially.
+#   plymouth       — hand off to iso/test-plymouth.sh (boot + shutdown splash).
 #   matrix         — the I3 DONE-WHEN matrix: bios/uefi @ 4G,
-#                    bios @ 3G RAM floor, bios @ -nic none (offline).
+#                    bios @ 3G RAM floor, bios @ -nic none (offline),
+#                    plus the plymouth splash test.
 #
 # Networking:
 #   --net user (default) — QEMU SLIRP outbound; --net none = no NIC.
@@ -50,7 +52,7 @@ done
 
 [[ -z "$ISO" ]] && ISO="$(ls -1t "$ISO_DIR"/out/vinos-*.iso 2>/dev/null | head -1 || true)"
 [[ -n "$ISO" && -f "$ISO" ]] || die "no ISO found — run iso/build.sh first (or pass --iso PATH)"
-case "$MODE" in bios|uefi|both|matrix) ;; *) die "--mode must be bios/uefi/both/matrix" ;; esac
+case "$MODE" in bios|uefi|both|matrix|plymouth) ;; *) die "--mode must be bios/uefi/both/plymouth/matrix" ;; esac
 case "$NET"  in user|none) ;;              *) die "--net must be user or none" ;; esac
 
 REPO="$(cd "$ISO_DIR/.." && pwd)"
@@ -184,14 +186,27 @@ run_one() {
     '
 }
 
+run_plymouth() {
+  # Delegate boot+shutdown splash verification to iso/test-plymouth.sh.
+  # This is the ship-gate wiring for Plymouth regressions (v1.1.0 shipped
+  # with a shutdown-splash gap that was never covered by iso/test.sh).
+  local iso_arg=()
+  [[ -n "$ISO" ]] && iso_arg=(--iso "$ISO")
+  log "test 5.6 (plymouth splash): handing off to iso/test-plymouth.sh"
+  "$ISO_DIR/test-plymouth.sh" "${iso_arg[@]}" || die "test 5.6: Plymouth boot/shutdown splash regressed"
+  log "test 5.6 (plymouth splash): PASS"
+}
+
 case "$MODE" in
   matrix)
     run_one bios "$MEM" user "bios-4g-net"
     run_one uefi "$MEM" user "uefi-4g-net"
     run_one bios "3G"   user "bios-3g-ramfloor"
     run_one bios "$MEM" none "bios-4g-offline"
-    log "MATRIX PASS — 5.1 + 5.2 + 5.4 + 5.5 + offline boot all green"
+    run_plymouth
+    log "MATRIX PASS — 5.1 + 5.2 + 5.4 + 5.5 + offline boot + Plymouth all green"
     ;;
-  both) run_one bios "$MEM" "$NET" bios; run_one uefi "$MEM" "$NET" uefi ;;
-  *)    run_one "$MODE" "$MEM" "$NET" "$MODE" ;;
+  both)     run_one bios "$MEM" "$NET" bios; run_one uefi "$MEM" "$NET" uefi ;;
+  plymouth) run_plymouth ;;
+  *)        run_one "$MODE" "$MEM" "$NET" "$MODE" ;;
 esac

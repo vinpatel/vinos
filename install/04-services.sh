@@ -196,4 +196,22 @@ else
   log "04-services: vinos-firstboot staged (not enabled on live ISO)"
 fi
 
+# --- Plymouth shutdown + reboot splash -----------------------------
+# plymouth-poweroff.service + plymouth-reboot.service extend the boot
+# splash into the shutdown/reboot sequence — without them, the screen
+# clears to black the instant systemd starts tearing down and no logo
+# is visible until the firmware regains control. Both units ship with
+# the `plymouth` package; they only need to be enabled.
+# plymouth-quit-wait.service keeps the daemon alive until the display
+# manager is ready so we don't flash-black on the boot→login handoff.
+log "04-services: enabling plymouth splash on shutdown + reboot"
+# plymouth-poweroff/reboot land in their own targets so the splash
+# takes over at the moment systemd starts tearing down.
+VINOS_SYSTEMCTL_TARGET=poweroff.target systemctl_enable plymouth-poweroff
+VINOS_SYSTEMCTL_TARGET=reboot.target   systemctl_enable plymouth-reboot
+# plymouth-quit-wait is a boot-time bridge that keeps the daemon
+# alive through the boot→login handoff so the screen doesn't flash
+# black. WantedBy=multi-user.target is correct for this one.
+systemctl_enable plymouth-quit-wait
+
 log "04-services: done"
