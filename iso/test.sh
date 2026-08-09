@@ -57,6 +57,35 @@ REPO="$(cd "$ISO_DIR/.." && pwd)"
 VERSION="$(<"$REPO/VERSION")"
 iso_basename="$(basename "$ISO")"
 
+# Test 5.0: install-to-disk regression preconditions.
+# On T2 Macs, pacstrap can't resolve linux-t2 unless the target chroot's
+# pacman.conf has [arch-mact2] registered first — which archinstall
+# doesn't inherit from the ISO. The v1.1.0 baseline shipped a t2mac.json
+# that specified linux-t2 as its kernel and pacstrap failed. Assert:
+#   (a) t2mac.json specifies stock "linux" as the base kernel.
+#   (b) bin/vinos-t2-enable exists + is executable (post-boot T2 stack).
+#   (c) bin/vinos-first-run mentions vinos-t2-enable (Apple detection wired).
+t2mac_json="$REPO/iso/profiles/archinstall/t2mac.json"
+t2_enable="$REPO/bin/vinos-t2-enable"
+first_run="$REPO/bin/vinos-first-run"
+
+if [[ ! -f "$t2mac_json" ]]; then
+  die "test 5.0a: $t2mac_json missing"
+fi
+if ! grep -qE '"kernels"[[:space:]]*:[[:space:]]*\[[[:space:]]*"linux"[[:space:]]*\]' "$t2mac_json"; then
+  die "test 5.0a: $t2mac_json must pacstrap stock 'linux' — pacstrap of linux-t2 fails on target chroot (T2 install regression)"
+fi
+if grep -q '"linux-t2"' "$t2mac_json"; then
+  die "test 5.0a: $t2mac_json still references linux-t2 in a package list — defer to bin/vinos-t2-enable"
+fi
+if [[ ! -x "$t2_enable" ]]; then
+  die "test 5.0b: $t2_enable missing or not executable — T2 support install path broken"
+fi
+if ! grep -q 'vinos-t2-enable' "$first_run"; then
+  die "test 5.0c: $first_run does not reference vinos-t2-enable — Apple hardware prompt not wired"
+fi
+log "test 5.0 (install-to-disk regression): PASS — t2mac.json=stock linux, vinos-t2-enable present, first-run wired"
+
 # Test 5.3: identity in artifacts — ISO name carries the repo VERSION.
 if [[ "$iso_basename" != *"$VERSION"* ]]; then
   die "test 5.3: ISO filename '$iso_basename' does not contain VERSION '$VERSION'"

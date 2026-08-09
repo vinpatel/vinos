@@ -385,11 +385,11 @@ iso/build.sh
 
 Deliberate omissions in v1.1.0:
 
-- **No install-to-disk from the live ISO.** The primary install path is `docs/INSTALL.md`: install Arch, then run the vinOS one-liner on top. Install-to-disk was added post-1.1.0.
+- **Install-to-disk script (`bin/vinos-install-disk`) ships in v1.1.0 but has a known T2 pacstrap bug.** The generic and NVIDIA profiles work; the T2 profile attempts to pacstrap `linux-t2` from an `[arch-mact2]` repo the target chroot doesn't yet have registered, and fails with `target not found: linux-t2`. Fix landed post-1.1.0: base install always uses stock `linux`, and the T2 kernel + firmware are added post-boot by `bin/vinos-t2-enable` (invoked automatically by `bin/vinos-first-run` on Apple hardware). The primary install path for v1.1.0 remains `docs/INSTALL.md`: install Arch first, then layer vinOS on top.
 - **No LUKS installer.** Full-disk encryption during install ships in a later milestone.
 - **No pre-installed Claude Code / Ollama.** The Hyprland bindings expect these but note "needs `vinos-install-ai` first."
 - **No agentic worker service.** `vinos-agent-worker` ships in v1.2.0 with the `vinos-vm` persona.
-- **No Omarchy code.** v1.1.0 predates and rejects the Omarchy pivot direction. Every desktop component is assembled directly from Arch packages with vinOS-authored configs.
+- **No configs sourced from other Linux desktop projects.** v1.1.0 assembles every desktop component directly from Arch packages with vinOS-authored configs — no forked configs, no vendored overlays.
 
 ## 12. Preservation guarantees
 

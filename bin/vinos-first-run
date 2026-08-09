@@ -7,6 +7,36 @@ set -e
 
 FIRST_RUN_MODE=~/.local/state/vinos/first-run.mode
 
+# --- Apple T2 detection prompt -------------------------------------
+# vinos-install-disk pacstraps stock `linux` (see docs/DESIGN-DECISIONS
+# note on T2 install split). On Apple T2 hardware, the linux-t2 kernel
+# + firmware are installed here post-boot via vinos-t2-enable.
+# Idempotent — /var/lib/vinos/t2-enable.done is written on success.
+if [[ ! -f /var/lib/vinos/t2-enable.done ]] \
+   && command -v vinos-t2-enable >/dev/null 2>&1; then
+  vendor="$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || printf '')"
+  if [[ "$vendor" == "Apple Inc." ]]; then
+    printf '\n\033[1;34m[vinos-first-run]\033[0m Apple T2 Mac detected.\n'
+    printf 'The linux-t2 kernel + T2 firmware are required for internal keyboard,\n'
+    printf 'trackpad, Wi-Fi, audio, Touch Bar, and thermal control on this hardware.\n\n'
+    if command -v gum >/dev/null 2>&1; then
+      if gum confirm --default=true "Enable T2 support now? (reboots when done)"; then
+        vinos-t2-enable --yes
+      else
+        printf 'Skipping. Run "sudo vinos-t2-enable" later when ready.\n'
+      fi
+    else
+      printf 'Enable T2 support now? [Y/n] '
+      read -r r
+      if [[ ! "$r" =~ ^[Nn] ]]; then
+        vinos-t2-enable --yes
+      else
+        printf 'Skipping. Run "sudo vinos-t2-enable" later when ready.\n'
+      fi
+    fi
+  fi
+fi
+
 if [[ -f $FIRST_RUN_MODE ]]; then
   rm -f "$FIRST_RUN_MODE"
 

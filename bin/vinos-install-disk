@@ -268,20 +268,19 @@ systemctl disable sshd.service 2>/dev/null || true
 CHROOT_EOF
 
 # ── Profile-specific bootloader tweaks ──────────────────────────────
+# T2 kernel + firmware install deferred to vinos-t2-enable (post-boot).
+# Rationale: pacstrap can't resolve linux-t2 unless [arch-mact2] is
+# registered in the target chroot's pacman.conf, and the live ISO's
+# pacman.conf inherits nothing about it. Base install stays on stock
+# `linux` (guaranteed to succeed); vinos-first-run detects Apple
+# hardware on first login and offers to run vinos-t2-enable, which
+# registers [arch-mact2], installs the T2 kernel + firmware, rewrites
+# the systemd-boot entry, and reboots into the T2 kernel.
 case "$PROFILE" in
   t2mac)
-    log "T2 Mac: pinning linux-t2 as default systemd-boot entry"
-    # Find the linux-t2 entry file that archinstall wrote and set it
-    # as the default. If archinstall used a different bootloader
-    # (grub), this becomes a no-op and 06-hardware.sh handles it.
-    if [[ -d /mnt/boot/loader/entries ]]; then
-      arch-chroot /mnt bash -c "
-        if compgen -G '/boot/loader/entries/*linux-t2*.conf' >/dev/null; then
-          entry=\$(basename \$(ls /boot/loader/entries/*linux-t2*.conf | head -1) .conf)
-          bootctl set-default \"\${entry}.conf\" 2>/dev/null || true
-        fi
-      "
-    fi
+    log "T2 Mac: base install uses stock 'linux' kernel"
+    log "        T2 support enabled post-boot via 'sudo vinos-t2-enable'"
+    log "        (vinos-first-run prompts automatically on first login)"
     ;;
 esac
 

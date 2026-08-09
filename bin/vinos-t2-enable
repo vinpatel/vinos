@@ -1,0 +1,215 @@
+#!/usr/bin/env bash
+# vinos-t2-enable — one-command Apple T2 support installer for an
+# already-booted vinOS system.
+#
+# Registers the [arch-mact2] pacman repo, installs the linux-t2 kernel
+# + firmware + audio + touch-bar + fan stack, wires the T2 modprobe
+# quirks, rebuilds initramfs, writes the systemd-boot entry, and (with
+# confirmation) reboots into the T2 kernel.
+#
+# Runs as an ordinary user; escalates with sudo where needed. Idempotent
+# — grep-guarded pacman.conf edits, --needed package installs, ln -sfn
+# symlinks. Safe to re-run.
+#
+# Usage:
+#   vinos-t2-enable                # interactive, prompts before reboot
+#   vinos-t2-enable --yes          # non-interactive, still confirms reboot
+#   vinos-t2-enable --yes --reboot # non-interactive, reboots on completion
+#   vinos-t2-enable --no-reboot    # never reboot, print instructions
+#
+# Detection: Apple hardware is required (system-manufacturer = "Apple
+# Inc." from dmidecode). Non-Apple hardware exits with a warning and no
+# side effects.
+
+set -euo pipefail
+
+YES=0
+REBOOT_ACTION=""
+
+die()  { printf '\033[1;31m[vinos-t2-enable] FAIL:\033[0m %s\n' "$*" >&2; exit 1; }
+log()  { printf '\033[1;34m[vinos-t2-enable]\033[0m %s\n' "$*"; }
+warn() { printf '\033[1;33m[vinos-t2-enable] WARN:\033[0m %s\n' "$*" >&2; }
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --yes|-y)     YES=1; shift ;;
+    --reboot)     REBOOT_ACTION=reboot; shift ;;
+    --no-reboot)  REBOOT_ACTION=none; shift ;;
+    -h|--help)
+      sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    *) die "unknown argument: $1 (try --help)" ;;
+  esac
+done
+
+[[ $EUID -ne 0 ]] || die "run as an ordinary user; sudo is invoked where needed"
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+# ── Hardware detection ─────────────────────────────────────────────
+vendor="$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || printf '')"
+product="$(cat /sys/class/dmi/id/product_name 2>/dev/null || printf '')"
+
+if [[ "$vendor" != "Apple Inc." ]]; then
+  warn "system-manufacturer='$vendor' — not an Apple T2 Mac; nothing to do."
+  warn "T2 support only applies to 2018-2020 Apple hardware."
+  exit 0
+fi
+
+log "detected Apple hardware: $product"
+
+# ── Confirm the ride ────────────────────────────────────────────────
+if (( YES == 0 )); then
+  cat <<'EOM'
+
+vinos-t2-enable will:
+  1. Register the [arch-mact2] pacman repo in /etc/pacman.conf
+  2. Install linux-t2, linux-t2-headers, apple-bcm-firmware,
+     apple-t2-audio-config, tiny-dfr, t2fanrd, arch-mact2-mirrorlist
+  3. Write T2 modprobe + modules-load.d drop-ins (brcmfmac quirks,
+     apple-bce + hci_bcm4377 early-load, applespi initramfs modules)
+  4. Rebuild initramfs (mkinitcpio -P)
+  5. Add a systemd-boot entry for linux-t2 and make it the default
+  6. Enable t2fanrd and tiny-dfr services
+
+EOM
+  if have gum; then
+    gum confirm --default=false "Proceed?" || die "aborted."
+  else
+    printf 'Continue? [y/N] '; read -r r
+    [[ "$r" =~ ^[Yy] ]] || die "aborted."
+  fi
+fi
+
+# ── Register [arch-mact2] repo ──────────────────────────────────────
+PACMAN_CONF=/etc/pacman.conf
+if ! grep -q '^\[arch-mact2\]' "$PACMAN_CONF"; then
+  log "registering [arch-mact2] repo"
+  sudo tee -a "$PACMAN_CONF" >/dev/null <<'PACCONF'
+
+[arch-mact2]
+SigLevel = Never
+Server = https://mirror.funami.tech/arch-mact2/os/$arch
+PACCONF
+  sudo pacman -Syy 2>&1 | tail -3 || warn "pacman -Syy failed; arch-mact2 mirror may be temporarily down"
+else
+  log "[arch-mact2] already registered — skipping"
+fi
+
+# ── Install the T2 stack ────────────────────────────────────────────
+log "installing linux-t2 + firmware + audio + touch-bar + fan"
+sudo pacman -S --needed --noconfirm \
+  linux-t2 linux-t2-headers apple-bcm-firmware \
+  apple-t2-audio-config tiny-dfr t2fanrd arch-mact2-mirrorlist
+
+# Older butterfly-keyboard MBPs still need macbook12-spi (AUR — build via yay/paru if present).
+case "$product" in
+  MacBookPro13,*|MacBookPro14,*|MacBook9,*|MacBook10,*)
+    if have yay; then
+      yay -S --needed --noconfirm macbook12-spi-driver-dkms || \
+        warn "macbook12-spi-driver-dkms build failed; internal keyboard may need manual install"
+    elif have paru; then
+      paru -S --needed --noconfirm macbook12-spi-driver-dkms || \
+        warn "macbook12-spi-driver-dkms build failed; internal keyboard may need manual install"
+    else
+      warn "yay/paru not found — install macbook12-spi-driver-dkms manually from AUR"
+    fi
+    ;;
+esac
+
+# Swap the direct Server= line for an Include= after arch-mact2-mirrorlist ships one.
+if ! grep -q '^Include = /etc/pacman.d/arch-mact2-mirrorlist' "$PACMAN_CONF"; then
+  log "switching [arch-mact2] Server= → Include = /etc/pacman.d/arch-mact2-mirrorlist"
+  sudo sed -i '/^\[arch-mact2\]/,/^Server/ { /^Server/c\Include = /etc/pacman.d/arch-mact2-mirrorlist
+  }' "$PACMAN_CONF" || warn "could not switch to mirrorlist; direct Server= remains"
+fi
+
+# ── T2 SPI modules for early boot (internal keyboard) ───────────────
+MKI=/etc/mkinitcpio.conf
+if [[ -f "$MKI" ]] && ! grep -qE '^MODULES=.*\bapplespi\b' "$MKI"; then
+  log "adding applespi + T2 SPI modules to $MKI"
+  sudo sed -i -E \
+    's/^MODULES=\((.*)\)/MODULES=(\1 applespi spi_pxa2xx_platform intel_lpss intel_lpss_pci)/' \
+    "$MKI"
+  sudo sed -i -E 's/^MODULES=\( +/MODULES=(/' "$MKI"
+fi
+
+# ── T2 initramfs drop-in (apple-bce, USB, HID) ──────────────────────
+sudo install -d -m 0755 /etc/mkinitcpio.conf.d
+sudo tee /etc/mkinitcpio.conf.d/apple-t2.conf >/dev/null <<'T2MKI'
+MODULES+=(apple-bce usbhid hid_apple hid_generic xhci_pci xhci_hcd)
+T2MKI
+
+# ── Modules to load on the running system ──────────────────────────
+sudo install -d -m 0755 /etc/modules-load.d
+sudo tee /etc/modules-load.d/vinos-t2.conf >/dev/null <<'T2ML'
+apple-bce
+hci_bcm4377
+T2ML
+
+# ── brcmfmac quirks — the T2 Wi-Fi recipe ──────────────────────────
+sudo install -d -m 0755 /etc/modprobe.d
+sudo tee /etc/modprobe.d/vinos-brcmfmac.conf >/dev/null <<'BRCMCONF'
+# T2 MacBook Wi-Fi connectivity recipe (linux-t2 project).
+# Mask broken firmware features; disable MAC randomization + ANQP so
+# brcmfmac's 4-way handshake doesn't get false "wrong password" hits.
+options brcmfmac feature_disable=0x82000
+BRCMCONF
+
+# ── Rebuild initramfs so the T2 kernel is bootable ──────────────────
+if have mkinitcpio; then
+  log "regenerating initramfs (mkinitcpio -P)"
+  sudo mkinitcpio -P 2>&1 | tail -8 || warn "mkinitcpio -P failed; may still boot"
+fi
+
+# ── systemd-boot entry for linux-t2 ────────────────────────────────
+if [[ -d /boot/loader/entries ]] && have bootctl; then
+  if ! ls /boot/loader/entries/*linux-t2* >/dev/null 2>&1; then
+    log "writing systemd-boot entry for linux-t2"
+    root_uuid=$(findmnt -no UUID /)
+    sudo tee /boot/loader/entries/vinos-t2.conf >/dev/null <<T2ENTRY
+title   vinOS (Apple T2 Mac)
+linux   /vmlinuz-linux-t2
+initrd  /initramfs-linux-t2.img
+options root=UUID=${root_uuid} rw quiet splash intel_iommu=on iommu=pt cfg80211.ieee80211_regdom=US modprobe.blacklist=floppy
+T2ENTRY
+  fi
+  sudo bootctl set-default vinos-t2.conf 2>&1 | tail -3 || \
+    warn "bootctl set-default failed; select the T2 entry manually in the boot menu"
+else
+  warn "systemd-boot not detected; you'll need to add a linux-t2 entry to your bootloader manually"
+fi
+
+# ── Enable T2-specific services ────────────────────────────────────
+log "enabling t2fanrd + tiny-dfr"
+sudo systemctl enable t2fanrd 2>/dev/null || warn "t2fanrd enable failed"
+sudo systemctl enable tiny-dfr 2>/dev/null || warn "tiny-dfr enable failed"
+
+# ── Mark T2 enable done so vinos-first-run skips its prompt ────────
+sudo install -d -m 0755 /var/lib/vinos
+sudo touch /var/lib/vinos/t2-enable.done
+
+log "T2 support installed. Reboot into the linux-t2 kernel for full hardware."
+
+# ── Reboot handling ────────────────────────────────────────────────
+case "${REBOOT_ACTION:-}" in
+  reboot)
+    log "rebooting in 5s (Ctrl-C to cancel)…"
+    sleep 5
+    sudo systemctl reboot
+    ;;
+  none)
+    log "reboot skipped (per --no-reboot). Run 'sudo systemctl reboot' when ready."
+    ;;
+  *)
+    if (( YES == 0 )); then
+      if have gum; then
+        gum confirm "Reboot into the linux-t2 kernel now?" && sudo systemctl reboot
+      else
+        printf 'Reboot now? [y/N] '; read -r r
+        [[ "$r" =~ ^[Yy] ]] && sudo systemctl reboot
+      fi
+    fi
+    ;;
+esac

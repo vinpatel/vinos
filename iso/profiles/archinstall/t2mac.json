@@ -16,7 +16,7 @@
     ]
   },
   "hostname": "@@HOSTNAME@@",
-  "kernels": ["linux-t2"],
+  "kernels": ["linux"],
   "locale_config": {
     "kb_layout": "us",
     "sys_enc": "UTF-8",
@@ -38,13 +38,8 @@
     "vim",
     "sudo",
     "efibootmgr",
-    "linux-t2-headers",
-    "apple-bcm-firmware",
-    "apple-t2-audio-config",
-    "tiny-dfr",
-    "t2fanrd",
-    "arch-mact2-mirrorlist",
-    "iwd"
+    "iwd",
+    "networkmanager"
   ],
   "parallel_downloads": 4,
   "profile_config": {
