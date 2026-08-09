@@ -19,9 +19,9 @@ Two personas, two distros, one brand, one runtime API:
 | Target audience | Solo devs, hackers, "Hyprland power users" | Cloud fleets, AgenticFlow workers, headless boxes |
 | First-boot state | greetd → Hyprland session → first-run wizard | cloud-init → `vinos-agent-worker.service` → polling orchestrator |
 | Update model | user-driven, `pacman -Syu` | fully unattended `unattended-upgrades` weekly + kernel-reboot gate |
-| RAM idle | ~1.5 GB | **~250 MB** |
-| Image size | ~4-5 GB ISO | **< 800 MB qcow2** |
-| Boot to ready | ~20 s to greetd | **< 45 s to first-agent-heartbeat** |
+| RAM idle | ~1.5 GB | **~250 MB** (pilot 2026-08-09: 201 MB actual on debootstrap-minbase base ✅) |
+| Image size | ~4-5 GB ISO | **< 1200 MB qcow2** (revised from 800 MB after Pilot 3 measurements — see [`PILOT-3-RESULTS.md`](PILOT-3-RESULTS.md); HWE kernel alone is ~750 MB, so 800 MB was aspirational) |
+| Boot to ready | ~20 s to greetd | **< 60 s** on packer-baked (< 90 s on debootstrap-scratch pilot images) (revised from 45 s — see PILOT-3-RESULTS.md) |
 
 **Rationale for Option C:** Ubuntu is the *only* base with universal cloud-marketplace presence, Canonical-maintained cloud-init, and apt-native tooling assumptions in the entire agentic-workflow ecosystem. Arch on a cloud VM = < 1 % adoption ceiling. Ubuntu on a cloud VM = universal reach. See appendix for the full option debate that led here.
 
@@ -689,10 +689,10 @@ Content that lives in **both** `.pkg.tar.zst` for dev and `.deb` for vm, from th
 
 ### Cross-cutting
 
-- **CI harness** (`iso/qa/oneshot.sh` + regression harness) covers both tracks. New harness checks:
-  - vinos-vm boot-to-SSH < 45 s
+- **CI harness** (`iso/qa/oneshot.sh` + regression harness) covers both tracks. New harness checks (targets revised from Pilot 3 measurements, see [`PILOT-3-RESULTS.md`](PILOT-3-RESULTS.md)):
+  - vinos-vm boot-to-SSH < 60 s (packer-baked) / < 90 s (scratch build)
   - vinos-vm idle RAM < 300 MB
-  - vinos-vm image size < 800 MB
+  - vinos-vm image size < 1200 MB (drop HWE kernel for < 800 MB path)
   - `vinos` CLI 14/14 subcommands present
   - all systemd hardening flags applied
 - **Nothing on either track mentions "omarchy"** in commit messages or file contents.
