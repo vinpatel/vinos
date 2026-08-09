@@ -99,7 +99,7 @@ Split the single v1.1.0 base into two distinct products. Publish first v1.2.0 re
 
 **vinos-dev polish**
 - **LiteLLM proxy service** — runs on `vinos-dev` as `litellm.service`, listens on `localhost:4000/v1`, routes named model roles (`vinos-planner`/`vinos-reviewer`/`vinos-architect` → Claude, `vinos-executor`/`vinos-checker`/`vinos-autoexec` → local Ollama). Apps target one endpoint; the proxy handles routing + retry + cost tracking. Shipped as `litellm.service` systemd unit + `configs/vinos/litellm/proxy.yaml`.
-- Theme system with 4 themes (aurora + nord + gruvbox-dark + catppuccin)
+- Theme system with 4 vinOS-native themes (aurora + nebula + ember + frost — all authored by us, zero reuse of ecosystem theme names; see ADR-012)
 - Waybar AI status pill (model + session + burn)
 - `vinos vm-testbed` CLI for local Ubuntu VM testing
 - All hypr toggles wired to `vinos-menu` submenus

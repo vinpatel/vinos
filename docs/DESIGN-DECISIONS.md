@@ -6,6 +6,45 @@ Format follows [ADR](https://adr.github.io/) conventions loosely: each entry has
 
 ---
 
+## ADR-012 · Themes: vinOS-native only, no ecosystem theme reuse
+
+**Date:** 2026-08-09 · **Status:** locked HARD RULE
+
+### Context
+
+Earlier PERSONAS.md and ROADMAP.md drafts recommended shipping four themes: aurora + nord + gruvbox-dark + catppuccin. Nord, Gruvbox, and Catppuccin are independent community projects (predating Omarchy by 3-10 years) — so shipping them wouldn't violate the letter of [ADR-007](#adr-007) (no Omarchy code). But that specific three-theme selection mirrors Omarchy's shipped set, which does violate the *spirit* of ADR-007 — anyone familiar with Omarchy would read that lineup as Omarchy-influenced.
+
+### Decision
+
+**vinOS ships only vinOS-native themes.** No ecosystem theme reuse. The v1.3.0 theme system ships exactly four themes, all authored by us:
+
+| Theme | Palette | Vibe |
+|---|---|---|
+| **Aurora** (default) | teal `#33ccff` → purple `#bb9af7` gradient, dark bg | agentic, atmospheric — matches the Hyprland border gradient |
+| **Nebula** | deep indigo `#1a1a2e`, soft violet `#a29bfe`, cyan `#00d9ff` | night-owl coder, deep-space |
+| **Ember** | charcoal `#1c1917`, amber `#f59e0b`, rust `#dc2626` | warm terminal-heavy, on-call ops energy |
+| **Frost** | off-white `#f5f5f7`, slate blue `#4a5568`, mint `#10b981` | light theme for outdoor coding |
+
+### Rationale
+
+- **Brand consistency.** Users see one visual language across the OS. Aurora is the identity; Nebula/Ember/Frost are its siblings, not borrowed neighbours.
+- **Zero possible confusion with Omarchy.** No cognitive overlap. When a reviewer sees the theme list, no one thinks "Omarchy influence."
+- **Author-everything discipline.** Ties directly to [ADR-007](#adr-007) — we author our configs; the same rule extends to visual identity.
+- **Community themes still work for users.** Nothing prevents a user from installing catppuccin-gtk or nord themes themselves. We just don't ship them as "vinOS themes."
+
+### Consequences
+
+- v1.3.0 theme system ships Aurora + Nebula + Ember + Frost
+- `vinos-theme` CLI applies vinOS-native theme sets — Hyprland colors, waybar CSS, walker CSS, mako colors, foot palette, GTK theme, cursor accent, wallpaper — atomically
+- Each theme lives under `/usr/share/vinos/themes/<name>/` with a manifest + per-tool config drop-ins
+- If future themes are added, they must also be vinOS-authored — this rule is permanent, not just for the initial four
+
+### Supersedes
+
+Earlier PERSONAS.md § Menu system Theme submenu naming (Aurora + Nord + Gruvbox Dark + Catppuccin). PERSONAS.md and ROADMAP.md updated in the same commit that landed this ADR.
+
+---
+
 ## ADR-011 · Menu system: three tiers with consistent visual language
 
 **Date:** 2026-08-08 · **Status:** planned for v1.2.0 Phase A2

@@ -122,10 +122,10 @@ vinOS ⌘
 │   ├── 🎥 Record screen         → wf-recorder → ~/Videos/
 │   └── 📝 OCR clipboard         → vinos-capture-text-extraction
 ├── 🎨 Theme
-│   ├── ✨ Aurora (current)
-│   ├── ❄  Nord
-│   ├── 🍂 Gruvbox Dark
-│   ├── 🌸 Catppuccin
+│   ├── ✨ Aurora (default)       → teal→purple gradient, dark, atmospheric
+│   ├── 🌌 Nebula                  → deep indigo, night-owl coder feel
+│   ├── 🔥 Ember                   → charcoal + amber + rust, warm ops vibe
+│   ├── ❄  Frost                   → light theme (off-white + slate + mint) for outdoor coding
 │   └── 🖼  Wallpaper pick        → nwg-look wallpaper submenu
 ├── 📁 Files
 │   ├── 🏠 Home                   → nautilus ~
