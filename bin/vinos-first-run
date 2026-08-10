@@ -343,6 +343,18 @@ _scr_bundles() {
 
 _state_init
 
+# Silent no-op on second and later logins so autostart doesn't flash
+# a terminal every Hyprland session. Only skip when completed_at is
+# set AND no --skip was requested (skip means user wants targeted
+# replay of a screen).
+if [[ -f "$STATE_FILE" ]] \
+   && [[ ${#SKIP[@]} -eq 0 ]] \
+   && [[ $RESET -eq 0 ]] \
+   && have jq \
+   && [[ "$(jq -r '.completed_at // "null"' "$STATE_FILE" 2>/dev/null)" != "null" ]]; then
+  exit 0
+fi
+
 for s in "${SCREENS[@]}"; do
   if _should_skip "$s"; then
     printf '\033[2m-- skipping %s (per --skip) --\033[0m\n' "$s"

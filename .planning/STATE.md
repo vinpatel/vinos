@@ -15,10 +15,10 @@
 | ID | Item | Status | Commit |
 |----|------|--------|--------|
 | A1 | Modular hypr sourcing + `bindd =` migration | ✅ Done | `4e2b126b` (P1) |
-| A2 | `vinos-menu` binding activation (Super+Alt+Space) | 🟡 In progress | binding wired via P1; subcommand routing next |
-| A3 | First-run wizard v2 (gum-driven, 6 screens) | ⬜ Pending | — |
-| A4 | Preinstall Claude Code + Ollama + `vinos-mcp` + curated MCP registry | 🟡 Partial | `f5f242f0` (P2 shipped mcp CLI + registry); CC+Ollama pending |
-| A5 | Ship `vinos-dev-1.2.0-x86_64.iso` | ⬜ Pending | blocked by A2/A3/A4 |
+| A2 | `vinos-menu` binding activation + 9 subcommand handlers | ✅ Done | `1a970144` — 35/35 tests |
+| A3 | First-run wizard v2 (gum-driven, 6 screens + short-circuit) | ✅ Done | `fb39fe11` — 16/16 tests |
+| A4 | Preinstall Claude Code + Ollama + `vinos-mcp` + curated MCP registry | ✅ Done | `c362c62c` (installer path); P2 shipped the registry |
+| A5 | Ship `vinos-dev-1.2.0-x86_64.iso` | ⏸ Queued | Requires user-triggered ship session (mkarchiso + QEMU matrix, 30-50 min; oneshot gate mandatory) |
 
 ### Track B — vinos-vm
 
@@ -45,11 +45,13 @@
 
 ## Session continuity
 
-Last session: 2026-08-10 (P1–P4 shipped previous session)
+Last session: 2026-08-10 (A2 + A3 + A4 shipped this session)
 Resumed via: `/gsd-resume-work`
-Stopped at: A2 — `vinos-menu` subcommand routing (siblings from `utilities.conf` need submenu handlers)
-Next action: Implement A2 subcommand dispatch in `bin/vinos-menu`
-Task tracking: TaskList (A2 in_progress; A3, A4 pending; A5 blocked by A2+A3+A4)
+Stopped at: Track A code complete; A5 ISO ship queued for user-triggered session
+Next actions:
+  - **User-triggered:** `iso/build.sh && iso/test.sh matrix` → tag v1.2.0
+  - **Auto-continuable:** Track B — B1 (runtime monorepo) is the next big lever
+Task tracking: TaskList (#1–#3 completed; #4 pending A5 ship gate)
 
 ## Blockers
 
