@@ -12,6 +12,12 @@ cd "$REPO"
 
 fail() { printf '\n\033[1;31mFAIL:\033[0m %s\n' "$*" >&2; exit 1; }
 
+echo "== unit test suites (tests/*.test.sh) =="
+if ! bash tests/all.sh; then
+  fail "unit test suites failed — fix before running container acceptance"
+fi
+
+echo
 echo "== guardrail: Rule 1 (no graphical operations outside 02-desktop.sh) =="
 # Rule 1's spirit: scripts must work headless. We flag graphical
 # operations (hyprland/waybar/etc. commands being invoked), not text
