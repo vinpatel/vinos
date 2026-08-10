@@ -6,7 +6,7 @@
 
 ## Current position
 
-**Milestone:** v1.2.0 — Persona activation (in progress)
+**Milestone:** v1.2.0 — Persona activation (**Track A shipped 2026-08-10**; Track B in progress)
 **Baseline:** v1.1.0 (permanent · `iso/out/vinos-1.1.0-x86_64.iso`)
 **Direction:** Option C locked 2026-08-08 (Arch dev + Ubuntu vm + shared bash runtime)
 
@@ -18,7 +18,7 @@
 | A2 | `vinos-menu` binding activation + 9 subcommand handlers | ✅ Done | `1a970144` — 35/35 tests |
 | A3 | First-run wizard v2 (gum-driven, 6 screens + short-circuit) | ✅ Done | `fb39fe11` — 16/16 tests |
 | A4 | Preinstall Claude Code + Ollama + `vinos-mcp` + curated MCP registry | ✅ Done | `c362c62c` (installer path); P2 shipped the registry |
-| A5 | Ship `vinos-dev-1.2.0-x86_64.iso` | ⏸ Queued | Requires user-triggered ship session (mkarchiso + QEMU matrix, 30-50 min; oneshot gate mandatory) |
+| A5 | Ship `vinos-dev-1.2.0-x86_64.iso` | ✅ Shipped | `08082ce6` → tag `v1.2.0`; 4.36 GB; sha256 `7fff67bfa…` archived to `~/vinos-iso-archive/isos/` |
 
 ### Track B — vinos-vm
 
@@ -65,6 +65,7 @@ Task tracking: TaskList (#1–#3 completed; #4 pending A5 ship gate)
 | `75501b9a` | polish: wizard silent no-op | 16/16 (re-run) |
 | `5403edb9` | tests/all.sh + wired into master test.sh | 58/58 aggregate |
 | `65d7a01d` | B6 slice: `vinos` CLI dispatcher | 15/15 → 73/73 aggregate |
+| `08082ce6` | release: v1.2.0 ship-gate fixes (sha256 heuristic, size budget → 5.0 GB, absolute --iso path) — tagged `v1.2.0` | Matrix PASS (BIOS/UEFI/3G-floor/offline/Plymouth) |
 
 **Full harness state (as of last commit):** 4 harnesses (vinos-mcp, vinos-menu, vinos-first-run, vinos), 73/73 assertions green. `bash tests/all.sh` runs everything in seconds.
 
