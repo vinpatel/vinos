@@ -4,7 +4,12 @@
 #   - test 5.1: VINOS_BOOT_OK marker reached (multi-user/graphical).
 #   - test 5.2: /etc/os-release ID=vinos (echoed by the marker service).
 #   - test 5.3: ISO filename + label carry the repo VERSION.
-#   - test 5.4: ISO size ≤ SIZE_BUDGET_GB (default 3.5 GB).
+#   - test 5.4: ISO size ≤ SIZE_BUDGET_GB (default 5.0 GB). The gate
+#              was 3.5 GB when the ISO was 1.92 GB; grew with the
+#              full Hyprland stack + T2 support + linux-t2 kernel to
+#              4.3 GB by v1.1.0, and 4.36 GB by v1.2.0 (added
+#              claude-code + ollama + nodejs + npm for A4). 5.0 GB
+#              gives headroom for v1.3.0 while still catching balloon.
 #   - test 5.5: boot passes at MEM_FLOOR (default 3G), simulating minimum
 #              hardware.
 #
@@ -33,7 +38,7 @@ ISO=""
 MEM="4G"
 TIMEOUT=300
 NET="user"
-SIZE_BUDGET_GB="${VINOS_ISO_SIZE_BUDGET_GB:-3.5}"
+SIZE_BUDGET_GB="${VINOS_ISO_SIZE_BUDGET_GB:-5.0}"
 
 die() { printf '\033[1;31m[iso-test] FAIL:\033[0m %s\n' "$*" >&2; exit 1; }
 log() { printf '\033[1;34m[iso-test]\033[0m %s\n' "$*"; }
@@ -52,6 +57,9 @@ done
 
 [[ -z "$ISO" ]] && ISO="$(ls -1t "$ISO_DIR"/out/vinos-*.iso 2>/dev/null | head -1 || true)"
 [[ -n "$ISO" && -f "$ISO" ]] || die "no ISO found — run iso/build.sh first (or pass --iso PATH)"
+# Normalize to an absolute path: docker rejects relative volume specs
+# ("iso/out/…") with "invalid characters for a local volume name".
+ISO="$(readlink -f "$ISO")"
 case "$MODE" in bios|uefi|both|matrix|plymouth) ;; *) die "--mode must be bios/uefi/both/plymouth/matrix" ;; esac
 case "$NET"  in user|none) ;;              *) die "--net must be user or none" ;; esac
 

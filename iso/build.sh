@@ -139,9 +139,13 @@ PACCONF
 
     mkdir -p '$WORK_DIR'
     mkarchiso -v -w '$WORK_DIR' -o /out iso/profile
-    ISO_FILE=\$(ls -1 /out/vinos-*.iso 2>/dev/null | head -1) || true
-    if [[ -z \"\$ISO_FILE\" ]]; then
-      echo 'mkarchiso produced no vinos-*.iso' >&2
+    # Pick the ISO we just built by exact filename (previous heuristic
+    # picked the alphabetically-first vinos-*.iso, which returned
+    # v1.1.0 when the preserved gold copy was sitting alongside the
+    # newly-built ISO).
+    ISO_FILE=\"/out/vinos-\$VINOS_VERSION-x86_64.iso\"
+    if [[ ! -f \"\$ISO_FILE\" ]]; then
+      echo \"mkarchiso produced no \$ISO_FILE\" >&2
       ls /out || true
       exit 1
     fi
