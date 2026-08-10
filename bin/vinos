@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+# vinos — top-level CLI dispatcher for both personas (dev + vm).
+#
+# vinos:summary=vinOS meta-CLI (14 subcommands, shared across dev + vm)
+# vinos:examples=vinos | vinos status | vinos doctor | vinos mcp list
+#
+# Subcommand dispatch: each subcommand lives at
+# /usr/lib/vinos/cmd/<name>.sh (system) or usr/lib/vinos/cmd/<name>.sh
+# (dev checkout). This file only routes. All state-mutating commands
+# append an event to /var/log/vinos/audit.jsonl for forensics.
+#
+# Persona detection: /etc/vinos/persona ("dev" or "vm"). Absent →
+# probe fallback: pacman → dev, dpkg → vm, else unknown.
+
+set -euo pipefail
+
+# --- Layout resolution ------------------------------------------------
+
+_resolve_cmd_dir() {
+  local self bin repo
+  self="$(readlink -f "$0")"
+  bin="$(dirname "$self")"
+  repo="$(dirname "$bin")"
+  if [[ -d "$repo/usr/lib/vinos/cmd" ]]; then
+    printf '%s\n' "$repo/usr/lib/vinos/cmd"; return 0
+  fi
+  if [[ -d /usr/lib/vinos/cmd ]]; then
+    printf '%s\n' /usr/lib/vinos/cmd; return 0
+  fi
+  printf ''
+}
+
+CMD_DIR="$(_resolve_cmd_dir)"
+
+detect_persona() {
+  if [[ -f /etc/vinos/persona ]]; then
+    cat /etc/vinos/persona; return
+  fi
+  if command -v pacman >/dev/null 2>&1; then printf 'dev\n'; return; fi
+  if command -v dpkg   >/dev/null 2>&1; then printf 'vm\n';  return; fi
+  printf 'unknown\n'
+}
+
+# --- Help + status (built-in fallbacks; overridden by cmd/*.sh) --------
+
+_builtin_help() {
+  cat <<TXT
+vinos — meta-CLI for vinOS (persona: $(detect_persona))
+
+USAGE
+  vinos                       print status
+  vinos help [<cmd>]          this message; per-cmd help via <cmd>.sh
+  vinos status                one-line status
+
+FLEET + ORCHESTRATOR (vm-only)
+  vinos join <url>            register with orchestrator
+  vinos leave                 deregister, stop worker
+
+AGENT WORKER (vm-only)
+  vinos agent start|stop|restart|tail|config
+
+MISSIONS (vm-only)
+  vinos mission run|list|logs|cancel
+
+MCP REGISTRY (both personas)
+  vinos mcp add|list|remove   thin wrapper over vinos-mcp
+
+OPS
+  vinos doctor                delegates to vinos-doctor
+  vinos update                delegates to vinos-update (dev) or apt (vm)
+  vinos install <role>        opt-in bundles (dev: bin/vinos-install-*)
+  vinos secrets set|get <key> read/write /etc/vinos/secrets/
+
+FLAGS
+  --json                      emit machine-readable output (per-cmd support)
+  --version                   print version
+  --help, -h                  show help for the current command
+TXT
+}
+
+_builtin_status() {
+  local json=0
+  [[ "${1:-}" == "--json" ]] && json=1
+  local persona; persona="$(detect_persona)"
+  local version="unknown"
+  [[ -r /etc/os-release ]] && version="$(. /etc/os-release && printf '%s' "${VERSION_ID:-${VERSION:-unknown}}")"
+  local uptime="?"
+  uptime="$(uptime -p 2>/dev/null || printf '?')"
+  if [[ $json -eq 1 ]]; then
+    printf '{"persona":"%s","version":"%s","uptime":"%s"}\n' "$persona" "$version" "$uptime"
+  else
+    printf 'vinos %s · persona=%s · %s\n' "$version" "$persona" "$uptime"
+  fi
+}
+
+# --- Audit log --------------------------------------------------------
+
+audit_event() {
+  local subcmd="$1"; shift
+  local logdir="/var/log/vinos" log="/var/log/vinos/audit.jsonl"
+  [[ -w "$logdir" || $EUID -eq 0 ]] || return 0
+  install -d -m 0755 "$logdir" 2>/dev/null || return 0
+  local ts; ts="$(date -Iseconds)"
+  printf '{"ts":"%s","user":"%s","subcmd":"%s","args":"%s"}\n' \
+    "$ts" "${USER:-$(id -un)}" "$subcmd" "$*" >>"$log" 2>/dev/null || true
+}
+
+# --- Dispatch ---------------------------------------------------------
+
+_dispatch() {
+  local subcmd="${1:-}"
+  [[ $# -gt 0 ]] && shift
+  case "$subcmd" in
+    ""|status)   _builtin_status "$@"; return ;;
+    help|-h|--help)
+      if [[ -n "${1:-}" && -n "$CMD_DIR" && -f "$CMD_DIR/$1.sh" ]]; then
+        VINOS_CMD_HELP=1 bash "$CMD_DIR/$1.sh" --help 2>/dev/null || _builtin_help
+      else
+        _builtin_help
+      fi
+      return
+      ;;
+    --version)
+      [[ -r /etc/os-release ]] && (. /etc/os-release && printf 'vinos %s\n' "${VERSION_ID:-unknown}") || printf 'vinos unknown\n'
+      return
+      ;;
+  esac
+
+  # File-backed subcommand?
+  if [[ -n "$CMD_DIR" && -f "$CMD_DIR/$subcmd.sh" ]]; then
+    audit_event "$subcmd" "$@"
+    exec bash "$CMD_DIR/$subcmd.sh" "$@"
+  fi
+
+  # Built-in delegates (until cmd/*.sh files exist for these).
+  case "$subcmd" in
+    mcp)
+      command -v vinos-mcp >/dev/null 2>&1 \
+        || { printf 'vinos: vinos-mcp not installed\n' >&2; exit 127; }
+      audit_event "$subcmd" "$@"
+      exec vinos-mcp "$@"
+      ;;
+    doctor)
+      command -v vinos-doctor >/dev/null 2>&1 \
+        || { printf 'vinos: vinos-doctor not installed\n' >&2; exit 127; }
+      audit_event "$subcmd" "$@"
+      exec vinos-doctor "$@"
+      ;;
+    update)
+      audit_event "$subcmd" "$@"
+      case "$(detect_persona)" in
+        dev)
+          command -v vinos-update >/dev/null 2>&1 \
+            || { printf 'vinos: vinos-update not installed\n' >&2; exit 127; }
+          exec vinos-update "$@"
+          ;;
+        vm)
+          exec sudo apt-get update && sudo apt-get upgrade -y "$@"
+          ;;
+        *)
+          printf 'vinos: unknown persona — cannot route update\n' >&2; exit 2 ;;
+      esac
+      ;;
+    install)
+      local role="${1:-}"
+      [[ -n "$role" ]] || { printf 'vinos install <role> — role required\n' >&2; exit 2; }
+      audit_event "$subcmd" "$@"
+      if command -v "vinos-install-$role" >/dev/null 2>&1; then
+        exec "vinos-install-$role"
+      fi
+      printf 'vinos: no installer for role %q\n' "$role" >&2; exit 127
+      ;;
+    join|leave|agent|mission|secrets)
+      # vm-persona commands — vinos-agent-worker.deb ships cmd/*.sh
+      # implementations. On dev without that package installed, we
+      # emit a clear "not supported here" message rather than fail
+      # silently.
+      printf 'vinos %s: not implemented in this build\n' "$subcmd" >&2
+      printf '  → vinos-vm ships /usr/lib/vinos/cmd/%s.sh via vinos-agent-worker.deb\n' "$subcmd" >&2
+      exit 64
+      ;;
+    *)
+      printf 'vinos: unknown subcommand %q — try `vinos help`\n' "$subcmd" >&2
+      exit 2
+      ;;
+  esac
+}
+
+_dispatch "$@"
