@@ -27,7 +27,9 @@
 | B0 | Ubuntu 24.04 PoC — build + boot + 7-metric measurements | ✅ Done | `fc3e0ad0` (P3) — 4/7 gates pass |
 | B1 | Shared vinOS runtime monorepo → `.pkg.tar.zst` + `.deb` | ⬜ Pending | — |
 | B2 | Signed apt repo at `apt.vinos.computer` (Cloudflare + GPG) | ⬜ Pending | — |
-| B3–B8 | Packer + Ansible + multi-arch + orchestrator + multi-cloud + ship qcow2 | ⬜ Pending | — |
+| B3, B4, B7, B8 | Packer + Ansible + multi-arch + multi-cloud + ship qcow2 | ⬜ Pending | — |
+| B5 | vinos-agent-worker polling loop + runner abstraction | ⬜ Pending | — |
+| B6 | Full `vinos` CLI (14 subcommands, all tested) | 🟡 Slice done | `65d7a01d` — dispatcher + 6/14 delegates + 15/15 tests. vm-only cmds (join/leave/agent/mission/secrets) queued for cmd/*.sh under vinos-agent-worker.deb |
 
 ### Research shipped
 
@@ -45,13 +47,26 @@
 
 ## Session continuity
 
-Last session: 2026-08-10 (A2 + A3 + A4 shipped this session)
+Last session: 2026-08-10 (A2 + A3 + A4 + B6-slice + polish + tests/all.sh)
 Resumed via: `/gsd-resume-work`
-Stopped at: Track A code complete; A5 ISO ship queued for user-triggered session
+Stopped at: Track A code-complete; B6 dispatcher shipped; A5 gated on user ISO build
 Next actions:
-  - **User-triggered:** `iso/build.sh && iso/test.sh matrix` → tag v1.2.0
-  - **Auto-continuable:** Track B — B1 (runtime monorepo) is the next big lever
+  - **User-triggered:** `iso/build.sh && iso/test.sh matrix` → tag v1.2.0 (A5)
+  - **Auto-continuable:** Track B — B5 (agent-worker + runner abstraction) or B1 (runtime monorepo)
 Task tracking: TaskList (#1–#3 completed; #4 pending A5 ship gate)
+
+### Session tally (2026-08-10)
+
+| Commit | Item | Tests |
+|--------|------|-------|
+| `1a970144` | A2: vinos-menu subcommand routing | 35/35 |
+| `fb39fe11` | A3: first-run wizard v2 | 16/16 |
+| `c362c62c` | A4: Claude Code + Ollama preinstall + gen-packages fix | — |
+| `75501b9a` | polish: wizard silent no-op | 16/16 (re-run) |
+| `5403edb9` | tests/all.sh + wired into master test.sh | 58/58 aggregate |
+| `65d7a01d` | B6 slice: `vinos` CLI dispatcher | 15/15 → 73/73 aggregate |
+
+**Full harness state (as of last commit):** 4 harnesses (vinos-mcp, vinos-menu, vinos-first-run, vinos), 73/73 assertions green. `bash tests/all.sh` runs everything in seconds.
 
 ## Blockers
 
