@@ -18,7 +18,8 @@
 | A2 | `vinos-menu` binding activation + 9 subcommand handlers | ✅ Done | `1a970144` — 35/35 tests |
 | A3 | First-run wizard v2 (gum-driven, 6 screens + short-circuit) | ✅ Done | `fb39fe11` — 16/16 tests |
 | A4 | Preinstall Claude Code + Ollama + `vinos-mcp` + curated MCP registry | ✅ Done | `c362c62c` (installer path); P2 shipped the registry |
-| A5 | Ship `vinos-dev-1.2.0-x86_64.iso` | ✅ Shipped | `08082ce6` → tag `v1.2.0`; 4.36 GB; sha256 `7fff67bfa…` archived to `~/vinos-iso-archive/isos/` |
+| A5 | Ship `vinos-dev-1.2.0-x86_64.iso` | ✅ Shipped | `08082ce6` → tag `v1.2.0`; 4.36 GB; sha256 `7fff67bfa…` |
+| A5.1 | Patch v1.2.1 — SUPER+Return terminal binding regression | ✅ Shipped | `ade18c23` → tag `v1.2.1`; 4.37 GB; sha256 `956d52e34…` |
 
 ### Track B — vinos-vm
 
