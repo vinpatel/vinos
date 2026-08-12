@@ -1,22 +1,14 @@
 #!/usr/bin/env bash
-# vinos-ux-smoke — after graphical.target, verify the live-session UX
-# actually works so the matrix gate can't ship broken keybindings /
-# missing wallpaper again.
+# vinos-ux-smoke — after multi-user.target + greetd + Hyprland come up,
+# verify the live-session UX actually works. Emits one summary line to
+# /dev/ttyS0 the matrix greps for:
 #
-# Checks (all soft — never fails the boot, just reports):
-#   1. swaybg process running as user 'vinos'                (wallpaper)
-#   2. Hyprland process running                              (compositor)
-#   3. Hyprland IPC socket present at /run/user/1000/hypr/   (session)
-#   4. /usr/share/vinos/wallpaper.png exists + is a valid PNG
-#   5. foot binary present + executable                      (terminal)
-#   6. Hyprland config parses without errors
-#
-# Emits one summary line to /dev/ttyS0 that the matrix gate greps for:
 #   VINOS_UX_OK swaybg=YES|no hypr=YES|no ipc=YES|no wallpaper=YES|no foot=YES|no config=YES|no
 #
-# Runs after a short delay so autostart's exec-once slate has time
-# to launch. Never returns non-zero — we want ONE serial line, not a
-# failure loop.
+# archiso live boot ends at multi-user.target — greetd is a multi-user
+# service, graphical.target never activates. We poll for Hyprland
+# readiness with retries (up to ~120 s) since the exec-once slate is
+# spawned asynchronously from greetd's autologin.
 
 set +e
 
@@ -28,28 +20,39 @@ _report() {
   printf 'VINOS_UX_OK %s\n' "$msg"
 }
 
-# Give Hyprland + exec-once slate ~10 s to converge.
-sleep 10
-
 _yesno() { [[ "$1" == "1" ]] && printf 'YES' || printf 'no'; }
 
+# Poll for the Hyprland session for up to ~120 s. The vinos user is
+# UID 1000 on the live ISO.
+_hypr_uid=1000
+_hypr_sock_dir=""
+for i in $(seq 1 60); do
+  # /run/user/1000/hypr/<INSTANCE_SIG>/ is the IPC dir
+  _hypr_sock_dir=$(ls -d /run/user/$_hypr_uid/hypr/*/ 2>/dev/null | head -1)
+  if [[ -n "$_hypr_sock_dir" ]] && pgrep -u $_hypr_uid -x Hyprland >/dev/null 2>&1; then
+    break
+  fi
+  sleep 2
+done
+
+# Extra grace for exec-once slate (swaybg, waybar, mako).
+sleep 5
+
 # 1. swaybg
-pgrep -u vinos -x swaybg >/dev/null 2>&1
+pgrep -u $_hypr_uid -x swaybg >/dev/null 2>&1
 sway=$?
 
 # 2. Hyprland
-pgrep -u vinos -x Hyprland >/dev/null 2>&1
+pgrep -u $_hypr_uid -x Hyprland >/dev/null 2>&1
 hypr=$?
 
 # 3. IPC socket
-ls /run/user/1000/hypr/*/\.socket.sock >/dev/null 2>&1 || \
-  ls /run/user/1000/hypr/*/.socket.sock >/dev/null 2>&1
-ipc=$?
+ipc=1
+[[ -n "$_hypr_sock_dir" && -S "$_hypr_sock_dir/.socket.sock" ]] && ipc=0
 
 # 4. wallpaper.png resolves + is a PNG
 wp=1
 if [[ -e /usr/share/vinos/wallpaper.png ]]; then
-  # `file` may not be installed; header bytes suffice.
   head -c 8 /usr/share/vinos/wallpaper.png 2>/dev/null \
     | od -An -c | grep -q 'P   N   G' && wp=0
 fi
@@ -58,13 +61,13 @@ fi
 command -v foot >/dev/null 2>&1
 foot=$?
 
-# 6. Hyprland config parses
+# 6. hyprctl monitors succeeds
 cfg=1
-if [[ $hypr -eq 0 ]]; then
-  # `Hyprland --verify-config` fails on some versions when called
-  # outside the running session; use hyprctl instead which needs the
-  # IPC socket.
-  runuser -u vinos -- env HYPRLAND_INSTANCE_SIGNATURE="$(ls /run/user/1000/hypr/ 2>/dev/null | head -1)" \
+if [[ $hypr -eq 0 && -n "$_hypr_sock_dir" ]]; then
+  _sig=$(basename "$_hypr_sock_dir")
+  runuser -u vinos -- env \
+    HYPRLAND_INSTANCE_SIGNATURE="$_sig" \
+    XDG_RUNTIME_DIR="/run/user/$_hypr_uid" \
     hyprctl monitors >/dev/null 2>&1
   cfg=$?
 fi

@@ -1,7 +1,10 @@
 [Unit]
-Description=vinOS live-session UX smoke (emits VINOS_UX_OK to serial after graphical.target)
-After=graphical.target vinos-boot-marker.service
-Wants=graphical.target
+Description=vinOS live-session UX smoke (emits VINOS_UX_OK to serial after Hyprland comes up)
+After=multi-user.target vinos-boot-marker.service greetd.service
+# archiso live boot terminates at multi-user.target — greetd runs as a
+# multi-user service and never pulls graphical.target in. Binding to
+# multi-user.target ensures the smoke actually fires. The script itself
+# polls Hyprland readiness with retries.
 
 [Service]
 Type=oneshot
@@ -10,4 +13,4 @@ StandardOutput=journal+console
 ExecStart=/usr/local/bin/vinos-ux-smoke
 
 [Install]
-WantedBy=graphical.target
+WantedBy=multi-user.target
