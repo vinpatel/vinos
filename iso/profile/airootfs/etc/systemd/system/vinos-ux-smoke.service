@@ -1,0 +1,13 @@
+[Unit]
+Description=vinOS live-session UX smoke (emits VINOS_UX_OK to serial after graphical.target)
+After=graphical.target vinos-boot-marker.service
+Wants=graphical.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+StandardOutput=journal+console
+ExecStart=/usr/local/bin/vinos-ux-smoke
+
+[Install]
+WantedBy=graphical.target

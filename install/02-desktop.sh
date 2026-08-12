@@ -45,7 +45,7 @@ log "02-desktop: installing AUR apps (UX-critical only)"
 # bibata-cursor-theme: sharp modern cursors.
 # hyprpm needs its git alternate; we install plugins post-boot with
 # vinos-hypr-plugins (see below).
-install_aur walker yaru-icon-theme bibata-cursor-theme
+install_aur walker yaru-icon-theme bibata-cursor-theme nwg-drawer
 
 # Optional Hyprland plugins via hyprpm. hyprpm ships with hyprland,
 # so no extra package needed. We install the beauty-pass plugins on

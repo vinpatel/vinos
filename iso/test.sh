@@ -168,29 +168,58 @@ run_one() {
         )
       fi
       echo "== qemu-system-x86_64 accel=$ACCEL mode=$MODE mem=$MEM net=$NET =="
-      timeout --preserve-status "$TIMEOUT" qemu-system-x86_64 "${qemu_args[@]}" >/dev/null 2>&1 &
+      # Extended budget for the UX smoke: multi-user.target hits at
+      # ~55 s (VINOS_BOOT_OK); graphical.target + Hyprland exec-once
+      # slate needs another 15-30 s before vinos-ux-smoke fires.
+      UX_TIMEOUT=$(( TIMEOUT + 90 ))
+      timeout --preserve-status "$UX_TIMEOUT" qemu-system-x86_64 "${qemu_args[@]}" >/dev/null 2>&1 &
       qpid=$!
-      deadline=$(( $(date +%s) + TIMEOUT ))
-      found=0
+      deadline=$(( $(date +%s) + UX_TIMEOUT ))
+      found_boot=0
+      found_ux=0
       while [[ $(date +%s) -lt $deadline ]]; do
-        if grep -q "VINOS_BOOT_OK" "$serial" 2>/dev/null; then found=1; break; fi
+        if grep -q "VINOS_BOOT_OK" "$serial" 2>/dev/null; then found_boot=1; fi
+        if grep -q "VINOS_UX_OK"   "$serial" 2>/dev/null; then found_ux=1; break; fi
         if ! kill -0 $qpid 2>/dev/null; then break; fi
         sleep 2
       done
       kill $qpid 2>/dev/null || true
       wait $qpid 2>/dev/null || true
-      echo "---- serial tail (last 25 lines, ${LABEL}) ----"
-      tail -25 "$serial" || true
+      echo "---- serial tail (last 40 lines, ${LABEL}) ----"
+      tail -40 "$serial" || true
       echo "---- end ${LABEL} ----"
-      if ! (( found )); then
-        echo "FAIL: no VINOS_BOOT_OK within ${TIMEOUT}s [${LABEL}]"
+      if ! (( found_boot )); then
+        echo "FAIL: no VINOS_BOOT_OK within ${UX_TIMEOUT}s [${LABEL}]"
         exit 1
       fi
       if ! grep -Fq "ID=vinos" "$serial"; then
         echo "FAIL: test 5.2 — ID=vinos not on serial [${LABEL}]"
         exit 1
       fi
-      echo "PASS [${LABEL}]: VINOS_BOOT_OK + ID=vinos"
+      if (( found_ux )); then
+        # Parse VINOS_UX_OK line and fail if any subsystem is 'no'.
+        ux_line="$(grep "VINOS_UX_OK" "$serial" | tail -1)"
+        for sub in swaybg hypr ipc wallpaper foot config; do
+          if [[ "$ux_line" == *"${sub}=no"* ]]; then
+            echo "FAIL: UX smoke [${LABEL}] — ${sub}=no in: $ux_line"
+            exit 1
+          fi
+        done
+        echo "PASS [${LABEL}]: VINOS_BOOT_OK + ID=vinos + UX_OK"
+      else
+        # Only enforced on bios/uefi 4G runs — the 3G ramfloor + offline
+        # runs are boot-marker only (Hyprland session doesn'\''t always
+        # come up cleanly at the 3G floor; the ISO is still shippable).
+        case "$LABEL" in
+          bios-4g-net|uefi-4g-net)
+            echo "FAIL: no VINOS_UX_OK within ${UX_TIMEOUT}s [${LABEL}]"
+            exit 1
+            ;;
+          *)
+            echo "PASS [${LABEL}]: VINOS_BOOT_OK + ID=vinos (UX smoke not required at this label)"
+            ;;
+        esac
+      fi
     '
 }
 

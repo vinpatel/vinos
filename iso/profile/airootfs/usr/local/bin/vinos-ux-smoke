@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# vinos-ux-smoke — after graphical.target, verify the live-session UX
+# actually works so the matrix gate can't ship broken keybindings /
+# missing wallpaper again.
+#
+# Checks (all soft — never fails the boot, just reports):
+#   1. swaybg process running as user 'vinos'                (wallpaper)
+#   2. Hyprland process running                              (compositor)
+#   3. Hyprland IPC socket present at /run/user/1000/hypr/   (session)
+#   4. /usr/share/vinos/wallpaper.png exists + is a valid PNG
+#   5. foot binary present + executable                      (terminal)
+#   6. Hyprland config parses without errors
+#
+# Emits one summary line to /dev/ttyS0 that the matrix gate greps for:
+#   VINOS_UX_OK swaybg=YES|no hypr=YES|no ipc=YES|no wallpaper=YES|no foot=YES|no config=YES|no
+#
+# Runs after a short delay so autostart's exec-once slate has time
+# to launch. Never returns non-zero — we want ONE serial line, not a
+# failure loop.
+
+set +e
+
+_report() {
+  local msg="$*"
+  printf 'VINOS_UX_OK %s\n' "$msg" > /dev/ttyS0 2>/dev/null
+  printf 'VINOS_UX_OK %s\n' "$msg" > /dev/kmsg  2>/dev/null
+  logger -t vinos-ux-smoke "$msg" 2>/dev/null || true
+  printf 'VINOS_UX_OK %s\n' "$msg"
+}
+
+# Give Hyprland + exec-once slate ~10 s to converge.
+sleep 10
+
+_yesno() { [[ "$1" == "1" ]] && printf 'YES' || printf 'no'; }
+
+# 1. swaybg
+pgrep -u vinos -x swaybg >/dev/null 2>&1
+sway=$?
+
+# 2. Hyprland
+pgrep -u vinos -x Hyprland >/dev/null 2>&1
+hypr=$?
+
+# 3. IPC socket
+ls /run/user/1000/hypr/*/\.socket.sock >/dev/null 2>&1 || \
+  ls /run/user/1000/hypr/*/.socket.sock >/dev/null 2>&1
+ipc=$?
+
+# 4. wallpaper.png resolves + is a PNG
+wp=1
+if [[ -e /usr/share/vinos/wallpaper.png ]]; then
+  # `file` may not be installed; header bytes suffice.
+  head -c 8 /usr/share/vinos/wallpaper.png 2>/dev/null \
+    | od -An -c | grep -q 'P   N   G' && wp=0
+fi
+
+# 5. foot
+command -v foot >/dev/null 2>&1
+foot=$?
+
+# 6. Hyprland config parses
+cfg=1
+if [[ $hypr -eq 0 ]]; then
+  # `Hyprland --verify-config` fails on some versions when called
+  # outside the running session; use hyprctl instead which needs the
+  # IPC socket.
+  runuser -u vinos -- env HYPRLAND_INSTANCE_SIGNATURE="$(ls /run/user/1000/hypr/ 2>/dev/null | head -1)" \
+    hyprctl monitors >/dev/null 2>&1
+  cfg=$?
+fi
+
+_report "swaybg=$(_yesno $((1-sway))) hypr=$(_yesno $((1-hypr))) ipc=$(_yesno $((1-ipc))) wallpaper=$(_yesno $((1-wp))) foot=$(_yesno $((1-foot))) config=$(_yesno $((1-cfg)))"
+exit 0
