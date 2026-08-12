@@ -19,7 +19,8 @@
 | A3 | First-run wizard v2 (gum-driven, 6 screens + short-circuit) | ✅ Done | `fb39fe11` — 16/16 tests |
 | A4 | Preinstall Claude Code + Ollama + `vinos-mcp` + curated MCP registry | ✅ Done | `c362c62c` (installer path); P2 shipped the registry |
 | A5 | Ship `vinos-dev-1.2.0-x86_64.iso` | ✅ Shipped | `08082ce6` → tag `v1.2.0`; 4.36 GB; sha256 `7fff67bfa…` |
-| A5.1 | Patch v1.2.1 — SUPER+Return terminal binding regression | ✅ Shipped | `ade18c23` → tag `v1.2.1`; 4.37 GB; sha256 `956d52e34…` |
+| A5.1 | Patch v1.2.1 — SUPER+Return terminal binding regression | ⚠️ Failed | `ade18c23` → tag `v1.2.1`; static-config bug, xdg-terminal-exec silently no-op'd |
+| A5.2 | Patch v1.2.2 — real fix (foot direct, wallpaper path, nwg-drawer, static lint gate) | ✅ Shipped | `24fa832a`+`89c2944a` → tag `v1.2.2`; 4.37 GB; sha256 `07df9b3cb…`; **iso/qa/config-lint.sh now catches this bug class at build gate 0** |
 
 ### Track B — vinos-vm
 
