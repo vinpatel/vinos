@@ -12,6 +12,10 @@
 
 set +e
 
+# Prove the service actually launched before any polling starts.
+printf 'VINOS_UX_SMOKE_STARTED\n' > /dev/ttyS0 2>/dev/null
+printf 'VINOS_UX_SMOKE_STARTED\n' > /dev/kmsg  2>/dev/null
+
 _report() {
   local msg="$*"
   printf 'VINOS_UX_OK %s\n' "$msg" > /dev/ttyS0 2>/dev/null

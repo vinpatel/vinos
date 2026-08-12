@@ -1,5 +1,8 @@
 iso/out/
-iso/qa/
+iso/qa/*
+!iso/qa/config-lint.sh
+!iso/qa/pkglist.txt
+!iso/qa/prep-harness.sh
 iso/.aur-cache/
 iso/aurrepo/
 iso/aur.failed

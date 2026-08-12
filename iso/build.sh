@@ -37,6 +37,14 @@ done
 command -v docker >/dev/null || die "docker not found — install docker or run inside an archiso-capable environment"
 [[ -f "$REPO/VERSION" ]] || die "$REPO/VERSION missing"
 VINOS_VERSION="$(<"$REPO/VERSION")"
+
+# Ship gate 0 — static Hyprland config lint (catches the v1.2.1 class
+# of silent no-op bugs: xdg-terminal-exec, ~/.config paths in swaybg,
+# exec targets that aren'\''t in the shipped package list).
+if [[ -x "$ISO_DIR/qa/config-lint.sh" ]]; then
+  log "running iso/qa/config-lint.sh (static gate)"
+  "$ISO_DIR/qa/config-lint.sh" || die "config-lint FAILED — refusing to build"
+fi
 mkdir -p "$OUT_DIR"
 
 log "regenerating packages.x86_64 (drift check)"
