@@ -29,7 +29,13 @@ LOGO_DARK="$REPO/assets/logo/png/vinos-512.png"    # placeholder (same file);
 
 TARGET_W=3840
 TARGET_H=2160
-INSET=64                # px from bottom + right edges (larger inset with larger logo)
+INSET=256               # px from bottom + right edges of the 3840×2160 canvas.
+                        # 64 px got clipped on 16:10 laptop screens (MacBook Pro
+                        # T2 2560×1600, Framework 13" 3:2 2256×1504) because
+                        # awww/swaybg cover-fit crops ~140–210 px off each side
+                        # of a 16:9 source. 256 px keeps the mark inside the
+                        # safe rectangle for 16:9, 16:10, and 3:2. Verified on
+                        # T2 hardware 2026-08-15.
 OPACITY=0.55            # 55 % — 30 % was invisible on dark starry backdrops;
                         # 55 % reads as "present but not dominant" on both
                         # bright and dark photos.
