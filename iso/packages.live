@@ -135,7 +135,6 @@ obsidian
 # 02-desktop avoids drift between live and installed builds.
 awww
 papirus-icon-theme
-bibata-cursor-theme
 cmake
 meson
 pkgconf
