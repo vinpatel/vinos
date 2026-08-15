@@ -7,8 +7,10 @@
 # — Tigris' S3 semantics make repeat uploads overwrite (which is fine as
 # long as the version's local sha256 hasn't changed).
 #
-# Auth: reads TIGRIS_ACCESS_KEY_ID + TIGRIS_SECRET_ACCESS_KEY from env,
-# or from ~/.config/vinos/tigris.env (mode 0600). Never commits secrets.
+# Auth: reads TIGRIS_KEY (format "<key_id>:<secret_key>") from env or
+# from ~/.config/vinos/tigris.env (mode 0600). Alternately accepts the
+# split-pair TIGRIS_ACCESS_KEY_ID + TIGRIS_SECRET_ACCESS_KEY. Never
+# commits secrets.
 #
 # Usage:
 #   vinos-publish-iso 1.3.0                # publish vinos-1.3.0-x86_64.iso
@@ -43,8 +45,13 @@ if [[ -z "${TIGRIS_ACCESS_KEY_ID:-}" && -f "$CREDS_FILE" ]]; then
   source "$CREDS_FILE"
 fi
 
-: "${TIGRIS_ACCESS_KEY_ID:?TIGRIS_ACCESS_KEY_ID missing (env or ~/.config/vinos/tigris.env)}"
-: "${TIGRIS_SECRET_ACCESS_KEY:?TIGRIS_SECRET_ACCESS_KEY missing}"
+# Accept either single TIGRIS_KEY ("<id>:<secret>") or the split pair.
+if [[ -n "${TIGRIS_KEY:-}" && -z "${TIGRIS_ACCESS_KEY_ID:-}" ]]; then
+  TIGRIS_ACCESS_KEY_ID="${TIGRIS_KEY%%:*}"
+  TIGRIS_SECRET_ACCESS_KEY="${TIGRIS_KEY#*:}"
+fi
+: "${TIGRIS_ACCESS_KEY_ID:?TIGRIS_KEY or TIGRIS_ACCESS_KEY_ID missing}"
+: "${TIGRIS_SECRET_ACCESS_KEY:?TIGRIS_SECRET_ACCESS_KEY missing (colon-parse failed?)}"
 : "${TIGRIS_BUCKET:=nameless-cloud-628}"
 : "${TIGRIS_ENDPOINT:=https://fly.storage.tigris.dev}"
 

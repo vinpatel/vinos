@@ -10,9 +10,10 @@ name: release
 #   3. Upload ISO + sha256 sidecar to Tigris via bin/vinos-publish-iso
 #   4. Create a GitHub Release with the download link + sha256 in the body
 #
-# Secrets required (Repo → Settings → Secrets and variables → Actions):
-#   TIGRIS_ACCESS_KEY_ID     — tid_...
-#   TIGRIS_SECRET_ACCESS_KEY — tsec_...
+# Secret required (Repo → Settings → Secrets and variables → Actions):
+#   TIGRIS_KEY — the Tigris credential. Expected format: "<key_id>:<secret_key>"
+#                (colon-separated single line). Both halves are extracted
+#                and mapped to AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY.
 # Optional:
 #   TIGRIS_BUCKET   (default: nameless-cloud-628)
 #   TIGRIS_ENDPOINT (default: https://fly.storage.tigris.dev)
@@ -60,19 +61,13 @@ jobs:
           echo "iso_url=${BASE}/vinos-${VER}-x86_64.iso"     >> "$GITHUB_OUTPUT"
           echo "sha_url=${BASE}/vinos-${VER}-x86_64.iso.sha256" >> "$GITHUB_OUTPUT"
 
-      # We do NOT upload from CI in the initial iteration — the ISO is
-      # already in the bucket via `bin/vinos-publish-iso` run locally.
-      # Future: swap this in when a self-hosted runner is available.
-      # - name: install awscli
-      #   run: sudo apt-get update && sudo apt-get install -y awscli
-      # - name: upload iso
-      #   env:
-      #     AWS_ACCESS_KEY_ID:     ${{ secrets.TIGRIS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.TIGRIS_SECRET_ACCESS_KEY }}
-      #     AWS_ENDPOINT_URL_S3:   https://fly.storage.tigris.dev
-      #     AWS_REGION:            auto
-      #   run: |
-      #     aws s3 cp iso/out/vinos-${VER}-x86_64.iso s3://${BUCKET}/ --endpoint-url $AWS_ENDPOINT_URL_S3
+      # The ISO is uploaded to Tigris via `bin/vinos-publish-iso <version>`
+      # run from the build host — CI just creates the GitHub Release.
+      # If you flip on CI upload later:
+      #   parse ${{ secrets.TIGRIS_KEY }} as "<id>:<secret>" (split on ':'),
+      #   export AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY,
+      #   set AWS_ENDPOINT_URL_S3=https://fly.storage.tigris.dev,
+      #   aws s3 cp iso/out/vinos-<ver>-x86_64.iso s3://nameless-cloud-628/
 
       - name: create github release
         uses: softprops/action-gh-release@v2
