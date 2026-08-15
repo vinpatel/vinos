@@ -133,3 +133,13 @@ obsidian
 # added by install/02-desktop.sh — gen-packages.sh scoops them into
 # packages.x86_64 from there. Keeping the single source of truth in
 # 02-desktop avoids drift between live and installed builds.
+awww
+papirus-icon-theme
+bibata-cursor-theme
+cmake
+meson
+pkgconf
+hyprwayland-scanner
+inter-font
+gnome-calculator
+nwg-look

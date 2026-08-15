@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# vinos:summary=Cycle through vinOS theme wallpapers with smooth transitions
+# vinos:args=[--interval N] [--transition NAME]
+#
+# Uses awww (successor of swww) to cycle through the 4 vinOS themes with
+# a "living wallpaper" feel — R7 of Track R (v1.3.0). Runs as a daemon,
+# spawned by config/hypr/autostart.conf.
+#
+# Transition types: fade, wave, grow, wipe, none.
+# Default: 90 s interval, wave transition (feels natural, respects
+#          reduced-motion preference by falling back to fade if the
+#          VINOS_REDUCED_MOTION env var is set).
+set -euo pipefail
+
+INTERVAL="${1:-90}"
+TRANSITION="${2:-wave}"
+THEME_DIR="/usr/share/vinos/themes"
+THEMES=(aurora nebula frost ember)
+
+# Reduced motion — vinos-toggle-enabled reduced-motion → fade
+if [[ -n "${VINOS_REDUCED_MOTION:-}" ]] || command -v vinos-toggle-enabled >/dev/null && vinos-toggle-enabled reduced-motion 2>/dev/null; then
+  TRANSITION="fade"
+fi
+
+# Wait for awww-daemon to be up (autostart may fire us before it).
+for _ in {1..20}; do
+  if awww query >/dev/null 2>&1; then break; fi
+  sleep 1
+done
+
+# Start on the theme the user has selected (via $HOME/.local/state/vinos/theme),
+# or aurora if unset.
+CURRENT="$(cat "$HOME/.local/state/vinos/theme" 2>/dev/null || echo aurora)"
+awww img "$THEME_DIR/$CURRENT/wallpaper.png" \
+  --transition-type "$TRANSITION" \
+  --transition-duration 2 \
+  --transition-fps 60 \
+  >/dev/null 2>&1 || true
+
+# Rotate.
+i=0
+for _ in "${!THEMES[@]}"; do
+  [[ "${THEMES[$i]}" == "$CURRENT" ]] && break
+  i=$((i+1))
+done
+
+while true; do
+  sleep "$INTERVAL"
+  i=$(( (i+1) % ${#THEMES[@]} ))
+  CURRENT="${THEMES[$i]}"
+  awww img "$THEME_DIR/$CURRENT/wallpaper.png" \
+    --transition-type "$TRANSITION" \
+    --transition-duration 3 \
+    --transition-fps 60 \
+    --transition-pos center \
+    >/dev/null 2>&1 || continue
+done
