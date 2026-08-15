@@ -75,14 +75,16 @@ magick "$LOGO" -resize "${LOGO_EDGE}x${LOGO_EDGE}" \
   -channel A -evaluate multiply "$OPACITY" +channel \
   "$TMP/logo-scaled.png"
 
-# 4b. Build a soft dark drop-shadow of the same silhouette so the mark reads
-#     even on busy or dark starry backdrops.
+# 4b. Build a soft dark drop-shadow of the logo silhouette.
+#     Method: extract alpha, blur it, use as mask for a BLACK RGBA sprite
+#     at SHADOW_OPACITY. Do NOT -negate (that produced a white box, not
+#     a shadow — v1.2.5 bug caught 2026-08-15).
 magick "$LOGO" -resize "${LOGO_EDGE}x${LOGO_EDGE}" \
-  -background none -alpha extract \
-  -blur "0x${SHADOW_BLUR}" \
-  -level 0%,50% \
-  -channel A -evaluate multiply "$SHADOW_OPACITY" +channel \
-  -negate \
+  \( +clone -channel A -evaluate set 0% +channel \
+     -fill "rgba(0,0,0,${SHADOW_OPACITY})" -colorize 100% \) \
+  \( -clone 0 -alpha extract -blur "0x${SHADOW_BLUR}" \) \
+  -delete 0 \
+  -compose CopyOpacity -composite \
   "$TMP/logo-shadow.png"
 
 # 5. Composite: shadow first (offset down+right), then logo on top.
