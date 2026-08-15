@@ -1,0 +1,50 @@
+/* vinOS GTK — tokyo-night-derived palette per BRANDING.md */
+@define-color bg_base       #1A1B26;
+@define-color bg_raised     #24283B;
+@define-color fg_primary    #C0CAF5;
+@define-color fg_muted      #565F89;
+@define-color accent_teal   #7AA2F7;
+@define-color accent_purple #BB9AF7;
+@define-color accent_green  #9ECE6A;
+@define-color accent_yellow #E0AF68;
+@define-color accent_red    #F7768E;
+
+* {
+  -GtkWidget-focus-line-width: 0;
+  -GtkWidget-focus-padding: 0;
+  outline-style: none;
+}
+
+window, dialog, popover, menu, .background {
+  background-color: @bg_base;
+  color: @fg_primary;
+  border-radius: 12px;
+}
+
+button {
+  background: @bg_raised;
+  color: @fg_primary;
+  border: 1px solid alpha(@accent_teal, 0.25);
+  border-radius: 8px;
+  padding: 6px 14px;
+  transition: all 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+button:hover  { background: alpha(@accent_teal, 0.20); border-color: alpha(@accent_teal, 0.55); }
+button:active { background: alpha(@accent_purple, 0.30); }
+button:disabled { color: @fg_muted; background: @bg_base; border-color: alpha(@fg_muted, 0.20); }
+
+entry {
+  background: @bg_raised;
+  color: @fg_primary;
+  border: 1px solid alpha(@accent_teal, 0.35);
+  border-radius: 8px;
+  padding: 8px 12px;
+  caret-color: @accent_teal;
+}
+entry:focus { border-color: @accent_teal; }
+
+headerbar, .titlebar {
+  background: @bg_base;
+  border-bottom: 1px solid alpha(@accent_teal, 0.15);
+  padding: 8px;
+}
