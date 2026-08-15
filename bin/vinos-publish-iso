@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# vinos:summary=Upload a stable-tagged ISO + sha256 to the Tigris download bucket
+# vinos:args=<version>
+#
+# Uploads iso/out/vinos-<version>-x86_64.iso and its .sha256 sidecar to
+# the vinOS public download bucket on Tigris (Fly.io storage). Idempotent
+# — Tigris' S3 semantics make repeat uploads overwrite (which is fine as
+# long as the version's local sha256 hasn't changed).
+#
+# Auth: reads TIGRIS_ACCESS_KEY_ID + TIGRIS_SECRET_ACCESS_KEY from env,
+# or from ~/.config/vinos/tigris.env (mode 0600). Never commits secrets.
+#
+# Usage:
+#   vinos-publish-iso 1.3.0                # publish vinos-1.3.0-x86_64.iso
+#   vinos-publish-iso 1.1.0                # publish the permanent gold copy
+#   TIGRIS_DRY_RUN=1 vinos-publish-iso 1.3.0   # print commands, upload nothing
+set -euo pipefail
+
+VERSION="${1:-}"
+[[ -n "$VERSION" ]] || { echo "usage: vinos-publish-iso <version>" >&2; exit 2; }
+
+REPO="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+ISO="$REPO/iso/out/vinos-${VERSION}-x86_64.iso"
+SHA="$REPO/iso/out/vinos-${VERSION}-x86_64.iso.sha256"
+
+# Regenerate sidecar if missing so we always upload a paired sha256.
+if [[ ! -f "$SHA" ]]; then
+  if [[ -f "$REPO/iso/out/sha256sums.txt" ]] && \
+     grep -q "vinos-${VERSION}-x86_64.iso" "$REPO/iso/out/sha256sums.txt"; then
+    grep "vinos-${VERSION}-x86_64.iso" "$REPO/iso/out/sha256sums.txt" > "$SHA"
+  else
+    ( cd "$REPO/iso/out" && sha256sum "vinos-${VERSION}-x86_64.iso" > "$(basename "$SHA")" )
+  fi
+fi
+
+[[ -f "$ISO" ]] || { echo "vinos-publish-iso: missing $ISO" >&2; exit 1; }
+[[ -f "$SHA" ]] || { echo "vinos-publish-iso: missing $SHA" >&2; exit 1; }
+
+# Load creds from ~/.config/vinos/tigris.env if env not set.
+CREDS_FILE="$HOME/.config/vinos/tigris.env"
+if [[ -z "${TIGRIS_ACCESS_KEY_ID:-}" && -f "$CREDS_FILE" ]]; then
+  # shellcheck disable=SC1090
+  source "$CREDS_FILE"
+fi
+
+: "${TIGRIS_ACCESS_KEY_ID:?TIGRIS_ACCESS_KEY_ID missing (env or ~/.config/vinos/tigris.env)}"
+: "${TIGRIS_SECRET_ACCESS_KEY:?TIGRIS_SECRET_ACCESS_KEY missing}"
+: "${TIGRIS_BUCKET:=nameless-cloud-628}"
+: "${TIGRIS_ENDPOINT:=https://fly.storage.tigris.dev}"
+
+export AWS_ACCESS_KEY_ID="$TIGRIS_ACCESS_KEY_ID"
+export AWS_SECRET_ACCESS_KEY="$TIGRIS_SECRET_ACCESS_KEY"
+export AWS_ENDPOINT_URL_S3="$TIGRIS_ENDPOINT"
+export AWS_REGION=auto
+
+command -v aws >/dev/null || { echo "vinos-publish-iso: aws cli missing (pip install awscli or pacman -S aws-cli-v2)" >&2; exit 1; }
+
+DRY=""
+[[ -n "${TIGRIS_DRY_RUN:-}" ]] && DRY="echo [dry-run]"
+
+$DRY aws s3 cp "$ISO" "s3://$TIGRIS_BUCKET/$(basename "$ISO")" \
+  --endpoint-url "$TIGRIS_ENDPOINT" \
+  --content-type application/x-iso9660-image
+
+$DRY aws s3 cp "$SHA" "s3://$TIGRIS_BUCKET/$(basename "$SHA")" \
+  --endpoint-url "$TIGRIS_ENDPOINT" \
+  --content-type text/plain
+
+echo
+echo "vinos-publish-iso: uploaded"
+echo "  https://$TIGRIS_BUCKET.fly.storage.tigris.dev/$(basename "$ISO")"
+echo "  https://$TIGRIS_BUCKET.fly.storage.tigris.dev/$(basename "$SHA")"

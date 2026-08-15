@@ -1,0 +1,104 @@
+name: release
+
+# Fires when a stable version tag is pushed (v1.3.0, v1.4.0, …).
+# rc/dev tags (v1.3.0-rc1) don't fire — those don't ship to the public bucket.
+#
+# What it does:
+#   1. Check out the tag
+#   2. Look for iso/out/vinos-<version>-x86_64.iso — if missing, fail with
+#      a clear message (we intentionally do NOT build 4.5 GB ISOs in CI).
+#   3. Upload ISO + sha256 sidecar to Tigris via bin/vinos-publish-iso
+#   4. Create a GitHub Release with the download link + sha256 in the body
+#
+# Secrets required (Repo → Settings → Secrets and variables → Actions):
+#   TIGRIS_ACCESS_KEY_ID     — tid_...
+#   TIGRIS_SECRET_ACCESS_KEY — tsec_...
+# Optional:
+#   TIGRIS_BUCKET   (default: nameless-cloud-628)
+#   TIGRIS_ENDPOINT (default: https://fly.storage.tigris.dev)
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'   # v1.3.0, v1.4.0, …
+      # excludes v1.3.0-rc1, v1.3.0-dev, etc.
+
+# The ISO is built locally on the maintainer's server (see docs/BUILDING.md)
+# and pushed here alongside the tag. This workflow assumes iso/out/*.iso
+# is present as a workflow artifact from a prior "build-iso" workflow OR
+# uploaded manually and referenced via a repository dispatch.
+#
+# For the initial v1.3.0 ship: the maintainer runs `bin/vinos-publish-iso 1.3.0`
+# locally, then this workflow only creates the GitHub Release (upload=false).
+# For future ships: TBD — either self-hosted runner does the build, or we
+# accept a workflow_dispatch input pointing at a pre-uploaded ISO URL.
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # required to create a GitHub Release
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: extract version
+        id: v
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: compute expected download URL + sha256
+        id: meta
+        env:
+          TIGRIS_BUCKET: ${{ secrets.TIGRIS_BUCKET }}
+        run: |
+          BUCKET="${TIGRIS_BUCKET:-nameless-cloud-628}"
+          VER="${{ steps.v.outputs.version }}"
+          BASE="https://${BUCKET}.fly.storage.tigris.dev"
+          echo "iso_url=${BASE}/vinos-${VER}-x86_64.iso"     >> "$GITHUB_OUTPUT"
+          echo "sha_url=${BASE}/vinos-${VER}-x86_64.iso.sha256" >> "$GITHUB_OUTPUT"
+
+      # We do NOT upload from CI in the initial iteration — the ISO is
+      # already in the bucket via `bin/vinos-publish-iso` run locally.
+      # Future: swap this in when a self-hosted runner is available.
+      # - name: install awscli
+      #   run: sudo apt-get update && sudo apt-get install -y awscli
+      # - name: upload iso
+      #   env:
+      #     AWS_ACCESS_KEY_ID:     ${{ secrets.TIGRIS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.TIGRIS_SECRET_ACCESS_KEY }}
+      #     AWS_ENDPOINT_URL_S3:   https://fly.storage.tigris.dev
+      #     AWS_REGION:            auto
+      #   run: |
+      #     aws s3 cp iso/out/vinos-${VER}-x86_64.iso s3://${BUCKET}/ --endpoint-url $AWS_ENDPOINT_URL_S3
+
+      - name: create github release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.v.outputs.tag }}
+          name: vinOS ${{ steps.v.outputs.tag }}
+          body: |
+            ## Download
+
+            - **ISO:** [${{ steps.v.outputs.tag }}-x86_64.iso](${{ steps.meta.outputs.iso_url }}) — ~4.5 GB
+            - **SHA-256:** [sha256 sidecar](${{ steps.meta.outputs.sha_url }})
+
+            ### Verify
+
+            ```
+            sha256sum -c vinos-${{ steps.v.outputs.version }}-x86_64.iso.sha256
+            ```
+
+            ### Burn
+
+            ```
+            sudo iso/flash.sh --dev sdd --iso vinos-${{ steps.v.outputs.version }}-x86_64.iso
+            ```
+
+            (replace `sdd` with your USB device — never use raw `dd`)
+
+            See the tag annotation for the full release notes.
+          draft: false
+          prerelease: false

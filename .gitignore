@@ -30,3 +30,6 @@ CLAUDE.md
 DECISIONS.md
 VINOS_SPEC.md
 VINOS_ISO_SPEC.md
+
+# Tigris (Fly.io storage) credentials — per-developer, never committed.
+~/.config/vinos/tigris.env
