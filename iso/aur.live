@@ -29,10 +29,11 @@ elephant
 # (yt6801-dkms). 06-hardware.sh already retries with warn-and-continue.
 macbook12-spi-driver-dkms
 
-# OOBE-parity: shell-referenced userspace that only lives in AUR.
-# xdg-terminal-exec — resolves $TERMINAL / handlr terminal preference
-#                     for walker + hyprland keybind that opens a shell.
-xdg-terminal-exec
+# xdg-terminal-exec was removed from AUR (2026-08). v1.2.1 tried to
+# route SUPER+Return through it and hit the silent-no-op bug that
+# broke that release; v1.2.2+ binds foot directly and does not need
+# xdg-terminal-exec at all. Line kept as history so we remember why
+# it's absent.
 
 # OOBE-parity: apps bound to keybindings in config/hypr/hyprland.conf.
 # Super+M → spotify · Super+/ → 1password · terminal ops → 1password-cli.

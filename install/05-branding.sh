@@ -54,10 +54,22 @@ if [[ -d "$REPO/assets/wallpapers" ]]; then
   done
 fi
 
-# aurora is the default first-boot theme (bright warm dawn). Overridable
-# by exporting VINOS_THEME= before install.sh / iso/build.sh.
-_active_theme="${VINOS_THEME:-aurora}"
+# nebula is the default first-boot theme (Milky Way over alpine lake —
+# vinOS's identity-forward cosmic aesthetic). Overridable by exporting
+# VINOS_THEME= (aurora | nebula | frost | ember) before install.sh /
+# iso/build.sh.
+_active_theme="${VINOS_THEME:-nebula}"
 _sudo ln -sfn "themes/${_active_theme}/wallpaper.png" "$SHARE/wallpaper.png"
+
+# Track V: install shell-surface CSS assets so nwg-drawer / walker /
+# waybar / mako can be launched with `-g /etc/vinos/nwg-drawer/drawer.css`
+# (and equivalents). Kept under /etc/vinos so per-user overrides in
+# ~/.config still take precedence via the shell tool's own resolver.
+log "05-branding: installing shell-surface CSS under /etc/vinos"
+_ETC_VINOS="$(_rootpath /etc/vinos)"
+_sudo install -d -m 0755 "$_ETC_VINOS/nwg-drawer" "$_ETC_VINOS/walker" "$_ETC_VINOS/waybar"
+[[ -f "$REPO/config/nwg-drawer/drawer.css" ]] && \
+  _sudo install -Dm 0644 "$REPO/config/nwg-drawer/drawer.css" "$_ETC_VINOS/nwg-drawer/drawer.css"
 
 log "05-branding: installing vinos-* commands"
 _sudo rsync -a "$REPO/bin/" "$SHARE/bin/"

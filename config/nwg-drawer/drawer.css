@@ -1,0 +1,133 @@
+/* vinOS nwg-drawer — full-screen frosted app grid.
+   The Hyprland `layerrule = blur, nwg-drawer` (see config/hypr/apps/nwg-drawer.conf)
+   supplies real backdrop blur. This CSS layers the vinOS glass system on top:
+   translucent tokyo-night dark, mint→mauve accent, refined typography. */
+
+/* Reset everything nwg-drawer touches so nothing inherits Adwaita defaults. */
+window, box, entry, button, image, label, scrolledwindow, viewport, flowbox,
+flowboxchild, separator {
+  all: unset;
+}
+
+/* Full-screen tinted backdrop — lets Hyprland's blur show through. */
+window {
+  background: rgba(15, 16, 26, 0.55);
+  color: #f5f6fa;
+  font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  font-feature-settings: "tnum", "ss01";
+}
+
+/* Search bar — floating glass pill at top-center. */
+#searchbox {
+  background: rgba(20, 21, 30, 0.68);
+  border: 1px solid rgba(51, 204, 255, 0.24);
+  border-radius: 16px;
+  padding: 14px 20px;
+  margin: 24px auto 20px auto;
+  min-width: 520px;
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+entry, #searchbox entry {
+  color: #f5f6fa;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  caret-color: #33ccff;
+}
+
+entry:focus {
+  outline: none;
+}
+
+/* Category pinboard row (pinned + all + settings + …). */
+#pinnedBox, #categoriesBox {
+  padding: 6px 12px;
+  margin: 0 20px 8px 20px;
+  border-radius: 12px;
+  background: rgba(20, 21, 30, 0.32);
+}
+
+/* Icon grid tiles. */
+flowboxchild, button.categorybtn {
+  padding: 14px 12px 8px 12px;
+  margin: 6px;
+  border-radius: 14px;
+  color: #c0caf5;
+  transition:
+    background 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 160ms ease-out;
+  border: 1px solid transparent;
+}
+
+flowboxchild:hover, button.categorybtn:hover {
+  background: rgba(51, 204, 255, 0.10);
+  border-color: rgba(51, 204, 255, 0.28);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+flowboxchild:focus, flowboxchild:selected {
+  background: linear-gradient(135deg,
+    rgba(51, 204, 255, 0.22),
+    rgba(187, 154, 247, 0.12));
+  border-color: rgba(51, 204, 255, 0.36);
+  color: #f5f6fa;
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* App label under icon — one line, tight. */
+label {
+  color: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+/* App icon size drives the grid density — the -is CLI flag controls
+   the actual pixel size (see config/hypr/bindings/utilities.conf).
+   64 px on a 3840 × 2160 wallpaper is the sweet spot. */
+image {
+  min-width: 64px;
+  min-height: 64px;
+  -gtk-icon-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* Scrollbar — invisible until hovered. */
+scrollbar {
+  background: transparent;
+  min-width: 6px;
+}
+
+scrollbar slider {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  min-height: 40px;
+}
+
+scrollbar slider:hover {
+  background: rgba(51, 204, 255, 0.28);
+}
+
+/* Bottom action buttons (lock / logout / restart / shutdown / …). */
+#bottomBox button {
+  background: rgba(20, 21, 30, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 0 3px 14px 3px;
+  color: #c0caf5;
+  transition: all 160ms ease-out;
+}
+
+#bottomBox button:hover {
+  background: rgba(51, 204, 255, 0.12);
+  border-color: rgba(51, 204, 255, 0.30);
+  color: #f5f6fa;
+}

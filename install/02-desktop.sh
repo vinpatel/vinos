@@ -41,11 +41,13 @@ log "02-desktop: installing AUR apps (UX-critical only)"
 # I11 pivot: spotify/obsidian/1password/localsend live in bundles now.
 # walker (source): matches upstream so no walker/walker-bin conflict
 # on machines that already have the source variant.
-# yaru-icon-theme: Ubuntu's icon set — clean, dark-friendly.
+# yaru-icon-theme was removed from AUR (2026-08); replaced by
+# `papirus-icon-theme` (Arch repo, comparable coverage + dark variant).
 # bibata-cursor-theme: sharp modern cursors.
 # hyprpm needs its git alternate; we install plugins post-boot with
 # vinos-hypr-plugins (see below).
-install_aur walker yaru-icon-theme bibata-cursor-theme nwg-drawer
+install_aur walker bibata-cursor-theme nwg-drawer
+install_pkg papirus-icon-theme
 
 # Optional Hyprland plugins via hyprpm. hyprpm ships with hyprland,
 # so no extra package needed. We install the beauty-pass plugins on

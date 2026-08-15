@@ -30,7 +30,14 @@ _reset() { MENU_ITEMS=(); MENU_CMDS=(); }
 add() { MENU_ITEMS+=("$1"); MENU_CMDS+=("$2"); }
 have() { command -v "$1" >/dev/null 2>&1; }
 
-_pick_walker() { printf '%s\n' "${MENU_ITEMS[@]}" | walker --dmenu; }
+_pick_walker() {
+  # walker --dmenu inherits the same vinos.css theme as SUPER+SLASH's launcher,
+  # so the settings/toggles menu feels visually one with app launch.
+  # --placeholder is set per sub-menu when VINOS_MENU_TITLE is exported.
+  local args=(--dmenu)
+  [[ -n "${VINOS_MENU_TITLE:-}" ]] && args+=(--placeholder "${VINOS_MENU_TITLE}")
+  printf '%s\n' "${MENU_ITEMS[@]}" | walker "${args[@]}"
+}
 _pick_gum()    { printf '%s\n' "${MENU_ITEMS[@]}" | gum choose --limit 1; }
 _pick_fzf()    { printf '%s\n' "${MENU_ITEMS[@]}" | fzf; }
 _pick_stdin() {
@@ -85,63 +92,70 @@ _run() {
 # --- Sub-menus -------------------------------------------------------
 
 _menu_top() {
-  local BUNDLES=(ai dev media office gaming productivity comms browser)
+  export VINOS_MENU_TITLE="vinOS menu — settings, AI, install…"
   _reset
+  # Order by frequency-of-use: the top handful become one-keypress after
+  # the menu opens (walker highlights the first match as you type).
+  add "  Switch theme"                    "vinos-theme --pick"
+  add "  AI chat (vinos-ai)"              "foot --app-id=org.vinos.ai -T 'vinOS AI' -- vinos-ai chat"
+  add "  Toggles →"                       "vinos-menu toggle"
+  add "  Hardware →"                      "vinos-menu hardware"
+  add "  Capture →"                       "vinos-menu capture"
+  add "  System →"                        "vinos-menu system"
+  add "  Diagnostics (vinos-doctor)"      "foot --app-id=org.vinos.doctor -T 'vinOS doctor' -- vinos-doctor"
+  add "  System update"                   "vinos-update"
+  add "  Lock screen"                     "vinos-system-lock"
+  add "  AI: pull model"                  "foot --app-id=org.vinos.ai -T 'AI pull' -- bash -lc 'read -p \"model: \" m && vinos-ai pull \"\$m\"; read -p enter '"
+  add "  AI: status"                      "foot --app-id=org.vinos.ai -T 'AI status' -- bash -lc 'vinos-ai status; read -p enter '"
+  local BUNDLES=(ai dev media office gaming productivity comms browser)
   for b in "${BUNDLES[@]}"; do
-    add "Install: $b bundle" "$SCRIPT_DIR/vinos-install-$b"
+    add "  Install $b bundle"             "$SCRIPT_DIR/vinos-install-$b"
   done
-  add "AI chat (vinos-ai)"           "foot --app-id=org.vinos.ai -T 'vinOS AI' -- vinos-ai chat"
-  add "AI: pull model"               "foot --app-id=org.vinos.ai -T 'AI pull' -- bash -lc 'read -p \"model: \" m && vinos-ai pull \"\$m\"; read -p enter '"
-  add "AI: status"                   "foot --app-id=org.vinos.ai -T 'AI status' -- bash -lc 'vinos-ai status; read -p enter '"
-  add "Capture menu →"               "vinos-menu capture"
-  add "Toggle menu →"                "vinos-menu toggle"
-  add "Hardware menu →"              "vinos-menu hardware"
-  add "System menu →"                "vinos-menu system"
-  add "System update (vinos-update)" "vinos-update"
-  add "Switch theme"                 "vinos-theme --pick"
-  add "Diagnostics (vinos-doctor)"   "foot --app-id=org.vinos.doctor -T 'vinOS doctor' -- vinos-doctor"
-  add "Lock screen"                  "vinos-system-lock"
 }
 
 _menu_capture() {
+  export VINOS_MENU_TITLE="Capture — screenshot, record, pick color…"
   _reset
-  add "Screenshot (full)"            "vinos-capture-screenshot"
-  add "Screenshot (region)"          "vinos-capture-screenshot region"
-  add "Screen recording"             "vinos-menu screenrecord"
-  add "Color picker"                 "pkill hyprpicker || hyprpicker -a"
-  add "Extract text (OCR)"           "vinos-capture-text-extraction"
+  add "  Screenshot (full)"            "vinos-capture-screenshot"
+  add "  Screenshot (region)"          "vinos-capture-screenshot region"
+  add "  Screen recording"             "vinos-menu screenrecord"
+  add "  Color picker"                 "pkill hyprpicker || hyprpicker -a"
+  add "  Extract text (OCR)"           "vinos-capture-text-extraction"
 }
 
 _menu_toggle() {
+  export VINOS_MENU_TITLE="Toggles — bar, idle, blur, gaps…"
   _reset
-  add "Toggle top bar (waybar)"      "vinos-toggle-waybar"
-  add "Toggle idle-lock"             "vinos-toggle-idle"
-  add "Toggle night light"           "vinos-toggle-nightlight"
-  add "Toggle notification silence"  "vinos-toggle-notification-silencing"
-  add "Toggle window transparency"   "vinos-hyprland-window-transparency-toggle"
-  add "Toggle window gaps"           "vinos-hyprland-window-gaps-toggle"
-  add "Toggle single-window aspect"  "vinos-hyprland-window-single-square-aspect-toggle"
-  add "Toggle laptop display"        "vinos-hyprland-monitor-internal toggle"
-  add "Toggle touchpad"              "vinos-toggle-touchpad"
+  add "  Top bar (waybar)"             "vinos-toggle-waybar"
+  add "  Idle-lock"                    "vinos-toggle-idle"
+  add "  Night light"                  "vinos-toggle-nightlight"
+  add "  Notification silence"         "vinos-toggle-notification-silencing"
+  add "  Window transparency"          "vinos-hyprland-window-transparency-toggle"
+  add "  Window gaps"                  "vinos-hyprland-window-gaps-toggle"
+  add "  Single-window aspect"         "vinos-hyprland-window-single-square-aspect-toggle"
+  add "  Laptop display"               "vinos-hyprland-monitor-internal toggle"
+  add "  Touchpad"                     "vinos-toggle-touchpad"
 }
 
 _menu_hardware() {
+  export VINOS_MENU_TITLE="Hardware — wifi, bluetooth, audio…"
   _reset
-  add "Wi-Fi (impala)"               "vinos-launch-wifi"
-  add "Bluetooth"                    "vinos-launch-bluetooth"
-  add "Audio mixer"                  "vinos-launch-audio"
-  add "Activity (btop)"              "vinos-launch-tui btop"
-  add "External monitors"            "vinos-hw-external-monitors"
-  add "Hardware report"              "foot --app-id=org.vinos.hw -T 'vinOS hardware' -- bash -lc 'vinos-hw-report; read -p enter '"
+  add "  Wi-Fi"                        "vinos-launch-wifi"
+  add "  Bluetooth"                    "vinos-launch-bluetooth"
+  add "  Audio mixer"                  "vinos-launch-audio"
+  add "  Activity (btop)"              "vinos-launch-tui btop"
+  add "  External monitors"            "vinos-hw-external-monitors"
+  add "  Hardware report"              "foot --app-id=org.vinos.hw -T 'vinOS hardware' -- bash -lc 'vinos-hw-report; read -p enter '"
 }
 
 _menu_system() {
+  export VINOS_MENU_TITLE="System — lock, suspend, reboot, shutdown…"
   _reset
-  add "Lock screen"                  "vinos-system-lock"
-  add "Suspend"                      "systemctl suspend"
-  add "Logout Hyprland"              "hyprctl dispatch exit"
-  add "Reboot"                       "systemctl reboot"
-  add "Shutdown"                     "systemctl poweroff"
+  add "  Lock screen"                  "vinos-system-lock"
+  add "  Suspend"                      "systemctl suspend"
+  add "  Logout Hyprland"              "hyprctl dispatch exit"
+  add "  Reboot"                       "systemctl reboot"
+  add "  Shutdown"                     "systemctl poweroff"
 }
 
 _menu_share() {

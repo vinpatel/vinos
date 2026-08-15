@@ -10,7 +10,21 @@
   "margin-right":  10,
   "modules-left":   ["custom/logo", "hyprland/workspaces", "hyprland/window"],
   "modules-center": ["clock"],
-  "modules-right":  ["network", "pulseaudio", "cpu", "memory", "battery", "tray"],
+  "modules-right":  ["custom/ai", "network", "pulseaudio", "cpu", "memory", "battery", "tray"],
+
+  "custom/ai": {
+    // Reads a one-line status file written by vinos-ai (planned V3).
+    // Until then, exec falls back to a static "AI" glyph so the pill
+    // is visible in the bar. The .active class (set by class-file) makes
+    // the pill pulse-glow when an agent is running.
+    "format": "󰧑 {}",
+    "exec": "cat ~/.cache/vinos/ai-state 2>/dev/null || echo 'idle'",
+    "interval": 3,
+    "return-type": "",
+    "tooltip-format": "vinOS AI\nClick: vinos-menu → AI\nScroll: switch model role",
+    "on-click": "vinos-menu",
+    "on-click-right": "foot -T 'vinOS AI status' -- bash -lc 'vinos-ai status; read -p enter '"
+  },
 
   "custom/logo": {
     "format": "V  Menu",

@@ -189,6 +189,7 @@ openpgp-card-tools
 openssh
 openvpn
 pamixer
+papirus-icon-theme
 partclone
 parted
 partimage
@@ -278,12 +279,10 @@ wpa_supplicant
 wvdial
 xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
-xdg-terminal-exec
 xdg-utils
 xfsprogs
 xl2tpd
 xmlstarlet
-yaru-icon-theme
 zoxide
 zram-generator
 zsh
