@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# vinos:summary=Display: color temperature, gamma, blue-light schedule
+# vinos:args=<subcommand> [args…]
+#
+# Track R (v1.3.0) R8 — vinOS color-temperature control on top of
+# hyprsunset. Supersedes vinos-toggle-nightlight for the vinos-menu
+# Display submenu (kept for compat as an alias).
+#
+# Subcommands:
+#   auto                — schedule based on time of day (default warm at night)
+#   day                 — 6500 K (default cool daylight)
+#   warm                — 4500 K (evening)
+#   night               — 2700 K (very warm, before bed)
+#   reading             — 3500 K + gamma 92 % (softer)
+#   custom <K> [gamma%] — arbitrary temperature and optional gamma
+#   status              — print current temperature + gamma
+#   warmer              — bump 500 K lower (bind to F7)
+#   cooler              — bump 500 K higher (bind to F8)
+#   off                 — identity (no color change)
+set -euo pipefail
+
+CMD="${1:-status}"; shift || true
+
+STATE_DIR="$HOME/.local/state/vinos"
+STATE_FILE="$STATE_DIR/display-temp"
+mkdir -p "$STATE_DIR"
+
+# Ensure hyprsunset is up.
+if ! pgrep -x hyprsunset >/dev/null 2>&1; then
+  nohup hyprsunset >/dev/null 2>&1 &
+  sleep 0.8
+fi
+
+_apply() {
+  local temp="$1" gamma="${2:-100}"
+  hyprctl hyprsunset temperature "$temp" >/dev/null 2>&1 || true
+  hyprctl hyprsunset gamma "$gamma" >/dev/null 2>&1 || true
+  echo "$temp $gamma" > "$STATE_FILE"
+  command -v notify-send >/dev/null 2>&1 && notify-send -u low \
+    "󰃟  Display" "${temp} K · gamma ${gamma}%" || true
+}
+
+_current_temp() {
+  hyprctl hyprsunset temperature 2>/dev/null | grep -oE '[0-9]+' | head -1
+}
+
+case "$CMD" in
+  status)
+    printf 'temperature: %s K\n' "$(_current_temp)"
+    if [[ -f "$STATE_FILE" ]]; then
+      read -r t g < "$STATE_FILE"
+      printf 'saved: %s K · gamma %s%%\n' "$t" "$g"
+    fi
+    ;;
+
+  auto)
+    # Auto-schedule: use local time. Split day into three bands.
+    #   06-18 → day (6500 K)
+    #   18-22 → warm (4500 K)
+    #   22-06 → night (2700 K)
+    hour="$(date +%H)"
+    if (( hour >= 6 && hour < 18 )); then
+      _apply 6500 100
+    elif (( hour >= 18 && hour < 22 )); then
+      _apply 4500 98
+    else
+      _apply 2700 92
+    fi
+    ;;
+
+  day)     _apply 6500 100 ;;
+  warm)    _apply 4500  98 ;;
+  night)   _apply 2700  92 ;;
+  reading) _apply 3500  92 ;;
+
+  custom)
+    temp="${1:-6000}"; gamma="${2:-100}"
+    _apply "$temp" "$gamma"
+    ;;
+
+  warmer)
+    cur="$(_current_temp)"
+    [[ -z "$cur" ]] && cur=6500
+    new=$(( cur - 500 ))
+    (( new < 1500 )) && new=1500
+    _apply "$new"
+    ;;
+
+  cooler)
+    cur="$(_current_temp)"
+    [[ -z "$cur" ]] && cur=6500
+    new=$(( cur + 500 ))
+    (( new > 6500 )) && new=6500
+    _apply "$new"
+    ;;
+
+  off)
+    hyprctl hyprsunset identity >/dev/null 2>&1 || true
+    rm -f "$STATE_FILE"
+    command -v notify-send >/dev/null 2>&1 && notify-send -u low \
+      "󰃞  Display" "color temperature off" || true
+    ;;
+
+  *)
+    echo "usage: vinos-display <auto|day|warm|night|reading|custom|status|warmer|cooler|off>" >&2
+    exit 2
+    ;;
+esac

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# vinos:summary=Start/stop the live wallpaper theme rotation
+# vinos:args=[on|off|toggle]
+set -euo pipefail
+
+CMD="${1:-toggle}"
+[[ "$CMD" == "toggle" ]] && {
+  if pgrep -f vinos-wallpaper-cycle >/dev/null; then CMD=off; else CMD=on; fi
+}
+
+case "$CMD" in
+  on)
+    if pgrep -f vinos-wallpaper-cycle >/dev/null; then
+      command -v notify-send >/dev/null && notify-send -u low "  Wallpaper cycle" "already running"
+      exit 0
+    fi
+    nohup vinos-wallpaper-cycle 90 wave >/dev/null 2>&1 &
+    sleep 0.2
+    command -v notify-send >/dev/null && notify-send -u low "  Wallpaper cycle" "started (90 s · wave)"
+    ;;
+  off)
+    pkill -f vinos-wallpaper-cycle || true
+    command -v notify-send >/dev/null && notify-send -u low "  Wallpaper cycle" "stopped"
+    ;;
+  *)
+    echo "usage: vinos-toggle-wallpaper-cycle [on|off|toggle]" >&2
+    exit 2
+    ;;
+esac

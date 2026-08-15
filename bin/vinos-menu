@@ -99,6 +99,7 @@ _menu_top() {
   add "  Switch theme"                    "vinos-theme --pick"
   add "  AI chat (vinos-ai)"              "foot --app-id=org.vinos.ai -T 'vinOS AI' -- vinos-ai chat"
   add "  Toggles →"                       "vinos-menu toggle"
+  add "󰃟  Display →"                       "vinos-menu display"
   add "  Hardware →"                      "vinos-menu hardware"
   add "  Capture →"                       "vinos-menu capture"
   add "  System →"                        "vinos-menu system"
@@ -135,6 +136,22 @@ _menu_toggle() {
   add "  Single-window aspect"         "vinos-hyprland-window-single-square-aspect-toggle"
   add "  Laptop display"               "vinos-hyprland-monitor-internal toggle"
   add "  Touchpad"                     "vinos-toggle-touchpad"
+}
+
+_menu_display() {
+  export VINOS_MENU_TITLE="Display — color temperature, wallpaper…"
+  _reset
+  add "󰃞  Off (identity, 6500 K)"        "vinos-display off"
+  add "󰃟  Auto (schedule by time)"       "vinos-display auto"
+  add "󰃠  Day (6500 K)"                  "vinos-display day"
+  add "󰛨  Warm (4500 K)"                 "vinos-display warm"
+  add "󰛨  Reading (3500 K + soft)"       "vinos-display reading"
+  add "󰃚  Night (2700 K)"                "vinos-display night"
+  add "  Warmer (-500 K)"                "vinos-display warmer"
+  add "  Cooler (+500 K)"                "vinos-display cooler"
+  add "  Wallpaper picker"               "vinos-theme --pick"
+  add "  Live wallpaper cycle (toggle)"  "vinos-toggle-wallpaper-cycle"
+  add "  Display status"                 "foot -T 'vinOS display' -- bash -lc 'vinos-display status; read -p enter '"
 }
 
 _menu_hardware() {
@@ -224,6 +241,7 @@ case "$SUBCMD" in
   ""|top)         _menu_top ;;
   capture)        _menu_capture ;;
   toggle)         _menu_toggle ;;
+  display)        _menu_display ;;
   hardware)       _menu_hardware ;;
   system)         _menu_system ;;
   share)          _menu_share ;;
