@@ -1,6 +1,8 @@
-/* vinOS Waybar — glass-pill modules, spring hover, tabular numerals.
-   Target aesthetic: sleeker than JaKooLit / HyDE / end-4/dots-hyprland
-   without borrowing their palette. Every surface is on-brand vinOS. */
+/* vinOS Waybar — Track R (v1.3.0) refinement.
+   Palette locked to BRANDING.md — #7AA2F7 teal + #BB9AF7 purple + tokyo-night
+   dark bg. Every value GTK-CSS-safe (no inset in box-shadow, no keyframes
+   with inset, no font-feature-settings). Signal-driven state transitions
+   via .active/.warning/.critical class hooks. */
 
 * {
   border: none;
@@ -18,7 +20,7 @@
 
 window#waybar {
   background: transparent;
-  color: #c0caf5;
+  color: #C0CAF5;
 }
 
 /* ---- Module base: floating glass pill ---- */
@@ -33,18 +35,15 @@ window#waybar {
 #battery,
 #tray,
 #custom-ai {
-  background: rgba(18, 20, 30, 0.62);
+  background: rgba(26, 27, 38, 0.72);
   padding: 5px 15px;
   margin: 0 3px;
   border-radius: 13px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.40),
-    0 1px 2px rgba(0, 0, 0, 0.20),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.20);
+  border: 1px solid rgba(122, 162, 247, 0.10);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40);
 }
 
+/* Universal hover */
 #custom-logo:hover,
 #clock:hover,
 #network:hover,
@@ -53,165 +52,179 @@ window#waybar {
 #memory:hover,
 #battery:hover,
 #custom-ai:hover {
-  background: rgba(28, 32, 46, 0.75);
-  border-color: rgba(51, 204, 255, 0.28);
+  background: rgba(36, 40, 59, 0.85);
+  border-color: rgba(122, 162, 247, 0.42);
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(51, 204, 255, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    0 0 20px rgba(122, 162, 247, 0.18);
 }
 
-/* ---- vinOS logo pill — the brand anchor ---- */
+/* ---- Logo pill — brand anchor ---- */
 #custom-logo {
-  color: #33ccff;
-  font-size: 16px;
+  color: #7AA2F7;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  padding: 3px 16px 3px 18px;
-  border-color: rgba(51, 204, 255, 0.30);
+  letter-spacing: 0.02em;
+  padding: 4px 16px;
+  border-color: rgba(122, 162, 247, 0.38);
   background: linear-gradient(135deg,
-    rgba(51, 204, 255, 0.18),
-    rgba(187, 154, 247, 0.10) 60%,
-    rgba(18, 20, 30, 0.62));
+    rgba(122, 162, 247, 0.20),
+    rgba(187, 154, 247, 0.12) 60%,
+    rgba(26, 27, 38, 0.72));
   box-shadow:
     0 4px 14px rgba(0, 0, 0, 0.40),
-    0 0 24px rgba(51, 204, 255, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    0 0 20px rgba(122, 162, 247, 0.14);
 }
 #custom-logo:hover {
   background: linear-gradient(135deg,
-    rgba(51, 204, 255, 0.32),
-    rgba(187, 154, 247, 0.20) 60%,
-    rgba(18, 20, 30, 0.72));
-  color: #f5f6fa;
-  border-color: rgba(51, 204, 255, 0.60);
+    rgba(122, 162, 247, 0.32),
+    rgba(187, 154, 247, 0.22) 60%,
+    rgba(36, 40, 59, 0.80));
+  border-color: rgba(122, 162, 247, 0.55);
   box-shadow:
-    0 8px 28px rgba(0, 0, 0, 0.55),
-    0 0 32px rgba(51, 204, 255, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    0 8px 24px rgba(0, 0, 0, 0.60),
+    0 0 28px rgba(122, 162, 247, 0.32);
 }
 
-/* ---- Workspaces: 9-dot cluster with soft active glow ---- */
+/* ---- Workspaces ---- */
 #workspaces {
-  padding: 3px 7px;
+  padding: 3px 5px;
 }
 #workspaces button {
-  padding: 2px 10px;
+  color: #565F89;
+  padding: 3px 10px;
   margin: 0 1px;
-  color: rgba(192, 202, 245, 0.32);
+  border-radius: 8px;
   background: transparent;
-  border-radius: 9px;
-  font-size: 14px;
-  min-width: 22px;
-  transition: all 180ms cubic-bezier(0.23, 1, 0.32, 1);
+  border: 1px solid transparent;
+  min-width: 20px;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
 }
 #workspaces button:hover {
-  color: #c0caf5;
-  background: rgba(51, 204, 255, 0.08);
+  color: #C0CAF5;
+  background: rgba(122, 162, 247, 0.14);
 }
 #workspaces button.active {
-  color: #f5f6fa;
-  background: linear-gradient(135deg,
-    rgba(51, 204, 255, 0.42),
-    rgba(187, 154, 247, 0.28));
-  box-shadow:
-    0 0 14px rgba(51, 204, 255, 0.42),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.10);
-  min-width: 26px;
+  color: #F5F6FA;
+  background: rgba(122, 162, 247, 0.28);
+  border-color: rgba(122, 162, 247, 0.55);
 }
 #workspaces button.urgent {
-  color: #1a1b26;
-  background: #f7768e;
-  box-shadow: 0 0 16px rgba(247, 118, 142, 0.65);
+  color: #F7768E;
+  background: rgba(247, 118, 142, 0.18);
+  border-color: rgba(247, 118, 142, 0.55);
 }
 
-/* ---- Active window title ---- */
+/* ---- Focused window title ---- */
 #window {
-  color: #a9b1d6;
-  min-width: 0;
-  font-weight: 500;
-  padding: 5px 16px;
-  letter-spacing: -0.005em;
+  color: #A9B1D6;
+  font-weight: 400;
+  padding: 5px 14px;
+  border-color: transparent;
+  background: rgba(26, 27, 38, 0.50);
 }
 #window.empty {
   background: transparent;
-  border-color: transparent;
-  box-shadow: none;
+  color: transparent;
 }
 
-/* ---- Clock — accent cyan, brand-forward ---- */
+/* ---- Center clock ---- */
 #clock {
-  color: #7dcfff;
+  color: #C0CAF5;
   font-weight: 600;
-  padding: 5px 22px;
-  letter-spacing: 0.01em;
-  background: linear-gradient(135deg,
-    rgba(125, 207, 255, 0.16),
-    rgba(18, 20, 30, 0.62));
-  border-color: rgba(125, 207, 255, 0.22);
-  box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.40),
-    0 0 20px rgba(125, 207, 255, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  letter-spacing: 0.02em;
 }
 
-/* ---- AI status pill (placeholder — reads from ~/.cache/vinos/ai-state) ---- */
-/* Populated by `vinos-ai status --waybar` (planned V3). Until then falls back
-   to the "AI" glyph. When the pill is active it glows soft cyan. */
+/* ---- AI pill — the vinOS-native module ---- */
 #custom-ai {
-  color: #bb9af7;
+  color: #BB9AF7;
   padding: 5px 14px;
   background: linear-gradient(135deg,
-    rgba(187, 154, 247, 0.14),
-    rgba(18, 20, 30, 0.62));
-  border-color: rgba(187, 154, 247, 0.22);
+    rgba(187, 154, 247, 0.18),
+    rgba(26, 27, 38, 0.72));
+  border-color: rgba(187, 154, 247, 0.32);
 }
 #custom-ai.active {
-  color: #f5f6fa;
+  color: #F5F6FA;
   background: linear-gradient(135deg,
-    rgba(51, 204, 255, 0.32),
-    rgba(187, 154, 247, 0.20));
-  border-color: rgba(51, 204, 255, 0.42);
+    rgba(122, 162, 247, 0.42),
+    rgba(187, 154, 247, 0.28));
+  border-color: rgba(122, 162, 247, 0.60);
   box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.40),
-    0 0 26px rgba(51, 204, 255, 0.28);
+    0 6px 18px rgba(0, 0, 0, 0.50),
+    0 0 28px rgba(122, 162, 247, 0.42);
+  animation: ai-pulse 2.4s ease-in-out infinite alternate;
+}
+@keyframes ai-pulse {
+  0%   { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.50), 0 0 22px rgba(122, 162, 247, 0.30); }
+  100% { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.50), 0 0 34px rgba(122, 162, 247, 0.55); }
 }
 
-/* ---- Right-side stats ---- */
-#network       { color: #9ece6a; padding: 5px 13px; }
+/* ---- Stats ---- */
+#network {
+  color: #9ECE6A;
+  padding: 5px 13px;
+}
 #network.disconnected {
-  color: #f7768e;
-  background: rgba(247, 118, 142, 0.12);
-  border-color: rgba(247, 118, 142, 0.22);
+  color: #F7768E;
+  background: rgba(247, 118, 142, 0.14);
+  border-color: rgba(247, 118, 142, 0.28);
 }
-#pulseaudio    { color: #bb9af7; padding: 5px 13px; }
-#pulseaudio.muted { color: #565f89; }
-#cpu           { color: #e0af68; padding: 5px 13px; }
-#memory        { color: #7aa2f7; padding: 5px 13px; }
 
-#battery       { color: #9ece6a; padding: 5px 13px; }
-#battery.charging { color: #7dcfff; }
-#battery.warning  { color: #e0af68; }
+#pulseaudio {
+  color: #BB9AF7;
+  padding: 5px 13px;
+}
+#pulseaudio.muted {
+  color: #565F89;
+}
+
+#cpu     { color: #E0AF68; padding: 5px 13px; }
+#memory  { color: #7DCFFF; padding: 5px 13px; }
+
+#battery {
+  color: #9ECE6A;
+  padding: 5px 13px;
+}
+#battery.charging {
+  color: #7DCFFF;
+  animation: bat-charging 2.0s ease-in-out infinite alternate;
+}
+@keyframes bat-charging {
+  0%   { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40), 0 0 16px rgba(125, 207, 255, 0.30); }
+  100% { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40), 0 0 24px rgba(125, 207, 255, 0.55); }
+}
+#battery.warning { color: #E0AF68; }
 #battery.critical {
-  color: #f5f6fa;
-  background: rgba(247, 118, 142, 0.36);
-  border-color: rgba(247, 118, 142, 0.60);
+  color: #F5F6FA;
+  background: rgba(247, 118, 142, 0.42);
+  border-color: rgba(247, 118, 142, 0.72);
+  animation: bat-critical 0.9s ease-in-out infinite alternate;
+}
+@keyframes bat-critical {
+  0%   { background: rgba(247, 118, 142, 0.42); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40); }
+  100% { background: rgba(247, 118, 142, 0.72); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40), 0 0 28px rgba(247, 118, 142, 0.70); }
 }
 
 /* ---- Tray ---- */
-#tray { padding: 3px 12px; }
-#tray > .passive         { -gtk-icon-effect: dim; }
-#tray > .needs-attention { -gtk-icon-effect: highlight; }
-
-/* ---- Tooltip: match the module glass language ---- */
-tooltip {
-  background: rgba(18, 20, 30, 0.96);
-  border: 1px solid rgba(51, 204, 255, 0.36);
-  border-radius: 12px;
-  color: #c0caf5;
-  padding: 8px 12px;
-  box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.60),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+#tray {
+  padding: 3px 12px;
 }
-tooltip label { color: #c0caf5; }
+#tray > .passive         { -gtk-icon-effect: dim; }
+#tray > .active          { -gtk-icon-effect: highlight; }
+#tray > .needs-attention { -gtk-icon-effect: highlight; background: rgba(247, 118, 142, 0.24); }
+
+/* ---- Tooltip ---- */
+tooltip {
+  background: rgba(26, 27, 38, 0.95);
+  border: 1px solid rgba(122, 162, 247, 0.42);
+  border-radius: 10px;
+  color: #C0CAF5;
+  padding: 6px 10px;
+}
+tooltip label {
+  color: #C0CAF5;
+}
