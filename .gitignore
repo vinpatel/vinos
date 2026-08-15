@@ -1,9 +1,18 @@
 iso/out/
 iso/qa/*
 !iso/qa/config-lint.sh
+!iso/qa/hmp.sh
+!iso/qa/keepalive.sh
+!iso/qa/loop.sh
 !iso/qa/pkglist.txt
 !iso/qa/prep-harness.sh
 iso/.aur-cache/
+
+# Q6b — dev pubkey injected at build time (per-developer, never committed).
+iso/airootfs-overlay/home/vinos/.ssh/authorized_keys
+
+# Raw source photos before watermark.sh processes them into aurora/ember/frost/nebula.
+assets/wallpapers/incoming/
 iso/aurrepo/
 iso/aur.failed
 site/public/

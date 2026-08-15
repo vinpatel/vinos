@@ -1,0 +1,46 @@
+[Unit]
+Description=vinOS auto-detect timezone from IP geolocation
+Documentation=file:///usr/share/doc/vinos/VINOS_ISO_SPEC.md
+After=network-online.target NetworkManager-wait-online.service
+Wants=network-online.target
+Before=graphical.target systemd-user-sessions.service
+# Skip when a human (or the installer) has already picked a timezone.
+# The sentinel is written by us on first success + by install/04-services.sh
+# on disk installs where the user selects a zone in the installer.
+ConditionPathExists=!/var/lib/vinos/tzdetect.done
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# 3 fallbacks, in order of preference:
+#   1. tzupdate      — AUR package, ip2geo + tzdata lookup
+#   2. curl ipapi.co — free tier, no key, returns IANA name
+#   3. curl ip-api   — second-choice free service
+# Any success → `timedatectl set-timezone`, write sentinel, done.
+# Failure of all three → sentinel NOT written, service retries on next boot.
+ExecStart=/usr/bin/bash -eu -c '\
+  mkdir -p /var/lib/vinos; \
+  tz=""; \
+  if command -v tzupdate >/dev/null 2>&1; then \
+    tz=$(tzupdate -p 2>/dev/null || true); \
+  fi; \
+  if [ -z "$tz" ]; then \
+    tz=$(curl -fsS --max-time 5 https://ipapi.co/timezone 2>/dev/null || true); \
+  fi; \
+  if [ -z "$tz" ] || ! grep -qE "^[A-Za-z_]+/[A-Za-z_/-]+$" <<<"$tz"; then \
+    tz=$(curl -fsS --max-time 5 "http://ip-api.com/line?fields=timezone" 2>/dev/null || true); \
+  fi; \
+  if [ -z "$tz" ] || ! grep -qE "^[A-Za-z_]+/[A-Za-z_/-]+$" <<<"$tz"; then \
+    echo "vinos-tzdetect: could not auto-detect timezone; leaving as-is" >&2; \
+    exit 0; \
+  fi; \
+  if [ -f "/usr/share/zoneinfo/$tz" ]; then \
+    timedatectl set-timezone "$tz"; \
+    echo "$tz" > /var/lib/vinos/tzdetect.done; \
+    logger -t vinos-tzdetect "set timezone to $tz"; \
+  else \
+    echo "vinos-tzdetect: /usr/share/zoneinfo/$tz missing; refusing to set" >&2; \
+  fi'
+
+[Install]
+WantedBy=multi-user.target

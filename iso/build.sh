@@ -38,6 +38,21 @@ command -v docker >/dev/null || die "docker not found — install docker or run 
 [[ -f "$REPO/VERSION" ]] || die "$REPO/VERSION missing"
 VINOS_VERSION="$(<"$REPO/VERSION")"
 
+# Q6b — seed authorized_keys for the vinos live user from the developer's
+# public key so iso/qa/loop.sh can ssh in without password prompts. Empty
+# password stays enabled in sshd_config.d/10-vinos-live.conf as a fallback
+# for interactive testing. This is DEV convenience only; ship-time gate
+# (Q10) removes both the pubkey and the sshd unit.
+DEV_KEY="${VINOS_DEV_SSH_PUBKEY:-$HOME/.ssh/id_ed25519.pub}"
+AUTHKEYS_DIR="$ISO_DIR/airootfs-overlay/home/vinos/.ssh"
+if [[ -f "$DEV_KEY" ]]; then
+  install -d -m 0700 "$AUTHKEYS_DIR"
+  install -m 0600 "$DEV_KEY" "$AUTHKEYS_DIR/authorized_keys"
+  log "seeded dev authorized_keys from $DEV_KEY"
+else
+  log "no dev pubkey at $DEV_KEY — loop.sh will need password auth"
+fi
+
 # Ship gate 0 — static Hyprland config lint (catches the v1.2.1 class
 # of silent no-op bugs: xdg-terminal-exec, ~/.config paths in swaybg,
 # exec targets that aren'\''t in the shipped package list).
