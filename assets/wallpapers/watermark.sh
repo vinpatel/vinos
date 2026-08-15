@@ -30,8 +30,15 @@ LOGO_DARK="$REPO/assets/logo/png/vinos-512.png"    # placeholder (same file);
 TARGET_W=3840
 TARGET_H=2160
 INSET=64                # px from bottom + right edges (larger inset with larger logo)
-OPACITY=0.30            # 30 % — visibly present without dominating the photo
-LOGO_FRAC=0.06          # logo edge = 6 % of frame min edge (128 px on 4K)
+OPACITY=0.55            # 55 % — 30 % was invisible on dark starry backdrops;
+                        # 55 % reads as "present but not dominant" on both
+                        # bright and dark photos.
+LOGO_FRAC=0.10          # logo edge = 10 % of frame min edge (216 px on 4K).
+SHADOW_OFFSET=6         # px offset for the drop-shadow behind the logo — gives
+                        # the mark a subtle backing plate so it reads on any
+                        # photo, not just contrast-friendly ones.
+SHADOW_OPACITY=0.55     # matches OPACITY so the two layers stay balanced.
+SHADOW_BLUR=8           # sigma; gentle diffusion, not a heavy vignette.
 
 die() { printf '\033[1;31m[watermark] FAIL:\033[0m %s\n' "$*" >&2; exit 1; }
 log() { printf '\033[1;34m[watermark]\033[0m %s\n' "$*"; }
@@ -68,9 +75,23 @@ magick "$LOGO" -resize "${LOGO_EDGE}x${LOGO_EDGE}" \
   -channel A -evaluate multiply "$OPACITY" +channel \
   "$TMP/logo-scaled.png"
 
-# 5. Composite bottom-right with inset.
-log "compositing"
-magick "$TMP/cropped.png" "$TMP/logo-scaled.png" \
+# 4b. Build a soft dark drop-shadow of the same silhouette so the mark reads
+#     even on busy or dark starry backdrops.
+magick "$LOGO" -resize "${LOGO_EDGE}x${LOGO_EDGE}" \
+  -background none -alpha extract \
+  -blur "0x${SHADOW_BLUR}" \
+  -level 0%,50% \
+  -channel A -evaluate multiply "$SHADOW_OPACITY" +channel \
+  -negate \
+  "$TMP/logo-shadow.png"
+
+# 5. Composite: shadow first (offset down+right), then logo on top.
+log "compositing (logo + drop shadow)"
+magick "$TMP/cropped.png" \
+  \( "$TMP/logo-shadow.png" -geometry "+${SHADOW_OFFSET}+${SHADOW_OFFSET}" \) \
+  -gravity southeast -geometry "+$((INSET-SHADOW_OFFSET))+$((INSET-SHADOW_OFFSET))" \
+  -composite \
+  "$TMP/logo-scaled.png" \
   -gravity southeast -geometry "+${INSET}+${INSET}" \
   -composite "$OUT"
 

@@ -162,8 +162,15 @@ if command -v qemu-system-x86_64 >/dev/null 2>&1; then
   else
     display="sdl,grab-mod=lshift-lctrl-lalt"
   fi
+  # Input devices: usb-kbd + usb-tablet handle host-native sessions (SDL/GTK)
+  # and HMP sendkey. virtio-keyboard-pci is added so VNC clients (macOS
+  # Screen Sharing especially) can pass modifier chords like Super+X into
+  # Wayland reliably — pure USB HID over VNC drops those on some Mac setups.
+  # -k en-us pins the keymap so QEMU doesn't guess based on locale.
   args=(-m "$MEM" -smp "$SMP" -cdrom "$ISO" -boot order=d,menu=off -vga "$VGA" -display "$display"
-        -usb -device usb-kbd -device usb-tablet)
+        -k en-us
+        -usb -device usb-kbd -device usb-tablet
+        -device virtio-keyboard-pci)
   [[ -c /dev/kvm ]] && args+=(-enable-kvm -cpu host)
   # Wire VNC password via an inline QEMU secret (host-side only; never
   # written to disk). Skipped when noauth was explicitly requested.

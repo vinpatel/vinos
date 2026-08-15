@@ -59,7 +59,7 @@ command -v scp         >/dev/null || die "scp missing"
 command -v ssh         >/dev/null || die "ssh missing"
 
 SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-          -o LogLevel=ERROR -o BatchMode=yes -p "$PORT")
+          -o LogLevel=ERROR -o BatchMode=yes -o Port="$PORT")
 [[ -n "$IDENTITY" ]] && SSH_OPTS+=(-i "$IDENTITY")
 
 # Sanity: can we reach sshd?
@@ -127,7 +127,9 @@ while read -r changed; do
 
   rel="${changed#$REPO/}"
   route="$(dispatch "$rel")"
-  guest_path="${route%|*}"
+  # Split on FIRST '|' — reload_cmd may contain '||' (shell OR), so we
+  # can't use single '%' (shortest suffix, matches the LAST '|').
+  guest_path="${route%%|*}"
   reload_cmd="${route#*|}"
 
   if [[ -z "$guest_path" ]]; then
