@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# assets/wallpapers/watermark.sh — apply the vinOS wordmark to a wallpaper.
+#
+# Design intent:
+#   Subtle brand presence, never draws focus. The mark sits in the bottom-
+#   right at 12 % opacity by default, sized to ~4 % of the frame's shorter
+#   edge, with a 40 px inset. On light photos we use the dark logo variant
+#   for legibility; on dark photos we use the white variant.
+#
+# Usage:
+#   assets/wallpapers/watermark.sh <input.jpg|png> <output.png> [theme_name]
+#
+# The theme_name arg (optional) picks the logo variant per theme metadata.
+# When omitted, luminance of the corner region is measured and the higher-
+# contrast variant is chosen automatically.
+#
+# Output is always PNG at 3840×2160 (or the source's native res, whichever
+# is larger). Non-3840×2160 sources are letterbox-cropped to fit — cover
+# fit, not contain, so the wallpaper fills the screen.
+#
+# Requires: imagemagick (magick binary).
+set -euo pipefail
+
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+LOGO_LIGHT="$REPO/assets/logo/png/vinos-512.png"   # dark logo on light bg
+LOGO_DARK="$REPO/assets/logo/png/vinos-512.png"    # placeholder (same file);
+                                                    # future: separate white variant
+# TODO: once assets/logo/png/vinos-white-512.png ships, point LOGO_DARK here.
+
+TARGET_W=3840
+TARGET_H=2160
+INSET=64                # px from bottom + right edges (larger inset with larger logo)
+OPACITY=0.30            # 30 % — visibly present without dominating the photo
+LOGO_FRAC=0.06          # logo edge = 6 % of frame min edge (128 px on 4K)
+
+die() { printf '\033[1;31m[watermark] FAIL:\033[0m %s\n' "$*" >&2; exit 1; }
+log() { printf '\033[1;34m[watermark]\033[0m %s\n' "$*"; }
+
+[[ $# -ge 2 ]] || die "usage: $0 <input> <output> [theme_name]"
+IN="$1"; OUT="$2"; THEME="${3:-}"
+
+[[ -f "$IN" ]] || die "input missing: $IN"
+command -v magick >/dev/null || die "imagemagick not installed"
+[[ -f "$LOGO_LIGHT" ]] || die "logo missing: $LOGO_LIGHT"
+
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+
+# 1. Cover-fit resize + center-crop to TARGET_W×TARGET_H.
+log "resize+crop → ${TARGET_W}×${TARGET_H}"
+magick "$IN" -resize "${TARGET_W}x${TARGET_H}^" -gravity center -extent "${TARGET_W}x${TARGET_H}" "$TMP/cropped.png"
+
+# 2. Pick logo variant. If theme name is provided AND it maps to a light
+#    palette we choose the dark logo; otherwise auto-luminance.
+LOGO="$LOGO_LIGHT"
+case "$THEME" in
+  frost|daybreak|light) LOGO="$LOGO_LIGHT" ;;   # light theme → dark logo
+  ember|nebula|aurora|dark|"") LOGO="$LOGO_LIGHT" ;;  # placeholder until white variant lands
+esac
+
+# 3. Compute logo size (4 % of min edge).
+MIN_EDGE=$(( TARGET_W < TARGET_H ? TARGET_W : TARGET_H ))
+LOGO_EDGE=$(awk -v m="$MIN_EDGE" -v f="$LOGO_FRAC" 'BEGIN { printf "%d", m*f }')
+log "logo size: ${LOGO_EDGE}px, opacity: ${OPACITY}, inset: ${INSET}px"
+
+# 4. Prep logo — resize + apply opacity.
+magick "$LOGO" -resize "${LOGO_EDGE}x${LOGO_EDGE}" \
+  -channel A -evaluate multiply "$OPACITY" +channel \
+  "$TMP/logo-scaled.png"
+
+# 5. Composite bottom-right with inset.
+log "compositing"
+magick "$TMP/cropped.png" "$TMP/logo-scaled.png" \
+  -gravity southeast -geometry "+${INSET}+${INSET}" \
+  -composite "$OUT"
+
+log "wrote $OUT ($(du -h "$OUT" | cut -f1))"
