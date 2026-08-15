@@ -80,6 +80,18 @@ Split the single v1.1.0 base into two distinct products. Publish first v1.2.0 re
 - B7 · Multi-cloud image publish: DigitalOcean + Hetzner first, AWS + Azure + GCE second
 - B8 · Ship `vinos-vm-1.2.0-{amd64,arm64}.qcow2` + apt repo v1
 
+**Track Q — QA & test harness** (added 2026-08-14 after v1.2.1/v1.2.2 SUPER+Return regression escaped every existing gate)
+- Q1 · `iso/qa/config-lint.sh` — static Hyprland/autostart gate at build time (shipped 2026-08-11, catches v1.2.1-class bugs)
+- Q2 · `iso/qemu-desktop.sh --lan/--keepalive/--monitor/--hostfwd` — one-command Mac→QEMU test path with hypridle defeat + HMP socket + SSH forward
+- Q3 · `iso/qa/hmp.sh` + `iso/qa/keepalive.sh` — HMP client wrapper + anti-lock keepalive (composable primitives for every future test tool)
+- Q4 · `iso/test-super-return.sh` — headless sendkey regression: injects SUPER+Return, pixel-diffs before/after, blocks ship on FAIL
+- Q5 · `iso/qa/loop.sh` — Tier 3 hot-patch iteration (inotifywait on config/hypr → scp → hyprctl reload). Requires sshd enabled in live overlay
+- Q6 · Enable sshd in `iso/airootfs-overlay/etc/systemd/system/multi-user.target.wants/` so Q5 + guest introspection work without VINOS_ENABLE_SSH=1
+- Q7 · Wire Q4 into `iso/test.sh matrix` — no ISO ships without SUPER+Return proven live in QEMU
+- Q8 · `iso/qa/checkpoint.sh` + `.planning/SHIP-MANIFEST.md` — single pre-ship gate that runs every declared config through its own parser (waybar/hyprctl/mako/swaybg/fcitx5/walker). Added 2026-08-15 after v1.2.5 shipped a `font-feature-settings` + `@keyframes inset` CSS bug that config-lint couldn't see. Reference: `.planning/research/QA-CHECKPOINT-REFERENCE.md`
+
+Full runbook: `.planning/TESTING.md`. The four tiers of iteration + which bug class each catches are documented there.
+
 **Success criteria:**
 1. `vinos-dev` boots to working agentic dev env in ≤ 5 min post-login
 2. `vinos-vm` on any cloud accepts an agent config via cloud-init and completes a test mission within 60 s of first boot

@@ -20,7 +20,8 @@
 | A4 | Preinstall Claude Code + Ollama + `vinos-mcp` + curated MCP registry | ✅ Done | `c362c62c` (installer path); P2 shipped the registry |
 | A5 | Ship `vinos-dev-1.2.0-x86_64.iso` | ✅ Shipped | `08082ce6` → tag `v1.2.0`; 4.36 GB; sha256 `7fff67bfa…` |
 | A5.1 | Patch v1.2.1 — SUPER+Return terminal binding regression | ⚠️ Failed | `ade18c23` → tag `v1.2.1`; static-config bug, xdg-terminal-exec silently no-op'd |
-| A5.2 | Patch v1.2.2 — real fix (foot direct, wallpaper path, nwg-drawer, static lint gate) | ✅ Shipped | `24fa832a`+`89c2944a` → tag `v1.2.2`; 4.37 GB; sha256 `07df9b3cb…`; **iso/qa/config-lint.sh now catches this bug class at build gate 0** |
+| A5.2 | Patch v1.2.2 — real fix (foot direct, wallpaper path, nwg-drawer, static lint gate) | ⚠️ Still broken | `24fa832a`+`89c2944a` → tag `v1.2.2`; ships `RETURN` keysym + `uwsm-app -- foot` which BOTH no-op on Hyprland 0.57 — proven live in QEMU 2026-08-14; hot-patch (`RETURN` → `Return`, drop `uwsm-app --` prefix) fired foot immediately |
+| A5.3 | Patch v1.2.3 — real real fix (`Return` keysym, no uwsm wrapper on foot, hypridle live-skip, obsolete AUR pkgs pruned) | 🟡 Building | source patched; iso/build.sh --no-drift-check running via docker (~15 min) |
 
 ### Track B — vinos-vm
 
@@ -32,6 +33,20 @@
 | B3, B4, B7, B8 | Packer + Ansible + multi-arch + multi-cloud + ship qcow2 | ⬜ Pending | — |
 | B5 | vinos-agent-worker polling loop + runner abstraction | ⬜ Pending | — |
 | B6 | Full `vinos` CLI (14 subcommands, all tested) | 🟡 Slice done | `65d7a01d` — dispatcher + 6/14 delegates + 15/15 tests. vm-only cmds (join/leave/agent/mission/secrets) queued for cmd/*.sh under vinos-agent-worker.deb |
+
+### Track Q — QA & test harness (added 2026-08-14)
+
+| ID | Item | Status | Notes |
+|----|------|--------|-------|
+| Q1 | `iso/qa/config-lint.sh` — static Hyprland/autostart gate | ✅ Shipped | `89c2944a` (2026-08-11); catches v1.2.1-class silent no-ops |
+| Q2 | `iso/qemu-desktop.sh --lan --keepalive --monitor --hostfwd` | ✅ Landed 2026-08-14 | one-command Mac→QEMU test path; default `vinos` VNC password; virtio-vga + 4 vCPU/8G defaults |
+| Q3 | `iso/qa/hmp.sh` + `iso/qa/keepalive.sh` | ✅ Landed 2026-08-14 | HMP client (send/key/dump/status/type) + anti-lock keepalive |
+| Q4 | `iso/test-super-return.sh` | ✅ Landed 2026-08-14 | headless sendkey regression: injects SUPER+Return, pixel-diffs; blocks ship on FAIL |
+| Q5 | `iso/qa/loop.sh` — Tier 3 hot-patch iteration | ⬜ Pending | inotifywait config/hypr → scp → hyprctl reload |
+| Q6 | Enable sshd in live overlay `multi-user.target.wants/` | ⬜ Pending | required by Q5 for hostfwd SSH-in |
+| Q7 | Wire Q4 into `iso/test.sh matrix` | ⬜ Pending | mandatory pre-ship gate |
+
+Runbook: `.planning/TESTING.md`.
 
 ### Research shipped
 
@@ -49,13 +64,14 @@
 
 ## Session continuity
 
-Last session: 2026-08-10 (A2 + A3 + A4 + B6-slice + polish + tests/all.sh)
-Resumed via: `/gsd-resume-work`
-Stopped at: Track A code-complete; B6 dispatcher shipped; A5 gated on user ISO build
+Last session: 2026-08-14 (Track Q + A5.3 v1.2.3 fix)
+Resumed via: `/gsd-progress` — user reported SUPER+Return still broken on v1.2.2 real hardware
+Stopped at: v1.2.3 building via docker (~15 min); Q5/Q6/Q7 pending; live QEMU on v1.2.2 proved the fix (hot-patched RETURN→Return + dropped uwsm-app wrapper — foot fired instantly)
 Next actions:
-  - **User-triggered:** `iso/build.sh && iso/test.sh matrix` → tag v1.2.0 (A5)
-  - **Auto-continuable:** Track B — B5 (agent-worker + runner abstraction) or B1 (runtime monorepo)
-Task tracking: TaskList (#1–#3 completed; #4 pending A5 ship gate)
+  - **In-flight:** v1.2.3 build (log: `/tmp/vinos-1.2.3-build.log`); when finished → run `iso/test-super-return.sh --iso iso/out/vinos-1.2.3-x86_64.iso` to prove headlessly
+  - **After v1.2.3:** Q5 (loop.sh), Q6 (enable sshd), Q7 (wire test-super-return into `iso/test.sh matrix`)
+  - **Then:** back to Track B (B1 monorepo or B5 agent-worker)
+Task tracking: see TaskList (#7–#13 tracked this session)
 
 ### Session tally (2026-08-10)
 
