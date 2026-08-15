@@ -23,10 +23,13 @@ if [[ -n "${VINOS_REDUCED_MOTION:-}" ]] || command -v vinos-toggle-enabled >/dev
 fi
 
 # Wait for awww-daemon to be up (autostart may fire us before it).
-for _ in {1..20}; do
+# Long retry loop — some first-boots take 15+ s for the daemon socket.
+for _ in {1..60}; do
   if awww query >/dev/null 2>&1; then break; fi
   sleep 1
 done
+# If awww is still not reachable, bail — don't spin forever.
+awww query >/dev/null 2>&1 || exit 0
 
 # Start on the theme the user has selected (via $HOME/.local/state/vinos/theme),
 # or aurora if unset.

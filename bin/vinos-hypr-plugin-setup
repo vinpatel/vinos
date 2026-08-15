@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# vinos:summary=First-boot Hyprland plugin setup (borders-plus-plus, hyprbars, hyprfocus)
+# vinos:args=[--force]
+#
+# Runs `hyprpm` on first boot to fetch + build + enable the three
+# vinOS-blessed Hyprland plugins. Guards on ~/.local/state/vinos/
+# hypr-plugins-done so it never runs twice unless --force is given.
+#
+# Called from config/hypr/autostart.conf. Backgrounds gracefully — the
+# initial build takes 1-3 min but doesn't block the desktop.
+set -euo pipefail
+
+FORCE="${1:-}"
+STATE_DIR="$HOME/.local/state/vinos"
+FLAG="$STATE_DIR/hypr-plugins-done"
+
+mkdir -p "$STATE_DIR"
+
+if [[ -f "$FLAG" && "$FORCE" != "--force" ]]; then
+  exit 0
+fi
+
+# Need Hyprland env — autostart.conf sources them, but guard.
+: "${XDG_RUNTIME_DIR:=/run/user/$UID}"
+: "${WAYLAND_DISPLAY:=wayland-1}"
+export XDG_RUNTIME_DIR WAYLAND_DISPLAY
+HIS="$(ls "$XDG_RUNTIME_DIR/hypr/" 2>/dev/null | head -1)"
+[[ -n "$HIS" ]] && export HYPRLAND_INSTANCE_SIGNATURE="$HIS"
+
+# Wait for Hyprland IPC.
+for _ in {1..15}; do
+  if hyprctl version >/dev/null 2>&1; then break; fi
+  sleep 1
+done
+
+command -v notify-send >/dev/null && notify-send -u low \
+  "  vinOS setup" "Building Hyprland plugins (first-boot, 1–3 min)…" || true
+
+# Fetch matching Hyprland headers + build plugins.
+hyprpm update >/dev/null 2>&1 || true
+hyprpm add https://github.com/hyprwm/hyprland-plugins >/dev/null 2>&1 || {
+  command -v notify-send >/dev/null && notify-send -u critical \
+    "󰅚  vinOS setup" "Plugin build failed. Run \`vinos-hypr-plugin-setup --force\` to retry." || true
+  exit 1
+}
+
+# Enable the three visual plugins we ship configs for.
+for p in borders-plus-plus hyprbars hyprfocus; do
+  hyprpm enable "$p" >/dev/null 2>&1 || true
+done
+hyprpm reload >/dev/null 2>&1 || true
+
+touch "$FLAG"
+
+command -v notify-send >/dev/null && notify-send -u low \
+  "  vinOS setup" "Hyprland plugins ready. Enjoy the refined desktop." || true
