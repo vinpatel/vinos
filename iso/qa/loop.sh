@@ -73,23 +73,37 @@ IFS=',' read -r -a DIRS <<<"$WATCH_DIRS"
 for d in "${DIRS[@]}"; do [[ -d "$REPO/$d" ]] || die "no such dir: $REPO/$d"; done
 readarray -t ABS_DIRS < <(for d in "${DIRS[@]}"; do echo "$REPO/$d"; done)
 
+# Env prefix for commands that need Hyprland / Wayland env — the ssh
+# session doesn't inherit HYPRLAND_INSTANCE_SIGNATURE / WAYLAND_DISPLAY,
+# so we reconstruct them from /run/user/1000/. Uid is deterministic
+# (vinos-live-init creates the vinos user first, so it's always 1000).
+HYPR_ENV='HIS=$(ls /run/user/1000/hypr/ 2>/dev/null | head -1); export XDG_RUNTIME_DIR=/run/user/1000 WAYLAND_DISPLAY=wayland-1 HYPRLAND_INSTANCE_SIGNATURE=$HIS DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus'
+
 # dispatch — given a relative repo path, return "GUEST_PATH|RELOAD_CMD"
 dispatch() {
   local rel="$1"
   case "$rel" in
     config/hypr/*)
-      printf '%s|%s\n' "${GUEST_HOME}/.config/${rel#config/}" "hyprctl reload"
+      # hyprctl reload uses its socket — needs HIS+XDG_RUNTIME_DIR.
+      printf '%s|%s\n' "${GUEST_HOME}/.config/${rel#config/}" "$HYPR_ENV; hyprctl reload"
       ;;
     config/waybar/*)
-      printf '%s|%s\n' "${GUEST_HOME}/.config/${rel#config/}" "pkill -SIGUSR2 waybar || (pkill waybar; nohup waybar >/dev/null 2>&1 &)"
+      # SIGUSR2 is env-free (just a kill). Fallback spawn needs Hyprland
+      # env so waybar can find WAYLAND_DISPLAY — use hyprctl dispatch exec
+      # so it inherits from Hyprland's env naturally.
+      printf '%s|%s\n' "${GUEST_HOME}/.config/${rel#config/}" "pkill -SIGUSR2 waybar 2>/dev/null || { $HYPR_ENV; pkill waybar 2>/dev/null; sleep 0.4; hyprctl dispatch exec waybar; }"
       ;;
     config/mako/*)
-      printf '%s|%s\n' "${GUEST_HOME}/.config/${rel#config/}" "makoctl reload"
+      # makoctl talks to mako via wayland — needs XDG_RUNTIME_DIR + WAYLAND_DISPLAY.
+      printf '%s|%s\n' "${GUEST_HOME}/.config/${rel#config/}" "$HYPR_ENV; makoctl reload"
       ;;
     config/walker/*)
+      # walker is a one-shot; killing it just means the next Super+Space
+      # respawn picks up the new theme. No env needed.
       printf '%s|%s\n' "${GUEST_HOME}/.config/${rel#config/}" "pkill walker || true"
       ;;
     config/nwg-drawer/*)
+      # nwg-drawer is also on-demand; new files land in place for next open.
       printf '%s|%s\n' "${GUEST_HOME}/.config/${rel#config/}" "true"
       ;;
     bin/vinos-*)
