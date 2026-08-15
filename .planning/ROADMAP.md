@@ -129,6 +129,33 @@ No GPL bundling — Bibata's license needs verifying before R4 ships.
 visually equal to or better than the top 3 curated Hyprland dotfile
 repos. Screenshot showdown documented in UI-COMPARISON.md.
 
+### v1.3.1 — Boot menu + installer UX (1-2 weeks) — next after v1.3.0 stable
+
+**Motivation (2026-08-15):** v1.3.0 ships live-boot to Hyprland cleanly, but
+installing to disk still requires the user to open a terminal and run
+`sudo vinos-install-disk`. Distros like Ubuntu/Fedora/Manjaro ship a
+**boot-menu Install entry** so the flash-USB-then-boot flow ends with a
+guided install, not a treasure hunt. That is the last major UX gap before
+handing vinOS to non-Vin developers.
+
+**Track I — Install UX**
+
+| ID | Item | Notes |
+|----|------|-------|
+| I1 | Add "Install vinOS (T2 Mac)" + "Install vinOS (Intel/AMD PC)" UEFI boot entries | New `.conf` files under `iso/profile/efiboot/loader/entries/` with kernel cmdline flag `vinos.install=1` |
+| I2 | Same for BIOS/syslinux (`iso/profile/syslinux/`) | Match feature parity for non-UEFI legacy boot |
+| I3 | Reorder loader.conf `default` so "Install" appears first on the menu, live "Try" second | Common distro convention. Reduces friction for the common case. |
+| I4 | `vinos-live-init.service` reads `/proc/cmdline` for `vinos.install=1` | Sets `~/.local/state/vinos/auto-install` flag on the ephemeral vinos user |
+| I5 | `config/hypr/autostart.conf` auto-launches `vinos-install-disk --gum-wizard` when the flag is present | User boots into a full-screen gum-driven installer, not a bare desktop |
+| I6 | `bin/vinos-install-disk --gum-wizard` — interactive gum-styled wizard | Screens: welcome, disk pick (with `lsblk` preview), user/pass/hostname, confirm, run. Matches vinos-first-run visual style. |
+| I7 | Post-install: reboot prompt with 10-s countdown | Cancellable with any key. Matches archinstall UX. |
+| I8 | Progress bar during pacstrap + copy | Currently silent for 5-10 min. Feels broken. |
+| I9 | Screenshot of every install screen filed to `.planning/research/screenshots/1.3.1-install-*.png` | For docs/INSTALL.md refresh |
+
+**Deliverable:** flash `vinos-1.3.1-x86_64.iso` to USB, boot on any target,
+pick "Install vinOS", answer 4 prompts, walk away. Reboot into installed
+system. Zero terminal.
+
 ### v1.4.0 — Enterprise polish (4-6 weeks) — was v1.3.0
 
 **vinos-vm hardening + compliance**
@@ -148,7 +175,15 @@ repos. Screenshot showdown documented in UI-COMPARISON.md.
 - `vinos update --self` — updates the vinos runtime layer without touching base OS
 - Fleet mgmt CLI (`vinos fleet list/status/broadcast` on the dev workstation for a group of vms)
 
-### v1.5.0 — Apple Silicon (Track M) — 3-4 weeks
+### v1.5.0 — Ecosystem (6-8 weeks) — was v1.6.0
+
+- Marketplace listings: AWS Marketplace + GCP Marketplace + Azure Marketplace
+- MCP server catalog: user-contributed servers, review process, `vinos mcp search <term>`
+- Community skills: `vinos skill add <name>` — shared automation snippets
+- AgenticFlow orchestrator adapter (if AgenticFlow ships v1)
+- vinos-dev tour mode: onboarding walkthrough for new users
+
+### v1.6.0 — Apple Silicon (Track M) — 3-4 weeks — DEFERRED from v1.5.0
 
 **Motivation:** vinOS currently targets x86_64 with T2-Mac as the primary
 hardware. M-series Macs (M1/M2/M3/M4) are the modern Apple laptop line —
@@ -157,6 +192,10 @@ covering them multiplies the addressable install base. Asahi Linux
 Apple GPU (mesa) driver, macsmc-hid audio. We integrate their libraries
 under a vinOS-branded install path — no wheel reinvention, GPL-2 accepted
 for the kernel (already the case).
+
+**Deferred 2026-08-15** at user's direction — the x86_64 install UX
+(v1.3.1) + enterprise (v1.4) + ecosystem (v1.5) must land first before we
+fork the codebase for aarch64.
 
 | ID | Item | Notes |
 |----|------|-------|
@@ -173,14 +212,6 @@ Apple GPU driver is in mesa (MIT). No proprietary blobs added.
 
 **Deliverable:** vinOS runs on M1/M2/M3/M4 Macs from a single boot USB with
 the same install-disk UX as x86_64 T2s.
-
-### v1.6.0 — Ecosystem (6-8 weeks) — was v1.4.0 / v1.5.0
-
-- Marketplace listings: AWS Marketplace + GCP Marketplace + Azure Marketplace
-- MCP server catalog: user-contributed servers, review process, `vinos mcp search <term>`
-- Community skills: `vinos skill add <name>` — shared automation snippets
-- AgenticFlow orchestrator adapter (if AgenticFlow ships v1)
-- vinos-dev tour mode: onboarding walkthrough for new users
 
 ### v1.7.0+ — TBD
 
