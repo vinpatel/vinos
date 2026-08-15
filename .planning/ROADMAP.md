@@ -100,7 +100,36 @@ Full runbook: `.planning/TESTING.md`. The four tiers of iteration + which bug cl
 5. Retention rule holds: `iso/out/` = last 3 dev + last 3 vm + `vinos-1.1.0` permanent
 6. Zero "omarchy" mentions in commits or file contents
 
-### v1.3.0 — Enterprise polish (4-6 weeks)
+### v1.3.0 — Refined desktop (5-day sprint, blocks all other v1.3+)
+
+**Motivation (2026-08-15):** vinOS looks bare next to JaKooLit / HyDE /
+end-4/dots-hyprland. Zero Hyprland plugins loaded, no GTK / icon / cursor
+themes, no reactive widget layer. Config-only work is done — the visual
+layer is the gap. Beat HyDE without importing HyDE.
+
+**Track R — Refinement**
+
+| ID | Item | Notes |
+|----|------|-------|
+| R1 | Bundle 5 MIT/BSD Hyprland plugins pre-installed | hyprexpo, borders-plus-plus, hyprwinwrap, hypergrass, csgo-vulkan-fix (per PILOT-4-RESULTS.md). No `hyprpm` dance for user. |
+| R2 | `vinos-gtk` theme package | Own GTK3 + GTK4 CSS. Tokyo-night-derived palette per BRANDING.md. No Adwaita default look. |
+| R3 | `vinos-icons` theme package | Papirus base (MIT), color-shifted to vinOS teal accents, action/status icons redrawn on-brand. |
+| R4 | `vinos-cursor` theme package | Bibata base (GPL-3 — **evaluate license fit**; if blocked, fall back to XCursor from scratch). |
+| R5 | Astal widget layer | MIT, minimal deps. Ships `vinos-dashboard` (system stats + AI state), `vinos-notify` (fancy notification center replacing bare mako), agent-state module. |
+| R6 | Refined waybar animations | SIGRTMIN+N real signal-driven state transitions (not the fake @keyframes we ripped out). Battery pulse, AI-active glow, connection-drop shake. |
+| R7 | Live wallpapers via hyprwinwrap | Ship 1 default animated aurora scene + `vinos-theme apply aurora --live` CLI toggle. |
+| R8 | `hyprshade` color-temperature integration + `vinos-menu → Display` toggle | Warm/cool profiles per time of day. |
+| R9 | Refined swaybg pipeline — parallax on workspace switch, dim on window focus | Same wallpaper file, subtle motion — makes single-image feel alive. |
+| R10 | Screenshot side-by-side vs JaKooLit / HyDE / end-4 in `.planning/research/UI-COMPARISON.md` before shipping | We commit to at-least-parity or better on ~10 concrete axes: focus rings, module density, animation cadence, palette consistency, tray sensibility, launcher aesthetic, wallpaper polish, notification stack, workspace overview, cursor smoothness. |
+
+**License gate:** every plugin/theme evaluated per `BRANDING.md` + PILOT-4 gates.
+No GPL bundling — Bibata's license needs verifying before R4 ships.
+
+**Deliverable:** vinos-dev-1.3.0-x86_64.iso that a fresh viewer would rate
+visually equal to or better than the top 3 curated Hyprland dotfile
+repos. Screenshot showdown documented in UI-COMPARISON.md.
+
+### v1.4.0 — Enterprise polish (4-6 weeks) — was v1.3.0
 
 **vinos-vm hardening + compliance**
 - CIS Benchmark v2.0.0 automated audit (`vinos doctor --cis`)
@@ -111,8 +140,7 @@ Full runbook: `.planning/TESTING.md`. The four tiers of iteration + which bug cl
 
 **vinos-dev polish**
 - **LiteLLM proxy service** — runs on `vinos-dev` as `litellm.service`, listens on `localhost:4000/v1`, routes named model roles (`vinos-planner`/`vinos-reviewer`/`vinos-architect` → Claude, `vinos-executor`/`vinos-checker`/`vinos-autoexec` → local Ollama). Apps target one endpoint; the proxy handles routing + retry + cost tracking. Shipped as `litellm.service` systemd unit + `configs/vinos/litellm/proxy.yaml`.
-- Theme system with 4 vinOS-native themes (aurora + nebula + ember + frost — all authored by us, zero reuse of ecosystem theme names; see ADR-012)
-- Waybar AI status pill (model + session + burn)
+- Waybar AI status pill (model + session + burn) — bumped from Track R6 if not covered
 - `vinos vm-testbed` CLI for local Ubuntu VM testing
 - All hypr toggles wired to `vinos-menu` submenus
 
@@ -120,7 +148,7 @@ Full runbook: `.planning/TESTING.md`. The four tiers of iteration + which bug cl
 - `vinos update --self` — updates the vinos runtime layer without touching base OS
 - Fleet mgmt CLI (`vinos fleet list/status/broadcast` on the dev workstation for a group of vms)
 
-### v1.4.0 — Ecosystem (6-8 weeks)
+### v1.5.0 — Ecosystem (6-8 weeks) — was v1.4.0
 
 - Marketplace listings: AWS Marketplace + GCP Marketplace + Azure Marketplace
 - MCP server catalog: user-contributed servers, review process, `vinos mcp search <term>`
@@ -128,9 +156,9 @@ Full runbook: `.planning/TESTING.md`. The four tiers of iteration + which bug cl
 - AgenticFlow orchestrator adapter (if AgenticFlow ships v1)
 - vinos-dev tour mode: onboarding walkthrough for new users
 
-### v1.5.0+ — TBD
+### v1.6.0+ — TBD
 
-Deferred until we have real-world usage data from v1.2-v1.4.
+Deferred until we have real-world usage data from v1.3-v1.5.
 
 ---
 
