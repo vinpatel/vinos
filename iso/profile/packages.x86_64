@@ -17,6 +17,7 @@ arch-install-scripts
 arch-mact2-mirrorlist
 archinstall
 avahi
+awww
 b43-fwcutter
 base
 base-devel
@@ -38,6 +39,7 @@ chromium
 claude-code
 clonezilla
 cloud-init
+cmake
 cryptsetup
 cups
 cups-browsed
@@ -106,12 +108,14 @@ hyprland-guiutils
 hyprlock
 hyprpicker
 hyprsunset
+hyprwayland-scanner
 imagemagick
 impala
 inetutils
 intel-lpmd
 intel-media-driver
 intel-ucode
+inter-font
 inxi
 irssi
 iw
@@ -154,6 +158,7 @@ mdadm
 memtest86+
 memtest86+-efi
 mesa
+meson
 mkinitcpio
 mkinitcpio-archiso
 mkinitcpio-nfs-utils
@@ -180,6 +185,7 @@ nvidia-open-dkms
 nvidia-utils
 nvme-cli
 nwg-drawer
+nwg-look
 obsidian
 ollama
 open-iscsi
@@ -199,6 +205,7 @@ pipewire
 pipewire-alsa
 pipewire-jack
 pipewire-pulse
+pkgconf
 playerctl
 plocate
 plymouth

@@ -140,7 +140,7 @@ the "flicker on theme switch" UX gap in ADR-011.
    ```bash
    bash iso/qa/oneshot.sh
    ```
-   If any layer fails, fix the underlying issue — don't skip. (`iso/qa/oneshot.sh` ships in v1.2.0; for v1.1.0-based PRs use `iso/test.sh --mode matrix` instead.)
+   If any layer fails, fix the underlying issue — don't skip. (`iso/qa/oneshot.sh` ships in v1.2.0; for v1.1.0-based PRs use `iso/test.sh --mode matrix` instead.) **PRs that touch T2 code paths must also record a walkthrough of [iso/qa/t2-hardware-checkpoint.md](../iso/qa/t2-hardware-checkpoint.md) on real T2 hardware in the PR body — QEMU cannot exercise tiny-dfr, t2fanrd, tzdetect Wi-Fi race, or iGPU-bound slowness.**
 4. **Open the PR** targeting `main`. In the body, explain:
    - The problem or opportunity motivating the change
    - The approach taken and why

@@ -203,8 +203,9 @@ Layers:
 2. **Container** — build inside archiso Docker, inspect manifest
 3. **Regression harness** (`iso/qa/verify-shipped-iso.sh`) — asserts every past fix is intact
 4. **QEMU** — boot the ISO headless, take screendumps at 30s / 90s / 150s, assert desktop reached
+5. **T2 hardware checkpoint** ([iso/qa/t2-hardware-checkpoint.md](../iso/qa/t2-hardware-checkpoint.md)) — walk the checklist on a real Apple T2 MacBook. Catches tiny-dfr, t2fanrd, tzdetect, and desktop-slowness regressions that QEMU cannot see. Added post-v1.3.0.
 
-**Never hand a user an ISO that hasn't passed all four layers.** This is a hard rule ([ADR-001](DESIGN-DECISIONS.md#adr-001)).
+**Never hand a user an ISO that hasn't passed all five layers.** This is a hard rule ([ADR-001](DESIGN-DECISIONS.md#adr-001)). The first four run locally; layer 5 requires physical hardware.
 
 Note: `iso/qa/oneshot.sh` and `verify-shipped-iso.sh` shipped in a post-v1.1.0 milestone; the v1.1.0 tag does NOT contain them yet. They ship in v1.2.0.
 

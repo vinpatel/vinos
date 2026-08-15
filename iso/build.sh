@@ -186,3 +186,11 @@ PACCONF
 
 log "done → $OUT_DIR"
 ls -1sh "$OUT_DIR"/*.iso "$OUT_DIR"/sha256sums.txt 2>/dev/null || true
+
+# Ship-gate reminder — every build ends with a nudge to walk the T2
+# checkpoint on real hardware before tagging. v1.3.0 shipped 4 hardware
+# regressions because QEMU-green was mistaken for ship-ready.
+printf '\n\033[1;33mREMINDER\033[0m: before tagging, walk iso/qa/t2-hardware-checkpoint.md\n'
+printf '  on a real Apple T2 MacBook. QEMU-green is not enough — v1.3.0 shipped\n'
+printf '  4 hardware regressions (tiny-dfr / t2fanrd / tzdetect / slowness) the\n'
+printf '  QEMU harness could not catch.\n'

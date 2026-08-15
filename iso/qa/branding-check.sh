@@ -122,3 +122,11 @@ if (( fails > 0 )); then
   echo "branding-check FAILED — refusing to ship. See docs/BRANDING.md for the rules."
   exit 1
 fi
+
+# ---- reminder: T2 hardware checkpoint is a ship gate ----
+# v1.3.0 shipped 4 T2 regressions the QEMU harness could not catch
+# (tiny-dfr / t2fanrd / tzdetect / slowness). branding-check runs at
+# the end of every build — print the reminder here so nobody tags a
+# release without walking iso/qa/t2-hardware-checkpoint.md on a real T2.
+printf '\n%sREMINDER%s: before tagging, walk iso/qa/t2-hardware-checkpoint.md\n' "$YELLOW" "$RST"
+printf '  on a real Apple T2 MacBook. QEMU-green is not enough.\n'

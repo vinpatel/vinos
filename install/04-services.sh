@@ -136,6 +136,21 @@ systemctl_enable acpid
 systemctl_enable power-profiles-daemon
 systemctl_enable bolt
 
+# --- Apple T2 Mac userspace services --------------------------------
+# tiny-dfr renders the Touch Bar; t2fanrd manages fans. Both ship in
+# packages.live so the binaries + units are present on every ISO. They
+# are enabled universally — on non-Apple hardware they either exit
+# quickly or stay dormant (no /dev/dri Touch Bar, no applesmc sensors).
+#
+# Enable target matters: tiny-dfr's base unit has NO [Install] section;
+# the arch-mact2 drop-in /usr/lib/systemd/system/tiny-dfr.service.d/
+# t2-intel.conf sets WantedBy=graphical.target + After=graphical.target.
+# Enabling into multi-user.target.wants (v1.3.0's approach) violates the
+# drop-in's ordering and Touch Bar failed to light up on Vin's T2 MBP.
+# t2fanrd's base unit says WantedBy=default.target — mirror that.
+VINOS_SYSTEMCTL_TARGET=graphical.target systemctl_enable tiny-dfr
+VINOS_SYSTEMCTL_TARGET=default.target   systemctl_enable t2fanrd
+
 # hid_apple fnmode=2 — Apple keyboard convention. Makes Apple/Lofree keyboards
 # treat the F-row as F-keys by default (media keys behind fn). The
 # module only loads when Apple HID hardware is present, so this file

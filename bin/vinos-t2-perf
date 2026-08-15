@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# vinos-t2-perf — one-shot performance snapshot for Apple T2 Macs. Run
+# from a live boot when the desktop feels slow; paste output back into
+# the v1.3.1 ship-gate report so we have data for root-cause. Safe on
+# any Linux; on non-T2 the T2-specific sections print SKIP + move on.
+#
+# Usage: vinos-t2-perf [--out FILE]
+#   FILE defaults to /tmp/vinos-t2-perf-$(date +%s).log
+set -uo pipefail
+
+OUT=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --out) OUT="$2"; shift 2 ;;
+    -h|--help) sed -n '2,10p' "$0"; exit 0 ;;
+    *) printf 'unknown arg: %s\n' "$1" >&2; exit 2 ;;
+  esac
+done
+: "${OUT:=/tmp/vinos-t2-perf-$(date +%s).log}"
+
+exec > >(tee "$OUT") 2>&1
+
+hdr() { printf '\n=== %s ===\n' "$*"; }
+
+hdr "identity"
+uname -a
+grep -E '^(NAME|PRETTY_NAME|VERSION|BUILD_ID)=' /etc/os-release
+if command -v dmidecode >/dev/null; then
+  sudo dmidecode -s system-manufacturer 2>/dev/null || true
+  sudo dmidecode -s system-product-name 2>/dev/null || true
+fi
+
+hdr "boot times"
+systemd-analyze
+systemd-analyze blame | head -25
+systemd-analyze critical-chain
+
+hdr "cpu + load"
+uptime
+grep -E '^model name' /proc/cpuinfo | head -1
+nproc
+cat /proc/loadavg
+
+hdr "memory + swap"
+free -h
+grep -E '^(MemTotal|MemAvailable|SwapTotal|SwapFree|Buffers|Cached):' /proc/meminfo
+
+hdr "top 15 processes by CPU"
+ps aux --sort=-%cpu | head -16
+
+hdr "top 15 processes by RSS"
+ps aux --sort=-rss | head -16
+
+hdr "systemd services in failed state"
+systemctl --failed --no-pager --no-legend || true
+
+hdr "T2 hardware presence"
+# tiny-dfr / t2fanrd status
+for u in tiny-dfr t2fanrd; do
+  printf '  %s: ' "$u"
+  systemctl is-active "$u" 2>&1
+  systemctl is-enabled "$u" 2>&1 | sed 's/^/    enabled: /'
+done
+# DFR device nodes (Apple Silicon exposes /dev/tiny_dfr_*; Intel T2 goes
+# via /dev/dri/card1 as a separate DRM device — we probe both)
+printf '\n  DFR device nodes:\n'
+ls -la /dev/tiny_dfr_* /dev/apple_dcp* 2>&1 | sed 's/^/    /'
+printf '  DRM cards (Intel T2 exposes touchbar as card1):\n'
+ls -la /dev/dri/ 2>&1 | sed 's/^/    /'
+# applesmc sensors (fans/temps)
+printf '\n  applesmc sensors:\n'
+if [[ -d /sys/devices/platform/applesmc.768 ]]; then
+  ls /sys/devices/platform/applesmc.768/ | head -20 | sed 's/^/    /'
+  for f in fan1_input temp1_input; do
+    v=$(cat "/sys/devices/platform/applesmc.768/$f" 2>/dev/null || echo "n/a")
+    printf '    %s = %s\n' "$f" "$v"
+  done
+else
+  printf '    (applesmc not loaded — expected on non-Apple hardware)\n'
+fi
+
+hdr "hyprland state"
+if pgrep -x Hyprland >/dev/null; then
+  hyprctl version 2>/dev/null | head -3
+  hyprctl monitors -j 2>/dev/null | head -30
+  hyprctl clients -j 2>/dev/null | head -60
+else
+  printf '  (Hyprland not running)\n'
+fi
+
+hdr "gpu + graphics"
+if command -v lspci >/dev/null; then
+  lspci -nnk | grep -A 2 -iE 'vga|3d|display' || true
+fi
+if command -v glxinfo >/dev/null; then
+  glxinfo -B 2>/dev/null | head -12
+fi
+
+hdr "kernel messages (T2-relevant, last 60)"
+sudo dmesg 2>/dev/null | grep -iE 'apple|t2|brcmfmac|iwlwifi|thunderbolt|nvme|i915' | tail -60
+
+hdr "network state"
+if command -v iwctl >/dev/null; then
+  iwctl station list 2>/dev/null || true
+  # non-interactive: just show connection state via networkctl
+  networkctl status --no-pager 2>/dev/null | head -30 || true
+fi
+
+hdr "timezone state"
+timedatectl
+cat /var/lib/vinos/tzdetect.done 2>/dev/null || printf '(no sentinel — service has not succeeded)\n'
+systemctl status vinos-tzdetect --no-pager -l 2>&1 | head -20
+
+hdr "done"
+printf '  output saved to: %s\n' "$OUT"

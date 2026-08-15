@@ -8,31 +8,50 @@ Before=graphical.target systemd-user-sessions.service
 # The sentinel is written by us on first success + by install/04-services.sh
 # on disk installs where the user selects a zone in the installer.
 ConditionPathExists=!/var/lib/vinos/tzdetect.done
+# Cap Restart= churn: 5 retries per 10-min window is enough on a truly
+# offline machine, and StartLimit belongs in [Unit] (systemd.unit(5)).
+StartLimitBurst=5
+StartLimitIntervalSec=600
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-# 3 fallbacks, in order of preference:
+# network-online.target fires the moment iwd starts because
+# systemd-networkd-wait-online is masked (04-services.sh — masking
+# avoids hanging offline boots). On T2 MacBooks the brcmfmac Wi-Fi
+# driver takes 5–20 s more to associate + DHCP after that target
+# activates, so a single-shot curl loses the race and the clock stays
+# on UTC. Loop up to 12 tries × 5 s (60 s total) so we get one chance
+# per Wi-Fi handshake attempt before giving up.
+#
+# 3 fallbacks per try, in order of preference:
 #   1. tzupdate      — AUR package, ip2geo + tzdata lookup
 #   2. curl ipapi.co — free tier, no key, returns IANA name
 #   3. curl ip-api   — second-choice free service
 # Any success → `timedatectl set-timezone`, write sentinel, done.
-# Failure of all three → sentinel NOT written, service retries on next boot.
+# Total failure → exit non-zero so systemd Restart= retries later.
 ExecStart=/usr/bin/bash -eu -c '\
   mkdir -p /var/lib/vinos; \
   tz=""; \
-  if command -v tzupdate >/dev/null 2>&1; then \
-    tz=$(tzupdate -p 2>/dev/null || true); \
-  fi; \
+  for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do \
+    if command -v tzupdate >/dev/null 2>&1; then \
+      tz=$(tzupdate -p 2>/dev/null || true); \
+    fi; \
+    if [ -z "$tz" ]; then \
+      tz=$(curl -fsS --max-time 5 https://ipapi.co/timezone 2>/dev/null || true); \
+    fi; \
+    if [ -z "$tz" ] || ! grep -qE "^[A-Za-z_]+/[A-Za-z_/-]+$" <<<"$tz"; then \
+      tz=$(curl -fsS --max-time 5 "http://ip-api.com/line?fields=timezone" 2>/dev/null || true); \
+    fi; \
+    if [ -n "$tz" ] && grep -qE "^[A-Za-z_]+/[A-Za-z_/-]+$" <<<"$tz"; then \
+      break; \
+    fi; \
+    tz=""; \
+    sleep 5; \
+  done; \
   if [ -z "$tz" ]; then \
-    tz=$(curl -fsS --max-time 5 https://ipapi.co/timezone 2>/dev/null || true); \
-  fi; \
-  if [ -z "$tz" ] || ! grep -qE "^[A-Za-z_]+/[A-Za-z_/-]+$" <<<"$tz"; then \
-    tz=$(curl -fsS --max-time 5 "http://ip-api.com/line?fields=timezone" 2>/dev/null || true); \
-  fi; \
-  if [ -z "$tz" ] || ! grep -qE "^[A-Za-z_]+/[A-Za-z_/-]+$" <<<"$tz"; then \
-    echo "vinos-tzdetect: could not auto-detect timezone; leaving as-is" >&2; \
-    exit 0; \
+    echo "vinos-tzdetect: could not auto-detect timezone after 12 attempts" >&2; \
+    exit 1; \
   fi; \
   if [ -f "/usr/share/zoneinfo/$tz" ]; then \
     timedatectl set-timezone "$tz"; \
@@ -40,7 +59,14 @@ ExecStart=/usr/bin/bash -eu -c '\
     logger -t vinos-tzdetect "set timezone to $tz"; \
   else \
     echo "vinos-tzdetect: /usr/share/zoneinfo/$tz missing; refusing to set" >&2; \
+    exit 1; \
   fi'
+# On failure, systemd re-runs the unit after 30 s. StartLimit caps
+# retries so we don't hammer the geoip APIs forever on a truly-offline
+# machine. Combined budget: 12 in-process tries × 5 s + 5 systemd
+# retries × (60 s exec + 30 s sleep) ≈ 8 minutes end-to-end.
+Restart=on-failure
+RestartSec=30s
 
 [Install]
 WantedBy=multi-user.target
