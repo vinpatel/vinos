@@ -49,24 +49,32 @@
 
 ## Screenshots
 
-Real frames from a boot of the shipping ISO. See [the site](https://vinos.computer) for the full walkthrough video.
+Fresh frames from **v1.3.0 — Refined desktop** (Track R). All from a fresh QEMU boot of the shipping ISO, no post-boot patching. Full walkthrough at [vinos.computer](https://vinos.computer).
 
 <table>
   <tr>
-    <td width="50%"><img src="site/tools/demo/iso-frames/01-boot.png" alt="Desktop right after boot"></td>
-    <td width="50%"><img src="site/tools/demo/iso-frames/06-menu.png" alt="vinos-menu bundle picker"></td>
+    <td width="50%"><img src="site/tools/demo/iso-frames/hero-01-clean-desktop.png" alt="vinOS 1.3.0 desktop — waybar + wallpaper"></td>
+    <td width="50%"><img src="site/tools/demo/iso-frames/hero-03-tiled.png" alt="Three tiled apps with hyprbars, borders-plus-plus, vinos-gtk, papirus icons"></td>
   </tr>
   <tr>
-    <td align="center"><em>Hyprland desktop, first boot — no dotfile weekend</em></td>
-    <td align="center"><em><code>Super+Ctrl+O</code> — the vinOS hub (bundles, themes, doctor, wifi)</em></td>
+    <td align="center"><em>First boot — refined waybar, aurora wallpaper, brand V in the safe zone.</em></td>
+    <td align="center"><em>Tiled foot + gnome-calc + nautilus. Hyprbars, borders-plus-plus, vinos-gtk, Papirus icons — all on brand.</em></td>
   </tr>
   <tr>
-    <td width="50%"><img src="site/tools/demo/iso-frames/03-doctor.png" alt="vinos-doctor output"></td>
-    <td width="50%"><img src="site/tools/demo/iso-frames/12-tiled.png" alt="Three tiled foot terminals"></td>
+    <td width="50%"><img src="site/tools/demo/iso-frames/hero-02-terminal.png" alt="foot terminal with hyprbars title bar"></td>
+    <td width="50%"><img src="site/tools/demo/iso-frames/hero-06-transition.png" alt="awww wave wallpaper transition"></td>
   </tr>
   <tr>
-    <td align="center"><em><code>vinos-doctor</code> — every check green on a fresh boot</em></td>
-    <td align="center"><em>Hyprland tiling. One workspace, three panes.</em></td>
+    <td align="center"><em>Single foot terminal — hyprbars title, purple/teal double outline.</em></td>
+    <td align="center"><em>Wallpaper cycle. awww wave transition, 90 s intervals through aurora → nebula → frost → ember.</em></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="site/tools/demo/iso-frames/hero-07-display.png" alt="vinos-display color-temperature notification"></td>
+    <td width="50%"><img src="site/tools/demo/iso-frames/hero-05-waybar-detail.png" alt="waybar module detail"></td>
+  </tr>
+  <tr>
+    <td align="center"><em><code>vinos-display night</code> — F7/F8 warmer/cooler, or Auto by time of day.</em></td>
+    <td align="center"><em>Waybar close-up. Palette-locked pills, tokyo-night-derived, no fake @keyframes.</em></td>
   </tr>
 </table>
 
