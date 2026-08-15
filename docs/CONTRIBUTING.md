@@ -57,7 +57,52 @@ Every top-level directory has a purpose:
 - **Add / drop a package:** edit `iso/packages.live` (live-ISO-specific) or install scripts (installed-system-specific), regenerate via `iso/gen-packages.sh`
 - **Fix a boot-menu entry:** edit `iso/profile/efiboot/loader/entries/*.conf` (UEFI) or `iso/profile/syslinux/*.cfg` (BIOS)
 - **Change the live-user setup:** edit `iso/airootfs-overlay/etc/systemd/system/vinos-live-init.service`
+- **Change any user-facing config file:** see [`CONFIGURATION.md`](CONFIGURATION.md) — the map of every config file, where it lands on the guest, and how to hot-reload it.
+- **Change branding — logo, colors, wallpaper watermark:** see [`BRANDING.md`](BRANDING.md). `iso/qa/branding-check.sh` enforces these at build time.
 - **Add a decision doc:** append an ADR to `docs/DESIGN-DECISIONS.md` (top of file; higher numbers first)
+
+### Dev workflow — the hot-reload loop
+
+**Do not rebuild the ISO for a config or `bin/` script change.** Rebuilds are for
+package-list, `install/`, kernel/initrd, or ship-tag changes only.
+
+The dev loop:
+
+```
+edit → save → loop.sh pushes → guest hot-reloads → verify → commit → push
+```
+
+To set it up (once):
+
+1. Build a dev ISO: `iso/build.sh` (bakes in sshd + your `~/.ssh/id_ed25519.pub`
+   into the guest's `authorized_keys` at build time — see `iso/build.sh` Q6b).
+2. Launch QEMU: `iso/qemu-desktop.sh --lan --keepalive --hostfwd --iso iso/out/vinos-*.iso`
+3. Start the loop: `iso/qa/loop.sh`
+4. Edit `config/waybar/style.css` (or any file listed in the dispatch table).
+   Save. It lands in the running guest in under a second, and the right
+   reload trigger fires — `hyprctl reload`, `pkill -SIGUSR2 waybar`,
+   `makoctl reload`, etc.
+
+If a change WOULD trigger a rebuild:
+
+- Package list drift → commit + rebuild + reship
+- Anything under `install/**` → same
+- Kernel / initrd → same
+
+For everything else, if you catch yourself typing `iso/build.sh`, ask why.
+
+### Version discipline
+
+`VERSION` reflects the **next-ship-target**. Do not bump for iteration.
+
+- v1.2.3, v1.2.4, v1.2.5 all existed as VERSION values without any ever shipping
+  — that trail confused everyone. Learn from it.
+- Bump only when the previous shipped tag exists AND the current work is a
+  genuinely new deliverable.
+- Dev builds → `iso/out/vinos-dev-latest.iso`, overwritten each time, never
+  goes into git history or user hands.
+- Shipped builds → `iso/out/vinos-<version>-x86_64.iso`, tagged, archived in
+  `~/vinos-iso-archive/isos/`.
 
 ## Commit style
 

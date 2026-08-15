@@ -60,6 +60,13 @@ if [[ -x "$ISO_DIR/qa/config-lint.sh" ]]; then
   log "running iso/qa/config-lint.sh (static gate)"
   "$ISO_DIR/qa/config-lint.sh" || die "config-lint FAILED — refusing to build"
 fi
+
+# Ship gate 0b — branding-check enforces docs/BRANDING.md (logo alpha,
+# wallpaper dims, GTK-CSS-safe waybar, product name spelling).
+if [[ -x "$ISO_DIR/qa/branding-check.sh" ]]; then
+  log "running iso/qa/branding-check.sh (branding gate)"
+  "$ISO_DIR/qa/branding-check.sh" || die "branding-check FAILED — refusing to build"
+fi
 mkdir -p "$OUT_DIR"
 
 log "regenerating packages.x86_64 (drift check)"

@@ -6,6 +6,7 @@ iso/qa/*
 !iso/qa/loop.sh
 !iso/qa/pkglist.txt
 !iso/qa/prep-harness.sh
+!iso/qa/branding-check.sh
 iso/.aur-cache/
 
 # Q6b — dev pubkey injected at build time (per-developer, never committed).
