@@ -148,7 +148,33 @@ repos. Screenshot showdown documented in UI-COMPARISON.md.
 - `vinos update --self` — updates the vinos runtime layer without touching base OS
 - Fleet mgmt CLI (`vinos fleet list/status/broadcast` on the dev workstation for a group of vms)
 
-### v1.5.0 — Ecosystem (6-8 weeks) — was v1.4.0
+### v1.5.0 — Apple Silicon (Track M) — 3-4 weeks
+
+**Motivation:** vinOS currently targets x86_64 with T2-Mac as the primary
+hardware. M-series Macs (M1/M2/M3/M4) are the modern Apple laptop line —
+covering them multiplies the addressable install base. Asahi Linux
+(asahilinux.org) has done the hard work: kernel patches, m1n1 bootloader,
+Apple GPU (mesa) driver, macsmc-hid audio. We integrate their libraries
+under a vinOS-branded install path — no wheel reinvention, GPL-2 accepted
+for the kernel (already the case).
+
+| ID | Item | Notes |
+|----|------|-------|
+| M1 | `iso/build.sh --arch aarch64` — parallel archiso build path for ARM | Docker container gets a --platform linux/arm64 flag, mkarchiso stays the same |
+| M2 | Bundle `asahi-linux` kernel + `asahi-installer` + `m1n1` bootloader | From asahilinux.org repos; GPL-2 kernel patches compatible with our stance |
+| M3 | Bundle Apple GPU mesa driver + macsmc-hid audio + brcmfmac wifi | Asahi's driver stack, no custom work |
+| M4 | `bin/vinos-asahi-enable` — first-boot hardware detect + driver activation, mirrors bin/vinos-t2-enable pattern | |
+| M5 | Install-disk path for M-series | No BIOS grub, uses m1n1 → uboot → EFI. Different partition scheme; may need archinstall extension |
+| M6 | Ship `vinos-dev-<version>-aarch64.iso` alongside x86_64 in release | Two ISOs per release; retention policy applies to both |
+| M7 | QEMU aarch64 tests in Track Q harness | qemu-system-aarch64 + virt machine; keyboard/network/GPU passthrough tests |
+
+**License gate:** Asahi's kernel patches are GPL-2 (upstream Linux). Compatible.
+Apple GPU driver is in mesa (MIT). No proprietary blobs added.
+
+**Deliverable:** vinOS runs on M1/M2/M3/M4 Macs from a single boot USB with
+the same install-disk UX as x86_64 T2s.
+
+### v1.6.0 — Ecosystem (6-8 weeks) — was v1.4.0 / v1.5.0
 
 - Marketplace listings: AWS Marketplace + GCP Marketplace + Azure Marketplace
 - MCP server catalog: user-contributed servers, review process, `vinos mcp search <term>`
@@ -156,16 +182,16 @@ repos. Screenshot showdown documented in UI-COMPARISON.md.
 - AgenticFlow orchestrator adapter (if AgenticFlow ships v1)
 - vinos-dev tour mode: onboarding walkthrough for new users
 
-### v1.6.0+ — TBD
+### v1.7.0+ — TBD
 
-Deferred until we have real-world usage data from v1.3-v1.5.
+Deferred until we have real-world usage data from v1.3-v1.6.
 
 ---
 
 ## Non-goals
 
 - **No Omarchy code, configs, or overlays.** Ever. See [`RULES.md`](RULES.md).
-- **No mobile/tablet story.** vinOS targets desktops + servers only.
+- **No mobile/tablet story.** vinOS targets desktops + servers only. (M-chip Macs count as desktops per Track M.)
 - **No i18n beyond en-US.** Post-1.5 maybe.
 - **No custom package manager.** apt for vm, pacman for dev — inheriting each distro's ecosystem.
 - **No forked kernel.** We use stock `linux`, `linux-t2`, `linux-image-generic`. Kernel work belongs upstream.
