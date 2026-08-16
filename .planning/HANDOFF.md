@@ -7,9 +7,10 @@ install-to-disk + waybar polish". 26 files, 338 insertions, 266
 deletions. Everything Vin flagged during long QEMU-VNC QA session
 is in-tree.
 
-**Built:** `iso/out/vinos-1.3.1-rc4-x86_64.iso`
+**Built:** `iso/out/vinos-1.3.1-rc5-x86_64.iso` (rc4 superseded — install-to-disk auto-launcher fixed to wait for network)
 - Size: 4.5 GB
-- sha256: `1c295e912b6a375a7c7976e0febf29101bbbe25e9986441f94cfa09cd1675610`
+- sha256: `791b27763047b690eb8b94f6b997a516094d4e404f7fb89703d06612235ca1ff`
+- Prior rc4 (`1c295e91…`) kept in `iso/out/` for comparison
 
 **VERSION file:** still `1.3.0` (bumps to `1.3.1` in the tag commit AFTER
 the T2 hardware checkpoint passes — per `feedback_no_version_bump_during_iteration`).
@@ -156,6 +157,78 @@ automatically).
 Once B lands, next rebuild becomes v1.3.1-rc5 (or ship straight to
 1.3.1 if the T2 checkpoint also passes on that build).
 
+## PRIORITY for next session — streamline the boot / flash / install pipeline
+
+We've been iterating on individual failures (sgdisk error, tzdetect
+race, install auto-launch, wifi wrap, etc.) instead of stepping back
+to fix the shape of the pipeline. Vin's frustration is legitimate —
+each release cycle keeps hitting a new corner of the same underlying
+mess. This is the real work.
+
+### What "streamline" means concretely
+
+**Boot menu** (5 entries currently — good, keep):
+  1. `➜ Boot vinOS — Apple T2 Mac`
+  2. `⚙ Install vinOS to disk — Apple T2 Mac`
+  3. `● Boot vinOS + persistence — Apple T2 Mac`
+  4. `➜ Boot vinOS — Intel / AMD / generic PC`
+  5. `⚙ Install vinOS to disk — Intel / AMD / generic PC`
+
+**flash.sh** (currently 3 modes: normal, --with-persistence, --no-persistence):
+  Simplify to ONE mode. Persistence should be created if the tooling
+  supports it, warn+continue if it doesn't. Remove the --with-persistence
+  / --no-persistence flags entirely — just do the right thing.
+
+**Install auto-launch pipeline** (vinos.install=1 cmdline):
+  Currently: cmdline flag → hypr exec-once → vinos-install-launcher →
+  wifi wait → foot → sudo vinos-install-disk → archinstall. Too many hops.
+  Consolidate: skip hyprland entirely for install boots. Boot into a
+  dedicated systemd target `vinos-installer.target` that runs a TTY-based
+  installer wizard with gum. No desktop. No greetd. No Wi-Fi picker in
+  a foot window over a wallpaper. Just a full-screen installer that:
+    - Shows a splash on boot
+    - Picks Wi-Fi via iwctl
+    - Runs disk / user / password wizard
+    - Installs
+    - Reboots into new system
+  This is how Fedora / Ubuntu / Arch iso installers work.
+
+**Persistence flow:**
+  Currently uses `cow_device=/dev/disk/by-label/vinos-persist` which
+  hard-requires the partition. If the partition doesn't exist, kernel
+  hangs waiting for it. Alternative: hook into archiso's `overlay_fs`
+  mkinitcpio hook to gracefully fall back to tmpfs. Or (Fedora-style):
+  detect a `vinos-persist` label at boot via a script in
+  `mkinitcpio-archiso` and mount only if present. Removes the need for
+  a separate boot menu entry.
+
+**First-boot vs. subsequent-boot on persistent USB:**
+  First boot: no Wi-Fi creds, no TZ. User has to go through Wi-Fi picker.
+  Subsequent boots: everything persisted, boot straight to desktop.
+  Right now these two paths are the same boot entry. A better UX might
+  gate the Wi-Fi picker only on first-boot (detect via /var/lib/iwd
+  being empty).
+
+**Ship gate**: the T2 hardware checkpoint (`iso/qa/t2-hardware-checkpoint.md`)
+  is 15 items. Add an INSTALL-TO-DISK checkpoint that runs end-to-end:
+  boot USB → pick install entry → complete install → reboot into
+  installed vinOS → check items again. This is what Vin has been
+  doing manually 5 times this session.
+
+### Suggested approach for next session
+
+Don't touch anything yet. First session activity:
+  1. Read this section end-to-end with Vin
+  2. Pick ONE of the four bullets above (recommend: dedicated
+     installer.target route)
+  3. Plan it in-repo (`.planning/streamline-boot.md`)
+  4. Implement it as a single focused change
+  5. Rebuild ONCE, test on T2
+
+Do NOT rebuild speculatively. Do NOT chase individual failures. If
+the streamline design surfaces the individual issues as consequences,
+fix them in-scope; if not, defer them.
+
 ## Open follow-ups (post v1.3.1)
 
 - **#7 Fix elephant provider loading** (walker search backend) — deferred
@@ -163,6 +236,8 @@ Once B lands, next rebuild becomes v1.3.1-rc5 (or ship straight to
 - **#6 Track M Apple Silicon** (v1.6.0) — deferred
 - **Boot menu splash** — systemd-boot's EFI-font limits how pretty this
   can get. Follow-up: consider a Limine port for real graphical boot menu.
+- **vinos.computer website** — Vin also wants to touch this soon
+  (see project_site_state, feedback_hallmark_audit_findings memories).
 
 ## Fast facts (from memory)
 
@@ -179,36 +254,71 @@ Once B lands, next rebuild becomes v1.3.1-rc5 (or ship straight to
 ## Next-session prompt (paste into a fresh Claude Code session in `/data/projects/vinos`)
 
 ```
-Read .planning/HANDOFF.md. rc4 is built (1c295e91…) and committed on
-main (19b2c7f1). Your job this session:
+Read .planning/HANDOFF.md end-to-end BEFORE proposing any action. The
+last 3 sessions have been whack-a-mole on individual boot/install/
+persistence failures — Vin explicitly said "this needs streamlining,
+not more patches" at the end of the last session.
 
-  1. Flash rc4 to /dev/sdd:
-       sudo iso/flash.sh --dev sdd --iso iso/out/vinos-1.3.1-rc4-x86_64.iso
-     Persistence partition auto-creates.
+The PRIORITY section at the top of HANDOFF.md is the actual next-session
+job: pick one of the four streamline targets (recommend: dedicated
+`vinos-installer.target` for install boots so the flow doesn't route
+through hyprland + foot + wifi wrap), design it in
+`.planning/streamline-boot.md`, then implement.
 
-  2. Boot on Vin's 2019 T2 MBP with the "Boot vinOS + persistence"
-     menu entry (first boot only).
+Do NOT rebuild the ISO speculatively this session. Plan first. One
+focused implementation. Then rebuild once, then test on Vin's T2.
 
-  3. Walk iso/qa/t2-hardware-checkpoint.md end-to-end. Every item.
+Two tracks still open in parallel (do NOT start until streamline is
+either shipped or explicitly deferred by Vin):
 
-  4. If any item fails:
-       vinos-t2-perf --out /tmp/perf.log
-     Paste the log back. Do NOT rebuild speculatively — diagnose from
-     the journal + the log first.
+TRACK A — vinos.computer website work (secondary, after streamline).
 
-  5. If every item passes:
-       echo 1.3.1 > VERSION
-       git add VERSION && git commit -m "release: v1.3.1 — T2 fixes + install-to-disk"
-       git tag -a v1.3.1 -m "v1.3.1 — T2 Touch Bar / fans / timezone fixes"
-       git push origin main v1.3.1
-     Release workflow uploads to Tigris.
+  Start by reading:
+    * memory: project_site_state (positioning + pages + brand)
+    * memory: feedback_site_design_direction (design + screenshot rules)
+    * memory: feedback_hallmark_audit_findings (2 critical / 2 major /
+      3 minor unfixed findings from the last audit)
+    * site/ directory in the repo (existing Hallmark landing)
 
-Hard rules:
-  * VERSION only moves on the ship-tag commit (per
-    feedback_no_version_bump_during_iteration).
-  * Never overwrite the gold archival ISOs (v1.1.0, v1.3.0).
-  * Zero Omarchy code in vinOS — patterns/reference only.
+  Ask Vin what specifically he wants to move on: fix the hallmark
+  audit findings, add v1.3.1 release notes page, refresh screenshots
+  from rc5, or something else. Don't guess — the site's a big
+  surface. One targeted focus per session.
+
+  Hard rules for site work:
+    * Keep Hallmark aesthetic — do not swap frameworks or restructure.
+    * Screenshots MUST render (broken IMGs are a critical audit fail).
+    * Keybindings table on the site must match config/hypr/bindings/
+      exactly — a mismatch is a critical audit fail.
+    * `bash iso/qa/branding-check.sh` still runs before any site
+      commit; product name must be "vinOS" everywhere.
+
+TRACK B — v1.3.1 tag (blocked on Vin's T2 verification).
+
+  rc5 is built (sha256 791b27763047b690eb8b94f6b997a516094d4e404f7fb89703d06612235ca1ff)
+  at iso/out/vinos-1.3.1-rc5-x86_64.iso. Vin was flashing it last session
+  to verify the install-to-disk network-wait fix works on his 2019 T2 MBP.
+
+  If Vin says "rc5 install worked + checkpoint passes":
+    echo 1.3.1 > VERSION
+    git add VERSION
+    git commit -m "release: v1.3.1 — T2 fixes + install-to-disk"
+    git tag -a v1.3.1 -m "v1.3.1 — T2 Touch Bar / fans / timezone fixes + install-to-disk"
+    git push origin main v1.3.1
+  Release workflow (.github/workflows/release.yml) auto-uploads to Tigris.
+
+  If Vin says "install still failed" or any T2 checkpoint item failed:
+    Have him run `vinos-t2-perf --out /tmp/perf.log` and paste the log.
+    Diagnose from journalctl -u vinos-tzdetect / systemctl status
+    tiny-dfr / systemctl status t2fanrd BEFORE proposing a rebuild.
+
+Hard rules (both tracks):
+  * VERSION only moves on ship-tag commit (feedback_no_version_bump_during_iteration).
+  * Never overwrite gold archival ISOs (v1.1.0, v1.3.0 sha256 70bf8c…).
+  * Zero Omarchy code in vinOS — patterns/reference only (per
+    feedback_no_omarchy_ever_2026_08_08).
   * No Claude-authored trailers on commits (public repo, sponsor-facing).
 
-Fast facts: /dev/sdd USB, 192.168.1.140:5900 VNC pw vinos, port 2222 SSH.
+Fast facts: /dev/sdd USB, 192.168.1.140:5900 VNC pw vinos, port 2222 SSH,
+rc5 sha256 791b27763047b690eb8b94f6b997a516094d4e404f7fb89703d06612235ca1ff.
 ```
