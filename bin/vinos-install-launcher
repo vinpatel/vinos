@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# vinos-install-launcher — auto-launched from Hyprland exec-once when
+# `vinos.install=1` is on /proc/cmdline (the "Install vinOS to disk"
+# boot menu entry sets this). Ensures the installer never fires with
+# no network — pops impala for the user to pick Wi-Fi, waits for a
+# default route, THEN launches the installer.
+#
+# Rule: no matter what, the user sees SOMETHING within 3 seconds of
+# reaching the desktop. Either a Wi-Fi picker (if no route yet) or
+# the installer (if route already up).
+set -uo pipefail
+
+_has_route() {
+  ip route show default 2>/dev/null | grep -q .
+}
+
+_has_wifi_hardware() {
+  for _if in /sys/class/net/*; do
+    [ -d "$_if/wireless" ] && return 0
+  done
+  return 1
+}
+
+_launch_installer() {
+  exec foot --app-id=org.vinos.installer -T "Install vinOS to disk" -- \
+    bash -lc 'sudo vinos-install-disk; echo; echo "Press Enter to close."; read _'
+}
+
+# Fast path: route already up (Ethernet plugged in, or Wi-Fi restored
+# from persist partition). Go straight to installer.
+if _has_route; then
+  _launch_installer
+fi
+
+# No route yet. Open Wi-Fi picker in the foreground so the user can
+# connect — but only if the box actually has a Wi-Fi radio.
+if _has_wifi_hardware; then
+  # Kick off impala in the current terminal via foot so it's visible.
+  # Backgrounded so we can poll for a route in parallel.
+  foot --app-id=org.vinos.impala -T "vinOS wifi — connect to continue" -- impala &
+  _impala_pid=$!
+
+  # Wait up to 5 minutes for a default route. Once user connects, we
+  # close impala automatically and open the installer.
+  for _i in $(seq 1 150); do
+    sleep 2
+    if _has_route; then
+      # Give impala's stdout a beat to flush the "connected" line,
+      # then kill it and launch the installer.
+      sleep 1
+      kill "$_impala_pid" 2>/dev/null || true
+      _launch_installer
+    fi
+  done
+
+  # 5 min timeout with no connection — clean up impala + launch the
+  # installer anyway; it'll show its own diagnostic if pacstrap fails.
+  kill "$_impala_pid" 2>/dev/null || true
+fi
+
+# Either no Wi-Fi hardware OR user gave up. Launch the installer;
+# it'll fail loudly with a network error the user can read.
+_launch_installer

@@ -100,6 +100,62 @@ The rc4 log points to look at:
 - `cat /var/lib/vinos/tzdetect.done` — sentinel file if tzdetect succeeded.
 - `ls /sys/class/net/*/wireless/` — kernel-authoritative wifi presence.
 
+## FRESH BUG reported after rc4 build — install-to-disk boots without Wi-Fi
+
+Vin reported (2026-08-16 post-rc4-build): the **"Install vinOS to disk"
+boot menu entry doesn't work because Wi-Fi isn't connected** by the
+time `vinos-install-disk` auto-launches. Installer needs network
+(archinstall pacstraps from mirrors, git clones the vinOS repo into
+chroot) → fails without a connected radio.
+
+### Root cause (untested but confident)
+
+`config/hypr/autostart.conf` has:
+```
+exec-once = sh -c 'grep -q "vinos.install=1" /proc/cmdline && sleep 3 && foot -T "Install vinOS" -a vinos-installer sh -c "sudo vinos-install-disk; ..."'
+```
+
+`sleep 3` is not enough for brcmfmac to associate + DHCP. Installer
+fires with no route to any mirror, `pacstrap` fails, user is stuck.
+
+### Fix approaches (pick in next session)
+
+**A. Gate installer on network-online.target instead of `sleep 3`.**
+   Replace the exec-once with a wait loop:
+   ```
+   exec-once = sh -c 'grep -q "vinos.install=1" /proc/cmdline || exit 0; \
+     for i in {1..60}; do ping -c1 -W1 1.1.1.1 >/dev/null 2>&1 && break; sleep 2; done; \
+     foot -a vinos-installer -T "Install vinOS" sh -c "sudo vinos-install-disk; ..."'
+   ```
+   Waits up to 2 min for real internet before launching. If never
+   reaches internet, installer fires anyway with a diagnostic.
+
+**B. Have the auto-launcher pop `vinos-launch-wifi` first if no route.**
+   User picks Wi-Fi via impala UI, connects, then the installer opens.
+   Better UX. Requires a wrapper script:
+   ```
+   #!/bin/bash
+   # bin/vinos-install-launcher
+   if ! ip route show default | grep -q .; then
+     foot -a org.vinos.impala -T "Connect Wi-Fi first" -- impala
+     # wait for user to connect, then re-check
+     for i in {1..60}; do ip route show default | grep -q . && break; sleep 2; done
+   fi
+   foot -a vinos-installer -T "Install vinOS" -- sudo vinos-install-disk
+   ```
+   Cleaner separation of concerns.
+
+**C. Make `vinos-install-disk` itself prompt for network.**
+   Add a `require_network` step to the installer's preflight that
+   pops impala if no route, waits for user to connect, retries.
+
+Recommended: **B** — dedicated launcher, keeps autostart.conf simple,
+provides clear UX (user sees impala, connects, installer opens
+automatically).
+
+Once B lands, next rebuild becomes v1.3.1-rc5 (or ship straight to
+1.3.1 if the T2 checkpoint also passes on that build).
+
 ## Open follow-ups (post v1.3.1)
 
 - **#7 Fix elephant provider loading** (walker search backend) — deferred
