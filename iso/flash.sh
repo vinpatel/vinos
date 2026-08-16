@@ -128,20 +128,42 @@ log "dd complete + sync"
 
 if (( WITH_PERSIST )); then
   log "creating persistence partition (ext4 label=vinos-persist)"
-  command -v sgdisk >/dev/null || die "sgdisk not found — install gptfdisk to use --with-persistence"
-  # ISO writes GPT+MBR hybrid via xorriso; sgdisk can extend by adding a
-  # partition after the ISO's data. Use largest available free space.
-  sgdisk --new=0:0:0 --typecode=0:8300 --change-name=0:vinos-persist "$DEV_PATH"
-  partprobe "$DEV_PATH" 2>/dev/null || true
-  sleep 1
-  # The new partition is the highest-numbered one on the disk.
-  persist_part="$(lsblk -n -l -o NAME "$DEV_PATH" | awk 'NR>1' | tail -1)"
-  [[ -n "$persist_part" ]] || die "could not find newly-created partition"
-  persist_dev="/dev/$persist_part"
-  mkfs.ext4 -F -L vinos-persist "$persist_dev"
-  sync
-  log "persistence ready: $persist_dev (label=vinos-persist)"
-  log "select 'Boot vinOS (persistent)' from the boot menu to enable"
+  if ! command -v sgdisk >/dev/null; then
+    warn "sgdisk not found — persistence skipped (ISO is still bootable)"
+    warn "install gptfdisk to enable persistence next flash"
+  else
+    # Persistence add is best-effort: the ISO ships an isohybrid GPT+MBR
+    # from xorriso, and sgdisk's backup-GPT header sits at the END of the
+    # ISO image, not the physical disk. Without `sgdisk -e` first, adding
+    # a partition after the ISO data fails with "Invalid partition data!"
+    # If it still fails after -e (uncommon USB firmware, exotic layouts),
+    # log + continue — the ISO itself is bootable, install-to-disk works,
+    # user just loses persistence for this flash.
+    _persist_ok=1
+    sgdisk -e "$DEV_PATH" 2>&1 | tail -3 || { warn "sgdisk -e (extend backup GPT) failed"; _persist_ok=0; }
+    if (( _persist_ok )); then
+      sgdisk --new=0:0:0 --typecode=0:8300 --change-name=0:vinos-persist "$DEV_PATH" 2>&1 | tail -3 \
+        || { warn "sgdisk --new failed — persistence skipped"; _persist_ok=0; }
+    fi
+    if (( _persist_ok )); then
+      partprobe "$DEV_PATH" 2>/dev/null || true
+      sleep 2
+      persist_part="$(lsblk -n -l -o NAME "$DEV_PATH" | awk 'NR>1' | tail -1)"
+      if [[ -z "$persist_part" ]]; then
+        warn "could not find newly-created partition — persistence skipped"
+      else
+        persist_dev="/dev/$persist_part"
+        if mkfs.ext4 -F -L vinos-persist "$persist_dev" 2>&1 | tail -3; then
+          sync
+          log "persistence ready: $persist_dev (label=vinos-persist)"
+          log "select the persistent boot menu entry to use it"
+        else
+          warn "mkfs.ext4 failed on $persist_dev — persistence skipped"
+        fi
+      fi
+    fi
+    (( _persist_ok )) || log "flash still succeeded — ISO boots, install-to-disk works, no persistence"
+  fi
 fi
 
 log "done — safe to remove $DEV_PATH"
