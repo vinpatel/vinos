@@ -1,97 +1,158 @@
-# Session handoff — 2026-08-15
+# Session handoff — 2026-08-16 (v1.3.1-rc4)
 
-## What just happened
+## Where we are
 
-**Shipped:** `v1.3.0` tag pushed, ISO archived to `~/vinos-iso-archive/isos/` and
-`iso/out/`, 4.5 GB, sha256 `70bf8cb7e260253d7bfabbe97e78cf29216f893900392352b5a74160035b8357`.
+**Committed:** `19b2c7f1` on `main` — "v1.3.1-rc4: T2 fixes + boot menu +
+install-to-disk + waybar polish". 26 files, 338 insertions, 266
+deletions. Everything Vin flagged during long QEMU-VNC QA session
+is in-tree.
 
-Also pushed: `bin/vinos-publish-iso` + `.github/workflows/release.yml` for the
-Tigris bucket `nameless-cloud-628`. GitHub Actions secret: `TIGRIS_KEY` (format
-`<access_key_id>:<secret_access_key>`, colon-separated).
+**Built:** `iso/out/vinos-1.3.1-rc4-x86_64.iso`
+- Size: 4.5 GB
+- sha256: `1c295e912b6a375a7c7976e0febf29101bbbe25e9986441f94cfa09cd1675610`
 
-## What the user found on real T2 hardware (release-blockers for v1.3.1)
+**VERSION file:** still `1.3.0` (bumps to `1.3.1` in the tag commit AFTER
+the T2 hardware checkpoint passes — per `feedback_no_version_bump_during_iteration`).
 
-Boot of `vinos-1.3.0-x86_64.iso` on 2019 T2 MacBook Pro surfaced 4 issues that
-the QEMU harness could not catch:
+## What rc4 fixed vs. v1.3.0
 
-1. **Touch Bar not working.** tiny-dfr symlink shipped, doesn't take effect.
-2. **Fans running hot.** t2fanrd symlink shipped, doesn't take effect.
-3. **Slowness** — not yet quantified; needs `htop` on T2.
-4. **Timezone wrong.** `vinos-tzdetect.service` exists in overlay + wired
-   into `multi-user.target.wants/`, but clock still on UTC/build-TZ.
+- **Touch Bar** — tiny-dfr enabled into `graphical.target.wants` (not
+  multi-user), matches its arch-mact2 drop-in's `[Install]` section.
+- **Fans** — t2fanrd enabled into `default.target.wants` + shipped
+  `/etc/t2fand.conf` (Omarchy Fan1 curve) — daemon errors on start
+  without this file.
+- **Timezone first-boot** — `systemd-networkd-wait-online` unmasked
+  with `--timeout=15` so `network-online.target` actually waits for
+  brcmfmac. `vinos-tzdetect.service` bounded 30 s + journal logs.
+  `greetd.service.d/00-vinos-wait-tzdetect` makes login screen block
+  on tzdetect. Belt-and-suspenders: Hyprland exec-once `sudo -n
+  tzupdate` gated on sentinel.
+- **video group** — vinos live user in `wheel,video,audio,input,storage,network`
+  (tiny-dfr needs `video` for `/dev/dri`).
+- **pcie_ports=compat** — added to every T2 kernel cmdline.
+- **Persistence-by-default** — `iso/flash.sh` `WITH_PERSIST=1` default.
+- **Boot menu** — 9 → 5 clean entries: Boot T2, Install T2, Persist T2,
+  Boot PC, Install PC. Install entries pass `vinos.install=1` on cmdline;
+  Hyprland exec-once auto-launches `sudo vinos-install-disk`. Timeout 30 → 10 s.
+- **Waybar** — pills fully opaque `#1A1B26` solid (no wallpaper bleed on
+  light backgrounds), V logo teal on dark, subtle workspace-active bg.
+  Wifi launcher graceful when no radio (QEMU/hard-blocked/missing).
+- **vinos-hypr-plugin-setup** — no more phantom "Plugin build failed"
+  toast (verifies actual `hyprpm list` state, not `hyprpm add` exit).
+- **vinos-tz-select** — new gum picker, wired to waybar clock right-click.
+- **vinos-menu ai** — new AI-only submenu (chat / status / pull / role / back).
+- **Ollama** — `systemctl_enable ollama` on the live ISO so
+  `ollama pull` works after boot without manual `systemctl start`.
 
-Full findings + hardware checkpoint in
-`~/.claude/projects/-data-projects-vinos/memory/project_v130_t2_hardware_findings_2026_08_15.md`.
+## What to do this session
 
-## Open tasks going into next session
+1. **Flash rc4** to Vin's USB:
+   ```
+   sudo iso/flash.sh --dev sdd --iso iso/out/vinos-1.3.1-rc4-x86_64.iso
+   ```
+   Persistence partition auto-creates.
 
-- **#6** — Track M Apple Silicon (deferred to v1.6.0)
-- **#7** — Fix elephant provider loading (walker search)
-- **#9** — Ship swaync + hyprexpo (R10 axes 8/9)
-- **#10** — v1.3.1 boot-menu Install entry + gum wizard
-- **NEW** — v1.3.1 T2 hardware fixes: tiny-dfr / t2fanrd / tzdetect / slowness
-  → make **iso/qa/t2-hardware-checkpoint.md** the ship gate
+2. **Boot on Vin's 2019 T2 MBP.** Pick the **`● Boot vinOS + persistence — Apple T2 Mac`**
+   entry from the boot menu (first boot only — Wi-Fi/TZ/etc. stick after that).
 
-## Next-session prompt to paste
+3. **Walk `iso/qa/t2-hardware-checkpoint.md` top to bottom.** Every item
+   must pass. Two must-pass items that were broken on v1.3.0 rc1/rc2:
+   - Touch Bar shows keys (`systemctl is-active tiny-dfr` → active)
+   - Fans quiet at idle (`systemctl is-active t2fanrd` → active,
+     `cat /sys/devices/platform/applesmc.768/fan1_input` returns a
+     number)
+   - Clock shows local TZ on FIRST boot (not UTC — the whole point of
+     the greetd wait fix)
 
-Copy this into a fresh Claude Code session in `/data/projects/vinos`:
+4. **If any item fails:** capture with
+   ```
+   vinos-t2-perf --out /tmp/perf.log
+   ```
+   and paste the log back for triage. Do NOT rebuild speculatively.
+
+5. **If everything passes:** bump VERSION to 1.3.1, tag, push. Release
+   workflow (`.github/workflows/release.yml`) fires and creates the
+   GitHub Release with Tigris download links via `TIGRIS_KEY`.
+
+## Ship-gate command sequence (once checkpoint green)
 
 ```
-Read .planning/HANDOFF.md first. We just shipped v1.3.0 stable and the user
-hit 4 blocker regressions on real T2 hardware:
-
-  1. Touch Bar dead — tiny-dfr overlay symlink shipped but service not
-     actually running on the guest, or running but can't reach DFR device.
-  2. Fans hot — t2fanrd overlay symlink shipped but not effective.
-  3. General slowness — unquantified, needs htop on T2 to root-cause.
-  4. Timezone regression — vinos-tzdetect.service present in overlay AND
-     wired into multi-user.target.wants but clock stays on UTC/build-TZ.
-
-Root-cause approach:
-  - Boot the current 1.3.0 ISO in QEMU (still running at :5900 or restart).
-  - SSH in on port 2222 (authorized_keys seeded from ~/.ssh/id_ed25519.pub).
-  - For each service: `systemctl status <service>`, `journalctl -u <service>`,
-    verify units are enabled AND active, check /dev nodes present.
-  - Diff overlay symlinks against a known-working comparable distro's
-    approach (Fedora Asahi remix for reference; DO NOT copy their code).
-  - For slowness: htop + iotop under one foot + swaybg baseline.
-
-Once root causes are identified:
-  - Fix in-tree (`config/hypr/autostart.conf`, overlay unit files,
-    install/06-hardware.sh live-path).
-  - Verify via loop.sh hot-reload where possible.
-  - Rebuild ONCE, verify on T2, tag v1.3.1.
-
-Do NOT rebuild speculatively — use hot-reload for anything under
-config/ or bin/. Rebuild only for package/install/kernel changes.
-
-Ship gate for v1.3.1: the hardware checkpoint in memory
-`project_v130_t2_hardware_findings_2026_08_15.md` must pass on Vin's
-2019 T2 MBP before tagging. No exceptions — QEMU-green is not enough.
-
-The bin/vinos-publish-iso pipeline is ready; user has TIGRIS_KEY in
-GitHub Actions secrets (format id:secret). Once v1.3.1 tag is pushed,
-the release.yml workflow fires and creates the GitHub Release with
-Tigris download links.
-
-v1.3.0 stable is PRESERVED per feedback_preserve_130_forever — do NOT
-rebuild or overwrite it. Any fixes ship as v1.3.1.
-
-Also carry forward the ~/.config/vinos/tigris.env file check for
-local uploads (bin/vinos-publish-iso reads it, 0600 perms).
-
-Start with: read the 4 relevant memories (preserve-130-forever,
-v130-t2-hardware-findings, iso-burn-command, use-stored-specifics),
-then boot the ISO in QEMU and start diagnosing.
+echo 1.3.1 > VERSION
+git add VERSION
+git commit -m "release: v1.3.1 — T2 hardware fixes + install-to-disk"
+git tag -a v1.3.1 -m "v1.3.1 — T2 Touch Bar / fans / timezone fixes + install-to-disk boot entry"
+git push origin main v1.3.1
 ```
 
-## Fast facts to load into the next session
+Release workflow auto-uploads the ISO to Tigris.
 
-- USB device on this server: **`/dev/sdd`** (never `sdX`)
+## If Vin says "these still fail on T2"
+
+The rc4 log points to look at:
+- `sudo journalctl -u vinos-tzdetect --no-pager` — 6 attempt log lines
+  will pinpoint whether curl reached ipapi.co / ip-api.com or if
+  brcmfmac never came up.
+- `sudo journalctl -u tiny-dfr --no-pager` — dependency chain, whether
+  `dev-tiny_dfr_display.device` udev alias got created.
+- `systemctl is-enabled tiny-dfr t2fanrd` — should both be `enabled`.
+- `readlink /etc/systemd/system/graphical.target.wants/tiny-dfr.service` —
+  must resolve to `/usr/lib/systemd/system/tiny-dfr.service`.
+- `cat /var/lib/vinos/tzdetect.done` — sentinel file if tzdetect succeeded.
+- `ls /sys/class/net/*/wireless/` — kernel-authoritative wifi presence.
+
+## Open follow-ups (post v1.3.1)
+
+- **#7 Fix elephant provider loading** (walker search backend) — deferred
+- **#9 Ship swaync + hyprexpo** (R10 axes 8/9) — deferred
+- **#6 Track M Apple Silicon** (v1.6.0) — deferred
+- **Boot menu splash** — systemd-boot's EFI-font limits how pretty this
+  can get. Follow-up: consider a Limine port for real graphical boot menu.
+
+## Fast facts (from memory)
+
+- USB device on this server: **`/dev/sdd`** (always — never `sdX`)
 - VNC host: **`192.168.1.140:5900`** pw `vinos`
-- SSH forward: **`2222`** → guest `22`, key `~/.ssh/id_ed25519.pub`
-- Current ISO: `iso/out/vinos-1.3.0-x86_64.iso` (permanent, do not rebuild)
-- Archive: `~/vinos-iso-archive/isos/vinos-1.3.0-x86_64.iso` + `.sha256`
-- Tigris console: `console.storage.dev/flyio_208vk53kogxmlyqo/buckets/nameless-cloud-628`
-- Tigris public URL base: `https://nameless-cloud-628.fly.storage.tigris.dev/`
-- GitHub Actions secret: `TIGRIS_KEY` (`<access_key_id>:<secret_access_key>`)
+- SSH forward to running QEMU: **`2222`** → guest `22`
+- Vin's email: **vinpatel.pro@gmail.com**
+- Gold v1.1.0 archival: `~/vinos-iso-archive/isos/vinos-1.1.0-x86_64.iso`
+- Gold v1.3.0 archival: `~/vinos-iso-archive/isos/vinos-1.3.0-x86_64.iso`
+  (sha256 `70bf8cb7e260253d…`, permanent — do not overwrite)
+- rc4 candidate: `iso/out/vinos-1.3.1-rc4-x86_64.iso`
+  (sha256 `1c295e912b6a375a…`)
+
+## Next-session prompt (paste into a fresh Claude Code session in `/data/projects/vinos`)
+
+```
+Read .planning/HANDOFF.md. rc4 is built (1c295e91…) and committed on
+main (19b2c7f1). Your job this session:
+
+  1. Flash rc4 to /dev/sdd:
+       sudo iso/flash.sh --dev sdd --iso iso/out/vinos-1.3.1-rc4-x86_64.iso
+     Persistence partition auto-creates.
+
+  2. Boot on Vin's 2019 T2 MBP with the "Boot vinOS + persistence"
+     menu entry (first boot only).
+
+  3. Walk iso/qa/t2-hardware-checkpoint.md end-to-end. Every item.
+
+  4. If any item fails:
+       vinos-t2-perf --out /tmp/perf.log
+     Paste the log back. Do NOT rebuild speculatively — diagnose from
+     the journal + the log first.
+
+  5. If every item passes:
+       echo 1.3.1 > VERSION
+       git add VERSION && git commit -m "release: v1.3.1 — T2 fixes + install-to-disk"
+       git tag -a v1.3.1 -m "v1.3.1 — T2 Touch Bar / fans / timezone fixes"
+       git push origin main v1.3.1
+     Release workflow uploads to Tigris.
+
+Hard rules:
+  * VERSION only moves on the ship-tag commit (per
+    feedback_no_version_bump_during_iteration).
+  * Never overwrite the gold archival ISOs (v1.1.0, v1.3.0).
+  * Zero Omarchy code in vinOS — patterns/reference only.
+  * No Claude-authored trailers on commits (public repo, sponsor-facing).
+
+Fast facts: /dev/sdd USB, 192.168.1.140:5900 VNC pw vinos, port 2222 SSH.
+```
