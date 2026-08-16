@@ -80,16 +80,56 @@ PACCONF
     }' "$_pacman_conf" || warn "could not switch to mirrorlist; direct Server= remains"
   fi
 
-  # Enable T2-specific services.
-  systemctl_enable t2fanrd
-  systemctl_enable tiny-dfr
+  # Enable T2-specific services. Correct target per each unit's [Install]:
+  # t2fanrd → default.target (its base unit's WantedBy); tiny-dfr →
+  # graphical.target (its t2-intel drop-in's WantedBy). Enabling tiny-dfr
+  # into multi-user.target.wants — as v1.3.0 tried — left the ordering
+  # against After=graphical.target unresolvable on Vin's 2019 T2 MBP.
+  VINOS_SYSTEMCTL_TARGET=default.target   systemctl_enable t2fanrd
+  VINOS_SYSTEMCTL_TARGET=graphical.target systemctl_enable tiny-dfr
+
+  # t2fanrd config — the Rust daemon reads /etc/t2fand.conf (path shared
+  # with the older Python t2fand). Without it, `t2fanrd` errors on start
+  # ("Cannot read config file") and fans stay at BIOS default (usually
+  # full-speed on T2 because macOS ordinarily owns fan control). Values
+  # match the Omarchy fix-t2.sh preset.
+  _t2fand="$(_rootpath /etc/t2fand.conf)"
+  if [[ ! -f "$_t2fand" ]]; then
+    _t2fand_tmp="$(mktemp)"
+    cat > "$_t2fand_tmp" <<'FANCONF'
+[Fan1]
+low_temp=55
+high_temp=75
+speed_curve=linear
+always_full_speed=false
+FANCONF
+    _sudo install -Dm 0644 "$_t2fand_tmp" "$_t2fand"
+    rm -f "$_t2fand_tmp"
+    log "06-hardware: wrote /etc/t2fand.conf (default T2 fan curve)"
+  fi
+
+  # tiny-dfr expects the invoking user to be in the video group so it
+  # can access /dev/dri devices when interacting with the Touch Bar
+  # from userspace helpers. Add every non-system user (uid ≥ 1000) so
+  # this Just Works after install without asking the user to logout.
+  # No-op on the live ISO (vinos-live-init.service creates the vinos
+  # user already in `video,audio,input,storage,network`).
+  if [[ -z "$VINOS_ROOT" ]]; then
+    while IFS=: read -r _u _ _uid _; do
+      [[ "$_uid" -ge 1000 && "$_uid" -lt 65000 ]] || continue
+      sudo usermod -aG video "$_u" 2>&1 | grep -v "already" || true
+    done < /etc/passwd
+  fi
 
   # Add the T2 SPI modules to initramfs so the internal keyboard
   # works from early boot. Without this, applespi loads too late and
   # only the trackpad works (they're both on the T2 SPI bus but the
   # trackpad's driver initializes on its own).
-  # apple_ibridge/apple_ib_tb (Touch Bar) were dropped — no longer in
-  # linux-t2 upstream. Touch Bar is handled by tiny-dfr userspace.
+  # apple_ibridge/apple_ib_tb (older Touch Bar drivers) intentionally
+  # omitted — modern linux-t2 exposes the Touch Bar via appletbdrm +
+  # hid-appletb-{bl,kbd} which auto-load via module aliases when the
+  # Touch Bar USB device (05ac:8302) appears through the apple-bce
+  # USB tunnel. tiny-dfr renders the strip from userspace.
   _mki="$(_rootpath /etc/mkinitcpio.conf)"
   if [[ -f "$_mki" ]] && ! grep -qE '^MODULES=.*\bapplespi\b' "$_mki"; then
     log "06-hardware: adding applespi + T2 SPI modules to mkinitcpio"

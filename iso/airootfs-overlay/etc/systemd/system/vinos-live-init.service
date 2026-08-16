@@ -11,8 +11,10 @@ Type=oneshot
 RemainAfterExit=yes
 ExecStart=/usr/bin/bash -eu -c '\
   if ! id vinos >/dev/null 2>&1; then \
-    useradd -m -G wheel -s /bin/bash -c "vinOS live user" vinos; \
+    useradd -m -G wheel,video,audio,input,storage,network -s /bin/bash -c "vinOS live user" vinos; \
     passwd -d vinos; \
+  else \
+    usermod -aG video,audio,input,storage,network vinos; \
   fi; \
   if [ -d /etc/skel ]; then \
     cp -aRT /etc/skel /home/vinos/; \

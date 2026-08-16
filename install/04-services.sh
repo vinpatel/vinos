@@ -55,7 +55,12 @@ fi
 #    brcmfmac driver on T2 Macs. Using systemd-networkd + iwd is the
 #    battle-tested combo (Arch Wiki: iwd + systemd-networkd).
 #  - systemd-resolved owns /etc/resolv.conf (see block below).
-#  - systemd-networkd-wait-online masked so a wifi-less boot doesn't stall.
+#  - systemd-networkd-wait-online gets a --timeout=15 drop-in (below)
+#    so network-online.target actually WAITS for Wi-Fi association on T2
+#    (previously the service was masked outright, which lied about the
+#    network being online 1 s into boot — vinos-tzdetect and anything
+#    else After=network-online.target then raced brcmfmac and lost).
+#    Offline machines stall max 15 s, then the target activates anyway.
 log "04-services: configuring iwd (auth) + systemd-networkd (dhcp) + resolved"
 _iwd_conf="$(_rootpath /etc/iwd)"
 _sudo install -d -m 0755 "$_iwd_conf"
@@ -97,13 +102,20 @@ systemctl_enable iwd
 systemctl_enable systemd-networkd
 systemctl_enable systemd-resolved
 
+# NOTE: wait-online was previously masked (installed /etc/systemd/system/
+# systemd-networkd-wait-online.service -> /dev/null). That masking caused
+# network-online.target to activate the instant iwd started, before Wi-Fi
+# was truly online — the root cause of the v1.3.0 tzdetect regression on
+# T2 (brcmfmac takes 5-20 s to associate + DHCP). Ensure any prior mask
+# from an old install is removed here so the drop-in below actually applies.
 if [[ -z "$VINOS_ROOT" ]]; then
-  sudo systemctl mask systemd-networkd-wait-online.service 2>/dev/null || \
-    warn "could not mask systemd-networkd-wait-online (already masked or absent)"
+  _sys_mask="/etc/systemd/system/systemd-networkd-wait-online.service"
 else
-  _sys="$(_rootpath /etc/systemd/system)"
-  _sudo install -d -m 0755 "$_sys"
-  _sudo ln -sfn /dev/null "$_sys/systemd-networkd-wait-online.service"
+  _sys_mask="$(_rootpath /etc/systemd/system/systemd-networkd-wait-online.service)"
+fi
+if [[ -L "$_sys_mask" && "$(readlink "$_sys_mask")" == "/dev/null" ]]; then
+  log "04-services: removing legacy /dev/null mask on systemd-networkd-wait-online"
+  _sudo rm -f "$_sys_mask"
 fi
 
 # /etc/resolv.conf → resolved's stub. Some environments (Docker
