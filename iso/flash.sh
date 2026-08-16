@@ -22,12 +22,16 @@ set -euo pipefail
 ISO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ISO=""
 DEV=""
-# Persistence is opt-in (--with-persistence). The default boot entry
-# does NOT require the vinos-persist partition, so a plain flash boots
-# cleanly. Enabling persistence changes the flash to create an ext4
-# partition after the ISO; the "T2 + persistence" boot menu entry can
-# then be selected to use it.
-WITH_PERSIST=0
+# Persistence is on by default (opt out with --no-persistence). Rationale:
+# testing on real T2 hardware is iterative — the user reboots repeatedly,
+# and each fresh tmpfs overlay loses their Wi-Fi credentials, timezone,
+# and any other state. With WITH_PERSIST=1 flash.sh creates an ext4
+# partition labelled vinos-persist covering the remaining USB space; the
+# "T2 + persistence" boot menu entry mounts it as archiso's cow device
+# so /var/lib/iwd/*.psk, /etc/localtime, /home/vinos/*, and every other
+# runtime change survives reboots. The default (non-persistent) boot
+# entry remains available for anyone who flashed --no-persistence.
+WITH_PERSIST=1
 ALLOW_NON_USB=0
 
 die() { printf '\033[1;31m[flash] FAIL:\033[0m %s\n' "$*" >&2; exit 1; }

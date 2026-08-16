@@ -3,41 +3,37 @@ Description=vinOS auto-detect timezone from IP geolocation
 Documentation=file:///usr/share/doc/vinos/VINOS_ISO_SPEC.md
 After=network-online.target NetworkManager-wait-online.service
 Wants=network-online.target
-Before=graphical.target systemd-user-sessions.service
+Before=graphical.target systemd-user-sessions.service greetd.service
 # Skip when a human (or the installer) has already picked a timezone.
 ConditionPathExists=!/var/lib/vinos/tzdetect.done
-# Cap Restart= churn: 5 retries per 10-min window is enough on a truly
-# offline machine.
-StartLimitBurst=5
-StartLimitIntervalSec=600
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-# With systemd-networkd-wait-online unmasked + --timeout=15 (see
-# /etc/systemd/system/systemd-networkd-wait-online.service.d/), the
-# After=network-online.target above actually waits for a real IP.
-# On T2 boots where brcmfmac still races past the timeout, the
-# in-process retry loop gives us up to 60 s more before we exit 1
-# and let Restart=on-failure hand off to systemd for a longer retry
-# window (5 × ~90 s = ~8 min). Every step logs to the journal so
-# next-boot diagnosis via `journalctl -u vinos-tzdetect` is trivial.
+# Bounded, blocking: 6 in-process retries × 5 s max (30 s), then exit 0
+# whether or not we succeeded. greetd.service.d/00-vinos-wait-tzdetect
+# has After=+Wants= for this unit, so login is blocked until we return —
+# Plymouth splash covers the wait, and the user never sees UTC on the
+# desktop clock. With systemd-networkd-wait-online --timeout=15 gating
+# network-online.target, wait-online has already handed us 15 s of Wi-Fi
+# association budget by the time this service starts, so 30 s more is
+# plenty for even a slow brcmfmac handshake + geoip curl.
 ExecStart=/usr/bin/bash -eu -c '\
   mkdir -p /var/lib/vinos; \
-  logger -t vinos-tzdetect "starting; network state: $(ip route show default 2>/dev/null | head -1 || echo none)"; \
+  logger -t vinos-tzdetect "starting; route: $(ip route show default 2>/dev/null | head -1 || echo none)"; \
   tz=""; \
-  for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do \
-    logger -t vinos-tzdetect "attempt $attempt/12"; \
+  for attempt in 1 2 3 4 5 6; do \
+    logger -t vinos-tzdetect "attempt $attempt/6"; \
     if command -v tzupdate >/dev/null 2>&1; then \
       tz=$(tzupdate -p 2>/dev/null || true); \
       [ -n "$tz" ] && logger -t vinos-tzdetect "tzupdate returned: $tz"; \
     fi; \
     if [ -z "$tz" ]; then \
-      tz=$(curl -fsS --max-time 5 https://ipapi.co/timezone 2>/dev/null || true); \
+      tz=$(curl -fsS --max-time 4 https://ipapi.co/timezone 2>/dev/null || true); \
       [ -n "$tz" ] && logger -t vinos-tzdetect "ipapi.co returned: $tz"; \
     fi; \
     if [ -z "$tz" ] || ! grep -qE "^[A-Za-z_]+/[A-Za-z_/-]+$" <<<"$tz"; then \
-      tz=$(curl -fsS --max-time 5 "http://ip-api.com/line?fields=timezone" 2>/dev/null || true); \
+      tz=$(curl -fsS --max-time 4 "http://ip-api.com/line?fields=timezone" 2>/dev/null || true); \
       [ -n "$tz" ] && logger -t vinos-tzdetect "ip-api returned: $tz"; \
     fi; \
     if [ -n "$tz" ] && grep -qE "^[A-Za-z_]+/[A-Za-z_/-]+$" <<<"$tz"; then \
@@ -48,24 +44,25 @@ ExecStart=/usr/bin/bash -eu -c '\
     sleep 5; \
   done; \
   if [ -z "$tz" ]; then \
-    logger -t vinos-tzdetect "all 12 attempts failed; exiting non-zero for systemd Restart="; \
-    exit 1; \
+    logger -t vinos-tzdetect "all 6 attempts failed within 30 s budget; boot continues on UTC (hyprland exec-once will retry once network is up)"; \
+    exit 0; \
   fi; \
   if [ -f "/usr/share/zoneinfo/$tz" ]; then \
-    timedatectl set-timezone "$tz" && \
-      logger -t vinos-tzdetect "SUCCESS: timezone set to $tz" || \
-      { logger -t vinos-tzdetect "timedatectl set-timezone $tz FAILED"; exit 1; }; \
-    echo "$tz" > /var/lib/vinos/tzdetect.done; \
+    if timedatectl set-timezone "$tz"; then \
+      echo "$tz" > /var/lib/vinos/tzdetect.done; \
+      logger -t vinos-tzdetect "SUCCESS: timezone set to $tz"; \
+    else \
+      logger -t vinos-tzdetect "timedatectl set-timezone $tz FAILED; falling back to tzupdate direct write"; \
+      tzupdate -t "$tz" 2>&1 | logger -t vinos-tzdetect && \
+        echo "$tz" > /var/lib/vinos/tzdetect.done; \
+    fi; \
   else \
-    logger -t vinos-tzdetect "zoneinfo file /usr/share/zoneinfo/$tz missing"; \
-    exit 1; \
+    logger -t vinos-tzdetect "zoneinfo file /usr/share/zoneinfo/$tz missing; skipping"; \
   fi'
-# Every unit exit that isn't clean success re-runs the ExecStart after
-# 30 s. StartLimit caps total retries so we don't hammer geoip APIs
-# forever on a truly-offline machine. Combined budget: 12 in-process
-# tries × 5 s + 5 systemd retries × (60 s exec + 30 s sleep) ≈ 8 min.
-Restart=on-failure
-RestartSec=30s
+# ExecStart always exits 0 — no Restart= needed. If TZ wasn't set here,
+# the Hyprland exec-once retry (config/hypr/autostart.conf) picks it up
+# once the desktop is running, which will usually be after Wi-Fi is
+# solidly online.
 
 [Install]
 WantedBy=multi-user.target
