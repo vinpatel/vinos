@@ -1,0 +1,32 @@
+#!/bin/bash
+# vinos-tz-select — interactive timezone picker. gum filter over
+# `timedatectl list-timezones`; on selection: sudo timedatectl set-
+# timezone + write the sentinel so vinos-tzdetect stops trying to
+# auto-detect on subsequent boots. Right-click on the waybar clock
+# runs this. Mirrors Omarchy's omarchy-tz-select.
+#
+# vinos:summary=Select and set the system timezone
+# vinos:requires-sudo=true
+
+set -eu
+
+if ! command -v gum >/dev/null 2>&1; then
+  printf 'vinos-tz-select: gum not installed\n' >&2
+  exit 1
+fi
+
+timezone=$(timedatectl list-timezones | gum filter --height 20 --header "Set timezone") || exit 1
+
+sudo timedatectl set-timezone "$timezone"
+
+# Write the sentinel so vinos-tzdetect.service skips (ConditionPathExists)
+# on the next boot — this is a manual choice, don't override it.
+sudo install -d -m 0755 /var/lib/vinos
+printf '%s\n' "$timezone" | sudo tee /var/lib/vinos/tzdetect.done >/dev/null
+
+printf 'Timezone is now set to %s\n' "$timezone"
+
+# Refresh waybar so the clock re-reads TZ without a full session restart.
+if pgrep -x waybar >/dev/null 2>&1; then
+  pkill -USR2 waybar 2>/dev/null || pkill -x waybar 2>/dev/null || true
+fi

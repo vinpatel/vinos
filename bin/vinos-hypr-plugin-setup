@@ -2,13 +2,18 @@
 # vinos:summary=First-boot Hyprland plugin setup (borders-plus-plus, hyprbars, hyprfocus)
 # vinos:args=[--force]
 #
-# Runs `hyprpm` on first boot to fetch + build + enable the three
-# vinOS-blessed Hyprland plugins. Guards on ~/.local/state/vinos/
-# hypr-plugins-done so it never runs twice unless --force is given.
+# Runs `hyprpm` to fetch + build + enable the three vinOS-blessed
+# Hyprland plugins. Guards on ~/.local/state/vinos/hypr-plugins-done
+# so it never runs twice unless --force is given.
 #
-# Called from config/hypr/autostart.conf. Backgrounds gracefully — the
-# initial build takes 1-3 min but doesn't block the desktop.
-set -euo pipefail
+# Called from config/hypr/autostart.conf on installed systems only —
+# the autostart line is guarded by `[ ! -e /run/archiso ]`. Also
+# skipped when kernel cmdline has `vinos.install=1` (installer boot).
+#
+# Backgrounds gracefully — the initial build takes 1-3 min but doesn't
+# block the desktop. Silent on success paths — only surfaces a
+# notification if we actually did fresh work OR if it truly failed.
+set -uo pipefail  # no -e: we handle non-zero from hyprpm ourselves
 
 FORCE="${1:-}"
 STATE_DIR="$HOME/.local/state/vinos"
@@ -16,7 +21,15 @@ FLAG="$STATE_DIR/hypr-plugins-done"
 
 mkdir -p "$STATE_DIR"
 
+# Sentinel already set → nothing to do.
 if [[ -f "$FLAG" && "$FORCE" != "--force" ]]; then
+  exit 0
+fi
+
+# Installer-mode boot? No point building plugins on a boot whose only
+# purpose is to run vinos-install-disk — the installed system will do
+# this later from its own autostart.
+if grep -q 'vinos.install=1' /proc/cmdline 2>/dev/null; then
   exit 0
 fi
 
@@ -27,30 +40,71 @@ export XDG_RUNTIME_DIR WAYLAND_DISPLAY
 HIS="$(ls "$XDG_RUNTIME_DIR/hypr/" 2>/dev/null | head -1)"
 [[ -n "$HIS" ]] && export HYPRLAND_INSTANCE_SIGNATURE="$HIS"
 
-# Wait for Hyprland IPC.
+# Wait for Hyprland IPC (up to 15 s).
 for _ in {1..15}; do
-  if hyprctl version >/dev/null 2>&1; then break; fi
+  hyprctl version >/dev/null 2>&1 && break
   sleep 1
 done
+hyprctl version >/dev/null 2>&1 || exit 0  # no Hyprland — nothing to do
 
-command -v notify-send >/dev/null && notify-send -u low \
+# Snapshot state BEFORE we touch anything. `hyprpm list` prints the
+# repo + plugin state on success; the three plugins we ship configs
+# for are the ones we need enabled.
+_want=(borders-plus-plus hyprbars hyprfocus)
+_pre="$(hyprpm list 2>/dev/null || true)"
+_all_enabled_pre=1
+for p in "${_want[@]}"; do
+  # `hyprpm list` prints e.g. "Plugin hyprbars\n  └─ enabled: true"
+  if ! grep -qE "Plugin ${p}\b" <<<"$_pre"; then _all_enabled_pre=0; break; fi
+  if ! grep -A 1 "Plugin ${p}\b" <<<"$_pre" | grep -q "enabled: .*true"; then
+    _all_enabled_pre=0; break
+  fi
+done
+
+# Fast path: nothing to do, all three plugins are already enabled.
+# Set the sentinel so we skip cleanly on future boots and exit quiet.
+if (( _all_enabled_pre )); then
+  touch "$FLAG"
+  exit 0
+fi
+
+# Slow path: at least one plugin needs work. Tell the user we're
+# building — but only when we're really doing it, not on every boot.
+command -v notify-send >/dev/null 2>&1 && notify-send -u low \
   "  vinOS setup" "Building Hyprland plugins (first-boot, 1–3 min)…" || true
 
-# Fetch matching Hyprland headers + build plugins.
+# Refresh headers + add repo. Both `update` and `add` are idempotent
+# in intent but non-zero-when-already-present in practice, so we
+# tolerate their exit codes and re-check state after.
 hyprpm update >/dev/null 2>&1 || true
-hyprpm add https://github.com/hyprwm/hyprland-plugins >/dev/null 2>&1 || {
-  command -v notify-send >/dev/null && notify-send -u critical \
-    "󰅚  vinOS setup" "Plugin build failed. Run \`vinos-hypr-plugin-setup --force\` to retry." || true
-  exit 1
-}
+hyprpm add https://github.com/hyprwm/hyprland-plugins >/dev/null 2>&1 || true
 
-# Enable the three visual plugins we ship configs for.
-for p in borders-plus-plus hyprbars hyprfocus; do
+# Enable the three plugins we ship configs for.
+for p in "${_want[@]}"; do
   hyprpm enable "$p" >/dev/null 2>&1 || true
 done
 hyprpm reload >/dev/null 2>&1 || true
 
-touch "$FLAG"
+# Verify — did the work actually take? A failure notification is
+# earned only if we STILL don't have all three enabled after doing
+# the work. If we DO have them all, that's success regardless of
+# what individual hyprpm subcommands returned.
+_post="$(hyprpm list 2>/dev/null || true)"
+_all_enabled_post=1
+for p in "${_want[@]}"; do
+  if ! grep -qE "Plugin ${p}\b" <<<"$_post"; then _all_enabled_post=0; break; fi
+  if ! grep -A 1 "Plugin ${p}\b" <<<"$_post" | grep -q "enabled: .*true"; then
+    _all_enabled_post=0; break
+  fi
+done
 
-command -v notify-send >/dev/null && notify-send -u low \
-  "  vinOS setup" "Hyprland plugins ready. Enjoy the refined desktop." || true
+if (( _all_enabled_post )); then
+  touch "$FLAG"
+  command -v notify-send >/dev/null 2>&1 && notify-send -u low \
+    "  vinOS setup" "Hyprland plugins ready. Enjoy the refined desktop." || true
+  exit 0
+else
+  command -v notify-send >/dev/null 2>&1 && notify-send -u critical \
+    "󰅚  vinOS setup" "Plugin build failed. Run \`vinos-hypr-plugin-setup --force\` to retry." || true
+  exit 1
+fi

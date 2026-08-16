@@ -1,0 +1,8 @@
+# Allow wheel users to update the system timezone without a sudo
+# password prompt. Scoped narrowly to just the two commands vinos-tz-
+# select and the Hyprland exec-once fallback need — the general
+# NOPASSWD rule in 10-vinos-wheel is live-ISO-only; this file is safe
+# for both live and disk installs. Mirrors Omarchy's
+# install/config/timezones.sh so `omarchy-cmd-tzupdate`-style right-
+# click-clock TZ change works out of the box.
+%wheel ALL=(root) NOPASSWD: /usr/bin/tzupdate, /usr/bin/timedatectl

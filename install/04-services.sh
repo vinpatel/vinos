@@ -148,6 +148,14 @@ systemctl_enable acpid
 systemctl_enable power-profiles-daemon
 systemctl_enable bolt
 
+# ollama.service — local model runtime. Kept enabled on the live ISO
+# so `ollama pull <model>` from vinos-menu ai's Chat entry works
+# without asking the user to manually `systemctl start`. Costs ~50 MB
+# RSS at idle; models themselves are pulled on-demand (nothing baked
+# into the ISO). No-op on machines without the ollama package
+# (systemctl_enable warns + continues).
+systemctl_enable ollama
+
 # --- Apple T2 Mac userspace services --------------------------------
 # tiny-dfr renders the Touch Bar; t2fanrd manages fans. Both ship in
 # packages.live so the binaries + units are present on every ISO. They
@@ -240,5 +248,19 @@ VINOS_SYSTEMCTL_TARGET=reboot.target   systemctl_enable plymouth-reboot
 # alive through the boot→login handoff so the screen doesn't flash
 # black. WantedBy=multi-user.target is correct for this one.
 systemctl_enable plymouth-quit-wait
+
+# Sudoers scoped to tzupdate + timedatectl so vinos-tz-select and the
+# Hyprland exec-once fallback can update TZ without a password prompt.
+# Mirrors Omarchy's install/config/timezones.sh. Idempotent — install
+# rewrites the file each time. Perms 0440 (0644 would make sudo refuse).
+log "04-services: writing /etc/sudoers.d/20-vinos-tzupdate"
+_sudoers_d="$(_rootpath /etc/sudoers.d)"
+_sudo install -d -m 0755 "$_sudoers_d"
+_tzsudo_tmp="$(mktemp)"
+cat > "$_tzsudo_tmp" <<'TZSUDO'
+%wheel ALL=(root) NOPASSWD: /usr/bin/tzupdate, /usr/bin/timedatectl
+TZSUDO
+_sudo install -Dm 0440 "$_tzsudo_tmp" "$_sudoers_d/20-vinos-tzupdate"
+rm -f "$_tzsudo_tmp"
 
 log "04-services: done"

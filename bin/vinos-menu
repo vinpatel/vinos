@@ -124,6 +124,20 @@ _menu_capture() {
   add "  Extract text (OCR)"           "vinos-capture-text-extraction"
 }
 
+_menu_ai() {
+  # AI-only submenu — bound to the waybar AI pill on-click. Users hit
+  # this specifically for AI actions; general system settings are one
+  # step back at `vinos-menu` (top-level).
+  export VINOS_MENU_TITLE="vinOS AI — chat, models, status…"
+  _reset
+  add "󰭹  Chat with vinOS AI"            "foot --app-id=org.vinos.ai -T 'vinOS AI' -- vinos-ai chat"
+  add "󰋔  AI status"                     "foot --app-id=org.vinos.ai -T 'AI status' -- bash -lc 'vinos-ai status; read -p enter '"
+  add "󰇘  Pull model…"                   "foot --app-id=org.vinos.ai -T 'AI pull' -- bash -lc 'read -p \"model: \" m && vinos-ai pull \"\$m\"; read -p enter '"
+  add "  Switch model role"             "foot --app-id=org.vinos.ai -T 'AI role' -- bash -lc 'vinos-ai role; read -p enter '"
+  add "  Install AI bundle"             "$SCRIPT_DIR/vinos-install-ai"
+  add "󰁍  Back to main menu"              "vinos-menu"
+}
+
 _menu_toggle() {
   export VINOS_MENU_TITLE="Toggles — bar, idle, blur, gaps…"
   _reset
@@ -239,6 +253,7 @@ _screenrecord_toggle() {
 
 case "$SUBCMD" in
   ""|top)         _menu_top ;;
+  ai)             _menu_ai ;;
   capture)        _menu_capture ;;
   toggle)         _menu_toggle ;;
   display)        _menu_display ;;

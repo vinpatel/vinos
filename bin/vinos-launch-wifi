@@ -1,18 +1,43 @@
 #!/usr/bin/env bash
 # vinos-launch-wifi — open the impala TUI in a floating terminal for
 # quick wifi connect/disconnect. rfkill unblocks the radio first
-# (Chromebook/Mac quirk), then impala runs inside foot with a
-# well-known app-id so the Hyprland window rule can float it.
+# (Chromebook/Mac quirk); if impala exits immediately (no wireless
+# device — QEMU, missing driver, hard-blocked), the terminal stays
+# open with an explanation so the click doesn't look like a no-op.
 set -euo pipefail
 
 rfkill unblock wifi 2>/dev/null || true
 
-# Prefer foot (waybar terminal), fall back to alacritty. `--app-id`
-# lets the Hyprland windowrule target this specific window.
+# Wrap impala so that if there's no wireless interface present at all,
+# foot keeps the window open with a diagnostic instead of vanishing.
+# The check reads /sys/class/net/*/wireless — the kernel-authoritative
+# way to enumerate wireless interfaces, independent of iwd's naming or
+# whatever prefix it picks (wlan*, wlp*, wlx*). On real hardware with
+# brcmfmac / iwlwifi up, at least one entry exists → the wrap
+# short-circuits and impala runs like before.
+_impala_wrap='
+_has_wifi=0
+for _if in /sys/class/net/*; do
+  [ -d "$_if/wireless" ] && _has_wifi=1
+done
+if [ "$_has_wifi" -eq 0 ]; then
+  printf "\n\033[1;33mvinOS wifi\033[0m: no wireless device found.\n"
+  printf "  * On a live boot, brcmfmac / iwlwifi should auto-load\n"
+  printf "    once the radio is present. Diagnose:\n"
+  printf "        rfkill list all\n"
+  printf "        lspci | grep -iE \"network|wireless\"\n"
+  printf "  * In QEMU there is no wifi device (expected).\n\n"
+  printf "Press Enter to close."
+  read -r _ 2>/dev/null || true
+  exit 0
+fi
+exec impala
+'
+
 if command -v foot >/dev/null 2>&1; then
-  exec foot --app-id=org.vinos.impala -T "vinOS wifi" -- impala
+  exec foot --app-id=org.vinos.impala -T "vinOS wifi" -- bash -c "$_impala_wrap"
 elif command -v alacritty >/dev/null 2>&1; then
-  exec alacritty --class org.vinos.impala,org.vinos.impala -T "vinOS wifi" -e impala
+  exec alacritty --class org.vinos.impala,org.vinos.impala -T "vinOS wifi" -e bash -c "$_impala_wrap"
 else
-  exec xterm -class org.vinos.impala -T "vinOS wifi" -e impala
+  exec xterm -class org.vinos.impala -T "vinOS wifi" -e bash -c "$_impala_wrap"
 fi

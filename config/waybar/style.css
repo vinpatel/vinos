@@ -18,12 +18,20 @@
     border-color 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+/* Bar backdrop stays fully transparent — no bar, no strip. Pills
+   carry their own presence via 0.95-alpha background + a soft outer
+   shadow, so they remain legible on any wallpaper without visually
+   anchoring the whole bar with a horizontal band. */
 window#waybar {
   background: transparent;
   color: #C0CAF5;
 }
 
-/* ---- Module base: floating glass pill ---- */
+/* ---- Module base: solid dark pill ----
+   100% opaque #1A1B26 — dark pill is always legible on ANY wallpaper
+   (light, dark, mixed). No border. No shadow. Nothing to blend with.
+   This is the definitive fix — anything less than fully opaque bleeds
+   the wallpaper through on light backgrounds and washes out the pill. */
 #custom-logo,
 #workspaces,
 #window,
@@ -35,15 +43,15 @@ window#waybar {
 #battery,
 #tray,
 #custom-ai {
-  background: rgba(26, 27, 38, 0.72);
+  background: #1A1B26;
   padding: 5px 15px;
   margin: 0 3px;
   border-radius: 13px;
-  border: 1px solid rgba(122, 162, 247, 0.10);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40);
+  border: none;
+  box-shadow: none;
 }
 
-/* Universal hover */
+/* Universal hover — subtle lift to slightly lighter dark */
 #custom-logo:hover,
 #clock:hover,
 #network:hover,
@@ -52,70 +60,54 @@ window#waybar {
 #memory:hover,
 #battery:hover,
 #custom-ai:hover {
-  background: rgba(36, 40, 59, 0.85);
-  border-color: rgba(122, 162, 247, 0.42);
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.55),
-    0 0 20px rgba(122, 162, 247, 0.18);
+  background: #24283B;
 }
 
-/* ---- Logo pill — brand anchor ---- */
+/* ---- Logo pill — brand anchor ----
+   Same dark pill as everyone else — the teal V letter is the brand
+   accent, no need for a full teal background too (two teals side by
+   side with the active-workspace pill was jarring). */
 #custom-logo {
   color: #7AA2F7;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.02em;
   padding: 4px 16px;
-  border-color: rgba(122, 162, 247, 0.38);
-  background: linear-gradient(135deg,
-    rgba(122, 162, 247, 0.20),
-    rgba(187, 154, 247, 0.12) 60%,
-    rgba(26, 27, 38, 0.72));
-  box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.40),
-    0 0 20px rgba(122, 162, 247, 0.14);
+  background: #1A1B26;
 }
 #custom-logo:hover {
-  background: linear-gradient(135deg,
-    rgba(122, 162, 247, 0.32),
-    rgba(187, 154, 247, 0.22) 60%,
-    rgba(36, 40, 59, 0.80));
-  border-color: rgba(122, 162, 247, 0.55);
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.60),
-    0 0 28px rgba(122, 162, 247, 0.32);
+  color: #BB9AF7;
+  background: #24283B;
 }
 
-/* ---- Workspaces ---- */
+/* ---- Workspaces ----
+   Buttons fill the whole pill (no padding on the container), so the
+   dark pill background never peeks around them. Solid opaque colors
+   on active/urgent states — no transparency to bleed against the
+   wallpaper. */
 #workspaces {
-  padding: 3px 5px;
+  padding: 0 4px;
 }
 #workspaces button {
   color: #565F89;
-  padding: 3px 10px;
+  padding: 4px 8px;
   margin: 0 1px;
-  border-radius: 8px;
+  border-radius: 7px;
   background: transparent;
-  border: 1px solid transparent;
-  min-width: 20px;
-  transition:
-    background 160ms ease,
-    color 160ms ease,
-    border-color 160ms ease;
+  border: none;
+  min-width: 18px;
 }
 #workspaces button:hover {
   color: #C0CAF5;
-  background: rgba(122, 162, 247, 0.14);
+  background: #24283B;
 }
 #workspaces button.active {
-  color: #F5F6FA;
-  background: rgba(122, 162, 247, 0.28);
-  border-color: rgba(122, 162, 247, 0.55);
+  color: #7AA2F7;
+  background: #24283B;
 }
 #workspaces button.urgent {
   color: #F7768E;
-  background: rgba(247, 118, 142, 0.18);
-  border-color: rgba(247, 118, 142, 0.55);
+  background: #24283B;
 }
 
 /* ---- Focused window title ---- */
@@ -123,12 +115,12 @@ window#waybar {
   color: #A9B1D6;
   font-weight: 400;
   padding: 5px 14px;
-  border-color: transparent;
-  background: rgba(26, 27, 38, 0.50);
+  background: #1A1B26;
 }
 #window.empty {
   background: transparent;
   color: transparent;
+  padding: 0;
 }
 
 /* ---- Center clock ---- */
@@ -142,25 +134,16 @@ window#waybar {
 #custom-ai {
   color: #BB9AF7;
   padding: 5px 14px;
-  background: linear-gradient(135deg,
-    rgba(187, 154, 247, 0.18),
-    rgba(26, 27, 38, 0.72));
-  border-color: rgba(187, 154, 247, 0.32);
+  background: #1A1B26;
 }
 #custom-ai.active {
   color: #F5F6FA;
-  background: linear-gradient(135deg,
-    rgba(122, 162, 247, 0.42),
-    rgba(187, 154, 247, 0.28));
-  border-color: rgba(122, 162, 247, 0.60);
-  box-shadow:
-    0 6px 18px rgba(0, 0, 0, 0.50),
-    0 0 28px rgba(122, 162, 247, 0.42);
+  background: #24283B;
   animation: ai-pulse 2.4s ease-in-out infinite alternate;
 }
 @keyframes ai-pulse {
-  0%   { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.50), 0 0 22px rgba(122, 162, 247, 0.30); }
-  100% { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.50), 0 0 34px rgba(122, 162, 247, 0.55); }
+  0%   { box-shadow: 0 2px 12px rgba(15, 15, 22, 0.28), 0 0 12px rgba(122, 162, 247, 0.22); }
+  100% { box-shadow: 0 2px 12px rgba(15, 15, 22, 0.28), 0 0 22px rgba(122, 162, 247, 0.45); }
 }
 
 /* ---- Stats ---- */
@@ -170,8 +153,7 @@ window#waybar {
 }
 #network.disconnected {
   color: #F7768E;
-  background: rgba(247, 118, 142, 0.14);
-  border-color: rgba(247, 118, 142, 0.28);
+  background: rgba(247, 118, 142, 0.22);
 }
 
 #pulseaudio {
@@ -194,19 +176,18 @@ window#waybar {
   animation: bat-charging 2.0s ease-in-out infinite alternate;
 }
 @keyframes bat-charging {
-  0%   { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40), 0 0 16px rgba(125, 207, 255, 0.30); }
-  100% { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40), 0 0 24px rgba(125, 207, 255, 0.55); }
+  0%   { box-shadow: 0 2px 12px rgba(15, 15, 22, 0.28), 0 0 10px rgba(125, 207, 255, 0.22); }
+  100% { box-shadow: 0 2px 12px rgba(15, 15, 22, 0.28), 0 0 18px rgba(125, 207, 255, 0.45); }
 }
 #battery.warning { color: #E0AF68; }
 #battery.critical {
   color: #F5F6FA;
-  background: rgba(247, 118, 142, 0.42);
-  border-color: rgba(247, 118, 142, 0.72);
+  background: rgba(247, 118, 142, 0.60);
   animation: bat-critical 0.9s ease-in-out infinite alternate;
 }
 @keyframes bat-critical {
-  0%   { background: rgba(247, 118, 142, 0.42); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40); }
-  100% { background: rgba(247, 118, 142, 0.72); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40), 0 0 28px rgba(247, 118, 142, 0.70); }
+  0%   { background: rgba(247, 118, 142, 0.60); }
+  100% { background: rgba(247, 118, 142, 0.85); }
 }
 
 /* ---- Tray ---- */
