@@ -29,6 +29,7 @@ file_permissions=(
   ["/etc/sudoers.d/10-vinos-wheel"]="0:0:440"
   ["/etc/sudoers.d/20-vinos-tzupdate"]="0:0:440"
   ["/usr/lib/vinos/t2-brcmfmac-firmware.sh"]="0:0:755"
+  ["/usr/share/vinos/installer/vinos-install"]="0:0:755"
 )
 
 # Auto-populate 0:0:755 for every vinos-* wrapper we ship. Without this,
