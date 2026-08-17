@@ -1,0 +1,24 @@
+[Unit]
+Description=vinOS full-screen installer wizard
+Documentation=file:///usr/share/doc/vinos/INSTALL.md
+Conflicts=getty@tty1.service
+After=multi-user.target network-online.target
+Before=vinos-installer.target
+Wants=network-online.target
+
+[Service]
+Type=idle
+ExecStart=/usr/local/bin/vinos-installer-wizard
+StandardInput=tty-force
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+KillMode=process
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
+
+[Install]
+WantedBy=vinos-installer.target

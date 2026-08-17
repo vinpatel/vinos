@@ -7,8 +7,9 @@
 # so it never runs twice unless --force is given.
 #
 # Called from config/hypr/autostart.conf on installed systems only —
-# the autostart line is guarded by `[ ! -e /run/archiso ]`. Also
-# skipped when kernel cmdline has `vinos.install=1` (installer boot).
+# the autostart line is guarded by `[ ! -e /run/archiso ]`. Install-to-
+# disk boots skip hyprland entirely (systemd.unit=vinos-installer.target),
+# so no separate cmdline guard is needed here.
 #
 # Backgrounds gracefully — the initial build takes 1-3 min but doesn't
 # block the desktop. Silent on success paths — only surfaces a
@@ -23,13 +24,6 @@ mkdir -p "$STATE_DIR"
 
 # Sentinel already set → nothing to do.
 if [[ -f "$FLAG" && "$FORCE" != "--force" ]]; then
-  exit 0
-fi
-
-# Installer-mode boot? No point building plugins on a boot whose only
-# purpose is to run vinos-install-disk — the installed system will do
-# this later from its own autostart.
-if grep -q 'vinos.install=1' /proc/cmdline 2>/dev/null; then
   exit 0
 fi
 

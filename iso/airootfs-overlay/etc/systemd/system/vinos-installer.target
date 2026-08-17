@@ -1,0 +1,6 @@
+[Unit]
+Description=vinOS installer boot target
+Documentation=file:///usr/share/doc/vinos/INSTALL.md
+Requires=multi-user.target
+After=multi-user.target
+AllowIsolate=yes
