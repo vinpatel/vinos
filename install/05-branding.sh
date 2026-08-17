@@ -78,6 +78,19 @@ for f in "$SHARE/bin/"vinos-*; do
   _sudo ln -sfn "/usr/share/vinos/bin/$(basename "$f")" "$LOCAL_BIN/$(basename "$f")"
 done
 
+# vinOS installer — Omarchy-style phased scripts sourced by
+# /usr/local/bin/vinos-install (which the vinos-installer.service unit
+# runs on tty1 for the Install boot entries). Ships everywhere so users
+# who install can re-run it manually to reinstall on a different disk.
+if [[ -d "$REPO/iso/installer" ]]; then
+  log "05-branding: installing vinOS installer tree under $SHARE/installer"
+  _INSTALLER_DST="$(_rootpath /usr/share/vinos/installer)"
+  _sudo rsync -a --delete "$REPO/iso/installer/" "$_INSTALLER_DST/"
+  _sudo chmod 0755 "$_INSTALLER_DST/vinos-install"
+  _sudo find "$_INSTALLER_DST" -type f -name '*.sh' -exec chmod 0644 {} \;
+  _sudo ln -sfn /usr/share/vinos/installer/vinos-install "$LOCAL_BIN/vinos-install"
+fi
+
 log "05-branding: installing vinos Plymouth theme"
 # Rule 3: identity — the logo + caret splash is branding, so it lives
 # here. 02-desktop.sh installs the plymouth package and wires the hook;

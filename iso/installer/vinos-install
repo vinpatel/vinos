@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+# vinos-install — the vinOS installer entry point. Owns the whole flow
+# from live ISO boot to first-reboot-into-installed-system.
+#
+# Ships from iso/airootfs-overlay/usr/share/vinos/installer/ (added by
+# iso/build.sh's overlay assembly). Symlinked as /usr/local/bin/vinos-
+# install so operators can invoke it by name from any terminal.
+#
+# The systemd unit vinos-installer.service starts this on tty1 for the
+# "Install vinOS to disk" boot entries.
+#
+# Structure (source-in phase pattern, inspired by Omarchy's install.sh):
+#     helpers/     shared functions — logging, run/die, chroot helpers
+#     preflight/   sanity checks — root, UEFI, tools, candidate disks
+#     prompts/     gum UI — collect answers into $ANSWERS
+#     disk/        wipe + partition + format + mount
+#     pacstrap/    pacstrap base + kernel + firmware into /mnt
+#     bootloader/  systemd-boot install + loader.conf + entries
+#     config/      fstab, locale, user, sudoers, vinOS overlay
+#     finalize/    unmount, sync, reboot prompt
+#
+# Every phase is idempotent. Each writes a marker file when done; the
+# entry re-enters at the first unfinished phase after a crash / reboot.
+
+set -Eeuo pipefail
+
+# Repo of the installer tree — used to source phases.
+INSTALLER_ROOT="${VINOS_INSTALLER_ROOT:-/usr/share/vinos/installer}"
+if [[ ! -d "$INSTALLER_ROOT" ]]; then
+  # Dev-host invocation from the repo root: /data/projects/vinos/iso/installer.
+  _here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  if [[ -d "$_here/helpers" ]]; then
+    INSTALLER_ROOT="$_here"
+  else
+    printf 'vinos-install: cannot find installer tree (looked in %s and %s)\n' \
+      "$INSTALLER_ROOT" "$_here" >&2
+    exit 2
+  fi
+fi
+
+# shellcheck source=./helpers/all.sh
+source "$INSTALLER_ROOT/helpers/all.sh"
+
+# Catch anything the phases missed and land on a helpful bail-out.
+_on_err() {
+  local rc=$?
+  local line=${1:-0}
+  local cmd=${2:-?}
+  warn "vinos-install: unhandled error at line $line (rc=$rc): $cmd"
+  die "aborted — see $LOG for context"
+}
+trap '_on_err "$LINENO" "$BASH_COMMAND"' ERR
+
+# Ctrl-C bails to a root shell so the operator can debug on the same TTY.
+_on_int() {
+  step "vinos-install: interrupted"
+  cat <<EOF
+
+You're on a root shell on this TTY. Options:
+  • run  vinos-install                   restart the installer
+  •      rm -rf $MARKER_DIR/  &&  vinos-install   full re-run from scratch
+  • run  reboot                          reboot the machine
+  • run  poweroff                        power off
+  • view $LOG                            install log
+
+EOF
+  exec /bin/bash --login
+}
+trap '_on_int' INT
+
+step "vinos-install: starting"
+log "installer root: $INSTALLER_ROOT"
+log "state dir:      $STATE_DIR"
+
+# shellcheck source=./preflight/all.sh
+source "$INSTALLER_ROOT/preflight/all.sh"
+
+# shellcheck source=./prompts/all.sh
+source "$INSTALLER_ROOT/prompts/all.sh"
+
+# shellcheck source=./disk/all.sh
+source "$INSTALLER_ROOT/disk/all.sh"
+
+# Phases 40+ land in Days 3-5. Until then, the installer stops here with
+# a clear message so the QA gate can identify "no crash, just not built
+# yet" versus "actually broken".
+if [[ ! -f "$INSTALLER_ROOT/pacstrap/all.sh" ]]; then
+  warn "vinos-install: pacstrap phase not yet implemented (Day 3 work)"
+  warn "vinos-install: install-smoke will fail past disk phase — expected"
+  exit 42   # 42 = "unimplemented, gate should still fail"
+fi
+
+# shellcheck source=./pacstrap/all.sh
+source "$INSTALLER_ROOT/pacstrap/all.sh"
+
+if [[ -f "$INSTALLER_ROOT/bootloader/all.sh" ]]; then
+  # shellcheck source=./bootloader/all.sh
+  source "$INSTALLER_ROOT/bootloader/all.sh"
+fi
+
+if [[ -f "$INSTALLER_ROOT/config/all.sh" ]]; then
+  # shellcheck source=./config/all.sh
+  source "$INSTALLER_ROOT/config/all.sh"
+fi
+
+if [[ -f "$INSTALLER_ROOT/finalize/all.sh" ]]; then
+  # shellcheck source=./finalize/all.sh
+  source "$INSTALLER_ROOT/finalize/all.sh"
+fi
+
+step "vinos-install: complete"
