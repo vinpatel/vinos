@@ -1,0 +1,109 @@
+# config/all.sh — everything the pacstrap left un-personalised.
+#   - fstab (genfstab)
+#   - locale, keyboard, timezone, hostname
+#   - user account + password + sudoers
+#   - service enablement (NetworkManager, sshd off by default)
+#   - vinOS overlay layered via install.sh in the chroot
+#
+# Every long-running chroot operation is wrapped by chroot_run so its
+# stdout+stderr flows to the log and any non-zero exit dies loudly.
+
+phase_start 60 config || return 0
+
+answers_load
+: "${USERNAME:?config phase reached without USERNAME}"
+: "${PASSWORD:?config phase reached without PASSWORD}"
+: "${HOSTNAME_:=vinos}"
+: "${TIMEZONE:=UTC}"
+: "${KB_LAYOUT:=us}"
+: "${PROFILE:=generic}"
+
+VINOS_REPO_URL="${VINOS_REPO_URL:-https://github.com/vinpatel/vinos.git}"
+VINOS_BRANCH="${VINOS_BRANCH:-main}"
+
+# ── fstab ─────────────────────────────────────────────────────────
+log "generating fstab"
+run bash -c "genfstab -U '$TARGET_ROOT' > '$TARGET_ROOT/etc/fstab'"
+[[ -s "$TARGET_ROOT/etc/fstab" ]] || die "genfstab produced empty fstab"
+
+# ── locale ────────────────────────────────────────────────────────
+log "configuring locale (en_US.UTF-8 baseline)"
+# Ensure the target has the en_US line uncommented; add if missing.
+if [[ -f "$TARGET_ROOT/etc/locale.gen" ]]; then
+  run sed -i 's/^#\(en_US\.UTF-8 UTF-8\)/\1/' "$TARGET_ROOT/etc/locale.gen"
+  grep -q '^en_US.UTF-8 UTF-8' "$TARGET_ROOT/etc/locale.gen" \
+    || printf 'en_US.UTF-8 UTF-8\n' >> "$TARGET_ROOT/etc/locale.gen"
+fi
+chroot_run 'locale-gen'
+printf 'LANG=en_US.UTF-8\n' > "$TARGET_ROOT/etc/locale.conf"
+
+# Console keymap for the installed system.
+printf 'KEYMAP=%s\nFONT=eurlatgs16\n' "$KB_LAYOUT" > "$TARGET_ROOT/etc/vconsole.conf"
+
+# ── timezone ──────────────────────────────────────────────────────
+log "setting timezone: $TIMEZONE"
+if [[ -f "$TARGET_ROOT/usr/share/zoneinfo/$TIMEZONE" ]]; then
+  chroot_run "ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime; hwclock --systohc"
+else
+  warn "target has no /usr/share/zoneinfo/$TIMEZONE — leaving UTC"
+  chroot_run 'ln -sf /usr/share/zoneinfo/UTC /etc/localtime; hwclock --systohc'
+fi
+
+# ── hostname ──────────────────────────────────────────────────────
+log "setting hostname: $HOSTNAME_"
+printf '%s\n' "$HOSTNAME_" > "$TARGET_ROOT/etc/hostname"
+cat > "$TARGET_ROOT/etc/hosts" <<HOSTS
+127.0.0.1  localhost
+::1        localhost
+127.0.1.1  ${HOSTNAME_}.localdomain  ${HOSTNAME_}
+HOSTS
+
+# ── mkinitcpio (regenerate now that fstab exists) ─────────────────
+# pacstrap already ran this once, but on some hardware the initial
+# generation misses a hook (usb-storage on Apple T2 etc.). Re-run to
+# be safe — cheap on stock kernel, catches missing hooks.
+chroot_run 'mkinitcpio -P'
+
+# ── user account ──────────────────────────────────────────────────
+log "creating user $USERNAME (wheel + hardware groups)"
+chroot_run "
+  useradd -m -G wheel,video,audio,input,storage,network -s /bin/bash '$USERNAME'
+"
+# Password via chpasswd stdin — never lands in ps.
+printf '%s:%s\n' "$USERNAME" "$PASSWORD" > "$TARGET_ROOT/tmp/vinos-pw.tmp"
+chmod 0600 "$TARGET_ROOT/tmp/vinos-pw.tmp"
+chroot_run 'chpasswd < /tmp/vinos-pw.tmp; shred -u /tmp/vinos-pw.tmp'
+
+# Sudoers — wheel with password.
+install -Dm 0440 /dev/stdin "$TARGET_ROOT/etc/sudoers.d/10-vinos-wheel" <<'SUDO'
+# vinOS installed-system sudoers policy.
+%wheel ALL=(ALL:ALL) ALL
+SUDO
+chroot_run 'visudo -cf /etc/sudoers.d/10-vinos-wheel'
+
+# ── services ──────────────────────────────────────────────────────
+log "enabling NetworkManager; leaving sshd disabled"
+chroot_run '
+  systemctl enable NetworkManager.service
+  systemctl disable sshd.service 2>/dev/null || true
+'
+
+# ── vinOS overlay ─────────────────────────────────────────────────
+# Clone the repo into the user's home and run install.sh. Skips
+# 04-services (network stack — we already picked NetworkManager, don't
+# fight it). VINOS_INSTALL_ASSUME_YES=1 keeps the overlay non-interactive.
+log "cloning vinOS repo + running install.sh in chroot"
+chroot_run "
+  install -d -m 0755 -o '$USERNAME' -g '$USERNAME' '/home/$USERNAME/.local/share'
+  sudo -u '$USERNAME' -H git clone --depth=1 --branch '$VINOS_BRANCH' \
+    '$VINOS_REPO_URL' '/home/$USERNAME/.local/share/vinos'
+  cd '/home/$USERNAME/.local/share/vinos'
+  # T2 support and NVIDIA are post-boot upgrades — first-boot script prompts.
+  sudo -u '$USERNAME' -H env VINOS_INSTALL_ASSUME_YES=1 ./install.sh
+"
+
+# First-run service (writes T2 / NVIDIA detection prompt on first login).
+chroot_run 'systemctl enable vinos-firstboot.service 2>/dev/null || true'
+
+log "config phase complete"
+phase_done 60 config

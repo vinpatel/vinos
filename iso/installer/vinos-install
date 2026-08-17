@@ -81,31 +81,13 @@ source "$INSTALLER_ROOT/prompts/all.sh"
 # shellcheck source=./disk/all.sh
 source "$INSTALLER_ROOT/disk/all.sh"
 
-# Phases 40+ land in Days 3-5. Until then, the installer stops here with
-# a clear message so the QA gate can identify "no crash, just not built
-# yet" versus "actually broken".
-if [[ ! -f "$INSTALLER_ROOT/pacstrap/all.sh" ]]; then
-  warn "vinos-install: pacstrap phase not yet implemented (Day 3 work)"
-  warn "vinos-install: install-smoke will fail past disk phase — expected"
-  exit 42   # 42 = "unimplemented, gate should still fail"
-fi
-
 # shellcheck source=./pacstrap/all.sh
 source "$INSTALLER_ROOT/pacstrap/all.sh"
-
-if [[ -f "$INSTALLER_ROOT/bootloader/all.sh" ]]; then
-  # shellcheck source=./bootloader/all.sh
-  source "$INSTALLER_ROOT/bootloader/all.sh"
-fi
-
-if [[ -f "$INSTALLER_ROOT/config/all.sh" ]]; then
-  # shellcheck source=./config/all.sh
-  source "$INSTALLER_ROOT/config/all.sh"
-fi
-
-if [[ -f "$INSTALLER_ROOT/finalize/all.sh" ]]; then
-  # shellcheck source=./finalize/all.sh
-  source "$INSTALLER_ROOT/finalize/all.sh"
-fi
+# shellcheck source=./bootloader/all.sh
+source "$INSTALLER_ROOT/bootloader/all.sh"
+# shellcheck source=./config/all.sh
+source "$INSTALLER_ROOT/config/all.sh"
+# shellcheck source=./finalize/all.sh
+source "$INSTALLER_ROOT/finalize/all.sh"
 
 step "vinos-install: complete"
