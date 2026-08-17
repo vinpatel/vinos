@@ -187,6 +187,32 @@ PACCONF
 log "done → $OUT_DIR"
 ls -1sh "$OUT_DIR"/*.iso "$OUT_DIR"/sha256sums.txt 2>/dev/null || true
 
+# Ship gate 1 — install-smoke. Boots the newly-built ISO in UEFI QEMU with
+# a scratch disk, drives the wizard through a fixed profile, waits for the
+# install to finish, then reboots into the installed system and verifies
+# hostname / user / bootctl entry. If the install can't complete end-to-end
+# in a controlled VM, the ISO does not leave this script. Set
+# VINOS_SKIP_INSTALL_SMOKE=1 to bypass ONLY for iteration on ISO-side
+# changes that don't touch the install path (branding, wallpaper, etc.).
+FRESH_ISO="$OUT_DIR/vinos-${VINOS_VERSION}-x86_64.iso"
+if [[ -f "$FRESH_ISO" ]]; then
+  if [[ "${VINOS_SKIP_INSTALL_SMOKE:-0}" == "1" ]]; then
+    log "install-smoke SKIPPED (VINOS_SKIP_INSTALL_SMOKE=1) — do not ship this ISO"
+  else
+    log "install-smoke: running end-to-end install harness against $FRESH_ISO"
+    log "install-smoke: this takes ~15-25 min. Set VINOS_SKIP_INSTALL_SMOKE=1 to bypass."
+    if "$ISO_DIR/qa/install-smoke.sh" --iso "$FRESH_ISO" --out-dir "$OUT_DIR/smoke-latest"; then
+      log "install-smoke: GREEN"
+    else
+      _rc=$?
+      log "install-smoke: FAILED (rc=$_rc). Post-mortem in $OUT_DIR/smoke-latest/"
+      log "install-smoke: deleting $FRESH_ISO so it cannot be flashed by mistake."
+      rm -f "$FRESH_ISO" "$OUT_DIR/sha256sums.txt"
+      die "ship gate 1 failed — install did not complete end-to-end in UEFI QEMU"
+    fi
+  fi
+fi
+
 # Ship-gate reminder — every build ends with a nudge to walk the T2
 # checkpoint on real hardware before tagging. v1.3.0 shipped 4 hardware
 # regressions because QEMU-green was mistaken for ship-ready.
