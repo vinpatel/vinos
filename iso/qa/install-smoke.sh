@@ -84,7 +84,14 @@ INSTALL_LOG="$OUT_DIR/vinos-install.log"
 STATE_SUMMARY="$OUT_DIR/summary.txt"
 
 # ── logging helpers ────────────────────────────────────────────────
-die()  { printf '\033[1;31m[smoke] FAIL:\033[0m %s\n' "$*" | tee -a "$STATE_SUMMARY" >&2; _cleanup; exit 1; }
+die()  {
+  printf '\033[1;31m[smoke] FAIL:\033[0m %s\n' "$*" | tee -a "$STATE_SUMMARY" >&2
+  # Always keep artifacts on failure — post-mortem is worthless if the
+  # cleanup nukes the screendumps + logs before the operator can look.
+  KEEP=1
+  _cleanup
+  exit 1
+}
 log()  { printf '\033[1;34m[smoke]\033[0m %s\n' "$*" | tee -a "$STATE_SUMMARY"; }
 step() { printf '\033[1;36m[smoke] === %s ===\033[0m\n' "$*" | tee -a "$STATE_SUMMARY"; }
 
@@ -283,12 +290,25 @@ _hmp_key "y"                    # start install
 log "wizard driven; install phase begins"
 
 # ── STEP 5: wait for install completion ────────────────────────────
-step "5/9 wait for install to finish (poll live via SSH; up to 25 min)"
+# Budget: base Arch pacstrap (~3-5 min) + kernel/initramfs (~2 min) +
+# bootloader (~1 min) + vinOS overlay via install.sh (~20-30 min for
+# 300+ packages + AUR builds) + genfstab + user + finalize. 45 min total
+# is a realistic ceiling; anything past that is a hang.
+step "5/9 wait for install to finish (poll live via SSH; up to 45 min)"
 
-# Watch for the phased installer's finalize marker (70-finalize.done)
-# as the completion signal, or a fresh "FAIL:" line as a failure signal.
-# Bounded polling; hangs die with a diagnostic tail.
-INSTALL_DEADLINE=$(( $(date +%s) + 1500 ))
+INSTALL_START=$(date +%s)
+INSTALL_DEADLINE=$(( INSTALL_START + 2700 ))
+LAST_PROGRESS_TS=$INSTALL_START
+
+_progress_log() {
+  local now=$(( $(date +%s) - INSTALL_START ))
+  local last_line marker_list
+  last_line=$(_ssh_live 'sudo -n tail -1 /var/log/vinos-install/install.log 2>/dev/null' 2>/dev/null || true)
+  marker_list=$(_ssh_live 'sudo -n ls /var/log/vinos-install/markers/ 2>/dev/null | tr "\n" " "' 2>/dev/null || true)
+  log "  [+${now}s] markers: ${marker_list:-none}"
+  log "  [+${now}s] tail:    ${last_line:-<no log yet>}"
+}
+
 while (( $(date +%s) < INSTALL_DEADLINE )); do
   if _ssh_live 'sudo -n test -f /var/log/vinos-install/markers/70-finalize.done'; then
     log "install marker 70-finalize.done present — install complete"
@@ -299,10 +319,16 @@ while (( $(date +%s) < INSTALL_DEADLINE )); do
     die "installer reported FAIL. Tail:
 $(cat "$INSTALL_LOG.tail")"
   fi
+  # Print progress every 60 s so a hang is visible in real time.
+  now=$(date +%s)
+  if (( now - LAST_PROGRESS_TS >= 60 )); then
+    _progress_log
+    LAST_PROGRESS_TS=$now
+  fi
   sleep 10
 done
 (( $(date +%s) < INSTALL_DEADLINE )) \
-  || die "install did not complete within 25 min — hang."
+  || die "install did not complete within 45 min — hang. Last log line: $(_ssh_live 'sudo -n tail -1 /var/log/vinos-install/install.log' 2>/dev/null || true)"
 
 # Fetch the full log for the record.
 _ssh_live 'sudo -n cat /var/log/vinos-install/install.log' > "$INSTALL_LOG" 2>&1 || true
