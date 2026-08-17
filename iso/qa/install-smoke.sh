@@ -285,17 +285,19 @@ log "wizard driven; install phase begins"
 # ── STEP 5: wait for install completion ────────────────────────────
 step "5/9 wait for install to finish (poll live via SSH; up to 25 min)"
 
-# Watch /var/log/vinos-install.log for either the completion marker or a
-# hard failure line. Bounded polling; hangs die with a diagnostic tail.
+# Watch for the phased installer's finalize marker (70-finalize.done)
+# as the completion signal, or a fresh "FAIL:" line as a failure signal.
+# Bounded polling; hangs die with a diagnostic tail.
 INSTALL_DEADLINE=$(( $(date +%s) + 1500 ))
 while (( $(date +%s) < INSTALL_DEADLINE )); do
-  if _ssh_live 'sudo -n grep -q "vinOS install complete" /var/log/vinos-install.log 2>/dev/null'; then
-    log "install log reports completion"
+  if _ssh_live 'sudo -n test -f /var/log/vinos-install/markers/70-finalize.done'; then
+    log "install marker 70-finalize.done present — install complete"
     break
   fi
-  if _ssh_live 'sudo -n grep -qE "\[install-execute\] FAIL:|archinstall failed" /var/log/vinos-install.log 2>/dev/null'; then
-    _ssh_live 'sudo -n tail -30 /var/log/vinos-install.log' > "$INSTALL_LOG.tail" 2>&1 || true
-    die "install-execute reported failure. Tail:\n$(cat "$INSTALL_LOG.tail")"
+  if _ssh_live 'sudo -n grep -q "^\[.*\] FAIL:" /var/log/vinos-install/install.log 2>/dev/null'; then
+    _ssh_live 'sudo -n tail -40 /var/log/vinos-install/install.log' > "$INSTALL_LOG.tail" 2>&1 || true
+    die "installer reported FAIL. Tail:
+$(cat "$INSTALL_LOG.tail")"
   fi
   sleep 10
 done
@@ -303,7 +305,7 @@ done
   || die "install did not complete within 25 min — hang."
 
 # Fetch the full log for the record.
-_ssh_live 'sudo -n cat /var/log/vinos-install.log' > "$INSTALL_LOG" 2>&1 || true
+_ssh_live 'sudo -n cat /var/log/vinos-install/install.log' > "$INSTALL_LOG" 2>&1 || true
 
 # Seed our host pubkey into the installed user's authorized_keys so we can
 # ssh in without a password after the reboot. sshd is disabled by default

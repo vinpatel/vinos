@@ -66,8 +66,16 @@ chroot_run 'mkinitcpio -P'
 
 # ── user account ──────────────────────────────────────────────────
 log "creating user $USERNAME (wheel + hardware groups)"
+# Some hardware groups (network, storage) are only created by post-install
+# hooks of specific packages (iwd, util-linux). Add each one only if it
+# actually exists on the target, otherwise create it. Belt-and-suspenders
+# so useradd -G doesn't fail on an otherwise-fine install.
 chroot_run "
-  useradd -m -G wheel,video,audio,input,storage,network -s /bin/bash '$USERNAME'
+  useradd -m -s /bin/bash '$USERNAME'
+  for g in wheel video audio input storage network; do
+    getent group \"\$g\" >/dev/null 2>&1 || groupadd \"\$g\"
+    usermod -aG \"\$g\" '$USERNAME'
+  done
 "
 # Password via chpasswd stdin — never lands in ps.
 printf '%s:%s\n' "$USERNAME" "$PASSWORD" > "$TARGET_ROOT/tmp/vinos-pw.tmp"

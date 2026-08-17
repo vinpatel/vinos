@@ -6,8 +6,9 @@ phase_start 10 preflight || return 0
 
 must_be_root
 must_be_uefi     # v1.4.0: UEFI-only. Legacy BIOS is off the table.
-must_have_cmd sgdisk mkfs.fat mkfs.ext4 pacstrap arch-chroot systemd-nspawn \
-              bootctl gum iwctl ip curl timeout
+must_have_cmd sgdisk mkfs.fat mkfs.ext4 pacstrap arch-chroot genfstab \
+              systemd-nspawn bootctl gum iwctl ip curl timeout partprobe \
+              udevadm blkid wipefs
 
 # We need at least a plausible target disk. Enumerate non-USB, non-loop,
 # non-rom devices ≥ 8 GiB. USB is deliberately excluded because that's

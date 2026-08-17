@@ -49,6 +49,19 @@ _password() {
   gum input --password --placeholder "$1"
 }
 
+# ── welcome ────────────────────────────────────────────────────────
+# One "press Enter to begin" screen at the top. Users get a moment to
+# read what's about to happen; the harness has a stable first keystroke.
+_banner
+gum style --margin "0 4" \
+  "This will install vinOS to a disk you pick." \
+  "Everything on the disk you pick will be erased." \
+  "" \
+  "Detected hardware profile: ${PROFILE}" \
+  "" \
+  "Press Enter to begin, or Ctrl-C to drop to a shell."
+read -r _ || die "cancelled at welcome"
+
 # ── wifi (optional) ────────────────────────────────────────────────
 _wifi_prompt() {
   (( HAS_ROUTE == 1 )) && { log "wifi: skip (route already up)"; return 0; }
