@@ -1,17 +1,10 @@
 #!/usr/bin/env bash
-# vinos-install-disk — kept as a familiar entry point. The real work now
-# lives in two pieces:
-#
-#   vinos-installer-wizard      — full-screen gum TUI (frontend)
-#   vinos-install-disk-execute  — non-interactive archinstall + chroot
-#                                 layering backend
-#
-# Running this command drops the user into the wizard. The dedicated
-# `vinos-installer.target` boot entry launches the wizard directly on
-# tty1 during install-to-disk boots — that path skips this shim.
+# vinos-install-disk — kept as a familiar entry point that delegates to
+# the phased installer at /usr/local/bin/vinos-install (which the systemd
+# unit vinos-installer.service runs on tty1 for install boot entries).
 set -euo pipefail
 
 if [[ $EUID -ne 0 ]]; then
-  exec sudo -E /usr/local/bin/vinos-installer-wizard "$@"
+  exec sudo -E /usr/local/bin/vinos-install "$@"
 fi
-exec /usr/local/bin/vinos-installer-wizard "$@"
+exec /usr/local/bin/vinos-install "$@"
