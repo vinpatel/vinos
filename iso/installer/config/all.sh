@@ -119,10 +119,10 @@ chroot_run "
   # safe; sudoers does NOT strip single-quotes from the user token, so
   # writing '$USERNAME' would produce a rule that matches only the
   # literal name \"'qatest'\" — not the user we just created.
-  install -Dm 0440 /dev/stdin /etc/sudoers.d/00-vinos-installer <<SUDO
+  install -Dm 0440 /dev/stdin /etc/sudoers.d/99-vinos-installer <<SUDO
 $USERNAME ALL=(ALL:ALL) NOPASSWD: ALL
 SUDO
-  visudo -cf /etc/sudoers.d/00-vinos-installer >/dev/null
+  visudo -cf /etc/sudoers.d/99-vinos-installer >/dev/null
 
   sudo -u '$USERNAME' -H git clone --depth=1 --branch '$VINOS_BRANCH' \
     '$VINOS_REPO_URL' '/home/$USERNAME/.local/share/vinos'
@@ -136,7 +136,7 @@ SUDO
   set -e
 
   # Always remove the temporary NOPASSWD file, even if install.sh failed.
-  rm -f /etc/sudoers.d/00-vinos-installer
+  rm -f /etc/sudoers.d/99-vinos-installer
 
   # Now propagate the install.sh failure so the phase dies loudly.
   exit \$_install_rc
