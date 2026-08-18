@@ -66,5 +66,15 @@ must_have_file \
   "$TARGET_ROOT/boot/vmlinuz-linux" \
   "$TARGET_ROOT/boot/initramfs-linux.img"
 
+# ── swap fakeroot → fakeroot-tcp inside the target ────────────────
+# base-devel drags fakeroot in. Regular fakeroot uses SysV semaphores
+# (semop), which fail inside an arch-chroot environment ("semop(1):
+# Invalid argument"), taking down every AUR makepkg call. fakeroot-tcp
+# provides the same interface over TCP-based IPC and works inside the
+# chroot. Swap it in before install.sh runs any yay/makepkg calls.
+log "swapping fakeroot → fakeroot-tcp (arch-chroot fakeroot-SysV workaround)"
+try_run arch-chroot "$TARGET_ROOT" pacman -S --needed --noconfirm --ask=4 fakeroot-tcp \
+  || warn "fakeroot-tcp swap failed — AUR builds may fail; installer will surface it later"
+
 log "pacstrap complete — kernel + initramfs at $TARGET_ROOT/boot"
 phase_done 40 pacstrap
