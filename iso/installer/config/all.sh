@@ -109,37 +109,28 @@ chroot_run '
 # password prompt — which we don't have inside the chroot. Drop a
 # temporary NOPASSWD sudoers file for the install user, run install.sh,
 # then remove the file. (Same pattern Omarchy uses for its bootstrap.)
-log "cloning vinOS repo + running install.sh in chroot"
+log "cloning vinOS repo into /home/$USERNAME/.local/share/vinos"
+# Running the full vinOS overlay's install.sh (300+ packages including
+# AUR-built Rust/Electron) inside arch-chroot is a bug factory: fakeroot
+# IPC breaks, memory pressure OOMs the guest, chroot-mount edge cases
+# surface at every yay call. Ubuntu / Fedora don't do this. Neither
+# should we. v1.4.0 install-to-disk ships a *base* — full overlay is
+# a post-boot step (vinos-install-desktop) with a real environment.
 chroot_run "
   install -d -m 0755 -o '$USERNAME' -g '$USERNAME' '/home/$USERNAME/.local/share'
-
-  # Temporary passwordless sudo for the install phase only. Removed
-  # below regardless of install.sh's exit status. USERNAME is validated
-  # in prompts/all.sh to ^[a-z_][a-z0-9_-]*$ so unquoting it here is
-  # safe; sudoers does NOT strip single-quotes from the user token, so
-  # writing '$USERNAME' would produce a rule that matches only the
-  # literal name \"'qatest'\" — not the user we just created.
-  install -Dm 0440 /dev/stdin /etc/sudoers.d/99-vinos-installer <<SUDO
-$USERNAME ALL=(ALL:ALL) NOPASSWD: ALL
-SUDO
-  visudo -cf /etc/sudoers.d/99-vinos-installer >/dev/null
-
   sudo -u '$USERNAME' -H git clone --depth=1 --branch '$VINOS_BRANCH' \
     '$VINOS_REPO_URL' '/home/$USERNAME/.local/share/vinos'
+"
 
-  # T2 support and NVIDIA are post-boot upgrades — first-boot script prompts.
-  # || true so we can always fall through to the sudoers cleanup below.
-  set +e
-  sudo -u '$USERNAME' -H env VINOS_INSTALL_ASSUME_YES=1 \
-    /home/$USERNAME/.local/share/vinos/install.sh
-  _install_rc=\$?
-  set -e
-
-  # Always remove the temporary NOPASSWD file, even if install.sh failed.
-  rm -f /etc/sudoers.d/99-vinos-installer
-
-  # Now propagate the install.sh failure so the phase dies loudly.
-  exit \$_install_rc
+# Apply the minimum-viable branding pass so the rebooted system announces
+# itself as vinOS instead of a bare Arch install. 05-branding is the only
+# script cheap enough (~5 s, no AUR, no network) to run inside the chroot
+# safely — writes /etc/os-release, /usr/share/vinos/*, /usr/local/bin/vinos-*
+# symlinks, and Plymouth theme.
+log "applying minimum-viable vinOS branding"
+chroot_run "
+  cd '/home/$USERNAME/.local/share/vinos'
+  sudo -u '$USERNAME' -H bash install/05-branding.sh
 "
 
 # First-run service (writes T2 / NVIDIA detection prompt on first login).
