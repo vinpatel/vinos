@@ -104,17 +104,38 @@ chroot_run '
 '
 
 # ── vinOS overlay ─────────────────────────────────────────────────
-# Clone the repo into the user's home and run install.sh. Skips
-# 04-services (network stack — we already picked NetworkManager, don't
-# fight it). VINOS_INSTALL_ASSUME_YES=1 keeps the overlay non-interactive.
+# Clone the repo into the user's home and run install.sh. The overlay
+# scripts call `sudo pacman -S ...` and expect an interactive tty for a
+# password prompt — which we don't have inside the chroot. Drop a
+# temporary NOPASSWD sudoers file for the install user, run install.sh,
+# then remove the file. (Same pattern Omarchy uses for its bootstrap.)
 log "cloning vinOS repo + running install.sh in chroot"
 chroot_run "
   install -d -m 0755 -o '$USERNAME' -g '$USERNAME' '/home/$USERNAME/.local/share'
+
+  # Temporary passwordless sudo for the install phase only. Removed
+  # below regardless of install.sh's exit status.
+  install -Dm 0440 /dev/stdin /etc/sudoers.d/00-vinos-installer <<SUDO
+'$USERNAME' ALL=(ALL:ALL) NOPASSWD: ALL
+SUDO
+  visudo -cf /etc/sudoers.d/00-vinos-installer >/dev/null
+
   sudo -u '$USERNAME' -H git clone --depth=1 --branch '$VINOS_BRANCH' \
     '$VINOS_REPO_URL' '/home/$USERNAME/.local/share/vinos'
-  cd '/home/$USERNAME/.local/share/vinos'
+
   # T2 support and NVIDIA are post-boot upgrades — first-boot script prompts.
-  sudo -u '$USERNAME' -H env VINOS_INSTALL_ASSUME_YES=1 ./install.sh
+  # || true so we can always fall through to the sudoers cleanup below.
+  set +e
+  sudo -u '$USERNAME' -H env VINOS_INSTALL_ASSUME_YES=1 \
+    /home/$USERNAME/.local/share/vinos/install.sh
+  _install_rc=\$?
+  set -e
+
+  # Always remove the temporary NOPASSWD file, even if install.sh failed.
+  rm -f /etc/sudoers.d/00-vinos-installer
+
+  # Now propagate the install.sh failure so the phase dies loudly.
+  exit \$_install_rc
 "
 
 # First-run service (writes T2 / NVIDIA detection prompt on first login).
