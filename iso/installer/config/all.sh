@@ -37,8 +37,11 @@ fi
 chroot_run 'locale-gen'
 printf 'LANG=en_US.UTF-8\n' > "$TARGET_ROOT/etc/locale.conf"
 
-# Console keymap for the installed system.
-printf 'KEYMAP=%s\nFONT=eurlatgs16\n' "$KB_LAYOUT" > "$TARGET_ROOT/etc/vconsole.conf"
+# Console keymap for the installed system. FONT= intentionally omitted;
+# mkinitcpio's sd-vconsole hook falls back to the compiled-in default,
+# which is always present. Naming a specific font (e.g. eurlatgs16) is
+# fragile — kbd occasionally drops fonts between releases.
+printf 'KEYMAP=%s\n' "$KB_LAYOUT" > "$TARGET_ROOT/etc/vconsole.conf"
 
 # ── timezone ──────────────────────────────────────────────────────
 log "setting timezone: $TIMEZONE"
@@ -78,9 +81,13 @@ chroot_run "
   done
 "
 # Password via chpasswd stdin — never lands in ps.
-printf '%s:%s\n' "$USERNAME" "$PASSWORD" > "$TARGET_ROOT/tmp/vinos-pw.tmp"
-chmod 0600 "$TARGET_ROOT/tmp/vinos-pw.tmp"
-chroot_run 'chpasswd < /tmp/vinos-pw.tmp; shred -u /tmp/vinos-pw.tmp'
+# NOTE: arch-chroot mounts a fresh tmpfs on /tmp inside the chroot,
+# which hides anything we drop into $TARGET_ROOT/tmp/ from the host.
+# Use /root/ (not mounted-over) so the chroot session can read the file.
+_PW_FILE="$TARGET_ROOT/root/.vinos-pw.tmp"
+printf '%s:%s\n' "$USERNAME" "$PASSWORD" > "$_PW_FILE"
+chmod 0600 "$_PW_FILE"
+chroot_run 'chpasswd < /root/.vinos-pw.tmp; shred -u /root/.vinos-pw.tmp'
 
 # Sudoers — wheel with password.
 install -Dm 0440 /dev/stdin "$TARGET_ROOT/etc/sudoers.d/10-vinos-wheel" <<'SUDO'
