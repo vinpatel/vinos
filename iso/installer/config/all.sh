@@ -114,9 +114,13 @@ chroot_run "
   install -d -m 0755 -o '$USERNAME' -g '$USERNAME' '/home/$USERNAME/.local/share'
 
   # Temporary passwordless sudo for the install phase only. Removed
-  # below regardless of install.sh's exit status.
+  # below regardless of install.sh's exit status. USERNAME is validated
+  # in prompts/all.sh to ^[a-z_][a-z0-9_-]*$ so unquoting it here is
+  # safe; sudoers does NOT strip single-quotes from the user token, so
+  # writing '$USERNAME' would produce a rule that matches only the
+  # literal name \"'qatest'\" — not the user we just created.
   install -Dm 0440 /dev/stdin /etc/sudoers.d/00-vinos-installer <<SUDO
-'$USERNAME' ALL=(ALL:ALL) NOPASSWD: ALL
+$USERNAME ALL=(ALL:ALL) NOPASSWD: ALL
 SUDO
   visudo -cf /etc/sudoers.d/00-vinos-installer >/dev/null
 
