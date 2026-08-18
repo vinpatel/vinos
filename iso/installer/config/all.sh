@@ -126,11 +126,25 @@ chroot_run "
 # itself as vinOS instead of a bare Arch install. 05-branding is the only
 # script cheap enough (~5 s, no AUR, no network) to run inside the chroot
 # safely — writes /etc/os-release, /usr/share/vinos/*, /usr/local/bin/vinos-*
-# symlinks, and Plymouth theme.
+# symlinks, and Plymouth theme. It calls sudo internally so needs a
+# temporary NOPASSWD file, same trick as before but scoped tight.
 log "applying minimum-viable vinOS branding"
 chroot_run "
+  install -Dm 0440 /dev/stdin /etc/sudoers.d/99-vinos-installer <<SUDO
+$USERNAME ALL=(ALL:ALL) NOPASSWD: ALL
+SUDO
+  visudo -cf /etc/sudoers.d/99-vinos-installer >/dev/null
+
+  set +e
   cd '/home/$USERNAME/.local/share/vinos'
   sudo -u '$USERNAME' -H bash install/05-branding.sh
+  _branding_rc=\$?
+  set -e
+
+  # Always remove the temporary NOPASSWD file.
+  rm -f /etc/sudoers.d/99-vinos-installer
+
+  exit \$_branding_rc
 "
 
 # First-run service (writes T2 / NVIDIA detection prompt on first login).
