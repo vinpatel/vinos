@@ -181,7 +181,17 @@ step "3/6 harness setup (NOPASSWD sudo${LOCAL_REPO:+, local repo sync})"
 # Build the rule host-side and ship it as a file: quoting a sudoers line
 # through ssh -> sh -> sudo -> bash -c is three levels of escaping and one
 # typo away from writing a broken /etc/sudoers.d that locks sudo out.
-printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$QA_USER" > "$OUT_DIR/90-qa-nopasswd"
+# NOPASSWD alone is not enough. vinos-install-desktop's preflight calls
+# `sudo -v`, and sudo requires a password for -v whenever ANY entry
+# matching the user needs one — the installed system's own
+# /etc/sudoers.d/10-vinos-wheel (%wheel ALL=(ALL:ALL) ALL) is such an
+# entry, and it is correct that it exists. On a real tty the user simply
+# types their password there, which is the intended behaviour and not a
+# bug; an unattended run has nowhere to put the prompt. `!authenticate`
+# is the sudoers way to say "skip the auth step for this user".
+{ printf 'Defaults:%s !authenticate\n' "$QA_USER"
+  printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$QA_USER"
+} > "$OUT_DIR/90-qa-nopasswd"
 scp "${SSH_OPTS[@]}" -P "$SSH_PORT" -q \
     "$OUT_DIR/90-qa-nopasswd" "$QA_USER@127.0.0.1:90-qa-nopasswd" \
   || die "could not copy the NOPASSWD rule into the guest"
@@ -192,6 +202,9 @@ printf '%s\n' "$QA_PASS" \
     >/dev/null 2>&1 || die "could not seed NOPASSWD sudoers for $QA_USER"
 _ssh 'sudo -n visudo -c >/dev/null' || die "sudoers is invalid after seeding — do not reboot this guest"
 _ssh 'sudo -n true' || die "NOPASSWD sudo did not take effect"
+# Prove the exact call the script's preflight makes, before spending 40
+# minutes finding out it does not work.
+_ssh 'sudo -v' || die "sudo -v still wants a password — the !authenticate default did not take"
 
 if (( LOCAL_REPO )); then
   # .git is excluded on purpose and it is not an optimisation: this repo's
