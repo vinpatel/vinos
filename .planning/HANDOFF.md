@@ -37,7 +37,7 @@ wallpaper.
 | `prompts/all.sh` | 249 | keyboard, timezone, disk, user, hostname |
 | `disk/all.sh` | 85 | UEFI-only partition layout |
 | `pacstrap/all.sh` | 80 | base package set + verify kernel/initramfs/os-release |
-| `bootloader/all.sh` | 93 | systemd-boot via `bootctl`, verified by file + `bootctl list` |
+| `bootloader/all.sh` | 156 | limine onto the ESP, themed `limine.conf` + generated entries, verified by reading the files back |
 | `config/all.sh` | 154 | fstab, locale, tz, host, users, services, branding |
 | `finalize/all.sh` | 50 | scrub password, unmount, reboot prompt |
 
@@ -52,8 +52,8 @@ Fully unattended, ~15-25 min. Boots the ISO in UEFI QEMU → waits for
 live sshd → isolates `vinos-installer.target` → drives the wizard by HMP
 keystrokes on a fixed profile (`qatest`/`qatest123`/UTC/us/`/dev/vda`) →
 polls the install over SSH → shuts down → **boots the installed qcow2
-with no ISO attached** → verifies hostname, user, bootctl entry, sshd,
-and a clean journal.
+with no ISO attached** → verifies hostname, user, limine (EFI binaries,
+vinOS entry, root UUID, branding), sshd, and a clean journal.
 
 ### 4. The base-only pivot (`bea50968`)
 
@@ -107,10 +107,20 @@ from `base`; `rsync` was the only gap.
    Raised to 12 G with a serial console (`c1d5e120`); needs a re-run.
    Until that is green, a finished install still has no proven path to
    a desktop.
-3. **26 commits unpushed**, while `config/all.sh` clones
-   `--branch main` from GitHub. Installed machines get origin's
-   `install/05-branding.sh`, 13 lines behind local. Push before any
-   smoke pass counts as representative.
+3. **11 commits unpushed, and this is now load-bearing for T2.**
+   `config/all.sh` clones `--branch main` from GitHub, so an installed
+   machine's `/usr/share/vinos/bin/` is origin's, not local. origin/main
+   has **no `bin/vinos-boot-entry`** and still carries the systemd-boot
+   version of `bin/vinos-t2-enable` — which on a limine system takes its
+   `else` branch, warns "systemd-boot not detected", and never writes
+   the entry. `linux-t2` would install and never boot: exactly the
+   failure `38371352` fixed.
+
+   Note this did NOT invalidate the smoke gate. The bootloader phase
+   reads the theme from the **live ISO's** `/usr/share/vinos/limine/`,
+   which the build stages from the local tree — that is why
+   `limine branding` passed. It is the *installed* system's copy of
+   `bin/` that comes from origin. Push before any T2 hardware run.
 4. **Zero hardware validation** of this arc. Last T2 data is the 08-16
    rc4/rc5 checkpoint, taken against an installer that no longer exists.
 5. **Ship mechanics**: `VERSION` → `1.4.0` in the tag commit, tag, push;
