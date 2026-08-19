@@ -75,6 +75,11 @@ OUT_DIR="$FROM_DIR/desktop"
 install -d -m 0755 "$OUT_DIR"
 SUMMARY="$OUT_DIR/summary.txt"
 QEMU_LOG="$OUT_DIR/qemu.log"
+# Guest serial console. Every observation this harness makes otherwise
+# goes through sshd, so when sshd stops answering the harness has no idea
+# whether the install is grinding, finished, or dead. The serial log
+# keeps working regardless.
+SERIAL_LOG="$OUT_DIR/serial.log"
 DESKTOP_LOG="$OUT_DIR/install-desktop.log"
 VERIFY_LOG="$OUT_DIR/verify.log"
 HMP_SOCK="$OUT_DIR/hmp.sock"
@@ -123,8 +128,13 @@ _ssh() { ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "$QA_USER@127.0.0.1" "$@"; }
 
 _boot() {
   printf 'smoke' > "$VNCPW"; chmod 0600 "$VNCPW"
+  # 8G was not enough: the AUR build storm (walker/elephant are Rust,
+  # claude-code pulls npm) pinned the guest at its full allocation and
+  # sshd stopped answering for 20 minutes, which blinded the harness
+  # completely — the run had to be killed with no verdict.
   qemu-system-x86_64 \
-    -m 8G -smp 4 \
+    -m 12G -smp 4 \
+    -serial "file:$SERIAL_LOG" \
     -drive if=pflash,format=raw,readonly=on,file="$OVMF_CODE" \
     -drive if=pflash,format=raw,file="$NVRAM" \
     -drive file="$QCOW2",format=qcow2,if=virtio \
@@ -271,7 +281,18 @@ while (( $(date +%s) < DEADLINE )); do
   fi
   now=$(date +%s)
   if (( now - LAST >= 60 )); then
-    log "  [+$(( now - START_TS ))s] $(_ssh 'tail -1 ~/desktop-run.log 2>/dev/null | tr -d "\r" | cut -c1-140' 2>/dev/null)"
+    _line="$(_ssh 'tail -1 ~/desktop-run.log 2>/dev/null | tr -d "\r" | cut -c1-140' 2>/dev/null)"
+    if [[ -z "$_line" ]]; then
+      # Distinguish "sshd is not answering" from "the log line was blank".
+      # Reporting an empty string for both is what made a 20-minute stall
+      # look identical to normal progress.
+      if _ssh 'true' >/dev/null 2>&1; then
+        _line="(no new output)"
+      else
+        _line="ssh unreachable — guest load? last serial: $(tail -1 "$SERIAL_LOG" 2>/dev/null | tr -d '\r' | cut -c1-100)"
+      fi
+    fi
+    log "  [+$(( now - START_TS ))s] $_line"
     LAST=$now
   fi
   sleep 10
