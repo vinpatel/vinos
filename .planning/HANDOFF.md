@@ -91,13 +91,22 @@ from `base`; `rsync` was the only gap.
 
 ### Blocking v1.4.0
 
-1. **Smoke gate green end-to-end.** Never achieved. Next run tests the
-   rsync fix.
-2. **`bin/vinos-install-desktop` does not exist.** The pivot deferred
-   the whole desktop to it. Until it is written, a finished install
-   reboots into branded base Arch with no path to a desktop — the
-   installer can pass its gate while the product does not work. This is
-   the highest-value pending item, above any further smoke cycle.
+1. ~~**Smoke gate green end-to-end.**~~ **GREEN 2026-08-19**, twice —
+   once on the pre-limine tree (443 s) and again as `iso/build.sh`'s
+   own built-in gate after the limine migration (350 s, 10/10).
+   Note for future sessions: **`iso/build.sh` runs `install-smoke`
+   itself** at the end of a build, so a separate invocation afterwards
+   is redundant.
+2. **`bin/vinos-install-desktop` exists (`c4e0d018`) but has never
+   completed a run.** Two blocking bugs are fixed — it passed `""` to
+   `install.sh` on every default invocation (`9de2b412`), and the
+   installer left `~/.local` root-owned so its own state dir could not
+   be created (`ec5f3948`). `iso/qa/desktop-smoke.sh` now gates it, but
+   **no green run yet**: the guest pinned its full 8 G under the AUR
+   build storm and sshd stopped answering, so the harness went blind.
+   Raised to 12 G with a serial console (`c1d5e120`); needs a re-run.
+   Until that is green, a finished install still has no proven path to
+   a desktop.
 3. **26 commits unpushed**, while `config/all.sh` clones
    `--branch main` from GitHub. Installed machines get origin's
    `install/05-branding.sh`, 13 lines behind local. Push before any
@@ -110,8 +119,23 @@ from `base`; `rsync` was the only gap.
 ### Known, deferred
 
 - First-boot `vinos-install-desktop` prompt → v1.4.1 (per `bea50968`).
-- **Limine migration** — exists only as a comment in
-  `iso/installer/bootloader/all.sh` ("lands Day 5"). No code, no plan.
+- ~~**Limine migration**~~ — **DONE 2026-08-19** (`38371352`). The
+  installed disk boots limine; `bootloader/all.sh` writes the authored
+  theme header from `/usr/share/vinos/limine/` and generates entries
+  beneath it. Proven by `install-smoke` GREEN 10/10 against ISO
+  `8f4a1305`, including that the installed qcow2 boots with no ISO
+  attached. **The live medium still boots systemd-boot/syslinux** —
+  archiso offers no limine bootmode (`bios.syslinux.*`,
+  `uefi-x64.grub.*`, `uefi-x64.systemd-boot.*` only), so limine on the
+  USB needs separate ISO post-processing. Not attempted.
+- **No fallback initramfs.** Upstream Arch now ships
+  `PRESETS=('default')` with the fallback line commented out, so
+  `initramfs-linux-fallback.img` is never built and the bootloader phase
+  correctly skips that entry. This is an upstream default, not a
+  regression — but it leaves an installed machine with no recovery
+  image if a module or microcode change breaks the autodetect initramfs.
+  Enabling it costs ~120 MB on a 512 MiB ESP that must also hold
+  `linux-t2` + its initramfs. Decision pending.
 - Boot entry carries `quiet splash` and branding writes
   `plymouthd.conf Theme=vinos`, but plymouth is not in the base pacstrap
   set — the splash is a silent no-op on a base install.
@@ -128,9 +152,14 @@ from `base`; `rsync` was the only gap.
 ## Re-run the gate
 
 ```
-iso/build.sh
-iso/qa/install-smoke.sh --iso iso/out/vinos-1.3.0-x86_64.iso \
-  --out-dir iso/out/smoke-latest --keep
+iso/build.sh                     # runs install-smoke itself; artifacts in iso/out/smoke-latest/
+
+# Desktop layer — needs an installed image to work from. install-smoke
+# leaves one behind with --keep; keep a pristine copy and drive
+# desktop-smoke against a COW overlay so a re-run costs seconds, not a
+# whole reinstall:
+#   qemu-img create -f qcow2 -b base-installed.qcow2 -F qcow2 target.qcow2
+iso/qa/desktop-smoke.sh --from-dir <dir-with-target.qcow2> --local-repo
 ```
 
 Post-mortem state is kept on failure at `iso/out/smoke-latest/` —
