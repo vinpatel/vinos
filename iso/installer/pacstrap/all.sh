@@ -51,6 +51,14 @@ PKGS=(
   # pivot this arrived via install/01-base.sh during the full overlay
   # run; that run is gone, so the base set must carry it.
   rsync
+  # openssh: the install-smoke gate proves the installed system by SSHing
+  # into it after booting the disk with no ISO attached, and cycle 11 died
+  # there — config/all.sh runs `systemctl enable sshd` under `|| true`, so
+  # a missing unit failed silently and the gate waited on a daemon that was
+  # never installed. It also belongs in a base vinOS regardless: the vm
+  # persona is administered over SSH. Installed but NOT enabled — enabling
+  # it stays a deliberate act, which config/all.sh already handles.
+  openssh
 )
 
 log "pacstrap package set: ${PKGS[*]}"
