@@ -281,7 +281,14 @@ while (( $(date +%s) < DEADLINE )); do
   fi
   now=$(date +%s)
   if (( now - LAST >= 60 )); then
-    _line="$(_ssh 'tail -1 ~/desktop-run.log 2>/dev/null | tr -d "\r" | cut -c1-140' 2>/dev/null)"
+    # `|| true` is load-bearing. A bare assignment from a command
+    # substitution takes that command's exit status, so under `set -e` a
+    # failed ssh kills the harness outright — which is exactly what
+    # happened: the branch below, written to REPORT that ssh is
+    # unreachable, never ran because ssh being unreachable aborted the
+    # script one line earlier, at +614s, with no verdict and the install
+    # still running in the guest.
+    _line="$(_ssh 'tail -1 ~/desktop-run.log 2>/dev/null | tr -d "\r" | cut -c1-140' 2>/dev/null || true)"
     if [[ -z "$_line" ]]; then
       # Distinguish "sshd is not answering" from "the log line was blank".
       # Reporting an empty string for both is what made a 20-minute stall
