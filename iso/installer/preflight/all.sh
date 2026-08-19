@@ -6,8 +6,13 @@ phase_start 10 preflight || return 0
 
 must_be_root
 must_be_uefi     # v1.4.0: UEFI-only. Legacy BIOS is off the table.
+# efibootmgr replaced bootctl here with the limine migration: the
+# bootloader phase no longer runs `bootctl install`, it copies limine's
+# EFI binary onto the ESP and registers a firmware entry. Requiring a
+# command we stopped using — while not requiring the one we started
+# using — is how preflight quietly stops being a preflight.
 must_have_cmd sgdisk mkfs.fat mkfs.ext4 pacstrap arch-chroot genfstab \
-              systemd-nspawn bootctl gum iwctl ip curl timeout partprobe \
+              systemd-nspawn efibootmgr gum iwctl ip curl timeout partprobe \
               udevadm blkid wipefs
 
 # We need at least a plausible target disk. Enumerate non-USB, non-loop,
