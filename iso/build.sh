@@ -206,8 +206,21 @@ if [[ -f "$FRESH_ISO" ]]; then
     else
       _rc=$?
       log "install-smoke: FAILED (rc=$_rc). Post-mortem in $OUT_DIR/smoke-latest/"
-      log "install-smoke: deleting $FRESH_ISO so it cannot be flashed by mistake."
-      rm -f "$FRESH_ISO" "$OUT_DIR/sha256sums.txt"
+      # Do NOT delete it. A failed ISO is the only way to re-run the gate
+      # without paying another ~30 min rebuild, and diagnosing an install
+      # failure usually takes several runs against the same image.
+      #
+      # Rename it out of the flash path instead. iso/flash.sh defaults to
+      # `ls -1t out/vinos-*.iso | head -1` — newest match wins — so a
+      # suffix like .FAILED-GATE.iso would still match AND sort first,
+      # making the broken ISO the default flash target. The marker has to
+      # go on the FRONT so the name no longer starts with "vinos-".
+      _failed_iso="$(dirname "$FRESH_ISO")/FAILED-GATE-$(basename "$FRESH_ISO")"
+      mv -f "$FRESH_ISO" "$_failed_iso"
+      rm -f "$OUT_DIR/sha256sums.txt"
+      log "install-smoke: ISO kept at $_failed_iso (renamed so it cannot be flashed)."
+      log "install-smoke: re-run the gate against it without rebuilding:"
+      log "  iso/qa/install-smoke.sh --iso $_failed_iso --out-dir iso/out/smoke-latest --keep"
       die "ship gate 1 failed — install did not complete end-to-end in UEFI QEMU"
     fi
   fi

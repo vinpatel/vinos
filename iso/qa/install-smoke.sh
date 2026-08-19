@@ -134,7 +134,20 @@ done
 
 # ── cleanup ────────────────────────────────────────────────────────
 QEMU_PID=""
+_CLEANED=0
 _cleanup() {
+  # Capture the exit status FIRST — every command below overwrites it.
+  local rc=$?
+  (( _CLEANED )) && return 0
+  _CLEANED=1
+
+  # Any non-zero exit is a failure and needs its post-mortem, whether it
+  # arrived through die() or through a bare `set -e` abort. Relying on
+  # die() alone lost the entire cycle-9 diagnostic: the run aborted on an
+  # unguarded command, the EXIT trap fired with KEEP still 0, and the
+  # logs plus screendumps were deleted before anyone could read them.
+  (( rc != 0 )) && KEEP=1
+
   if [[ -n "$QEMU_PID" ]] && kill -0 "$QEMU_PID" 2>/dev/null; then
     _hmp_send "quit" >/dev/null 2>&1 || true
     sleep 1
@@ -147,6 +160,7 @@ _cleanup() {
   else
     rm -rf "$OUT_DIR"
   fi
+  return $rc
 }
 trap _cleanup EXIT INT TERM
 
