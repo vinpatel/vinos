@@ -178,9 +178,19 @@ _ssh 'vinos-install-desktop --help' >/dev/null \
 #   local repo— install from THIS working tree rather than origin/main,
 #               so a fix under test is what actually gets exercised.
 step "3/6 harness setup (NOPASSWD sudo${LOCAL_REPO:+, local repo sync})"
-_ssh "echo '$QA_PASS' | sudo -S bash -c \
-  'install -Dm0440 /dev/stdin /etc/sudoers.d/90-qa-nopasswd <<<\"$QA_USER ALL=(ALL:ALL) NOPASSWD: ALL\" && visudo -c >/dev/null'" \
-  >/dev/null 2>&1 || die "could not seed NOPASSWD sudoers for $QA_USER"
+# Build the rule host-side and ship it as a file: quoting a sudoers line
+# through ssh -> sh -> sudo -> bash -c is three levels of escaping and one
+# typo away from writing a broken /etc/sudoers.d that locks sudo out.
+printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$QA_USER" > "$OUT_DIR/90-qa-nopasswd"
+scp "${SSH_OPTS[@]}" -P "$SSH_PORT" -q \
+    "$OUT_DIR/90-qa-nopasswd" "$QA_USER@127.0.0.1:90-qa-nopasswd" \
+  || die "could not copy the NOPASSWD rule into the guest"
+# sudo -S takes the password off stdin; the payload travels as argv, so
+# the two never contend for the same file descriptor.
+printf '%s\n' "$QA_PASS" \
+  | _ssh 'sudo -S install -Dm0440 -o root -g root ~/90-qa-nopasswd /etc/sudoers.d/90-qa-nopasswd' \
+    >/dev/null 2>&1 || die "could not seed NOPASSWD sudoers for $QA_USER"
+_ssh 'sudo -n visudo -c >/dev/null' || die "sudoers is invalid after seeding — do not reboot this guest"
 _ssh 'sudo -n true' || die "NOPASSWD sudo did not take effect"
 
 if (( LOCAL_REPO )); then
@@ -200,16 +210,21 @@ _ssh 'pacman -Qq | wc -l' > "$OUT_DIR/pkgcount.before" 2>/dev/null || true
 # ── STEP 4: run it ─────────────────────────────────────────────────
 step "4/6 run vinos-install-desktop (up to $((TIMEOUT/60)) min)"
 UPDATE_FLAG=$( (( LOCAL_REPO )) && printf -- '--no-update' || printf '' )
-_ssh "nohup env TERM=dumb vinos-install-desktop $UPDATE_FLAG --yes --no-reboot \
-        > ~/desktop-run.log 2>&1 < /dev/null & echo started" >/dev/null \
+# Poll on an exit-code file, not on pgrep. `pgrep -f vinos-install-desktop`
+# run over ssh matches the shell running the pgrep itself, so the process
+# always looks alive and the loop only ever ends at the timeout.
+_ssh "rm -f ~/desktop-run.rc; \
+      nohup setsid bash -c 'TERM=dumb vinos-install-desktop $UPDATE_FLAG --yes --no-reboot \
+        > ~/desktop-run.log 2>&1; echo \$? > ~/desktop-run.rc' \
+        < /dev/null > /dev/null 2>&1 & echo started" >/dev/null \
   || die "could not launch vinos-install-desktop"
 
 DEADLINE=$(( $(date +%s) + TIMEOUT ))
 LAST=0
+RC=""
 while (( $(date +%s) < DEADLINE )); do
-  if ! _ssh 'pgrep -f "bash .*vinos-install-desktop|/usr/share/vinos/bin/vinos-install-desktop" >/dev/null'; then
-    sleep 5
-    _ssh 'pgrep -f vinos-install-desktop >/dev/null' || break
+  if RC="$(_ssh 'cat ~/desktop-run.rc 2>/dev/null' 2>/dev/null)" && [[ -n "$RC" ]]; then
+    break
   fi
   now=$(date +%s)
   if (( now - LAST >= 60 )); then
@@ -219,7 +234,12 @@ while (( $(date +%s) < DEADLINE )); do
   sleep 10
 done
 _ssh 'cat ~/desktop-run.log' > "$DESKTOP_LOG" 2>&1 || true
-(( $(date +%s) < DEADLINE )) || die "vinos-install-desktop did not finish within $((TIMEOUT/60)) min. Log: $DESKTOP_LOG"
+[[ -n "$RC" ]] || die "vinos-install-desktop did not finish within $((TIMEOUT/60)) min — hang.
+       Last line: $(tail -1 "$DESKTOP_LOG" 2>/dev/null)
+       Log: $DESKTOP_LOG"
+(( RC == 0 )) || die "vinos-install-desktop exited $RC.
+$(grep -n -B6 '\[vinOS FAIL\]' "$DESKTOP_LOG" 2>/dev/null | tail -25 || tail -25 "$DESKTOP_LOG")
+       Full log: $DESKTOP_LOG"
 
 if grep -q '\[vinOS FAIL\]' "$DESKTOP_LOG"; then
   die "vinos-install-desktop reported FAIL:
