@@ -1,0 +1,236 @@
+#!/usr/bin/env bash
+# vinos-install-desktop — layer the full vinOS desktop onto an installed
+# base system.
+#
+# Install-to-disk ships a *base* (see iso/installer/config/all.sh): base
+# Arch + kernel + network + vinOS branding, and nothing graphical.
+# Running the 300-package overlay inside arch-chroot was a bug factory —
+# fakeroot IPC breaks, AUR builds OOM the guest, chroot mounts surface
+# edge cases at every yay call. So the desktop is layered here instead,
+# from a real user session with real memory, a real tty and real network.
+#
+# This is the second half of the base-only pivot. It runs the same
+# install.sh the live ISO is built from, so an installed machine ends up
+# with the same Hyprland/waybar/walker/theme surface the USB booted into.
+#
+# Runs as an ordinary user and escalates with sudo where needed.
+# Idempotent — safe to re-run, and safe to resume with --skip after a
+# partial failure.
+set -euo pipefail
+
+# ── self-contained logging ─────────────────────────────────────────
+# Deliberately does NOT source lib/common.sh: this script is symlinked
+# into /usr/local/bin by 05-branding, and only bin/ is copied to
+# /usr/share/vinos — lib/ is not there. Everything needed is inline so
+# the script works before the repo is located.
+if [[ -t 1 ]]; then
+  _C_RESET=$'\033[0m'; _C_BLUE=$'\033[1;34m'; _C_YELLOW=$'\033[1;33m'
+  _C_RED=$'\033[1;31m'; _C_GREEN=$'\033[1;32m'; _C_BOLD=$'\033[1m'
+else
+  _C_RESET='' _C_BLUE='' _C_YELLOW='' _C_RED='' _C_GREEN='' _C_BOLD=''
+fi
+log()  { printf '%s[vinOS %s]%s %s\n' "$_C_BLUE" "$(date +%H:%M:%S)" "$_C_RESET" "$*"; }
+warn() { printf '%s[vinOS WARN]%s %s\n' "$_C_YELLOW" "$_C_RESET" "$*" >&2; }
+die()  { printf '%s[vinOS FAIL]%s %s\n' "$_C_RED" "$_C_RESET" "$*" >&2; exit 1; }
+ok()   { printf '%s[vinOS  OK ]%s %s\n' "$_C_GREEN" "$_C_RESET" "$*"; }
+
+REPO_DEFAULT="$HOME/.local/share/vinos"
+REPO_URL="${VINOS_REPO_URL:-https://github.com/vinpatel/vinos.git}"
+BRANCH="${VINOS_BRANCH:-main}"
+STATE_DIR="$HOME/.local/state/vinos"
+SENTINEL="$STATE_DIR/desktop.done"
+LOGFILE="$STATE_DIR/install-desktop.log"
+MIN_FREE_GB=8
+
+REPO="$REPO_DEFAULT"
+UPDATE=1
+ASSUME_YES=0
+DO_REBOOT=1
+SKIPS=()
+
+usage() {
+  cat <<EOF
+Usage: vinos-install-desktop [OPTIONS]
+
+Layers the full vinOS desktop (Hyprland, waybar, themes, AI stack) onto
+an installed base system. Run it from a normal user session after the
+first reboot; it takes 20-45 min depending on network and AUR builds.
+
+Options:
+  --repo PATH     vinOS checkout to install from  (default: $REPO_DEFAULT)
+  --branch NAME   Branch to clone/pull            (default: $BRANCH)
+  --no-update     Skip 'git pull'; install exactly what is on disk
+  --minimal       Desktop only — skip the AI stack (07-ai.sh)
+  --skip NN       Skip install script NN-* (repeatable; for resuming)
+  --yes           Non-interactive; assume yes to every prompt
+  --no-reboot     Do not offer to reboot when finished
+  -h, --help      This message
+
+Resuming after a failure:
+  The failing script's number is printed. Re-run skipping what already
+  succeeded, e.g.  vinos-install-desktop --skip 01 --skip 02
+
+Log: $LOGFILE
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --repo)     [[ $# -ge 2 ]] || die "--repo needs a path";   REPO="$2"; shift 2 ;;
+    --branch)   [[ $# -ge 2 ]] || die "--branch needs a name"; BRANCH="$2"; shift 2 ;;
+    --skip)     [[ $# -ge 2 ]] || die "--skip needs NN";       SKIPS+=("$2"); shift 2 ;;
+    --no-update) UPDATE=0; shift ;;
+    --minimal)  SKIPS+=("07"); shift ;;
+    --yes|-y)   ASSUME_YES=1; shift ;;
+    --no-reboot) DO_REBOOT=0; shift ;;
+    -h|--help)  usage; exit 0 ;;
+    *) die "unknown argument: $1 (try --help)" ;;
+  esac
+done
+
+confirm() {  # confirm "question" -> 0 yes / 1 no
+  (( ASSUME_YES )) && return 0
+  local reply
+  read -r -p "$1 [y/N] " reply </dev/tty || return 1
+  [[ "$reply" =~ ^[Yy]$ ]]
+}
+
+# ── preflight ──────────────────────────────────────────────────────
+log "vinos-install-desktop: preflight"
+
+[[ $EUID -ne 0 ]] || die "do not run as root — this script uses sudo internally, and the desktop configs must land in a real user's \$HOME"
+
+# The live ISO already has the desktop; installing over it writes into a
+# tmpfs that vanishes at reboot.
+if [[ -d /run/archiso ]] || grep -q archisobasedir /proc/cmdline 2>/dev/null; then
+  die "this is the live vinOS medium — the desktop is already running here.
+       Install vinOS to disk first, reboot, then run this."
+fi
+
+command -v sudo >/dev/null || die "sudo not found"
+command -v git  >/dev/null || die "git not found — install it with: sudo pacman -S git"
+
+# Prompt for the sudo password once, up front, rather than 20 minutes in.
+log "vinOS needs sudo to install packages and enable services."
+sudo -v || die "sudo authentication failed"
+# Keep the timestamp alive for the whole run so long pacman/AUR stretches
+# don't hit a re-prompt on a tty nobody is watching.
+( while true; do sudo -n true 2>/dev/null || exit; sleep 60; done ) &
+_sudo_keepalive=$!
+trap 'kill "$_sudo_keepalive" 2>/dev/null || true' EXIT
+
+if ! ping -c1 -W3 archlinux.org >/dev/null 2>&1 && \
+   ! ping -c1 -W3 1.1.1.1      >/dev/null 2>&1; then
+  die "no network. Connect first — 'nmtui' for a text UI, or 'nmcli device wifi connect <SSID> --ask'"
+fi
+ok "network reachable"
+
+_free_gb=$(df -BG --output=avail / | tail -1 | tr -dc '0-9')
+(( _free_gb >= MIN_FREE_GB )) || \
+  die "only ${_free_gb}G free on / — the desktop needs about ${MIN_FREE_GB}G (packages + AUR build space)"
+ok "${_free_gb}G free on /"
+
+mkdir -p "$STATE_DIR"
+
+if [[ -f "$SENTINEL" ]]; then
+  log "desktop was already installed here on $(date -r "$SENTINEL" '+%Y-%m-%d %H:%M')"
+  confirm "Re-run anyway (refreshes packages and configs)?" || { log "nothing to do"; exit 0; }
+fi
+
+# ── repo ───────────────────────────────────────────────────────────
+if [[ -d "$REPO/.git" ]]; then
+  if (( UPDATE )); then
+    log "updating $REPO ($BRANCH)"
+    git -C "$REPO" fetch --depth=1 origin "$BRANCH" || warn "fetch failed — installing what is on disk"
+    git -C "$REPO" checkout -q "$BRANCH" 2>/dev/null || true
+    git -C "$REPO" reset --hard "origin/$BRANCH" 2>/dev/null || warn "reset failed — installing what is on disk"
+  else
+    log "using $REPO as-is (--no-update)"
+  fi
+else
+  log "cloning $REPO_URL ($BRANCH) into $REPO"
+  mkdir -p "$(dirname "$REPO")"
+  git clone --depth=1 --branch "$BRANCH" "$REPO_URL" "$REPO" || die "clone failed"
+fi
+
+[[ -x "$REPO/install.sh" || -f "$REPO/install.sh" ]] || die "$REPO/install.sh not found — is $REPO a vinOS checkout?"
+ok "repo ready at $REPO ($(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo 'no git'))"
+
+# ── what we are about to do ────────────────────────────────────────
+printf '\n%svinOS desktop install%s\n' "$_C_BOLD" "$_C_RESET"
+printf '  repo      %s (%s)\n' "$REPO" "$BRANCH"
+printf '  installs  Hyprland, waybar, walker, themes, fonts, apps'
+(( ${#SKIPS[@]} )) && printf ', minus %s' "${SKIPS[*]}"
+printf '\n  takes     20-45 min (AUR packages build from source)\n'
+printf '  log       %s\n\n' "$LOGFILE"
+
+confirm "Install the vinOS desktop now?" || { log "cancelled"; exit 0; }
+
+# ── run the overlay ────────────────────────────────────────────────
+INSTALL_ARGS=()
+for s in "${SKIPS[@]:-}"; do [[ -n "${s:-}" ]] && INSTALL_ARGS+=(--skip "$s"); done
+
+log "running install.sh ${INSTALL_ARGS[*]:-} — full output tees to $LOGFILE"
+printf '\n===== %s — vinos-install-desktop =====\n' "$(date -Is)" >> "$LOGFILE"
+
+# Do not let install.sh's failure kill us before the diagnostic below.
+set +e
+( cd "$REPO" && bash install.sh "${INSTALL_ARGS[@]:-}" ) 2>&1 | tee -a "$LOGFILE"
+_rc=${PIPESTATUS[0]}
+set -e
+
+if (( _rc != 0 )); then
+  printf '\n'
+  die "install.sh failed (exit $_rc). The failing script printed a resume hint above.
+       Full log: $LOGFILE
+       Resume by skipping what already succeeded, e.g.:
+         vinos-install-desktop --skip 01 --skip 02"
+fi
+
+# ── make the graphical session actually reachable ───────────────────
+# install/02-desktop.sh enables greetd, whose unit is WantedBy=
+# graphical.target. A pacstrap base install boots to multi-user.target,
+# so without this the greeter is enabled and never starts. This is the
+# one thing the installed system needs that the ISO gets for free (the
+# ISO build writes default.target into airootfs directly).
+log "setting default boot target to graphical"
+sudo systemctl set-default graphical.target >/dev/null || \
+  warn "could not set default.target — run 'sudo systemctl set-default graphical.target' by hand"
+
+if systemctl is-enabled greetd >/dev/null 2>&1; then
+  ok "greetd enabled"
+else
+  warn "greetd is not enabled — 'sudo systemctl enable greetd' and check /etc/greetd/config.toml"
+fi
+
+_default_target=$(systemctl get-default 2>/dev/null || echo unknown)
+[[ "$_default_target" == graphical.target ]] || \
+  warn "default target is $_default_target, expected graphical.target"
+
+touch "$SENTINEL"
+
+# ── done ───────────────────────────────────────────────────────────
+printf '\n%s' "$_C_GREEN"
+cat <<'BANNER'
+  vinOS desktop installed.
+BANNER
+printf '%s' "$_C_RESET"
+printf '  Reboot and the greeter starts on tty1 — log in and Hyprland launches.\n'
+printf '  Keybindings: Super+Return terminal · Super+Space launcher · Super+K cheatsheet\n\n'
+
+# Apple T2 machines need the linux-t2 kernel for keyboard, trackpad, audio
+# and Wi-Fi. 06-hardware.sh installed the userspace pieces; the kernel
+# swap is its own reboot, so it stays a separate deliberate step.
+if [[ "$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null)" == "Apple Inc." ]] && \
+   ! pacman -Q linux-t2 >/dev/null 2>&1; then
+  printf '%s  Apple hardware detected.%s Run %svinos-t2-enable%s after rebooting to install\n' \
+    "$_C_YELLOW" "$_C_RESET" "$_C_BOLD" "$_C_RESET"
+  printf '  the linux-t2 kernel (Touch Bar, fans, Wi-Fi, audio).\n\n'
+fi
+
+if (( DO_REBOOT )) && confirm "Reboot into the desktop now?"; then
+  log "rebooting"
+  sudo systemctl reboot
+fi
+
+log "done — reboot when ready"
