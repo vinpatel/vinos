@@ -1,93 +1,166 @@
-# bootloader/all.sh — install systemd-boot into the target ESP.
+# bootloader/all.sh — install limine into the target ESP.
 #
-# systemd-boot for Day 3-4. Limine migration lands Day 5 as a separate
-# phase so we can bisect any regression.
+# vinOS boots limine, not systemd-boot. config/limine/limine.conf is the
+# authored vinOS boot menu — nebula wallpaper, vinOS branding, tuned
+# palette — and it ships to /usr/share/vinos/limine/ by 05-branding. That
+# file is the THEME HEADER only; this phase appends the generated entries
+# beneath it, so the look lives in one place and entry generation lives
+# in one place.
 #
-# Key design choice: we run `bootctl install` from the LIVE ISO's
-# systemd, NOT chrooted. Rationale is systemd issue #36174: `bootctl
-# install` inside chroot silently no-ops on certain systemd version
-# mismatches — precisely the class of silent failure that spoiled the
-# archinstall wrapper. Running from the live ISO with --esp-path=/mnt/boot
-# uses the systemd we boot from (which knows its own bootloader binary)
-# and writes into the mounted target ESP.
+# Two copies of the EFI binary go onto the ESP, deliberately:
 #
-# After install we verify by inspecting the actual files on disk. We do
-# NOT trust `bootctl status` exit code alone.
+#   EFI/BOOT/BOOTX64.EFI   the removable-media fallback path. Firmware
+#                          boots this with no NVRAM cooperation at all.
+#                          It is what makes the install come up in QEMU
+#                          with fresh OVMF vars, and what saves an Apple
+#                          machine whose NVRAM we could not write.
+#   EFI/limine/BOOTX64.EFI the target of the named efibootmgr entry, so
+#                          the firmware menu shows "vinOS" rather than a
+#                          generic disk.
+#
+# The efibootmgr call is best-effort on purpose: on hardware that refuses
+# the write, the removable path still boots. A hard failure here would
+# fail an install that is actually fine.
+#
+# Verification does not trust any tool's exit code — it reads back the
+# files and greps the generated config, which is the class of check the
+# archinstall wrapper was missing.
 
 phase_start 50 bootloader || return 0
 
 answers_load
+: "${DISK:?bootloader phase reached without DISK (disk phase failed?)}"
+: "${EFI_PART:?bootloader phase reached without EFI_PART (disk phase failed?)}"
 : "${ROOT_UUID:?bootloader phase reached without ROOT_UUID (disk phase failed?)}"
 : "${PROFILE:=generic}"
-: "${KB_LAYOUT:=us}"
-: "${TIMEZONE:=UTC}"
 
-# Confirm the ESP mount is still live.
-mountpoint -q "$TARGET_ROOT/boot" || die "$TARGET_ROOT/boot not mounted before bootctl install"
+ESP="$TARGET_ROOT/boot"
+mountpoint -q "$ESP" || die "$ESP not mounted before limine install"
 
-# ── install systemd-boot binary + register EFI variable ────────────
-# --no-variables is off — we WANT bootctl to write BootOrder/BootXXXX
-# via efivars. Without that the firmware doesn't know to try this ESP.
-# On QEMU with fresh OVMF vars this works; on some old firmwares it may
-# soft-fail. try_run captures either way and we verify below.
-try_run bootctl --esp-path="$TARGET_ROOT/boot" install || \
-  warn "bootctl install exited non-zero — verifying files on disk anyway"
+# ── EFI binary ─────────────────────────────────────────────────────
+# Taken from the TARGET, not the live ISO: pacstrap put limine there, so
+# the bootloader on the ESP and the limine userspace on the installed
+# system are the same version. A mismatch between the two is exactly how
+# a config key silently stops being understood after an update.
+LIMINE_EFI="$TARGET_ROOT/usr/share/limine/BOOTX64.EFI"
+[[ -f "$LIMINE_EFI" ]] || \
+  die "limine is not installed in the target ($LIMINE_EFI missing) — is 'limine' in the pacstrap set?"
 
-# The definitive success signals: EFI binary AND loader-schema files.
+run install -Dm 0644 "$LIMINE_EFI" "$ESP/EFI/BOOT/BOOTX64.EFI"
+run install -Dm 0644 "$LIMINE_EFI" "$ESP/EFI/limine/BOOTX64.EFI"
 must_have_file \
-  "$TARGET_ROOT/boot/EFI/systemd/systemd-bootx64.efi" \
-  "$TARGET_ROOT/boot/EFI/BOOT/BOOTX64.EFI"
-[[ -d "$TARGET_ROOT/boot/loader/entries" ]] || \
-  run install -d -m 0755 "$TARGET_ROOT/boot/loader/entries"
+  "$ESP/EFI/BOOT/BOOTX64.EFI" \
+  "$ESP/EFI/limine/BOOTX64.EFI"
 
-# ── loader.conf ────────────────────────────────────────────────────
-# Default is the vinOS entry. Timeout 3 s — long enough to hit space to
-# pick alternatives, short enough that boot feels instant.
-cat > "$TARGET_ROOT/boot/loader/loader.conf" <<LOADER
-default vinos.conf
-timeout 3
-console-mode auto
-editor no
-LOADER
-must_have_file "$TARGET_ROOT/boot/loader/loader.conf"
+# ── theme header ───────────────────────────────────────────────────
+LIMINE_SHARE="${VINOS_LIMINE_DIR:-/usr/share/vinos/limine}"
+LIMINE_CONF="$ESP/limine.conf"
 
-# ── vinos.conf (the boot entry) ────────────────────────────────────
-# Cmdline stays minimal. rw + rootuuid + rootflags is the classic Arch
-# recipe. quiet + splash keep the plymouth splash flow that the desktop
-# phase later wires up. We do NOT put profile-specific hackery here —
-# T2 kernel cmdline knobs live in a separate vinos-t2 entry that
-# vinos-t2-enable writes on the installed system.
-cat > "$TARGET_ROOT/boot/loader/entries/vinos.conf" <<VINOS_ENTRY
-title    vinOS
-sort-key 00
-linux    /vmlinuz-linux
-initrd   /initramfs-linux.img
-options  root=UUID=${ROOT_UUID} rw quiet splash loglevel=3 rootfstype=ext4
-VINOS_ENTRY
-must_have_file "$TARGET_ROOT/boot/loader/entries/vinos.conf"
-
-# Fallback entry — same kernel but verbose console. Useful if plymouth
-# fails and the user wants to see what's happening.
-cat > "$TARGET_ROOT/boot/loader/entries/vinos-verbose.conf" <<VINOS_VERBOSE
-title    vinOS (verbose console)
-sort-key 09
-linux    /vmlinuz-linux
-initrd   /initramfs-linux.img
-options  root=UUID=${ROOT_UUID} rw rootfstype=ext4 systemd.log_level=info
-VINOS_VERBOSE
-
-# ── verify ────────────────────────────────────────────────────────
-# Run bootctl status against the target ESP. This tells us both that
-# systemd-boot recognises its own files and which entries it can see.
-# Exit code is honest here (it's just reading files we just wrote).
-log "bootctl status against $TARGET_ROOT/boot:"
-run bootctl --esp-path="$TARGET_ROOT/boot" status
-
-# Confirm the entries file lists the vinOS entry.
-_bootctl_out=$(bootctl --esp-path="$TARGET_ROOT/boot" list 2>&1 || true)
-if ! grep -qE 'title: *vinOS( |$)' <<<"$_bootctl_out"; then
-  die "bootctl list does not see the vinOS entry — bootloader install did not take"
+if [[ -f "$LIMINE_SHARE/limine.conf" ]]; then
+  run cp "$LIMINE_SHARE/limine.conf" "$LIMINE_CONF"
+else
+  # Never leave the machine unbootable because the branding assets are
+  # missing — write a plain header and carry on. The menu is ugly; the
+  # system boots.
+  warn "$LIMINE_SHARE/limine.conf not found — writing a minimal unthemed header"
+  cat > "$LIMINE_CONF" <<'MINIMAL'
+timeout: 5
+default_entry: 1
+interface_branding: vinOS
+MINIMAL
 fi
 
-log "bootloader installed and vinOS entry recognised"
+# Wallpaper referenced by the theme header as boot():/vinos-wallpaper.jpg.
+# Its absence is cosmetic — limine falls back to the backdrop colour.
+if [[ -f "$LIMINE_SHARE/wallpaper.jpg" ]]; then
+  run install -Dm 0644 "$LIMINE_SHARE/wallpaper.jpg" "$ESP/vinos-wallpaper.jpg"
+else
+  warn "no boot wallpaper at $LIMINE_SHARE/wallpaper.jpg — menu falls back to the backdrop colour"
+fi
+
+# ── entries ────────────────────────────────────────────────────────
+# Syntax is limine 12.x (see /usr/share/doc/limine/CONFIG.md): an entry
+# opens with '/Title', options are indented 'key: value', and paths take
+# the resource(argument):/path form. boot():/ is the partition holding
+# this config file — the ESP — which is also where the kernel and
+# initramfs live, because /boot IS the ESP in our layout.
+#
+# Cmdline mirrors what the systemd-boot entries carried: rw + rootuuid,
+# quiet/splash for the plymouth flow, explicit rootfstype so the initramfs
+# does not probe. T2 kernel knobs are NOT here — vinos-t2-enable writes
+# its own entry on the installed system.
+cat >> "$LIMINE_CONF" <<ENTRIES
+
+# ── entries (generated by the installer's bootloader phase) ────────
+
+/vinOS
+    comment: Boot vinOS.
+    protocol: linux
+    path: boot():/vmlinuz-linux
+    cmdline: root=UUID=${ROOT_UUID} rw quiet splash loglevel=3 rootfstype=ext4
+    module_path: boot():/initramfs-linux.img
+
+/vinOS (verbose console)
+    comment: Same kernel, no splash — shows the boot log.
+    protocol: linux
+    path: boot():/vmlinuz-linux
+    cmdline: root=UUID=${ROOT_UUID} rw rootfstype=ext4 systemd.log_level=info
+    module_path: boot():/initramfs-linux.img
+ENTRIES
+
+# The fallback image is a mkinitcpio preset default, but presets can be
+# edited. Only advertise the entry if the image is actually on the ESP —
+# a menu entry that dead-ends at a panic is worse than no entry.
+if [[ -f "$ESP/initramfs-linux-fallback.img" ]]; then
+  cat >> "$LIMINE_CONF" <<FALLBACK
+
+/vinOS (fallback initramfs)
+    comment: Use if a microcode or module change left the main initramfs broken.
+    protocol: linux
+    path: boot():/vmlinuz-linux
+    cmdline: root=UUID=${ROOT_UUID} rw rootfstype=ext4
+    module_path: boot():/initramfs-linux-fallback.img
+FALLBACK
+else
+  warn "no initramfs-linux-fallback.img on the ESP — skipping the fallback entry"
+fi
+
+must_have_file "$LIMINE_CONF"
+
+# ── firmware boot entry (best-effort) ──────────────────────────────
+# Partition number is 1 by construction — disk/all.sh always lays the ESP
+# down as partition 1 — but derive it from EFI_PART rather than assuming,
+# so a future layout change surfaces here instead of silently pointing
+# efibootmgr at the wrong slot.
+_efi_partnum="${EFI_PART##*[!0-9]}"
+if [[ -n "$_efi_partnum" ]]; then
+  # Drop any stale vinOS entries first so repeat installs don't stack up.
+  while read -r _num; do
+    [[ -n "$_num" ]] && try_run efibootmgr --delete-bootnum --bootnum "$_num"
+  done < <(efibootmgr 2>/dev/null | awk '/^Boot[0-9A-Fa-f]{4}\*? +vinOS$/ {print substr($1,5,4)}')
+
+  try_run efibootmgr --create \
+      --disk "$DISK" --part "$_efi_partnum" \
+      --loader '\EFI\limine\BOOTX64.EFI' \
+      --label 'vinOS' \
+    || warn "efibootmgr could not register the vinOS entry — the removable path EFI/BOOT/BOOTX64.EFI still boots"
+else
+  warn "could not derive the ESP partition number from '$EFI_PART' — skipping efibootmgr, removable path still boots"
+fi
+
+# ── verify ─────────────────────────────────────────────────────────
+# Read back what we wrote. The kernel and initramfs must actually be on
+# the ESP, or the menu will list entries that dead-end at a panic.
+must_have_file \
+  "$ESP/vmlinuz-linux" \
+  "$ESP/initramfs-linux.img"
+
+grep -q '^/vinOS$' "$LIMINE_CONF" || \
+  die "limine.conf does not contain the vinOS entry — entry generation did not take"
+grep -q "root=UUID=${ROOT_UUID}" "$LIMINE_CONF" || \
+  die "limine.conf does not reference the root UUID ${ROOT_UUID} — wrong disk would be booted"
+
+log "limine installed; entries in $LIMINE_CONF:"
+grep -E '^/' "$LIMINE_CONF" | sed 's/^/    /'
+
 phase_done 50 bootloader

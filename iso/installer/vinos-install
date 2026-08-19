@@ -15,7 +15,7 @@
 #     prompts/     gum UI — collect answers into $ANSWERS
 #     disk/        wipe + partition + format + mount
 #     pacstrap/    pacstrap base + kernel + firmware into /mnt
-#     bootloader/  systemd-boot install + loader.conf + entries
+#     bootloader/  limine install + themed limine.conf + entries
 #     config/      fstab, locale, user, sudoers, vinOS overlay
 #     finalize/    unmount, sync, reboot prompt
 #

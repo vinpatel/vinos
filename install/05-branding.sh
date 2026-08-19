@@ -71,6 +71,18 @@ _sudo install -d -m 0755 "$_ETC_VINOS/nwg-drawer" "$_ETC_VINOS/walker" "$_ETC_VI
 [[ -f "$REPO/config/nwg-drawer/drawer.css" ]] && \
   _sudo install -Dm 0644 "$REPO/config/nwg-drawer/drawer.css" "$_ETC_VINOS/nwg-drawer/drawer.css"
 
+# Limine boot menu. The installer's bootloader phase reads these from
+# /usr/share/vinos/limine/ when it writes the target ESP, so they have to
+# be on the live medium, not just in a git checkout. The wallpaper is the
+# 1920x1080 downscale — the 4K PNG visibly stalls the firmware's decode.
+if [[ -f "$REPO/config/limine/limine.conf" ]]; then
+  log "05-branding: installing limine boot menu theme"
+  _sudo install -Dm 0644 "$REPO/config/limine/limine.conf" "$SHARE/limine/limine.conf"
+fi
+if [[ -f "$REPO/assets/limine/boot-nebula.jpg" ]]; then
+  _sudo install -Dm 0644 "$REPO/assets/limine/boot-nebula.jpg" "$SHARE/limine/wallpaper.jpg"
+fi
+
 log "05-branding: installing vinos-* commands"
 _sudo rsync -a "$REPO/bin/" "$SHARE/bin/"
 _sudo chmod 0755 "$SHARE/bin/"vinos-*

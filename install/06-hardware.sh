@@ -180,18 +180,37 @@ BRCMCONF
     _sudo mkinitcpio -P 2>&1 | tail -5 || warn "mkinitcpio -P failed; boot may still be OK if entries exist"
   fi
 
-  # If systemd-boot is the loader, add a T2 entry pinned to linux-t2.
-  if [[ -z "$VINOS_ROOT" ]] && [[ -d /boot/loader ]] && command -v bootctl >/dev/null; then
-    if ! ls /boot/loader/entries/*linux-t2* >/dev/null 2>&1; then
-      log "06-hardware: writing systemd-boot entry for linux-t2"
-      _root_uuid=$(findmnt -no UUID /)
-      _sudo tee /boot/loader/entries/vinos-t2.conf >/dev/null <<T2ENTRY
+  # Make the T2 kernel bootable. vinOS boots limine, so the entry is a
+  # block in /boot/limine.conf; vinos-boot-entry owns that edit and the
+  # default_entry index arithmetic. 05-branding runs before this script
+  # and symlinks it into /usr/local/bin, so it is on PATH by now.
+  # systemd-boot stays supported for machines installed before the limine
+  # migration.
+  if [[ -z "$VINOS_ROOT" ]]; then
+    _root_uuid=$(findmnt -no UUID /)
+    if command -v vinos-boot-entry >/dev/null && [[ -f /boot/limine.conf ]]; then
+      log "06-hardware: writing limine entry for linux-t2"
+      vinos-boot-entry \
+        --title 'vinOS (Apple T2 Mac)' \
+        --comment 'T2 kernel — Touch Bar, keyboard, trackpad, Wi-Fi, audio, fans.' \
+        --kernel /vmlinuz-linux-t2 \
+        --initramfs /initramfs-linux-t2.img \
+        --cmdline "root=UUID=${_root_uuid} rw quiet splash intel_iommu=on iommu=pt" \
+        --default \
+        || warn "could not add the linux-t2 limine entry — run 'vinos-t2-enable' after reboot"
+    elif [[ -d /boot/loader ]] && command -v bootctl >/dev/null; then
+      if ! ls /boot/loader/entries/*linux-t2* >/dev/null 2>&1; then
+        log "06-hardware: writing systemd-boot entry for linux-t2 (pre-limine install)"
+        _sudo tee /boot/loader/entries/vinos-t2.conf >/dev/null <<T2ENTRY
 title   vinOS (Apple T2 Mac)
 linux   /vmlinuz-linux-t2
 initrd  /initramfs-linux-t2.img
 options root=UUID=${_root_uuid} rw quiet splash intel_iommu=on iommu=pt
 T2ENTRY
-      _sudo bootctl set-default vinos-t2.conf 2>&1 | tail -3 || true
+        _sudo bootctl set-default vinos-t2.conf 2>&1 | tail -3 || true
+      fi
+    else
+      warn "06-hardware: no bootloader config found — linux-t2 installed but not bootable; run 'vinos-t2-enable'"
     fi
   fi
 

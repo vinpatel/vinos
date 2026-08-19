@@ -59,6 +59,12 @@ PKGS=(
   # persona is administered over SSH. Installed but NOT enabled — enabling
   # it stays a deliberate act, which config/all.sh already handles.
   openssh
+  # limine: the bootloader. bootloader/all.sh copies BOOTX64.EFI out of
+  # the TARGET rather than the live ISO so the EFI binary on the ESP and
+  # the limine userspace on the installed system are the same version —
+  # a skew between the two is how a config key quietly stops being
+  # understood after an update.
+  limine
 )
 
 log "pacstrap package set: ${PKGS[*]}"

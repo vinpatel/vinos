@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+# vinos-boot-entry — add, replace, or default a vinOS limine boot entry.
+#
+# vinOS boots limine. Before that it booted systemd-boot, where adding an
+# entry meant dropping a file into /boot/loader/entries and calling
+# `bootctl set-default`. Limine keeps every entry in ONE file, so "add an
+# entry" is a text edit against /boot/limine.conf and "make it default"
+# is an index into that file. Two callers need this — vinos-t2-enable and
+# install/06-hardware.sh, both pinning the linux-t2 kernel — and getting
+# the index arithmetic subtly wrong in two places is how a T2 Mac ends up
+# installing a kernel it never boots.
+#
+# Idempotent: re-running with the same --title replaces that entry in
+# place rather than stacking duplicates.
+#
+# Usage:
+#   vinos-boot-entry --title TITLE --kernel PATH --initramfs PATH
+#                    [--cmdline STR] [--comment STR] [--default]
+#                    [--conf PATH] [--dry-run]
+#
+#   --title      Entry title as shown in the menu. Also the identity key.
+#   --kernel     Kernel path on the ESP, e.g. /vmlinuz-linux-t2
+#   --initramfs  Initramfs path on the ESP
+#   --cmdline    Kernel command line (root=UUID=... is NOT added for you)
+#   --comment    Optional one-line description shown under the entry
+#   --default    Make this entry the boot default
+#   --conf       limine.conf to edit (default: /boot/limine.conf)
+#   --dry-run    Print the resulting file to stdout; write nothing
+#
+# Exit: 0 on success, 1 on error.
+set -euo pipefail
+
+if [[ -t 1 ]]; then
+  _R=$'\033[0m'; _B=$'\033[1;34m'; _Y=$'\033[1;33m'; _E=$'\033[1;31m'
+else
+  _R='' _B='' _Y='' _E=''
+fi
+# stderr, not stdout: --dry-run writes the resulting config to stdout and
+# a diagnostic mixed into it would corrupt anything piping the result.
+log()  { printf '%s[vinOS]%s %s\n' "$_B" "$_R" "$*" >&2; }
+warn() { printf '%s[vinOS WARN]%s %s\n' "$_Y" "$_R" "$*" >&2; }
+die()  { printf '%s[vinOS FAIL]%s %s\n' "$_E" "$_R" "$*" >&2; exit 1; }
+
+CONF=/boot/limine.conf
+TITLE="" KERNEL="" INITRAMFS="" CMDLINE="" COMMENT=""
+MAKE_DEFAULT=0 DRY_RUN=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --title)     [[ $# -ge 2 ]] || die "--title needs a value";     TITLE="$2";     shift 2 ;;
+    --kernel)    [[ $# -ge 2 ]] || die "--kernel needs a value";    KERNEL="$2";    shift 2 ;;
+    --initramfs) [[ $# -ge 2 ]] || die "--initramfs needs a value"; INITRAMFS="$2"; shift 2 ;;
+    --cmdline)   [[ $# -ge 2 ]] || die "--cmdline needs a value";   CMDLINE="$2";   shift 2 ;;
+    --comment)   [[ $# -ge 2 ]] || die "--comment needs a value";   COMMENT="$2";   shift 2 ;;
+    --conf)      [[ $# -ge 2 ]] || die "--conf needs a path";       CONF="$2";      shift 2 ;;
+    --default)   MAKE_DEFAULT=1; shift ;;
+    --dry-run)   DRY_RUN=1; shift ;;
+    -h|--help)   sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) die "unknown argument: $1 (try --help)" ;;
+  esac
+done
+
+[[ -n "$TITLE"     ]] || die "--title is required"
+[[ -n "$KERNEL"    ]] || die "--kernel is required"
+[[ -n "$INITRAMFS" ]] || die "--initramfs is required"
+[[ -f "$CONF"      ]] || die "$CONF not found — is this a limine system? (vinOS installs limine; older installs used systemd-boot)"
+
+# Writing needs root; re-exec under sudo rather than failing at the very
+# end after all the work is done.
+if [[ ! -w "$CONF" ]] && (( ! DRY_RUN )); then
+  [[ $EUID -ne 0 ]] || die "$CONF is not writable even as root"
+  command -v sudo >/dev/null || die "$CONF is not writable and sudo is unavailable"
+  exec sudo -- "$0" --title "$TITLE" --kernel "$KERNEL" --initramfs "$INITRAMFS" \
+       ${CMDLINE:+--cmdline "$CMDLINE"} ${COMMENT:+--comment "$COMMENT"} \
+       --conf "$CONF" $( ((MAKE_DEFAULT)) && printf -- '--default' )
+fi
+
+# ── strip any existing entry with this title ───────────────────────
+# A top-level entry opens with a single '/' at column 1; '//' and deeper
+# are sub-entries belonging to the one above. An entry runs until the
+# next top-level entry or EOF. awk owns this because doing multi-line
+# range deletion in sed against arbitrary titles invites quoting bugs.
+NEW_BODY="$(mktemp)"; trap 'rm -f "$NEW_BODY" "$NEW_BODY.tmp"' EXIT
+awk -v title="/$TITLE" '
+  # A top-level entry line: starts with / but not //
+  /^\// && substr($0,2,1) != "/" {
+    skipping = ($0 == title) ? 1 : 0
+  }
+  !skipping
+' "$CONF" > "$NEW_BODY"
+
+# Drop trailing blank lines so the appended block spaces cleanly.
+while [[ -s "$NEW_BODY" ]] && [[ -z "$(tail -1 "$NEW_BODY")" ]]; do
+  sed -i '$d' "$NEW_BODY"
+done
+
+# ── append the entry ───────────────────────────────────────────────
+{
+  printf '\n/%s\n' "$TITLE"
+  [[ -n "$COMMENT" ]] && printf '    comment: %s\n' "$COMMENT"
+  printf '    protocol: linux\n'
+  printf '    path: boot():%s\n' "$KERNEL"
+  [[ -n "$CMDLINE" ]] && printf '    cmdline: %s\n' "$CMDLINE"
+  printf '    module_path: boot():%s\n' "$INITRAMFS"
+} >> "$NEW_BODY"
+
+# ── default_entry ──────────────────────────────────────────────────
+# limine's default_entry is a 1-based index over top-level entries in
+# file order, NOT a title. Compute the index of ours and rewrite the
+# directive; add it if the config never had one.
+if (( MAKE_DEFAULT )); then
+  _idx="$(awk -v title="/$TITLE" '
+    /^\// && substr($0,2,1) != "/" { n++; if ($0 == title) { print n; exit } }
+  ' "$NEW_BODY")"
+  [[ -n "$_idx" ]] || die "internal error: could not locate the entry just written"
+  if grep -q '^[[:space:]]*default_entry:' "$NEW_BODY"; then
+    sed -i "s|^[[:space:]]*default_entry:.*|default_entry: ${_idx}|" "$NEW_BODY"
+  else
+    sed -i "1i default_entry: ${_idx}" "$NEW_BODY"
+  fi
+  log "default_entry -> ${_idx} (${TITLE})"
+fi
+
+if (( DRY_RUN )); then
+  cat "$NEW_BODY"
+  exit 0
+fi
+
+# Write through a temp file in the same directory so a full ESP or a
+# power cut cannot leave a half-written bootloader config behind.
+cp "$NEW_BODY" "$CONF.vinos-new"
+sync
+mv "$CONF.vinos-new" "$CONF"
+sync
+
+log "wrote entry '$TITLE' to $CONF"
+grep -E '^/' "$CONF" | sed 's/^/    /'

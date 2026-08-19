@@ -458,7 +458,19 @@ fails=0
 _check "hostname"      "hostnamectl --static"                     "^${QA_HOST}$"                    || (( fails+=1 ))
 _check "user exists"   "id ${QA_USER}"                            "uid="                            || (( fails+=1 ))
 _check "user in wheel" "id -Gn ${QA_USER}"                        "wheel"                           || (( fails+=1 ))
-_check "bootctl entry" "bootctl status 2>/dev/null | head -30"    "(linux|vinOS|arch)"              || (( fails+=1 ))
+# vinOS boots limine, not systemd-boot. The strongest proof is implicit —
+# step 7 booted this qcow2 with no ISO attached and we are talking to it
+# over SSH, so a bootloader is working. These checks pin down that it is
+# OUR bootloader, installed the way the phase intends, rather than some
+# firmware fallback that happened to find a kernel.
+_check "limine EFI binaries" \
+  "test -f /boot/EFI/BOOT/BOOTX64.EFI && test -f /boot/EFI/limine/BOOTX64.EFI && echo ok" \
+  "^ok$"                                                                            || (( fails+=1 ))
+_check "limine vinOS entry"  "grep -c '^/vinOS' /boot/limine.conf"  "^[1-9]"        || (( fails+=1 ))
+_check "limine roots at UUID" \
+  "grep -q \"root=UUID=\$(findmnt -n -o UUID /)\" /boot/limine.conf && echo ok" \
+  "^ok$"                                                                            || (( fails+=1 ))
+_check "limine branding"     "grep -c 'interface_branding: vinOS' /boot/limine.conf" "^[1-9]" || (( fails+=1 ))
 _check "os-release"    "grep -c vinos /etc/os-release || true"    "^[1-9]"                          || (( fails+=1 ))
 _check "efi partition" "findmnt -n -o TARGET /boot 2>/dev/null || findmnt -n -o TARGET /efi 2>/dev/null" "^/(boot|efi)"  || (( fails+=1 ))
 _check "no red errors" "journalctl -p 3 -b --no-pager | wc -l"    "^[0-9]{1,2}$"                    || (( fails+=1 ))

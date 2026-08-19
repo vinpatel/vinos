@@ -232,7 +232,7 @@ gum style --margin "0 4" \
   "  keyboard:  $KB_LAYOUT" \
   "  timezone:  $TIMEZONE" \
   "" \
-  "About to partition the disk, pacstrap base Arch, install systemd-boot," \
+  "About to partition the disk, pacstrap base Arch, install the limine bootloader," \
   "and layer the vinOS overlay. Takes ~10-20 min."
 
 _confirm "Start the install?" || die "install cancelled at final confirm"
