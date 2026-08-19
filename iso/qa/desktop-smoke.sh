@@ -194,14 +194,29 @@ _ssh 'sudo -n visudo -c >/dev/null' || die "sudoers is invalid after seeding —
 _ssh 'sudo -n true' || die "NOPASSWD sudo did not take effect"
 
 if (( LOCAL_REPO )); then
-  log "syncing $REPO into guest ~/.local/share/vinos"
-  _ssh 'mkdir -p ~/.local/share/vinos'
-  rsync -a --delete --exclude 'iso/out' --exclude 'iso/work' --exclude 'iso/aurrepo' \
-        --exclude 'iso/.aur-cache' --exclude 'node_modules' \
+  # .git is excluded on purpose and it is not an optimisation: this repo's
+  # history is 14 G, which does not fit beside a desktop install on a 20 G
+  # target and filled the guest disk the first time this ran. The install
+  # phase already left a shallow clone at ~/.local/share/vinos; rsync
+  # overwrites its working tree and leaves its .git alone, which is all
+  # vinos-install-desktop needs (with --no-update it only checks that
+  # $REPO/.git exists, then installs whatever is on disk).
+  # --delete does not touch excluded paths, so the clone survives it.
+  log "syncing $REPO working tree into guest ~/.local/share/vinos (.git excluded)"
+  _ssh 'test -d ~/.local/share/vinos/.git' \
+    || die "guest has no clone at ~/.local/share/vinos/.git to sync onto.
+       config/all.sh's clone step must have failed during the base install."
+  rsync -a --delete \
+        --exclude '.git' \
+        --exclude 'iso/out' --exclude 'iso/work' --exclude 'iso/aurrepo' \
+        --exclude 'iso/.aur-cache' --exclude 'node_modules' --exclude 'site' \
         -e "ssh ${SSH_OPTS[*]} -p $SSH_PORT" \
         "$REPO/" "$QA_USER@127.0.0.1:.local/share/vinos/" \
     || die "rsync of the working tree into the guest failed"
-  log "guest repo now at $(_ssh 'git -C ~/.local/share/vinos rev-parse --short HEAD 2>/dev/null || echo no-git')"
+  # The commit below is the guest clone's, not the synced tree's — the
+  # working tree on top of it is what actually gets installed.
+  log "guest tree synced (clone HEAD was $(_ssh 'git -C ~/.local/share/vinos rev-parse --short HEAD 2>/dev/null || echo no-git'))"
+  log "guest free space: $(_ssh "df -h / | awk 'NR==2{print \$4}'" 2>/dev/null)"
 fi
 
 # Record the pre-install package count so the diff is provable.
