@@ -167,15 +167,20 @@ printf '  log       %s\n\n' "$LOGFILE"
 confirm "Install the vinOS desktop now?" || { log "cancelled"; exit 0; }
 
 # ── run the overlay ────────────────────────────────────────────────
+# "${arr[@]:-}" on an EMPTY array expands to one empty-string word, not to
+# nothing. That handed install.sh a bare "" argument, whose case statement
+# matched *) and died with `unknown argument:` — so every default run
+# (no --skip, no --minimal) failed instantly, before a single package.
+# "${arr[@]+"${arr[@]}"}" is the set -u-safe idiom that expands to nothing.
 INSTALL_ARGS=()
-for s in "${SKIPS[@]:-}"; do [[ -n "${s:-}" ]] && INSTALL_ARGS+=(--skip "$s"); done
+for s in "${SKIPS[@]+"${SKIPS[@]}"}"; do INSTALL_ARGS+=(--skip "$s"); done
 
-log "running install.sh ${INSTALL_ARGS[*]:-} — full output tees to $LOGFILE"
+log "running install.sh ${INSTALL_ARGS[*]-} — full output tees to $LOGFILE"
 printf '\n===== %s — vinos-install-desktop =====\n' "$(date -Is)" >> "$LOGFILE"
 
 # Do not let install.sh's failure kill us before the diagnostic below.
 set +e
-( cd "$REPO" && bash install.sh "${INSTALL_ARGS[@]:-}" ) 2>&1 | tee -a "$LOGFILE"
+( cd "$REPO" && bash install.sh "${INSTALL_ARGS[@]+"${INSTALL_ARGS[@]}"}" ) 2>&1 | tee -a "$LOGFILE"
 _rc=${PIPESTATUS[0]}
 set -e
 
