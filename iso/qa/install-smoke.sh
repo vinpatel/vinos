@@ -352,14 +352,45 @@ _ssh_live 'sudo -n cat /var/log/vinos-install/install.log' > "$INSTALL_LOG" 2>&1
 # on the installed system; also enable it via the chroot.
 log "seeding host pubkey + enabling sshd on installed system"
 PUBKEY_CONTENT="$(<"$HOST_PUBKEY")"
-_ssh_live "sudo -n bash -s" <<CHROOT
+
+# Two things this step has to get right, both learned the hard way in
+# cycle 10:
+#
+#   1. /mnt is GONE by now. Phase 70-finalize unmounts the target as its
+#      whole job (and falls back to `umount -l` when the tree is busy),
+#      so by the time this runs there is nothing at /mnt. Writing to
+#      /mnt/home/... would silently land on the live ISO's tmpfs.
+#      Remount by filesystem label — disk/all.sh sets VINOS_ROOT and
+#      VINOS_EFI, which survive any device-naming difference.
+#
+#   2. ${QA_USER} does not exist on the LIVE system, only in the target.
+#      `install -o ${QA_USER}` resolves against the live /etc/passwd and
+#      fails, which under `set -eu` aborted the heredoc, returned
+#      non-zero through ssh, and killed the whole harness with no
+#      message — after a completely successful install.
+#      Everything that resolves a user therefore runs inside arch-chroot.
+if ! _ssh_live "sudo -n bash -s" <<CHROOT
 set -eu
-install -d -m 0700 -o ${QA_USER} -g ${QA_USER} /mnt/home/${QA_USER}/.ssh
+mountpoint -q /mnt || mount /dev/disk/by-label/VINOS_ROOT /mnt
+mountpoint -q /mnt/boot || mount /dev/disk/by-label/VINOS_EFI /mnt/boot
+
+arch-chroot /mnt install -d -m 0700 -o ${QA_USER} -g ${QA_USER} /home/${QA_USER}/.ssh
 printf '%s\n' '${PUBKEY_CONTENT//\'/\'\\\'\'}' > /mnt/home/${QA_USER}/.ssh/authorized_keys
-chown ${QA_USER}:${QA_USER} /mnt/home/${QA_USER}/.ssh/authorized_keys
-chmod 0600 /mnt/home/${QA_USER}/.ssh/authorized_keys
+arch-chroot /mnt chown ${QA_USER}:${QA_USER} /home/${QA_USER}/.ssh/authorized_keys
+arch-chroot /mnt chmod 0600 /home/${QA_USER}/.ssh/authorized_keys
 arch-chroot /mnt systemctl enable sshd.service >/dev/null 2>&1 || true
+
+# Leave the target unmounted again so step 7 boots a cleanly-closed
+# filesystem rather than one with a dirty journal.
+sync
+umount -R /mnt || umount -l /mnt || true
 CHROOT
+then
+  die "failed to seed pubkey / enable sshd on the installed system.
+       The INSTALL ITSELF SUCCEEDED (70-finalize.done was observed) — this is
+       a harness-side failure. Check that VINOS_ROOT and VINOS_EFI labels exist
+       on the target disk. Post-mortem: $OUT_DIR"
+fi
 
 # ── STEP 6: shutdown live QEMU ─────────────────────────────────────
 step "6/9 shutting down live QEMU"
