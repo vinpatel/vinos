@@ -47,6 +47,10 @@ PKGS=(
   base base-devel
   linux linux-firmware mkinitcpio
   sudo networkmanager iwd efibootmgr git vim
+  # rsync: 05-branding.sh copies assets with it. Before the base-only
+  # pivot this arrived via install/01-base.sh during the full overlay
+  # run; that run is gone, so the base set must carry it.
+  rsync
 )
 
 log "pacstrap package set: ${PKGS[*]}"
