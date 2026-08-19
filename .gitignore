@@ -8,6 +8,7 @@ iso/qa/*
 !iso/qa/prep-harness.sh
 !iso/qa/branding-check.sh
 !iso/qa/install-smoke.sh
+!iso/qa/desktop-smoke.sh
 !iso/qa/limine-preview.sh
 !iso/qa/t2-hardware-checkpoint.md
 iso/.aur-cache/
