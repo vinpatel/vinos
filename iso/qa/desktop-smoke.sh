@@ -230,6 +230,21 @@ if (( LOCAL_REPO )); then
   # working tree on top of it is what actually gets installed.
   log "guest tree synced (clone HEAD was $(_ssh 'git -C ~/.local/share/vinos rev-parse --short HEAD 2>/dev/null || echo no-git'))"
   log "guest free space: $(_ssh "df -h / | awk 'NR==2{print \$4}'" 2>/dev/null)"
+
+  # Syncing the checkout is not enough. The command on PATH is
+  # /usr/local/bin/vinos-install-desktop -> /usr/share/vinos/bin/..., a
+  # copy frozen at install time by 05-branding; a newer checkout under
+  # ~/.local/share does not change it, so without this the run silently
+  # exercises whatever shipped on the ISO rather than the tree under
+  # test. 05-branding is exactly the in-repo mechanism for refreshing
+  # the installed vinos-* commands (~5 s, no network, idempotent), so
+  # use it rather than hand-copying files around.
+  log "refreshing /usr/share/vinos/bin from the synced tree (install/05-branding.sh)"
+  _ssh 'cd ~/.local/share/vinos && bash install/05-branding.sh' >/dev/null 2>&1 \
+    || die "05-branding.sh failed while refreshing the installed vinos-* commands"
+  _ssh 'cmp -s /usr/share/vinos/bin/vinos-install-desktop ~/.local/share/vinos/bin/vinos-install-desktop' \
+    || die "/usr/share/vinos/bin/vinos-install-desktop still differs from the tree under test"
+  log "on-PATH vinos-install-desktop now matches the tree under test"
 fi
 
 # Record the pre-install package count so the diff is provable.
