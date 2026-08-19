@@ -25,6 +25,8 @@ REPO="$(cd "$QA_DIR/../.." && pwd)"
 OUT_DIR="$REPO/iso/out/limine-preview"
 DELAY=6
 KEEP=0
+MENU_TIMEOUT=""   # override the config's timeout: for interactive viewing
+MENU_SET=installed   # which entry set to preview: installed | live
 VNC_PORT="${LIMINE_PREVIEW_VNC:-6}"   # display :6 → 5906, clear of the smoke harness
 
 die() { printf '\033[1;31m[limine-preview] FAIL:\033[0m %s\n' "$*" >&2; exit 1; }
@@ -35,6 +37,8 @@ while [[ $# -gt 0 ]]; do
     --out)   [[ $# -ge 2 ]] || die "--out needs a dir";    OUT_DIR="$2"; shift 2 ;;
     --delay) [[ $# -ge 2 ]] || die "--delay needs secs";   DELAY="$2";   shift 2 ;;
     --keep)  KEEP=1; shift ;;
+    --live)  MENU_SET=live; shift ;;
+    --timeout) [[ $# -ge 2 ]] || die "--timeout needs secs"; MENU_TIMEOUT="$2"; shift 2 ;;
     -h|--help) sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) die "unknown argument: $1" ;;
   esac
@@ -74,7 +78,43 @@ cp "$WALL"       "$ESP_DIR/vinos-wallpaper.jpg"
 # one will fail, which is fine — we are looking at the menu.
 {
   cat "$CONF"
-  cat <<'ENTRIES'
+  if [[ "$MENU_SET" == live ]]; then cat <<'LIVEENTRIES'
+
+### PREVIEW PLACEHOLDERS — the live USB menu (iso/qa/limine-preview.sh --live).
+### Mirrors iso/profile/efiboot/loader/entries/*.conf, which today are
+### systemd-boot. Nothing here boots; this shows the shape of the menu.
+
+/➜  Boot vinOS  —  Apple T2 Mac
+    comment: 2018-2020 MacBook with the T2 security chip
+    protocol: linux
+    kernel_path: boot():/vmlinuz-linux-t2
+    kernel_cmdline: archisobasedir=arch archisolabel=VINOS quiet splash pcie_ports=compat
+
+/⚙  Install vinOS to disk  —  Apple T2 Mac
+    comment: full-screen installer on tty1, no desktop underneath
+    protocol: linux
+    kernel_path: boot():/vmlinuz-linux-t2
+    kernel_cmdline: archisobasedir=arch archisolabel=VINOS systemd.unit=vinos-installer.target
+
+/➜  Boot vinOS  —  Intel / AMD / generic
+    comment: every non-Apple machine
+    protocol: linux
+    kernel_path: boot():/vmlinuz-linux
+    kernel_cmdline: archisobasedir=arch archisolabel=VINOS quiet splash
+
+/⚙  Install vinOS to disk  —  Intel / AMD / generic
+    comment: full-screen installer on tty1, no desktop underneath
+    protocol: linux
+    kernel_path: boot():/vmlinuz-linux
+    kernel_cmdline: archisobasedir=arch archisolabel=VINOS systemd.unit=vinos-installer.target
+
+/●  Boot vinOS + persistence  —  Apple T2 Mac
+    comment: changes survive reboot on the vinos-persist partition
+    protocol: linux
+    kernel_path: boot():/vmlinuz-linux-t2
+    kernel_cmdline: archisobasedir=arch archisolabel=VINOS cow_label=vinos-persist quiet splash
+LIVEENTRIES
+  else cat <<'ENTRIES'
 
 ### Entries below are PREVIEW PLACEHOLDERS (iso/qa/limine-preview.sh).
 ### The installer generates the real ones. Do not copy these anywhere.
@@ -97,7 +137,16 @@ cp "$WALL"       "$ESP_DIR/vinos-wallpaper.jpg"
     kernel_path: boot():/vmlinuz-linux-t2
     kernel_cmdline: root=UUID=00000000-0000-0000-0000-000000000000 rw quiet splash pcie_ports=compat
 ENTRIES
+  fi
 } > "$ESP_DIR/limine.conf"
+
+# For interactive sessions the config's short timeout would auto-boot a
+# placeholder entry before anyone connects over VNC, leaving them looking
+# at a failed boot instead of the menu.
+if [[ -n "$MENU_TIMEOUT" ]]; then
+  sed -i "s/^timeout: .*/timeout: $MENU_TIMEOUT/" "$ESP_DIR/limine.conf"
+  log "menu timeout overridden to ${MENU_TIMEOUT}s for this run"
+fi
 
 log "ESP tree staged ($(du -sh "$ESP_DIR" | cut -f1))"
 
@@ -108,13 +157,23 @@ chmod u+w "$VARS"
 HMP="$OUT_DIR/hmp.sock"
 rm -f "$HMP"
 
-log "booting QEMU (VNC :$VNC_PORT)"
+# macOS Screen Sharing refuses to connect to a VNC server with no auth
+# ("Connection failed"), so always set a password even though this is a
+# throwaway guest on a trusted LAN. Same secret mechanism install-smoke
+# uses, so the password never appears in the process list.
+VNCPW_FILE="$OUT_DIR/vncpw.secret"
+VNC_PASSWORD="${VNC_PASSWORD:-vinos}"
+printf '%s' "$VNC_PASSWORD" > "$VNCPW_FILE"
+chmod 600 "$VNCPW_FILE"
+
+log "booting QEMU (VNC :$VNC_PORT, password: $VNC_PASSWORD)"
 qemu-system-x86_64 \
   -m 512 \
   -drive if=pflash,format=raw,readonly=on,file="$OVMF_CODE" \
   -drive if=pflash,format=raw,file="$VARS" \
   -drive file="fat:rw:$ESP_DIR",format=raw,if=ide \
-  -vga std -display "vnc=:$VNC_PORT" \
+  -vga std -display "vnc=0.0.0.0:$VNC_PORT,password-secret=vncpw" \
+  -object secret,id=vncpw,file="$VNCPW_FILE",format=raw \
   -monitor "unix:$HMP,server,nowait" \
   -no-reboot &
 QEMU_PID=$!
