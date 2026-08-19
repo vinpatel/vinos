@@ -204,7 +204,13 @@ _hmp_dump() {
 }
 
 # ── SSH helpers ────────────────────────────────────────────────────
-SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=3 -o BatchMode=yes)
+# LogLevel=ERROR silences "Warning: Permanently added ... to the list of
+# known hosts", which ssh prints to stderr on every single connection
+# because UserKnownHostsFile=/dev/null makes each one a first meeting.
+# _check captures with 2>&1 so a real failure is visible, so that warning
+# was landing in $actual and failing hostname / os-release / efi partition
+# / no-red-errors on a correctly installed system (cycle 12).
+SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=3 -o BatchMode=yes -o LogLevel=ERROR)
 _ssh_live()      { ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" vinos@127.0.0.1 "$@"; }
 _ssh_installed() { ssh "${SSH_OPTS[@]}" -p "$SSH_PORT" "$QA_USER@127.0.0.1" "$@"; }
 
