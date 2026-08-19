@@ -130,7 +130,27 @@ _free_gb=$(df -BG --output=avail / | tail -1 | tr -dc '0-9')
   die "only ${_free_gb}G free on / — the desktop needs about ${MIN_FREE_GB}G (packages + AUR build space)"
 ok "${_free_gb}G free on /"
 
-mkdir -p "$STATE_DIR"
+# ── home ownership repair ──────────────────────────────────────────
+# Installs up to and including 1.3.0 left ~/.local owned by root:root.
+# `install -d -o user -g user ~/.local/share` in the installer's config
+# phase applies the ownership to the LAST component only; ~/.local was
+# created as root along the way. Every user-level write under ~/.local
+# then fails — starting with this script's own state directory, which
+# meant a freshly installed machine could not install its own desktop.
+#
+# The installer no longer does that, but machines already out there
+# need repairing in place. Taking ownership of a user's own home
+# directory, as that user, is unambiguously the correct end state.
+for _d in "$HOME" "$HOME/.local" "$HOME/.local/share" "$HOME/.local/state" "$HOME/.config"; do
+  [[ -e "$_d" ]] || continue
+  [[ -O "$_d" ]] && continue
+  warn "$_d is owned by $(stat -c '%U' "$_d" 2>/dev/null || echo '?'), not $(id -un) — repairing"
+  sudo chown "$(id -u):$(id -g)" "$_d" \
+    || die "could not take ownership of $_d — fix it with: sudo chown -R $(id -un): $HOME/.local"
+done
+
+mkdir -p "$STATE_DIR" \
+  || die "cannot create $STATE_DIR — check the ownership of $HOME and $HOME/.local"
 
 if [[ -f "$SENTINEL" ]]; then
   log "desktop was already installed here on $(date -r "$SENTINEL" '+%Y-%m-%d %H:%M')"

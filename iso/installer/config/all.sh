@@ -116,11 +116,24 @@ log "cloning vinOS repo into /home/$USERNAME/.local/share/vinos"
 # surface at every yay call. Ubuntu / Fedora don't do this. Neither
 # should we. v1.4.0 install-to-disk ships a *base* — full overlay is
 # a post-boot step (vinos-install-desktop) with a real environment.
+# Create the directories AS the user, not as root with -o/-g. GNU
+# `install -d -o u -g u a/b` applies the ownership to b only; a is
+# created with the caller's ownership, which here is root. That left
+# ~/.local owned by root:root while ~/.local/share was the user's, so
+# the very first thing vinos-install-desktop does on the rebooted
+# system — mkdir -p ~/.local/state/vinos — failed with EACCES, and the
+# installed machine could not install its own desktop.
 chroot_run "
-  install -d -m 0755 -o '$USERNAME' -g '$USERNAME' '/home/$USERNAME/.local/share'
+  sudo -u '$USERNAME' -H mkdir -p '/home/$USERNAME/.local/share' \
+                                  '/home/$USERNAME/.local/state' \
+                                  '/home/$USERNAME/.config'
   sudo -u '$USERNAME' -H git clone --depth=1 --branch '$VINOS_BRANCH' \
     '$VINOS_REPO_URL' '/home/$USERNAME/.local/share/vinos'
 "
+
+# Anything created earlier in this phase could have the same problem, so
+# make the user's own home unambiguously theirs before we hand it over.
+chroot_run "chown -R '$USERNAME':'$USERNAME' '/home/$USERNAME'"
 
 # Apply the minimum-viable branding pass so the rebooted system announces
 # itself as vinOS instead of a bare Arch install. 05-branding is the only
