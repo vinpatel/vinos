@@ -380,8 +380,12 @@ BINS=(
   jq socat imagemagick                         # vinos-* helper plumbing
   xkbcli                                       # Super+K cheatsheet
   brightnessctl playerctl                      # media/brightness keys
-  chromium                                     # Super+B
 )
+# chromium is deliberately NOT here. The I11 pivot moved browsers into an
+# opt-in bundle — bin/vinos-install-browser does `bundle_pkg chromium
+# firefox` — and the browser keybinding goes through vinos-launch-browser,
+# not chromium directly. Asserting it in base contradicted the
+# architecture and failed a clean run for working-as-designed behaviour.
 missing=()
 for b in "${BINS[@]}"; do
   _ssh "command -v $b >/dev/null 2>&1 || pacman -Qq $b >/dev/null 2>&1" \

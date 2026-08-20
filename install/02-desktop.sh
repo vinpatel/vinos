@@ -33,6 +33,15 @@ log "02-desktop: installing Hyprland stack + core UX apps"
 # On the installed guest that meant no wallpaper at all (awww renders it,
 # autostart.conf:19-20), no input method, and a dead Super+Ctrl+Z zoom
 # binding that pipes hyprctl through jq.
+#
+# socat and imagemagick are the same defect reached from a different
+# direction: not named in any config, but called unguarded from inside
+# shipped bin/vinos-* helpers. autostart.conf:40 launches
+# vinos-hyprland-monitor-watch on every login and its line 7 is a bare
+# `socat -U - UNIX-CONNECT:...`, so monitor hotplug handling died at
+# login. vinos-transcode:75 calls `magick` with no fallback. The
+# desktop-smoke BINS gate already asserted both, so base was always the
+# intent — the packages just never got added.
 install_pkg \
   hyprland uwsm waybar alacritty foot mako grim slurp swaybg wl-clipboard \
   xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprland-guiutils \
@@ -55,7 +64,7 @@ install_pkg \
   power-profiles-daemon thermald acpid bolt \
   ffmpegthumbnailer gvfs-mtp gvfs-nfs gvfs-smb \
   zram-generator kernel-modules-hook \
-  awww fcitx5 fcitx5-gtk fcitx5-qt jq
+  awww fcitx5 fcitx5-gtk fcitx5-qt jq socat imagemagick
 
 log "02-desktop: installing AUR apps (UX-critical only)"
 # I11 pivot: spotify/obsidian/1password/localsend live in bundles now.
