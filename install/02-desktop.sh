@@ -42,6 +42,18 @@ log "02-desktop: installing Hyprland stack + core UX apps"
 # login. vinos-transcode:75 calls `magick` with no fallback. The
 # desktop-smoke BINS gate already asserted both, so base was always the
 # intent — the packages just never got added.
+#
+# cmake is the same story once more, and it is what made the hyprpm
+# plugin pass fail on every installed machine:
+#
+#   $ hyprpm update
+#   ✖ Missing dependency: cmake
+#   ✖ Could not update. Hyprpm requires: cmake, cpio, pkg-config, git, g++, gcc
+#
+# Every other name on that list arrives with base-devel; cmake was listed
+# only in iso/packages.live. That is why vinos-hypr-plugin-setup raised a
+# critical "Plugin build failed" notification at every login while the
+# live ISO built the plugins fine.
 install_pkg \
   hyprland uwsm waybar alacritty foot mako grim slurp swaybg wl-clipboard \
   xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprland-guiutils \
@@ -64,7 +76,7 @@ install_pkg \
   power-profiles-daemon thermald acpid bolt \
   ffmpegthumbnailer gvfs-mtp gvfs-nfs gvfs-smb \
   zram-generator kernel-modules-hook \
-  awww fcitx5 fcitx5-gtk fcitx5-qt jq socat imagemagick
+  awww fcitx5 fcitx5-gtk fcitx5-qt jq socat imagemagick cmake
 
 log "02-desktop: installing AUR apps (UX-critical only)"
 # I11 pivot: spotify/obsidian/1password/localsend live in bundles now.

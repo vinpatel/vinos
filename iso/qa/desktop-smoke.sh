@@ -380,6 +380,7 @@ BINS=(
   jq socat imagemagick                         # vinos-* helper plumbing
   xkbcli                                       # Super+K cheatsheet
   brightnessctl playerctl                      # media/brightness keys
+  cmake                                        # hyprpm plugin build dep
 )
 # chromium is deliberately NOT here. The I11 pivot moved browsers into an
 # opt-in bundle — bin/vinos-install-browser does `bundle_pkg chromium
