@@ -374,6 +374,8 @@ BINS=(
   Hyprland waybar mako foot alacritty          # compositor + shell + terms
   walker elephant nwg-drawer                   # Super+Space launcher chain
   uwsm                                         # every `uwsm-app --` autostart line
+  awww                                         # autostart.conf:19-20 wallpaper
+  fcitx5                                       # autostart.conf:8 input method
   swaybg grim slurp wl-copy                    # wallpaper + screenshots
   jq socat imagemagick                         # vinos-* helper plumbing
   xkbcli                                       # Super+K cheatsheet
@@ -391,6 +393,32 @@ if (( ${#missing[@]} )); then
 else
   printf 'PASS: %-28s | all %d present\n' "desktop binaries" "${#BINS[@]}" >> "$VERIFY_LOG"
 fi
+
+# Boot budget. systemd-networkd-wait-online with no --any and the default
+# 120 s timeout put graphical.target 2min 3s into userspace on a
+# limine-installed 1.3.0 guest — two minutes of black screen before greetd
+# started, and nothing here would have noticed. With the drop-in it is
+# ~18 s. 60 s is a deliberately loose ceiling: it catches a reintroduced
+# two-minute stall without failing on a slow host or a cold AUR cache.
+_boot_s="$(_ssh "systemd-analyze 2>/dev/null | awk '/graphical.target reached/{print \$4}'" 2>/dev/null || true)"
+_boot_int="${_boot_s%%.*}"
+if [[ "$_boot_int" =~ ^[0-9]+$ ]]; then
+  if (( _boot_int <= 60 )); then
+    printf 'PASS: %-28s | graphical.target at %ss\n' "boot budget" "$_boot_int" >> "$VERIFY_LOG"
+  else
+    printf 'FAIL: %-28s | graphical.target at %ss (>60s)\n' "boot budget" "$_boot_int" >> "$VERIFY_LOG"
+    (( fails+=1 ))
+  fi
+  _ssh 'systemd-analyze blame 2>/dev/null | head -5' > "$OUT_DIR/boot-blame.txt" 2>/dev/null || true
+else
+  printf 'WARN: %-28s | could not read systemd-analyze\n' "boot budget" >> "$VERIFY_LOG"
+fi
+
+# The drop-in that keeps the above honest must actually be on the target,
+# not just in the airootfs.
+_check "wait-online capped" \
+  "grep -ho -- '--timeout=[0-9]*' /etc/systemd/system/systemd-networkd-wait-online.service.d/*.conf 2>/dev/null | head -1" \
+  '^--timeout=[0-9]+$' || (( fails+=1 ))
 
 # Hyprland parses its own config better than any grep can.
 if _ssh 'command -v Hyprland >/dev/null'; then
