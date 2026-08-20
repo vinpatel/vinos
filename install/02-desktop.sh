@@ -14,8 +14,27 @@ log "02-desktop: installing Hyprland stack + core UX apps"
 # 1password/localsend) moved to opt-in bundles under bin/vinos-install-*.
 # What remains here is the Hyprland compositor, terminals, notification
 # stack, media pipeline, file manager, and UX-critical utilities.
+#
+# uwsm is NOT optional. The greetd config written below launches the
+# session with `uwsm start hyprland-uwsm.desktop`, and every line in
+# config/hypr/autostart.conf plus several keybindings wrap their command
+# in `uwsm-app --`. It was listed for the ISO (iso/packages.live,
+# iso/profile/packages.x86_64) but missing from this installer list, so a
+# disk-installed machine wrote a greetd config calling a binary it did
+# not have: tuigreet authenticated fine, then the session died in ~1 s
+# and dropped back to the greeter. Login was impossible. Observed on a
+# limine-installed 1.3.0 guest, 2026-08-19.
+#
+# awww / fcitx5 / fcitx5-gtk / fcitx5-qt / jq were in the same state for
+# the same reason: listed directly in iso/packages.live and
+# iso/profile/packages.x86_64, never here. iso/packages.live's own header
+# says this file is meant to be the single source of truth precisely to
+# "avoid drift between live and installed builds", and that is the drift.
+# On the installed guest that meant no wallpaper at all (awww renders it,
+# autostart.conf:19-20), no input method, and a dead Super+Ctrl+Z zoom
+# binding that pipes hyprctl through jq.
 install_pkg \
-  hyprland waybar alacritty foot mako grim slurp swaybg wl-clipboard \
+  hyprland uwsm waybar alacritty foot mako grim slurp swaybg wl-clipboard \
   xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprland-guiutils \
   qt5-wayland qt6-wayland polkit-gnome \
   greetd greetd-tuigreet ttf-jetbrains-mono-nerd woff2-font-awesome \
@@ -35,7 +54,8 @@ install_pkg \
   alsa-firmware alsa-ucm-conf alsa-utils sof-firmware \
   power-profiles-daemon thermald acpid bolt \
   ffmpegthumbnailer gvfs-mtp gvfs-nfs gvfs-smb \
-  zram-generator kernel-modules-hook
+  zram-generator kernel-modules-hook \
+  awww fcitx5 fcitx5-gtk fcitx5-qt jq
 
 log "02-desktop: installing AUR apps (UX-critical only)"
 # I11 pivot: spotify/obsidian/1password/localsend live in bundles now.
@@ -46,7 +66,12 @@ log "02-desktop: installing AUR apps (UX-critical only)"
 # bibata-cursor-theme: sharp modern cursors.
 # hyprpm needs its git alternate; we install plugins post-boot with
 # vinos-hypr-plugins (see below).
-install_aur walker bibata-cursor-theme nwg-drawer
+# elephant is walker 2.16+'s data-provider backend, and autostart.conf
+# launches it directly. It was in iso/aur.list (so the live ISO had it)
+# but absent here, so a disk-installed machine got walker with no backend
+# and Super+Space did nothing — the 2026-08-09 walker/elephant bug
+# reappearing, because that fix only ever landed in the config.
+install_aur walker elephant bibata-cursor-theme nwg-drawer
 install_pkg papirus-icon-theme
 
 # Optional Hyprland plugins via hyprpm. hyprpm ships with hyprland,

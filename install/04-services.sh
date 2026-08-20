@@ -118,6 +118,33 @@ if [[ -L "$_sys_mask" && "$(readlink "$_sys_mask")" == "/dev/null" ]]; then
   _sudo rm -f "$_sys_mask"
 fi
 
+# ...and now actually install the drop-in the comment above refers to.
+#
+# It lived only under iso/profile/airootfs/, so the ISO got it at build
+# time and an installed machine got nothing — it ran the bare unit with
+# no --any and the default 120 s timeout. Measured on a limine-installed
+# 1.3.0 guest (2026-08-19):
+#
+#   systemd-networkd-wait-online.service   2min 124ms
+#   graphical.target reached after         2min 3.246s
+#
+# i.e. two solid minutes of black screen before greetd even started.
+# Everything downstream (network-online.target, multi-user.target,
+# graphical.target, greetd.service) sat in "waiting" the whole time.
+# Install the same in-tree file so there is one source of truth; ISO mode
+# already ships it in the airootfs, so copying it there would be a no-op.
+if [[ -z "$VINOS_ROOT" ]]; then
+  REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  _wo_src="$REPO/iso/profile/airootfs/etc/systemd/system/systemd-networkd-wait-online.service.d/wait-for-only-one-interface.conf"
+  _wo_dir="$(_rootpath /etc/systemd/system/systemd-networkd-wait-online.service.d)"
+  if [[ -f "$_wo_src" ]]; then
+    _sudo install -Dm 0644 "$_wo_src" "$_wo_dir/wait-for-only-one-interface.conf"
+    log "04-services: wait-online capped (--any --timeout=15; default is 120 s)"
+  else
+    warn "wait-online drop-in missing from tree; boot may stall 120 s on network"
+  fi
+fi
+
 # /etc/resolv.conf → resolved's stub.
 #
 # `systemctl enable` does NOT start a unit — it wires it up for the next
