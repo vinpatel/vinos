@@ -261,13 +261,21 @@ fi
 _ssh 'pacman -Qq | wc -l' > "$OUT_DIR/pkgcount.before" 2>/dev/null || true
 
 # ── STEP 4: run it ─────────────────────────────────────────────────
+# VINOS_ENABLE_SSH=1 is not cosmetic. install/04-services.sh runs
+# `ufw --force default deny incoming` + `ufw --force enable`, and only
+# adds an ssh rule when this is set. Without it the firewall closes the
+# harness's only observation channel partway through its own run — which
+# is what made two runs look like memory exhaustion when the guest was
+# in fact perfectly healthy at a login prompt. Real installs keep ssh
+# closed; this is a harness deviation, and the ufw-is-active assertion
+# in step 6 makes sure we did not weaken the firewall itself.
 step "4/6 run vinos-install-desktop (up to $((TIMEOUT/60)) min)"
 UPDATE_FLAG=$( (( LOCAL_REPO )) && printf -- '--no-update' || printf '' )
 # Poll on an exit-code file, not on pgrep. `pgrep -f vinos-install-desktop`
 # run over ssh matches the shell running the pgrep itself, so the process
 # always looks alive and the loop only ever ends at the timeout.
 _ssh "rm -f ~/desktop-run.rc; \
-      nohup setsid bash -c 'TERM=dumb vinos-install-desktop $UPDATE_FLAG --yes --no-reboot \
+      nohup setsid bash -c 'TERM=dumb VINOS_ENABLE_SSH=1 vinos-install-desktop $UPDATE_FLAG --yes --no-reboot \
         > ~/desktop-run.log 2>&1; echo \$? > ~/desktop-run.rc' \
         < /dev/null > /dev/null 2>&1 & echo started" >/dev/null \
   || die "could not launch vinos-install-desktop"
@@ -349,6 +357,14 @@ _check "greetd enabled"  "systemctl is-enabled greetd"                 '^enabled
 _check "greetd config"   "test -f /etc/greetd/config.toml && echo yes" '^yes$'               || (( fails+=1 ))
 _check "hypr config"     "test -f ~/.config/hypr/hyprland.conf && echo yes" '^yes$'          || (( fails+=1 ))
 _check "sentinel"        "test -f ~/.local/state/vinos/desktop.done && echo yes" '^yes$'     || (( fails+=1 ))
+# The firewall must still be up — we opened ssh for observability, we did
+# not turn the firewall off.
+_check "ufw active"      "sudo -n ufw status | head -1"                 'Status: active'    || (( fails+=1 ))
+# 04-services repoints /etc/resolv.conf at systemd-resolved's stub. When
+# that stub does not exist the symlink dangles and DNS dies silently for
+# everything downstream; 07-ai.sh failed on every mirror that way.
+_check "resolv.conf resolves" "readlink -e /etc/resolv.conf >/dev/null && echo ok" '^ok$'   || (( fails+=1 ))
+_check "DNS works"       "getent hosts archlinux.org >/dev/null && echo ok"        '^ok$'   || (( fails+=1 ))
 
 # Every binary below is invoked by a shipped keybinding, an autostart line,
 # or a vinos-* helper. A missing one is a keystroke that silently does

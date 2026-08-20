@@ -118,16 +118,75 @@ if [[ -L "$_sys_mask" && "$(readlink "$_sys_mask")" == "/dev/null" ]]; then
   _sudo rm -f "$_sys_mask"
 fi
 
-# /etc/resolv.conf → resolved's stub. Some environments (Docker
-# containers, LXC, some VM providers) bind-mount /etc/resolv.conf and
-# ln will fail with EBUSY — that's harmless there because the host is
-# already handling DNS, so warn + continue rather than aborting the
-# whole 04-services run.
+# /etc/resolv.conf → resolved's stub.
+#
+# `systemctl enable` does NOT start a unit — it wires it up for the next
+# boot. Pointing resolv.conf at resolved's stub while resolved is still
+# stopped therefore leaves a DANGLING symlink, and DNS is dead for the
+# remainder of this run: everything downstream fails with "Could not
+# resolve host". That is precisely how 07-ai.sh died on an installed
+# machine (2026-08-19) — ~300 packages in, then every mirror unreachable,
+# with /etc/resolv.conf pointing at a file that did not exist.
+#
+# So on a running system: start resolved first, switch, then PROVE
+# resolution still works and back the change out if it does not. A box
+# that cannot resolve anything is worse than one still using whatever
+# NetworkManager had written.
+#
+# Some environments (Docker, LXC, some VM providers) bind-mount
+# /etc/resolv.conf and ln fails with EBUSY — harmless there, because the
+# host already handles DNS, so warn and continue.
 _resolv="$(_rootpath /etc/resolv.conf)"
-if _sudo ln -sfn /run/systemd/resolve/stub-resolv.conf "$_resolv" 2>/dev/null; then
-  log "04-services: /etc/resolv.conf → resolved stub"
+
+if [[ -n "$VINOS_ROOT" ]]; then
+  # ISO build: there is no running systemd to start, and resolved is
+  # enabled for the airootfs's own boot, so the symlink is correct.
+  if _sudo ln -sfn /run/systemd/resolve/stub-resolv.conf "$_resolv" 2>/dev/null; then
+    log "airootfs: /etc/resolv.conf → resolved stub"
+  else
+    warn "could not symlink /etc/resolv.conf in airootfs; leaving as-is"
+  fi
 else
-  warn "could not symlink /etc/resolv.conf (bind mount?); leaving as-is"
+  # Preserve a real resolv.conf so we can put it back. A dangling or
+  # symlinked one is not worth preserving.
+  _resolv_backup=""
+  if [[ -f "$_resolv" && ! -L "$_resolv" ]]; then
+    _resolv_backup="$(mktemp)"
+    cp "$_resolv" "$_resolv_backup" 2>/dev/null || _resolv_backup=""
+  fi
+
+  _dns_ok() { getent hosts archlinux.org >/dev/null 2>&1 || getent hosts archlinux.org >/dev/null 2>&1; }
+
+  if ! _sudo systemctl start systemd-resolved 2>/dev/null; then
+    warn "systemd-resolved would not start — leaving /etc/resolv.conf alone so DNS keeps working"
+  elif _sudo ln -sfn /run/systemd/resolve/stub-resolv.conf "$_resolv" 2>/dev/null; then
+    log "04-services: /etc/resolv.conf → resolved stub"
+    # resolved needs a beat to create the stub and learn its upstreams.
+    for _try in 1 2 3 4 5 6 7 8 9 10; do
+      if _dns_ok; then break; fi
+      sleep 1
+    done
+    if _dns_ok; then
+      log "04-services: DNS still resolving after the switch to resolved"
+    else
+      warn "DNS stopped resolving after switching to systemd-resolved — reverting /etc/resolv.conf"
+      _sudo rm -f "$_resolv"
+      if [[ -n "$_resolv_backup" ]]; then
+        _sudo install -Dm 0644 "$_resolv_backup" "$_resolv"
+      fi
+      # Nudge whoever owns DNS to rewrite it.
+      _sudo systemctl reload-or-restart NetworkManager 2>/dev/null || true
+      if _dns_ok; then
+        log "04-services: DNS restored"
+      else
+        warn "DNS is still not resolving — later network steps will fail; check 'resolvectl status'"
+      fi
+    fi
+  else
+    warn "could not symlink /etc/resolv.conf (bind mount?); leaving as-is"
+  fi
+
+  if [[ -n "$_resolv_backup" ]]; then rm -f "$_resolv_backup"; fi
 fi
 
 # Install the vinos-firstboot systemd unit. Runs 06-hardware.sh once
