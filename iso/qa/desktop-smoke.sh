@@ -405,6 +405,17 @@ fi
 # started, and nothing here would have noticed. With the drop-in it is
 # ~18 s. 60 s is a deliberately loose ceiling: it catches a reintroduced
 # two-minute stall without failing on a slow host or a cold AUR cache.
+# systemd-analyze refuses to answer while bootup is still in progress, and
+# the reboot in step 5 can hand us back an ssh login before that point --
+# the first version of this check read 21s and 18s on two runs and then
+# WARNed on a third for exactly that reason. Wait for systemd to stop
+# reporting "starting" before asking. degraded is a settled state, so it
+# counts as finished.
+for _i in $(seq 1 20); do
+  _state="$(_ssh 'systemctl is-system-running' 2>/dev/null || true)"
+  [[ "$_state" == starting* ]] || break
+  sleep 3
+done
 _boot_s="$(_ssh "systemd-analyze 2>/dev/null | awk '/graphical.target reached/{print \$4}'" 2>/dev/null || true)"
 _boot_int="${_boot_s%%.*}"
 if [[ "$_boot_int" =~ ^[0-9]+$ ]]; then
@@ -417,6 +428,21 @@ if [[ "$_boot_int" =~ ^[0-9]+$ ]]; then
   _ssh 'systemd-analyze blame 2>/dev/null | head -5' > "$OUT_DIR/boot-blame.txt" 2>/dev/null || true
 else
   printf 'WARN: %-28s | could not read systemd-analyze\n' "boot budget" >> "$VERIFY_LOG"
+fi
+
+# Which units failed, if any. Informational rather than a gate: with the
+# --any --timeout=15 drop-in, systemd-networkd-wait-online legitimately
+# fails on a box where NetworkManager owns the only link and networkd has
+# nothing to manage -- which is every QEMU guest here. That is a real
+# question about owning the network stack, not a desktop-smoke failure, so
+# this reports rather than blocks. `is-system-running` returning degraded
+# was previously invisible to this harness entirely.
+_sysstate="$(_ssh 'systemctl is-system-running' 2>/dev/null || true)"
+printf 'INFO: %-28s | %s\n' "system state" "${_sysstate:-unknown}" >> "$VERIFY_LOG"
+if [[ "$_sysstate" == degraded ]]; then
+  _ssh 'systemctl --failed --no-pager --plain --no-legend' > "$OUT_DIR/failed-units.txt" 2>/dev/null || true
+  _failed="$(_ssh "systemctl --failed --no-pager --plain --no-legend | awk '{print \$1}' | tr '\n' ' '" 2>/dev/null || true)"
+  printf 'INFO: %-28s | %s\n' "failed units" "${_failed:-none listed}" >> "$VERIFY_LOG"
 fi
 
 # The drop-in that keeps the above honest must actually be on the target,
