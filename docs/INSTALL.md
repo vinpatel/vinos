@@ -25,7 +25,7 @@ whichever matches your situation:
    sudo dd if=vinos-*.iso of=/dev/sdX bs=4M status=progress conv=fsync && sync
    ```
    Or use [Etcher](https://etcher.balena.io) / [Rufus](https://rufus.ie).
-3. Boot the target machine off the USB. syslinux menu appears; press Enter for the default entry.
+3. Boot the target machine off the USB. The vinOS boot menu appears; press Enter for the default entry.
 4. Wait ~2 minutes → live vinOS desktop.
 5. Open a terminal (`Super+Return`) and run:
    ```bash
@@ -53,7 +53,7 @@ That clones this repo to `~/.local/share/vinos` and runs `install.sh`. Everythin
 
 On 2018-2020 T2 Macs, you have three options:
 
-- **Easiest (Path A)**: flash the vinOS ISO. `vinos-install-disk` detects `Apple Inc.` in DMI and auto-selects the `linux-t2` kernel + `apple-bcm-firmware` + `tiny-dfr` + friends from the arch-mact2 repo. Bootloader is systemd-boot pinned to `linux-t2` by default.
+- **Easiest (Path A)**: flash the vinOS ISO. `vinos-install-disk` detects `Apple Inc.` in DMI and auto-selects the `linux-t2` kernel + `apple-bcm-firmware` + `tiny-dfr` + friends from the arch-mact2 repo. Bootloader is limine pinned to `linux-t2` by default.
 
 - **Path B, existing Arch install**: if you're already running Arch on the Mac (e.g. via t2linux's `t2archinstall`), just:
   ```bash

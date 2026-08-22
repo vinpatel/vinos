@@ -107,7 +107,7 @@ See [USB.md](USB.md) for persistence, boot-menu tips, and troubleshooting.
 
 ## What the build produces (v1.1.0)
 
-- **One ISO** (~4.3 GB) — dual-kernel (`linux` + `linux-t2`), dual-mode boot (BIOS syslinux + UEFI systemd-boot), 7 boot menu entries
+- **One ISO** (~4.0 GB) — dual-kernel (`linux` + `linux-t2`), the vinOS limine menu on both BIOS and UEFI, 5 boot menu entries
 - **~250 packages** installed
 - **88 `vinos-*` helper scripts** in `/usr/share/vinos/bin/` (symlinked from `/usr/local/bin/`)
 - **Live user `vinos`** created on first boot with passwordless wheel sudo

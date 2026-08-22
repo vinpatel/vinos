@@ -168,6 +168,60 @@ _check_wallpaper_present() {
   fi
 }
 
+# --- 5. limine live menu mirrors the archiso boot entries ---------------
+#
+# The live ISO is re-mastered onto limine by iso/mklimine-iso.sh, which
+# reads config/limine/entries-live.conf. mkarchiso still builds the
+# systemd-boot ESP from iso/profile/efiboot/loader/entries/*.conf first,
+# and that ESP is then thrown away — so an edit made only there changes
+# nothing on the shipped medium, silently. Compare the two.
+
+_check_limine_live_parity() {
+  local live="$REPO/config/limine/entries-live.conf"
+  local sd_dir="$REPO/iso/profile/efiboot/loader/entries"
+  [[ -f "$live" ]]   || { fail "config/limine/entries-live.conf missing — iso/mklimine-iso.sh has nothing to write"; return; }
+  [[ -d "$sd_dir" ]] || { fail "$sd_dir missing"; return; }
+
+  local sd_cmdlines limine_cmdlines
+  sd_cmdlines="$(cat "$sd_dir"/*.conf | sed -n 's/^options[[:space:]]*//p' | tr -s ' ' | sort)"
+  limine_cmdlines="$(sed -n 's/^[[:space:]]*kernel_cmdline:[[:space:]]*//p' "$live" | tr -s ' ' | sort)"
+
+  local sd_n limine_n
+  sd_n="$(printf '%s\n' "$sd_cmdlines" | grep -c .)"
+  limine_n="$(printf '%s\n' "$limine_cmdlines" | grep -c .)"
+
+  if [[ "$sd_n" -ne "$limine_n" ]]; then
+    fail "limine live menu has $limine_n entries but archiso ships $sd_n — config/limine/entries-live.conf is out of sync with $sd_dir"
+    return
+  fi
+
+  if [[ "$sd_cmdlines" != "$limine_cmdlines" ]]; then
+    fail "limine live menu kernel command lines differ from the archiso entries:"
+    diff <(printf '%s\n' "$sd_cmdlines") <(printf '%s\n' "$limine_cmdlines") | sed 's/^/     /'
+    return
+  fi
+
+  # Every entry needs both halves; a missing module_path boots a kernel
+  # with no initramfs, which panics after the menu has already gone.
+  local k m
+  k="$(grep -c '^[[:space:]]*kernel_path:' "$live")"
+  m="$(grep -c '^[[:space:]]*module_path:' "$live")"
+  if [[ "$k" -ne "$limine_n" || "$m" -ne "$limine_n" ]]; then
+    fail "limine live menu: $limine_n entries but $k kernel_path / $m module_path lines"
+    return
+  fi
+
+  # Limine draws the menu in its built-in console font. Anything outside
+  # ASCII in a title came out as a tofu box in QEMU.
+  local nonascii
+  nonascii="$(grep -n '^/' "$live" | LC_ALL=C grep -P '[^\x00-\x7F]' | grep -v '—' || true)"
+  if [[ -n "$nonascii" ]]; then
+    warn "limine entry titles carry non-ASCII limine's font may not have: $(printf '%s' "$nonascii" | head -2 | tr '\n' ' ')"
+  fi
+
+  pass "limine live menu mirrors all $limine_n archiso boot entries"
+}
+
 # --- Run --------------------------------------------------------------
 
 printf '\n\033[1;36m== iso/qa/config-lint.sh ==\033[0m\n'
@@ -175,6 +229,7 @@ _check_autostart_paths
 _check_no_xdg_terminal_exec
 _check_wallpaper_present
 _check_exec_targets_present
+_check_limine_live_parity
 
 printf '\n\033[1;36msummary\033[0m: %d pass · %d warn · %d fail\n' "$PASS" "$WARN" "$FAIL"
 [[ $FAIL -eq 0 ]] || exit 1

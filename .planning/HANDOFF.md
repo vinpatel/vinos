@@ -1,3 +1,57 @@
+# Session handoff — 2026-08-22 (limine on the live medium)
+
+> **2026-08-22 update.** The live USB now boots the same authored vinOS
+> limine menu the installed disk does. archiso still cannot emit limine —
+> `bootmodes` offers only `bios.syslinux` and `uefi.systemd-boot` — so
+> `iso/mklimine-iso.sh` re-masters the mkarchiso output afterwards:
+> unpack, drop limine's BIOS + UEFI El Torito payloads in, write
+> `/boot/limine/limine.conf` from `config/limine/limine.conf` (theme) plus
+> `config/limine/entries-live.conf` (entries), repack per the hybrid recipe
+> in `/usr/share/doc/limine/USAGE.md`, `limine bios-install`. `iso/build.sh`
+> runs it between mkarchiso and the install-smoke gate, so the gate always
+> exercises the bootloader that ships.
+>
+> Proven in QEMU against a re-mastered 1.3.0 ISO: the menu renders with
+> wallpaper and branding under **both** OVMF and legacy BIOS, the live
+> system boots through to `VINOS_BOOT_OK`, and `iso/qa/install-smoke.sh`
+> came back **GREEN 10/10 in 350 s** against that ISO — including the step
+> that boots the installed qcow2 with no ISO attached, where the installed
+> disk shows the same menu. Screenshots of all three surfaces are committed
+> at `assets/limine/proof-live-uefi.png`, `proof-live-bios.png`,
+> `proof-installed-boot.png`. Kernels are read straight off
+> the ISO9660 volume via `boot():/arch/boot/x86_64/…` — no second copy on
+> the ESP, which is also why the ISO came out ~560 MB smaller than the
+> archiso original (archiso's `uefi.systemd-boot.esp` mode duplicates both
+> kernels and both initramfs images into `efiboot.img`, and we discard it).
+>
+> Two smaller things fixed alongside: entry titles are ASCII now (limine's
+> built-in font drew the arrow/gear/dot marks as tofu), and
+> `iso/qa/limine-preview.sh --live` renders the real
+> `config/limine/entries-live.conf` instead of a hand-copied duplicate,
+> holding the menu open instead of racing its own 5 s timeout.
+>
+> Artifact: `iso/out/vinos-1.3.0-limine-x86_64.iso`, sha256
+> `395b1f730a4fef372a5dacec2dd1b5bf1502c4fe4540c27b53aa53922107fb83`,
+> 4.0 GB. It is the 2026-08-20 `iso/out/vinos-1.3.0-x86_64.iso` re-mastered,
+> which is equivalent to a fresh build: the only commit touching the tree
+> since that ISO was cut is `cb329462`, and it edits a QA script. Named
+> `-limine` rather than overwriting, because **`iso/out/vinos-1.3.0-x86_64.iso`
+> is not the gold copy** — the preserved 1.3.0 is
+> `~/vinos-iso-archive/isos/vinos-1.3.0-x86_64.iso` (sha256 `70bf8cb7…`,
+> 4.5 GB, 2026-08-15). The one in `iso/out/` is a later dev rebuild
+> (sha256 `0b5267d3…`, 2026-08-20) reusing the version number, and a
+> future session could easily mistake it for the archival one.
+>
+> For the canonical build, `iso/build.sh` now does everything in order:
+> mkarchiso → limine re-master → install-smoke gate.
+>
+> `iso/qa/config-lint.sh` gained a parity check: the limine live entries
+> and `iso/profile/efiboot/loader/entries/*.conf` must carry identical
+> kernel command lines, so editing only the now-discarded systemd-boot
+> entries fails the build instead of silently doing nothing.
+
+---
+
 # Session handoff — 2026-08-18 (v1.4.0 phased installer)
 
 > Supersedes the 2026-08-16 rc4/rc5 handoff entirely. That document described

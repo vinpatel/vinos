@@ -55,7 +55,9 @@ Every top-level directory has a purpose:
 - **Fix a `vinos-*` script:** edit under `bin/`
 - **Change a keybinding or Hyprland behavior:** edit `config/hypr/`
 - **Add / drop a package:** edit `iso/packages.live` (live-ISO-specific) or install scripts (installed-system-specific), regenerate via `iso/gen-packages.sh`
-- **Fix a boot-menu entry:** edit `iso/profile/efiboot/loader/entries/*.conf` (UEFI) or `iso/profile/syslinux/*.cfg` (BIOS)
+- **Fix a live-USB boot-menu entry:** edit `config/limine/entries-live.conf`. Both firmware paths boot the same limine menu — `iso/mklimine-iso.sh` re-masters the mkarchiso output onto it after every build. `iso/profile/efiboot/loader/entries/*.conf` still exists because mkarchiso insists on building a systemd-boot ESP, but that ESP is discarded; `iso/qa/config-lint.sh` fails the build if the two drift apart.
+- **Fix the boot menu's look:** edit `config/limine/limine.conf` — one theme header, shared by the live USB and the installed disk. Preview it in seconds with `iso/qa/limine-preview.sh`.
+- **Fix an installed-system boot entry:** edit `iso/installer/bootloader/all.sh`
 - **Change the live-user setup:** edit `iso/airootfs-overlay/etc/systemd/system/vinos-live-init.service`
 - **Change any user-facing config file:** see [`CONFIGURATION.md`](CONFIGURATION.md) — the map of every config file, where it lands on the guest, and how to hot-reload it.
 - **Change branding — logo, colors, wallpaper watermark:** see [`BRANDING.md`](BRANDING.md). `iso/qa/branding-check.sh` enforces these at build time.

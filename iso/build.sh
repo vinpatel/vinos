@@ -185,6 +185,22 @@ PACCONF
   "
 
 log "done → $OUT_DIR"
+
+# Re-master onto limine. archiso can only emit bios.syslinux +
+# uefi.systemd-boot, which means a freshly built ISO shows one of two
+# stock menus depending on firmware, while the installed system shows the
+# authored vinOS one. This rewrites both boot paths to the same limine
+# menu, so what a user sees off the USB is what they see off the disk.
+#
+# Runs before the install-smoke gate on purpose: the gate must exercise
+# the bootloader we actually ship, not the one mkarchiso happened to make.
+FRESH_ISO="$OUT_DIR/vinos-${VINOS_VERSION}-x86_64.iso"
+if [[ -f "$FRESH_ISO" ]]; then
+  log "re-mastering the live medium onto limine"
+  "$ISO_DIR/mklimine-iso.sh" --iso "$FRESH_ISO" \
+    || die "limine re-master failed — the ISO still carries systemd-boot/syslinux"
+fi
+
 ls -1sh "$OUT_DIR"/*.iso "$OUT_DIR"/sha256sums.txt 2>/dev/null || true
 
 # Ship gate 1 — install-smoke. Boots the newly-built ISO in UEFI QEMU with
@@ -194,7 +210,6 @@ ls -1sh "$OUT_DIR"/*.iso "$OUT_DIR"/sha256sums.txt 2>/dev/null || true
 # in a controlled VM, the ISO does not leave this script. Set
 # VINOS_SKIP_INSTALL_SMOKE=1 to bypass ONLY for iteration on ISO-side
 # changes that don't touch the install path (branding, wallpaper, etc.).
-FRESH_ISO="$OUT_DIR/vinos-${VINOS_VERSION}-x86_64.iso"
 if [[ -f "$FRESH_ISO" ]]; then
   if [[ "${VINOS_SKIP_INSTALL_SMOKE:-0}" == "1" ]]; then
     log "install-smoke SKIPPED (VINOS_SKIP_INSTALL_SMOKE=1) — do not ship this ISO"
