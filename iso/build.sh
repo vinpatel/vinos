@@ -203,6 +203,21 @@ fi
 
 ls -1sh "$OUT_DIR"/*.iso "$OUT_DIR"/sha256sums.txt 2>/dev/null || true
 
+# Ship gate 0c — boot the image as a USB stick, both firmwares.
+#
+# This runs BEFORE install-smoke because install-smoke attaches the ISO with
+# -cdrom, and a CD has no partition table. On 2026-08-22 an ISO passed
+# install-smoke 10/10 and then looped in the initramfs emergency shell on
+# real hardware, because the re-master had dropped -partition_offset 16 and
+# no partition carried an ISO9660 superblock. Only a USB-shaped boot sees
+# that class of bug.
+if [[ -f "$FRESH_ISO" && -x "$ISO_DIR/qa/usb-boot-smoke.sh" ]]; then
+  log "usb-boot-smoke: booting the image as a USB stick"
+  "$ISO_DIR/qa/usb-boot-smoke.sh" --iso "$FRESH_ISO" \
+    || die "usb-boot-smoke FAILED — this image would not boot off a USB stick"
+  log "usb-boot-smoke: GREEN"
+fi
+
 # Ship gate 1 — install-smoke. Boots the newly-built ISO in UEFI QEMU with
 # a scratch disk, drives the wizard through a fixed profile, waits for the
 # install to finish, then reboots into the installed system and verifies

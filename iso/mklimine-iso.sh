@@ -19,6 +19,8 @@
 #     --out OUT    where to write it   (default: in place, via a temp file)
 #     --work DIR   scratch dir         (default: mktemp -d next to the output)
 #     --keep-work  leave the unpacked tree behind for inspection
+#     --bios-usb   also install limine's BIOS stage, so a legacy-BIOS machine
+#                  can boot off a USB stick. Costs the GPT — see below.
 set -euo pipefail
 
 ISO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -31,6 +33,7 @@ IN_ISO=""
 OUT_ISO=""
 WORK=""
 KEEP_WORK=0
+BIOS_USB=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -38,6 +41,7 @@ while [[ $# -gt 0 ]]; do
     --out)  [[ $# -ge 2 ]] || die "--out needs a path";  OUT_ISO="$2"; shift 2 ;;
     --work) [[ $# -ge 2 ]] || die "--work needs a path"; WORK="$2";    shift 2 ;;
     --keep-work) KEEP_WORK=1; shift ;;
+    --bios-usb)  BIOS_USB=1; shift ;;
     -h|--help) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) die "unknown argument: $1 (try --help)" ;;
   esac
@@ -149,10 +153,34 @@ done < <(sed -n 's/^ *\(kernel_path\|module_path\): *//p' "$ROOT/boot/limine/lim
 log "all kernel/initramfs paths resolve on the image"
 
 # ── repack ─────────────────────────────────────────────────────────
-# Boot layout is the hybrid recipe from /usr/share/doc/limine/USAGE.md:
-# El Torito BIOS entry -> limine-bios-cd.bin, El Torito EFI entry ->
-# limine-uefi-cd.bin, and -efi-boot-part --efi-boot-image republishes that
-# EFI image as the ESP so a dd'd USB stick boots the same way a CD does.
+# The layout has to match what mkarchiso produced, not the generic recipe
+# in /usr/share/doc/limine/USAGE.md. Two options carry the whole thing:
+#
+#   -partition_offset 16   writes a second ISO9660 superblock at sector 64
+#                          so partition 1 is independently mountable. Without
+#                          it the filesystem only exists at offset 0 of the
+#                          whole device, and archiso's initramfs — which
+#                          searches partitions for /boot/<uuid>.uuid — finds
+#                          nothing and drops to its emergency shell. That is
+#                          a USB-only failure: booted as a CD there are no
+#                          partitions at all, so it looks fine in QEMU.
+#
+#   -append_partition 2    puts the ESP in the partition table where USB
+#                          firmware looks for it. limine-uefi-cd.bin is
+#                          already a FAT12 image holding EFI/BOOT/BOOTX64.EFI,
+#                          so it can be appended as-is.
+#
+#   -appended_part_as_gpt  describes it in a GPT. archiso reaches the same
+#                          place with -isohybrid-gpt-basdat, but that only
+#                          emits a GPT when an isohybrid MBR template is also
+#                          supplied — and ours would have to be syslinux's,
+#                          which is the bootloader we just removed. Apple
+#                          firmware wants the GPT, so we take this route and
+#                          accept a protective MBR instead of a hybrid one.
+#
+# Recovered from the archiso original with:
+#   xorriso -indev <iso> -report_el_torito as_mkisofs
+# Keep the two in step if archiso ever changes its own boot layout.
 TMP_ISO="$WORK/out.iso"
 log "repacking → $(basename "$OUT_ISO")"
 xorriso -as mkisofs \
@@ -161,16 +189,80 @@ xorriso -as mkisofs \
   -publisher "Vin Patel <https://vinpatel.com>" \
   -preparer "iso/mklimine-iso.sh" \
   -r -J -joliet-long \
-  -b boot/limine/limine-bios-cd.bin \
+  -partition_offset 16 \
+  --mbr-force-bootable \
+  -iso_mbr_part_type 0x00 \
+  -append_partition 2 0xef "$LIMINE_DATA/limine-uefi-cd.bin" \
+  -c '/boot/limine/boot.cat' \
+  -b '/boot/limine/limine-bios-cd.bin' \
   -no-emul-boot -boot-load-size 4 -boot-info-table \
-  --efi-boot boot/limine/limine-uefi-cd.bin \
-  -efi-boot-part --efi-boot-image \
-  --protective-msdos-label \
-  -o "$TMP_ISO" "$ROOT" 2>&1 | grep -vi '^xorriso : UPDATE' || true
+  -eltorito-alt-boot \
+  -e '--interval:appended_partition_2:all::' \
+  -no-emul-boot \
+  -appended_part_as_gpt \
+  -o "$TMP_ISO" "$ROOT" 2>&1 | grep -viE '^xorriso : UPDATE|^Added to ISO|^libisofs: NOTE' || true
 [[ -s "$TMP_ISO" ]] || die "xorriso produced no image"
 
-log "installing the limine BIOS stage to the image"
-limine bios-install "$TMP_ISO" >/dev/null || die "limine bios-install failed"
+# `limine bios-install` is NOT run by default, and that is deliberate.
+#
+# It writes its stage 2 at byte offset 0x200 — LBA 1 — which is exactly
+# where the GPT header lives, so the image comes out with a valid MBR and a
+# corrupt GPT. (That is why limine offers to convert GPT to MBR outright.)
+# syslinux does not have this problem: its MBR fits in LBA 0, which is how
+# archiso ships a valid GPT and MBR together.
+#
+# UEFI wins the trade. The primary target is an Apple T2 Mac, whose firmware
+# expects GPT, and matching archiso's proven layout is the whole point of
+# this script. Dropping the BIOS stage costs BIOS boot *from USB* only —
+# BIOS boot from CD/DVD still works through the El Torito
+# limine-bios-cd.bin entry above, and UEFI works from both.
+#
+# --bios-usb opts back in for a legacy-BIOS machine that must boot off a
+# stick, at the cost of the GPT.
+if (( BIOS_USB )); then
+  warn_gpt="the GPT will be invalidated — UEFI firmware that requires GPT (Apple) may refuse this image"
+  log "installing the limine BIOS stage (--bios-usb): $warn_gpt"
+  limine bios-install --no-gpt-to-mbr-isohybrid-conversion "$TMP_ISO" >/dev/null \
+    || die "limine bios-install failed"
+else
+  log "skipping the BIOS stage so the GPT stays valid (pass --bios-usb to trade it for legacy-BIOS USB boot)"
+fi
+
+# ── verify the layout, not just the exit codes ─────────────────────
+# Partition 1 must carry a readable ISO9660 superblock of its own. This is
+# the check that would have caught the emergency-shell boot loop before it
+# reached a USB stick.
+_p1_start="$(partx -g -o START "$TMP_ISO" 2>/dev/null | sed -n 1p | tr -d ' ')"
+[[ -n "$_p1_start" ]] || die "no partition table in the rebuilt image"
+python3 - "$TMP_ISO" "$_p1_start" <<'PYEOF' || die "partition 1 has no ISO9660 superblock — archiso's initramfs will not find the medium"
+import sys
+iso, start = sys.argv[1], int(sys.argv[2])
+with open(iso, 'rb') as f:
+    f.seek(start * 512 + 32768)      # ISO9660 primary volume descriptor
+    sys.exit(0 if f.read(6)[1:6] == b'CD001' else 1)
+PYEOF
+log "partition 1 carries its own ISO9660 superblock (offset ${_p1_start}s)"
+
+# c12a7328-… is the EFI System Partition type GUID; 0xef is the MBR
+# equivalent, still worth matching in case a future change drops the GPT.
+if ! partx -g -o TYPE "$TMP_ISO" 2>/dev/null \
+     | grep -qiE 'c12a7328-f81f-11d2-ba4b-00a0c93ec93b|^ *ef$'; then
+  die "no EFI system partition in the rebuilt image — UEFI USB boot would find no ESP"
+fi
+log "EFI system partition present"
+
+# Apple firmware wants a GPT, and `limine bios-install` writes over LBA 1
+# where the GPT header lives. Assert the header survived.
+#
+# gdisk's table scan is the oracle here, not `sgdisk -p` — sgdisk reports
+# "Invalid partition data!" for the archiso original too, the image that
+# boots on the Mac today, so it cannot tell a good hybrid from a broken one.
+if (( ! BIOS_USB )) && command -v gdisk >/dev/null; then
+  _gpt="$(printf 'q\n' | gdisk "$TMP_ISO" 2>/dev/null | sed -n 's/^ *GPT: *//p' | head -1)"
+  [[ "$_gpt" == present ]] \
+    || die "the rebuilt image reports 'GPT: $_gpt' — Apple firmware may refuse it. Something wrote over LBA 1."
+  log "GPT present"
+fi
 
 mv -f "$TMP_ISO" "$OUT_ISO"
 log "done → $OUT_ISO ($(du -h "$OUT_ISO" | cut -f1))"

@@ -14,7 +14,7 @@
 > Proven in QEMU against a re-mastered 1.3.0 ISO: the menu renders with
 > wallpaper and branding under **both** OVMF and legacy BIOS, the live
 > system boots through to `VINOS_BOOT_OK`, and `iso/qa/install-smoke.sh`
-> came back **GREEN 10/10 in 350 s** against that ISO — including the step
+> came back **GREEN 10/10 against that ISO** — including the step
 > that boots the installed qcow2 with no ISO attached, where the installed
 > disk shows the same menu. Screenshots of all three surfaces are committed
 > at `assets/limine/proof-live-uefi.png`, `proof-live-bios.png`,
@@ -30,9 +30,44 @@
 > `config/limine/entries-live.conf` instead of a hand-copied duplicate,
 > holding the menu open instead of racing its own 5 s timeout.
 >
+> **The first artifact did not boot on hardware, and the gate said it was
+> fine.** Flashed to a USB stick it reached limine, loaded the kernel, and
+> then looped forever in the archiso initramfs emergency shell —
+> `device did not show up after 30 seconds` → `Falling back to interactive
+> prompt` → `sh: can't access tty` → repeat.
+>
+> Cause: the re-master used the generic hybrid recipe from limine's
+> USAGE.md, which has no `-partition_offset 16`. archiso uses that option to
+> write a second ISO9660 superblock at sector 64 so partition 1 is readable
+> on its own. Without it the filesystem lives only at offset 0 of the raw
+> device, and archiso's initramfs — which searches *partitions* for
+> `/boot/<uuid>.uuid` — finds nothing.
+>
+> It is a USB-only failure. `install-smoke` attaches the ISO with `-cdrom`,
+> and a CD has no partition table, so the medium is always found. **That
+> gate could not have caught this, and it returned 10/10 green on an
+> unbootable image.** New gate `iso/qa/usb-boot-smoke.sh` boots the image as
+> USB mass storage and requires `VINOS_BOOT_OK`; `iso/build.sh` runs it
+> before install-smoke. Verified in both directions — it rejects the broken
+> artifact (statically, in a second, naming the missing option) and passes
+> the fixed one.
+>
+> The layout is now recovered from the archiso original rather than invented,
+> via `xorriso -indev <iso> -report_el_torito as_mkisofs`. `mklimine-iso.sh`
+> also asserts what it built: partition 1 must carry a `CD001` superblock,
+> an EFI System partition must exist, and the GPT must be present.
+>
+> **`limine bios-install` is not run by default.** It writes stage 2 at
+> LBA 1, which is where the GPT header lives, so BIOS-USB boot and a valid
+> GPT are mutually exclusive. Apple firmware wants the GPT, so UEFI wins;
+> `--bios-usb` opts back in. Boot matrix on the fixed image: UEFI+USB PASS,
+> UEFI+CD PASS, BIOS+CD PASS, BIOS+USB fails by design.
+>
 > Artifact: `iso/out/vinos-1.3.0-limine-x86_64.iso`, sha256
-> `395b1f730a4fef372a5dacec2dd1b5bf1502c4fe4540c27b53aa53922107fb83`,
-> 4.0 GB. It is the 2026-08-20 `iso/out/vinos-1.3.0-x86_64.iso` re-mastered,
+> `b30dfbdd48574a30015dc98726369a1a6e57fc15b3d8a91032c40598798bf722`,
+> 4.0 GB. install-smoke GREEN 10/10 (351 s) and usb-boot-smoke GREEN against
+> this exact image. The earlier `395b1f73…` artifact is deleted — it was the
+> one that boot-looped. It is the 2026-08-20 `iso/out/vinos-1.3.0-x86_64.iso` re-mastered,
 > which is equivalent to a fresh build: the only commit touching the tree
 > since that ISO was cut is `cb329462`, and it edits a QA script. Named
 > `-limine` rather than overwriting, because **`iso/out/vinos-1.3.0-x86_64.iso`

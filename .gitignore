@@ -1,16 +1,13 @@
 iso/out/
 iso/qa/*
-!iso/qa/config-lint.sh
-!iso/qa/hmp.sh
-!iso/qa/keepalive.sh
-!iso/qa/loop.sh
-!iso/qa/pkglist.txt
-!iso/qa/prep-harness.sh
-!iso/qa/branding-check.sh
-!iso/qa/install-smoke.sh
-!iso/qa/desktop-smoke.sh
-!iso/qa/limine-preview.sh
-!iso/qa/t2-hardware-checkpoint.md
+# Track the harness sources, ignore whatever a run drops beside them.
+# This used to be a hand-maintained allowlist, one line per gate — so a
+# newly written gate was silently untracked until someone noticed. That
+# is the same shape of gap as a gate that cannot see the bug it exists
+# to catch, so it is a pattern now rather than a list.
+!iso/qa/*.sh
+!iso/qa/*.md
+!iso/qa/*.txt
 iso/.aur-cache/
 
 # Q6b — dev pubkey injected at build time (per-developer, never committed).
