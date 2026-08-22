@@ -29,10 +29,10 @@
 #   iso/qa/usb-boot-smoke.sh [--iso PATH] [--timeout SECS] [--bios]
 #     --iso PATH      image to test (default: iso/out/vinos-$(cat VERSION)-x86_64.iso)
 #     --timeout SECS  per-case wall clock (default 240)
-#     --bios          also require legacy-BIOS USB boot. Off by default:
-#                     iso/mklimine-iso.sh skips limine's BIOS stage so the
-#                     GPT survives, which costs BIOS-from-USB. Pass this
-#                     only for an image built with mklimine --bios-usb.
+#     --uefi-only     skip the legacy-BIOS USB case. Both firmwares are
+#                     required by default: docs/HARDWARE.md scopes the ISO to
+#                     "USB -> BIOS/UEFI boot", so a UEFI-only image is a
+#                     regression, not a pass.
 set -euo pipefail
 
 QA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -40,7 +40,7 @@ REPO="$(cd "$QA_DIR/../.." && pwd)"
 
 ISO=""
 TIMEOUT=240
-WANT_BIOS=0
+WANT_BIOS=1
 
 RED='\033[1;31m'; GREEN='\033[1;32m'; BLUE='\033[1;34m'; RESET='\033[0m'
 die() { printf "${RED}[usb-boot] FAIL:${RESET} %s\n" "$*" >&2; exit 2; }
@@ -50,7 +50,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --iso)     [[ $# -ge 2 ]] || die "--iso needs a path"; ISO="$2"; shift 2 ;;
     --timeout) [[ $# -ge 2 ]] || die "--timeout needs secs"; TIMEOUT="$2"; shift 2 ;;
-    --bios)    WANT_BIOS=1; shift ;;
+    --uefi-only) WANT_BIOS=0; shift ;;
     -h|--help) sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) die "unknown argument: $1 (try --help)" ;;
   esac
@@ -87,8 +87,12 @@ with open(iso, 'rb') as f:
 PYEOF
 log "partition 1 carries an ISO9660 superblock (offset ${P1_START}s)"
 
+# Two spellings, because the two layouts we ship differ: a GPT image names
+# the ESP by type GUID, an MBR image by type byte, and partx prints the byte
+# as 0xef. Matching only one of them failed the stock archiso ISO — the image
+# known to boot on real hardware — so the gate has to know both.
 partx -g -o TYPE "$ISO" 2>/dev/null \
-  | grep -qiE 'c12a7328-f81f-11d2-ba4b-00a0c93ec93b|^ *ef$' \
+  | grep -qiE 'c12a7328-f81f-11d2-ba4b-00a0c93ec93b|^ *(0x)?ef$' \
   || die "no EFI system partition — UEFI firmware would find nothing to boot"
 log "EFI system partition present"
 
@@ -145,7 +149,9 @@ _boot_case() {
 printf '\n\033[1;36m== iso/qa/usb-boot-smoke.sh ==\033[0m\n'
 log "image: $ISO"
 _boot_case uefi-usb uefi
-(( WANT_BIOS )) && _boot_case bios-usb bios
+# Plain `(( WANT_BIOS )) && ...` would evaluate to 1 under --uefi-only and
+# take `set -e` down with it.
+if (( WANT_BIOS )); then _boot_case bios-usb bios; fi
 
 if (( FAIL )); then
   printf "\n${RED}%d boot case(s) failed${RESET} — this image would not boot off a USB stick.\n" "$FAIL"

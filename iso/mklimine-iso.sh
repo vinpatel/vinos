@@ -19,8 +19,6 @@
 #     --out OUT    where to write it   (default: in place, via a temp file)
 #     --work DIR   scratch dir         (default: mktemp -d next to the output)
 #     --keep-work  leave the unpacked tree behind for inspection
-#     --bios-usb   also install limine's BIOS stage, so a legacy-BIOS machine
-#                  can boot off a USB stick. Costs the GPT — see below.
 set -euo pipefail
 
 ISO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -33,7 +31,6 @@ IN_ISO=""
 OUT_ISO=""
 WORK=""
 KEEP_WORK=0
-BIOS_USB=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -41,7 +38,6 @@ while [[ $# -gt 0 ]]; do
     --out)  [[ $# -ge 2 ]] || die "--out needs a path";  OUT_ISO="$2"; shift 2 ;;
     --work) [[ $# -ge 2 ]] || die "--work needs a path"; WORK="$2";    shift 2 ;;
     --keep-work) KEEP_WORK=1; shift ;;
-    --bios-usb)  BIOS_USB=1; shift ;;
     -h|--help) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) die "unknown argument: $1 (try --help)" ;;
   esac
@@ -170,7 +166,13 @@ log "all kernel/initramfs paths resolve on the image"
 #                          already a FAT12 image holding EFI/BOOT/BOOTX64.EFI,
 #                          so it can be appended as-is.
 #
-#   -appended_part_as_gpt  describes it in a GPT. archiso reaches the same
+#   -append_partition 3    a "BIOS boot" partition holding limine's stage 2.
+#                          Without it `limine bios-install` puts stage 2 at
+#                          LBA 1 — where the GPT header lives — and a machine
+#                          that needs the GPT (Apple) stops booting. See
+#                          "BIOS/GPT" in /usr/share/doc/limine/USAGE.md.
+#
+#   -appended_part_as_gpt  describes it all in a GPT. archiso reaches the same
 #                          place with -isohybrid-gpt-basdat, but that only
 #                          emits a GPT when an isohybrid MBR template is also
 #                          supplied — and ours would have to be syslinux's,
@@ -182,6 +184,11 @@ log "all kernel/initramfs paths resolve on the image"
 #   xorriso -indev <iso> -report_el_torito as_mkisofs
 # Keep the two in step if archiso ever changes its own boot layout.
 TMP_ISO="$WORK/out.iso"
+# Empty space for limine's stage 2. The docs ask for at least 32 KiB; 1 MiB
+# costs nothing on a 4 GB image and leaves room if stage 2 grows.
+BIOSBOOT="$WORK/biosboot.img"
+truncate -s 1M "$BIOSBOOT"
+
 log "repacking → $(basename "$OUT_ISO")"
 xorriso -as mkisofs \
   -volid "$VOLID" \
@@ -193,6 +200,7 @@ xorriso -as mkisofs \
   --mbr-force-bootable \
   -iso_mbr_part_type 0x00 \
   -append_partition 2 0xef "$LIMINE_DATA/limine-uefi-cd.bin" \
+  -append_partition 3 21686148-6449-6E6F-744E-656564454649 "$BIOSBOOT" \
   -c '/boot/limine/boot.cat' \
   -b '/boot/limine/limine-bios-cd.bin' \
   -no-emul-boot -boot-load-size 4 -boot-info-table \
@@ -203,30 +211,16 @@ xorriso -as mkisofs \
   -o "$TMP_ISO" "$ROOT" 2>&1 | grep -viE '^xorriso : UPDATE|^Added to ISO|^libisofs: NOTE' || true
 [[ -s "$TMP_ISO" ]] || die "xorriso produced no image"
 
-# `limine bios-install` is NOT run by default, and that is deliberate.
-#
-# It writes its stage 2 at byte offset 0x200 — LBA 1 — which is exactly
-# where the GPT header lives, so the image comes out with a valid MBR and a
-# corrupt GPT. (That is why limine offers to convert GPT to MBR outright.)
-# syslinux does not have this problem: its MBR fits in LBA 0, which is how
-# archiso ships a valid GPT and MBR together.
-#
-# UEFI wins the trade. The primary target is an Apple T2 Mac, whose firmware
-# expects GPT, and matching archiso's proven layout is the whole point of
-# this script. Dropping the BIOS stage costs BIOS boot *from USB* only —
-# BIOS boot from CD/DVD still works through the El Torito
-# limine-bios-cd.bin entry above, and UEFI works from both.
-#
-# --bios-usb opts back in for a legacy-BIOS machine that must boot off a
-# stick, at the cost of the GPT.
-if (( BIOS_USB )); then
-  warn_gpt="the GPT will be invalidated — UEFI firmware that requires GPT (Apple) may refuse this image"
-  log "installing the limine BIOS stage (--bios-usb): $warn_gpt"
-  limine bios-install --no-gpt-to-mbr-isohybrid-conversion "$TMP_ISO" >/dev/null \
-    || die "limine bios-install failed"
-else
-  log "skipping the BIOS stage so the GPT stays valid (pass --bios-usb to trade it for legacy-BIOS USB boot)"
-fi
+# BIOS boot code. Stage 1 goes in the MBR; stage 2 goes in the BIOS boot
+# partition appended above, NOT at LBA 1 where limine would otherwise put it
+# and overwrite the GPT header. That is what lets one image boot a
+# legacy-BIOS PC off a USB stick and still satisfy firmware that requires a
+# GPT — the whole point being that this ISO boots everything, not a subset.
+_bb="$(partx -g -o NR,TYPE "$TMP_ISO" 2>/dev/null \
+       | awk 'tolower($2) == "21686148-6449-6e6f-744e-656564454649" {print $1; exit}')"
+[[ -n "$_bb" ]] || die "no BIOS boot partition in the rebuilt image — stage 2 would land on the GPT header"
+log "installing the limine BIOS stage into partition $_bb"
+limine bios-install "$TMP_ISO" "$_bb" >/dev/null || die "limine bios-install failed"
 
 # ── verify the layout, not just the exit codes ─────────────────────
 # Partition 1 must carry a readable ISO9660 superblock of its own. This is
@@ -251,13 +245,13 @@ if ! partx -g -o TYPE "$TMP_ISO" 2>/dev/null \
 fi
 log "EFI system partition present"
 
-# Apple firmware wants a GPT, and `limine bios-install` writes over LBA 1
-# where the GPT header lives. Assert the header survived.
+# Apple firmware wants a GPT, and a stage 2 written to LBA 1 would destroy
+# it. Assert the header survived the BIOS install.
 #
 # gdisk's table scan is the oracle here, not `sgdisk -p` — sgdisk reports
 # "Invalid partition data!" for the archiso original too, the image that
 # boots on the Mac today, so it cannot tell a good hybrid from a broken one.
-if (( ! BIOS_USB )) && command -v gdisk >/dev/null; then
+if command -v gdisk >/dev/null; then
   _gpt="$(printf 'q\n' | gdisk "$TMP_ISO" 2>/dev/null | sed -n 's/^ *GPT: *//p' | head -1)"
   [[ "$_gpt" == present ]] \
     || die "the rebuilt image reports 'GPT: $_gpt' — Apple firmware may refuse it. Something wrote over LBA 1."
