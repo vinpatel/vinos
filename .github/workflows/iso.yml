@@ -1,6 +1,10 @@
 # vinOS CI — lint, AUR cache, and ISO build+test.
-# Triggers: manual dispatch, and tag pushes matching v* (which produce
-# release artifacts).
+# Trigger: manual dispatch only.
+#
+# Deliberately NOT on tag push. The ISO that ships is the one built on
+# the maintainer's server and verified on real T2 hardware; rebuilding
+# it at tag time would attach a *different* artifact than the one that
+# passed the hardware checkpoint. release.yml owns tag-time publishing.
 #
 # The `iso` job runs on a self-hosted runner because mkarchiso needs
 # real loop devices + privileged docker, which GitHub-hosted runners
@@ -13,11 +17,9 @@ name: iso
 
 on:
   workflow_dispatch:
-  push:
-    tags: ['v*']
 
 permissions:
-  contents: write   # attach release assets on tag push
+  contents: read
   actions: read
 
 jobs:
@@ -74,23 +76,12 @@ jobs:
       - name: Test ISO (QEMU matrix — BIOS+UEFI, 3G floor, offline)
         run: iso/test.sh --mode matrix --timeout 360
 
-      - name: Attach ISO + sha256 to release (tag push only)
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            iso/out/vinos-*.iso
-            iso/out/sha256sums.txt
-          name: vinOS ${{ steps.version.outputs.value }}
-          draft: false
-          prerelease: false
-
-      - name: Upload artifacts (manual dispatch — 7-day retention)
-        if: github.event_name == 'workflow_dispatch'
+      # Only the sha256 manifest travels — a 4 GB ISO is well past
+      # GitHub's per-artifact limits, and iso/out holds every prior
+      # build besides. The ISO itself lives on Tigris (release.yml).
+      - name: Upload sha256 manifest (7-day retention)
         uses: actions/upload-artifact@v4
         with:
-          name: vinos-iso-${{ steps.version.outputs.value }}
-          path: |
-            iso/out/vinos-*.iso
-            iso/out/sha256sums.txt
+          name: vinos-iso-${{ steps.version.outputs.value }}-sha256
+          path: iso/out/sha256sums.txt
           retention-days: 7
