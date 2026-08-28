@@ -18,6 +18,19 @@
   --color-rule:         oklch(82% 0.012 82);
   --color-rule-strong:  oklch(72% 0.012 78);
 
+  /* — brand mark —
+   * NOT an accent. This is the vinOS logo teal, and its single source of
+   * truth is assets/logo/vinos.svg — the same file the ISO, the Plymouth
+   * theme and the PNG favicon set are rasterized from. #4FD1C5 in sRGB.
+   * The site used to paint the mark with --color-accent (warm rust), so
+   * the logo on vinos.computer was a different colour from the logo on
+   * the machine you downloaded. Only the mark and the "runs local"
+   * semantic column may use it; everything typographic uses the accent
+   * below, which keeps the two from competing for the same job.
+   */
+  --color-brand:        oklch(78.6% 0.114 186.6);
+  --color-brand-ink:    oklch(19% 0.010 60);
+
   /* — accent (warm rust; used sparingly, ≤3% viewport) — */
   --color-accent:       oklch(52% 0.19 40);
   --color-accent-2:     oklch(58% 0.18 42);

@@ -1,4 +1,4 @@
 ---
 title: "vinOS"
-description: "A secure, agent-native Arch layer — Claude Code + local LLMs one keystroke away."
+description: "An agent runtime for hardware you own. One codebase, two personas: a workstation you drive and a headless node your agents run on."
 ---

@@ -4,9 +4,9 @@
   {{/* ═══════════════════════ HERO · video-first ═══════════════════════ */}}
   <section class="hero hero-wrap hero-video-first" aria-labelledby="hero-heading">
     <div class="hero-headroom">
-      <div class="hero-eyebrow">an <span class="accent">agentic</span> operating system</div>
+      <div class="hero-eyebrow">an <span class="accent">agent</span> runtime</div>
       <h1 id="hero-heading" class="hero-headline">
-        For founders, innovators, and <span class="accent">thinkers.</span>
+        The operating system your agents <span class="accent">run on.</span>
       </h1>
     </div>
 
@@ -20,19 +20,22 @@
 
     <div class="hero-footroom">
       <p class="hero-lede measure">
-        Flash a USB. Boot. In <span class="accent">fifteen minutes</span> you're running
-        local LLMs and Claude Code — one keystroke away. Runs on any
-        x86_64 machine: the laptop you own, the workstation your OEM shipped
-        preloaded, or the server in your closet. Local models do the heavy
-        lifting. Frontier models fill the gap. Nothing leaves your hardware
-        unless you send it.
+        Agents need somewhere to live that isn't your main session and isn't
+        someone else's container. vinOS is that place: a runtime layer on
+        x86_64 hardware you own, in <span class="accent">two shapes</span> from
+        one codebase — a workstation you sit in front of, and a headless node
+        you never log into. Same bash, same systemd units, same
+        <code>vinos</code> CLI on both. Local models take the volume; frontier
+        models take the calls that earn it. Nothing leaves the box unless you
+        send it.
       </p>
       <div class="hero-meta">
         <span class="chip emph">v{{ .Site.Params.version }}</span>
         <span class="chip">x86_64 UEFI</span>
         <span class="chip">Apple T2</span>
         <span class="chip">NVIDIA</span>
-        <span class="chip">4.3 GB</span>
+        <span class="chip">MCP registry</span>
+        <span class="chip">self-hosted</span>
       </div>
       <div class="hero-actions">
         <a href="{{ .Site.Params.isoURL }}" class="btn-primary" target="_blank" rel="noopener">
@@ -45,38 +48,41 @@
   </section>
 
   {{/* ═══════════════════════ Adoption stat strip · 80/100/15 ═══════════════════════ */}}
-  <section class="stat-strip stat-strip-3 tnum" aria-label="The 80/20 stack">
+  <section class="stat-strip stat-strip-3 tnum" aria-label="vinOS at a glance">
     <div>
-      <p class="n">80<span class="unit">%</span></p>
-      <p class="q">of agent workloads runnable on <em>local</em> models — Ollama, on your metal.</p>
+      <p class="n">2</p>
+      <p class="q">personas — <em>workstation</em> and <em>headless node</em> — built from one codebase.</p>
     </div>
     <div>
       <p class="n">100<span class="unit">%</span></p>
-      <p class="q">of your data stays on your hardware — <em>by default</em>, not opt-in.</p>
+      <p class="q">of your prompts, files and keys stay on your hardware — <em>by default</em>, not opt-in.</p>
     </div>
     <div>
-      <p class="n">15<span class="unit">min</span></p>
-      <p class="q">from a flashed USB to a working <em>AI machine</em> you own end-to-end.</p>
+      <p class="n">201<span class="unit">MB</span></p>
+      <p class="q">idle memory on the headless node, measured — not a target we hope to hit.</p>
     </div>
   </section>
 
   {{/* ═══════════════════════ THE 80/20 STACK · why narrative ═══════════════════════ */}}
   <section class="section section-first">
     <header class="section-head">
-      <h2>The <span class="accent">80/20</span> stack.</h2>
+      <h2>Where the work <span class="accent">actually runs.</span></h2>
     </header>
     <div class="prose measure">
       <p>
         Most agent work is grunt work — summarizing, refactoring, extracting,
-        drafting, testing. A local model on your own hardware handles it for
-        free, offline, in private. The hard 20% — deep reasoning, big context,
-        final polish — goes to a frontier model over the API.
+        drafting, testing. A local model on hardware you already own handles it
+        at zero marginal cost, offline, in private. The hard fraction — deep
+        reasoning, big context, the final call — goes to a frontier model over
+        the API.
       </p>
       <p>
-        vinOS wires this split in from first boot: <code>Ollama</code> serving
-        local models on your metal, <code>Claude Code</code> ready for the calls
-        that matter. You decide what stays home. <em>Your API bill covers
-        judgment, not busywork.</em>
+        vinOS wires that split in at the runtime layer, so it holds whether
+        you're one person at a desk or thirty workers on a rack:
+        <code>Ollama</code> serving local models on the metal,
+        <code>Claude Code</code> ready for the calls that earn their price, and
+        <code>vinos-mcp</code> managing which tools an agent can reach. You
+        decide what stays home. <em>The API bill covers judgment, not volume.</em>
       </p>
     </div>
 
@@ -89,72 +95,122 @@
         <thead>
           <tr>
             <th scope="col">a real week, three real jobs</th>
-            <th scope="col"><span class="col-name">frontier</span><span class="col-note">Claude Opus 4.7</span></th>
+            <th scope="col"><span class="col-name">frontier</span><span class="col-note">Claude Opus 5</span></th>
             <th scope="col"><span class="col-name">local</span><span class="col-note">Ollama · your GPU</span></th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>refactor · 300-line Rust file</td>
-            <td class="c-frontier">$0.20</td>
+            <td class="c-frontier">$0.07</td>
             <td class="c-local">$0.00</td>
           </tr>
           <tr>
             <td>summarize · 100-page PDF</td>
-            <td class="c-frontier">$1.65</td>
+            <td class="c-frontier">$0.55</td>
             <td class="c-local">$0.00</td>
           </tr>
           <tr>
             <td>extract · structured data from 500 emails</td>
-            <td class="c-frontier">$1.50</td>
+            <td class="c-frontier">$0.50</td>
             <td class="c-local">$0.00</td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
             <th scope="row">weekly total</th>
-            <td class="c-frontier">$3.35</td>
+            <td class="c-frontier">$1.12</td>
             <td class="c-local"><strong>$0.00</strong></td>
           </tr>
         </tfoot>
       </table>
       <p class="cost-callout-foot">
-        <em>vinOS routed all three to your metal.</em>
-        Scale that up by a year of grunt work and the ownership pays for itself.
-        Reserve the API for the judgment calls worth paying for.
+        <em>vinOS routed all three to the metal.</em>
+        A dollar a week is nothing. Now run it as a standing job on thirty
+        nodes and the same arithmetic is the whole operating budget —
+        which is the case the runtime layer exists to make.
       </p>
       <p class="cost-callout-fine">
-        Numbers use public Claude Opus 4.7 rates ($15/M input · $75/M output)
+        Numbers use public Claude Opus 5 rates ($5/M input · $25/M output)
         × typical token counts. Your workload will vary — <code>vinos-ai costs</code>
         prints the real ledger from your last week of prompts.
       </p>
     </aside>
   </section>
 
+  {{/* ═══════════════════════ PERSONAS · one codebase, two shapes ═══════════════════════ */}}
+  <section class="section">
+    <header class="section-head">
+      <h2>One codebase. <span class="accent">Two shapes.</span></h2>
+      <p class="section-lede">
+        The distro underneath differs because the job differs. The vinOS layer
+        on top — bash, systemd units, config drop-ins, the <code>vinos</code>
+        CLI — is byte-identical on both.
+      </p>
+    </header>
+
+    <div class="table-wrap">
+      <table class="spec">
+        <caption>vinos-dev · vinos-vm</caption>
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col" class="col-emph">vinos-dev<span class="col-note">the workstation</span></th>
+            <th scope="col">vinos-vm<span class="col-note">the headless node</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Base</th><td>Arch Linux, rolling</td><td>Ubuntu 24.04 LTS, minimal</td></tr>
+          <tr><th scope="row">Kernel</th><td><code>linux</code> + <code>linux-t2</code></td><td><code>linux-image-generic</code></td></tr>
+          <tr><th scope="row">You interact with it via</th><td>Hyprland, a keyboard, your hands</td><td>SSH, cloud-init, an orchestrator</td></tr>
+          <tr><th scope="row">Ships as</th><td>archiso <code>.iso</code>, BIOS + UEFI</td><td>qcow2 / AMI / VHD</td></tr>
+          <tr><th scope="row">Idle memory</th><td class="num">~1.5 GB</td><td class="num">201 MB<span class="col-note">measured</span></td></tr>
+          <tr><th scope="row">Updates</th><td>you run <code>pacman -Syu</code></td><td>unattended, with a kernel-reboot gate</td></tr>
+          <tr><th scope="row">Status</th><td class="yes">shipping — v{{ .Site.Params.version }}</td><td class="maybe">in development</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prose measure">
+      <p>
+        Why two distros and not one? Because Arch on a cloud VM has an adoption
+        ceiling somewhere under one percent, and Ubuntu on a developer's
+        ThinkPad is a compromise nobody asked for. Rather than force one base to
+        be bad at half its job, vinOS keeps the base honest and moves the
+        <em>portable</em> part — the runtime — above it.
+      </p>
+      <p>
+        That is the whole architectural bet. A desktop distro cannot become a
+        fleet runtime later; a runtime can grow a desktop. <em>We built the
+        runtime first.</em>
+      </p>
+    </div>
+  </section>
+
   {{/* ═══════════════════════ HARDWARE BREADTH · use cases ═══════════════════════ */}}
   <section class="section">
     <header class="section-head">
-      <h2>Runs on the hardware <span class="accent">you choose.</span></h2>
+      <h2>Your cheapest node is the one <span class="accent">you already own.</span></h2>
     </header>
     <div class="prose measure">
       <p>
-        vinOS is one ISO for any x86_64 machine. Boot it on a fresh
-        workstation your OEM shipped preloaded. Boot it on the laptop
-        you already own. Boot it on the box in your basement. <em>Same
-        ISO. Same experience. Same fifteen-minute install.</em>
+        One ISO, any x86_64 machine. The laptop on your desk, the workstation
+        your OEM shipped preloaded, the box in the basement that has been idle
+        since 2021. Every one of them is a node that costs you nothing per hour.
       </p>
       <p>
         16&nbsp;GB of RAM and a decade-old CPU run a 7B model comfortably.
-        A GPU or a fat server runs 30B. The base install is a curated Arch
-        layer — every driver detected, every service tuned, agent stack
-        one command away.
+        A GPU or a fat server runs 30B. Drivers are detected, services tuned,
+        and the agent stack is one command away — because a node you have to
+        hand-configure is a node you will never add a second of.
       </p>
       <p>
-        <strong>Also runs on Intel MacBooks Apple abandoned.</strong> vinOS ships the
-        <code>linux-t2</code> kernel in the ISO itself — keyboard, trackpad,
-        Wi-Fi, and Touch Bar work from the moment the live USB boots. No
-        dongles. No firmware scavenger hunts. It's the fastest way to
-        turn a 2018–2020 T2 Mac into an AI workstation.
+        <strong>Including the Intel MacBooks Apple walked away from.</strong>
+        vinOS ships the <code>linux-t2</code> kernel in the ISO, and installs it
+        to disk on Apple hardware automatically — keyboard, trackpad, Wi-Fi and
+        Touch Bar work from the live USB through to the installed system. No
+        dongles, no firmware scavenger hunt. A 2019 MacBook Pro is a perfectly
+        good agent host.
       </p>
       <p class="small-print">
         <strong>Known T2 limits:</strong> suspend is unreliable upstream (we
@@ -167,26 +223,30 @@
   {{/* ═══════════════════════ ARCHITECTURE · ASCII diagram ═══════════════════════ */}}
   <section class="section">
     <header class="section-head">
-      <h2>A <span class="accent">thin, readable</span> layer on stock Arch.</h2>
+      <h2>A <span class="accent">thin, readable</span> layer you can leave.</h2>
       <p class="section-lede">
-        vinOS is not a fork. It's a thin, readable layer — leave any time and
-        nothing follows.
+        vinOS is not a fork of anything. It is a runtime layer over an unmodified
+        base — plain bash, plain systemd units, plain config files. Read all of
+        it in an afternoon; walk away and nothing follows you.
       </p>
     </header>
 
-    <div class="arch" role="img" aria-label="vinOS architecture — three layers, top to bottom">
+    <div class="arch" role="img" aria-label="vinOS architecture — agents on top, a shared runtime layer beneath them, and two bases below that: Arch for the vinos-dev workstation, Ubuntu 24.04 LTS for the vinos-vm headless node">
 <pre>
 ┌───────────────────────────────────────────────────────────────┐
-│  <span class="layer">your desktop</span>                                                │
-│  hyprland · waybar · walker · foot · mako · greetd            │
+│  <span class="layer">your agents</span>                  <span class="note"># local · frontier · MCP tools</span>  │
+│  ollama · claude code · vinos-mcp registry                    │
 ├───────────────────────────────────────────────────────────────┤
-│  <span class="layer">vinos overlay</span>            <span class="note"># 279 pkgs · 88 vinos-* bins</span>    │
-│  install/  themes/  bin/vinos-*  configs/*.conf               │
-│  ai · dev · media · office · gaming · comms · +2 bundles      │
-├───────────────────────────────────────────────────────────────┤
-│  <span class="layer">stock arch linux</span>          <span class="note"># rolling · pacman · systemd</span>  │
-│  linux 6.x  ·  linux-t2 (Apple T2)  ·  glibc  ·  wayland      │
-└───────────────────────────────────────────────────────────────┘
+│  <span class="layer">vinos runtime</span>            <span class="note"># identical on both personas</span>        │
+│  bin/vinos-*  ·  systemd units  ·  /etc/vinos/*               │
+├──────────────────────────────┬────────────────────────────────┤
+│  <span class="layer">vinos-dev</span>   <span class="note"># workstation</span>   │  <span class="layer">vinos-vm</span>   <span class="note"># headless node</span>    │
+│  hyprland · waybar · walker  │  cloud-init · agent worker     │
+│  foot · mako · greetd        │  no session, no compositor     │
+├──────────────────────────────┼────────────────────────────────┤
+│  <span class="layer">arch linux</span>  <span class="note"># rolling</span>       │  <span class="layer">ubuntu 24.04</span>  <span class="note"># LTS</span>           │
+│  linux · linux-t2 (Apple T2) │  linux-image-generic           │
+└──────────────────────────────┴────────────────────────────────┘
 </pre>
     </div>
   </section>
@@ -321,7 +381,9 @@
     <header class="section-head">
       <h2>How it stacks up.</h2>
       <p class="section-lede">
-        Same kernel. Same repos. The difference is what is already done when you log in.
+        Same kernel, same repos, same packages you could install yourself.
+        The difference is what is already done — and whether the same work
+        carries over to the machine you never log into.
       </p>
     </header>
 
@@ -348,6 +410,8 @@
           <tr><th scope="row">Sudo / security defaults</th><td class="yes">hardened</td><td class="maybe">defaults</td><td class="maybe">defaults</td></tr>
           <tr><th scope="row">Rolling updates</th><td class="yes">pacman + AUR</td><td class="yes">pacman</td><td class="yes">pacman</td></tr>
           <tr><th scope="row">Time to a working desktop</th><td class="yes num">~15 min</td><td class="maybe num">~45 min</td><td class="maybe num">~1 weekend</td></tr>
+          <tr><th scope="row">Same layer runs headless</th><td class="yes">one codebase</td><td class="no">rebuild it</td><td class="no">rebuild it</td></tr>
+          <tr><th scope="row">MCP tool registry</th><td class="yes"><code>vinos-mcp</code></td><td class="no">no</td><td class="no">no</td></tr>
         </tbody>
       </table>
     </div>
@@ -461,19 +525,21 @@
     </header>
     <div class="audience-grid">
       <div class="audience-col yes">
-        <h3>Founders, innovators, thinkers</h3>
+        <h3>Yes, if</h3>
         <ul>
-          <li>You're building — code, product, research, writing — and want agents doing the busywork.</li>
-          <li>You want a machine that boots into your workflow, not a setup weekend.</li>
-          <li>You'd rather run a 7B model for free than pay API rates for grunt work.</li>
-          <li>You care where your prompts, files, and keys live.</li>
+          <li>You are running agents on more than one machine and tired of each one being a snowflake.</li>
+          <li>You want the box under your desk and the box in the rack to behave identically.</li>
+          <li>You would rather a local model do the volume than meter every routine call through an API.</li>
+          <li>You need to know where the prompts, the files and the keys physically are — because someone will ask.</li>
+          <li>You have hardware sitting idle that could be doing work.</li>
         </ul>
       </div>
       <div class="audience-col no">
-        <h3>Not for you if</h3>
+        <h3>No, if</h3>
         <ul>
-          <li>You want a cloud that thinks for you.</li>
-          <li>You enjoy losing weekends to dotfiles.</li>
+          <li>You want a hosted product with a support contract. This is infrastructure you run.</li>
+          <li>You only ever need one machine and it already works. Nothing here beats "it already works".</li>
+          <li>You want a desktop distro. There are excellent ones, and some have real funding behind them.</li>
         </ul>
       </div>
     </div>
@@ -481,12 +547,13 @@
 
   {{/* ═══════════════════════ COMMUNITY CTA · ship agents today ═══════════════════════ */}}
   <section class="cta-final">
-    <h2>Boot into <span class="accent">your agents.</span></h2>
+    <h2>Start with <span class="accent">one node.</span></h2>
     <p class="cta-note">
       v{{ .Site.Params.version }} is out. Flash it to a USB, boot any x86_64
-      machine, and in fifteen minutes you're running local LLMs plus Claude
-      Code. Tell us what worked and what didn't — every hardware report makes
-      the next boot better.
+      machine — including the T2 MacBook in your drawer — and you have a node
+      running local models in about fifteen minutes. Add the second one when
+      the first has earned it. Tell us what worked and what didn't; every
+      hardware report makes the next boot better.
     </p>
     <div class="hero-actions">
       <a href="{{ .Site.Params.isoURL }}" class="btn-primary" target="_blank" rel="noopener">

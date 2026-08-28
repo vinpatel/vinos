@@ -10,6 +10,17 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Keyboard users land here first; it stays off-screen until focused. */
+.skip-link { position: absolute; left: -9999px; top: 0; z-index: 100; background: var(--color-ink); color: var(--color-paper); padding: var(--space-2xs) var(--space-sm); border-radius: 0 0 6px 0; font-family: var(--font-body); font-size: var(--text-sm); }
+.skip-link:focus { left: 0; }
+main:focus { outline: none; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
 html { font-size: 16px; overflow-x: clip; scroll-behavior: smooth; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 body { font-family: var(--font-body); font-size: var(--text-md); line-height: 1.55; color: var(--color-ink); background: var(--color-paper); overflow-x: clip; min-height: 100vh; letter-spacing: -0.005em; }
 
@@ -31,11 +42,11 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 
 .nav-edge { display: flex; justify-content: space-between; align-items: center; padding: var(--space-md) var(--page-gutter); max-width: var(--page-max); margin: 0 auto; gap: var(--space-md); }
 .nav-edge .wordmark { display: inline-flex; align-items: center; gap: 0.7rem; font-family: var(--font-display); font-size: var(--text-2xl); letter-spacing: -0.01em; line-height: 1; font-style: normal; color: var(--color-ink); }
-.nav-edge .wordmark em { font-style: normal; color: var(--color-accent); }
+.nav-edge .wordmark em { font-style: normal; color: var(--color-brand-ink); }
 .nav-edge .brand-mark { display: block; width: 40px; height: 40px; }
-.nav-edge .brand-mark .stroke-l { fill: var(--color-ink); }
-.nav-edge .brand-mark .stroke-r { fill: var(--color-accent); }
-.nav-edge .brand-mark .brand-caret { fill: var(--color-accent); animation: caret-blink 1.15s steps(1, end) infinite; }
+.nav-edge .brand-mark .stroke-l { fill: var(--color-brand); }
+.nav-edge .brand-mark .stroke-r { fill: var(--color-brand-ink); }
+.nav-edge .brand-mark .brand-caret { fill: var(--color-brand); animation: caret-blink 1.15s steps(1, end) infinite; }
 .nav-edge .nav-actions { display: inline-flex; align-items: center; gap: var(--space-2xs); }
 .nav-edge .cta-sponsor { font-family: var(--font-body); font-size: var(--text-sm); line-height: 1; padding: var(--space-2xs) var(--space-sm); border-radius: 100px; color: var(--color-accent); border: var(--rule-thin) solid var(--color-accent); transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); white-space: nowrap; display: inline-flex; align-items: center; gap: 0.35rem; }
 .nav-edge .cta-sponsor:hover { background: var(--color-accent); color: var(--color-paper); }
@@ -112,7 +123,7 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 
 .cost-callout { margin: var(--space-2xl) 0 var(--space-lg); background: #0f1116; border-radius: var(--radius-lg); border: 1px solid rgba(255,255,255,0.08); overflow: hidden; box-shadow: 0 24px 60px rgba(10,11,16,0.18), 0 4px 12px rgba(10,11,16,0.08); color: #f5f6fa; font-family: var(--font-mono); }
 .cost-callout-head { display: flex; align-items: baseline; gap: var(--space-md); padding: var(--space-md) var(--space-xl) var(--space-sm); border-bottom: 1px solid rgba(255,255,255,0.08); background: #16171d; }
-.cost-callout-tag { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.16em; color: #4fd1c5; }
+.cost-callout-tag { font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.16em; color: var(--color-brand); }
 .cost-callout-cmd { color: #a9b1d6; font-size: var(--text-sm); background: transparent; border: 0; padding: 0; }
 .cost-callout-cmd::before { content: ""; }
 .cost-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: var(--text-sm); }
@@ -128,11 +139,11 @@ a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; bo
 .cost-table tbody td:last-child { padding-right: var(--space-xl); }
 .cost-table tbody tr:first-child td { border-top: 0; }
 .cost-table .c-frontier { color: #e5c07b; }
-.cost-table .c-local    { color: #4fd1c5; }
+.cost-table .c-local    { color: var(--color-brand); }
 .cost-table tfoot th, .cost-table tfoot td { border-top: 1px solid rgba(255,255,255,0.18); padding-block: var(--space-md); font-size: var(--text-md); }
 .cost-table tfoot th { color: #565f89; padding-left: var(--space-xl); font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; font-size: var(--text-2xs); }
 .cost-table tfoot td:last-child { padding-right: var(--space-xl); }
-.cost-table tfoot .c-local strong { color: #4fd1c5; font-weight: 700; }
+.cost-table tfoot .c-local strong { color: var(--color-brand); font-weight: 700; }
 .cost-callout-foot { margin: 0; padding: var(--space-md) var(--space-xl) var(--space-xs); font-family: var(--font-body); font-size: var(--text-md); line-height: 1.55; color: #c0c5d7; border-top: 1px solid rgba(255,255,255,0.06); }
 .cost-callout-foot em { font-family: var(--font-display); font-style: italic; color: #f5f6fa; font-size: 1.05em; margin-right: 4px; }
 .cost-callout-fine { margin: 0; padding: 0 var(--space-xl) var(--space-md); font-family: var(--font-mono); font-size: var(--text-xs); color: #565f89; letter-spacing: 0.01em; line-height: 1.6; }
@@ -194,6 +205,11 @@ kbd { font-size: 0.82em; padding: 0.15em 0.45em; border: var(--rule-hair) solid 
 .spec .no  { color: var(--color-off); font-family: var(--font-mono); font-size: var(--text-sm); }
 .spec .maybe { color: var(--color-warn); font-family: var(--font-mono); font-size: var(--text-sm); }
 .spec .col-emph { color: var(--color-ink); font-weight: 500; }
+/* Sublabels in .spec headers and cells — e.g. "vinos-dev / the workstation",
+   "201 MB / measured". Without this they inherit the parent's size and run
+   straight on from the label they are meant to sit under. Scoped rule was
+   previously only on .cost-table. */
+.spec .col-note { display: block; margin-top: 2px; font-family: var(--font-body); font-size: var(--text-2xs); font-weight: 400; letter-spacing: 0.02em; text-transform: none; color: var(--color-neutral); }
 .spec .num { font-variant-numeric: tabular-nums; }
 .spec .group-row td { padding-block: var(--space-3xs); background: var(--color-paper-2); font-family: var(--font-mono); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-muted); }
 .table-wrap { overflow-x: auto; width: 100%; }
@@ -247,9 +263,10 @@ kbd { font-size: 0.82em; padding: 0.15em 0.45em; border: var(--rule-hair) solid 
 .foot-brand { display: flex; flex-direction: column; gap: var(--space-md); }
 .foot-mark { display: inline-flex; align-items: center; gap: 0.6rem; color: var(--color-ink); font-family: var(--font-display); font-size: var(--text-xl); letter-spacing: -0.01em; font-style: normal; }
 .foot-mark svg { width: 36px; height: 36px; }
-.foot-mark .stroke-l { fill: var(--color-ink); }
-.foot-mark .stroke-r, .foot-mark .brand-caret { fill: var(--color-accent); }
-.foot-mark em { font-style: normal; color: var(--color-accent); }
+.foot-mark .stroke-l { fill: var(--color-brand); }
+.foot-mark .stroke-r { fill: var(--color-brand-ink); }
+.foot-mark .brand-caret { fill: var(--color-brand); }
+.foot-mark em { font-style: normal; color: var(--color-brand-ink); }
 .foot-line { max-width: 40ch; font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.6; color: var(--color-ink-2); margin: 0; }
 .foot-line a { color: var(--color-ink); border-bottom: var(--rule-hair) solid var(--color-rule-strong); }
 .foot-line a:hover { border-bottom-color: var(--color-ink); }
@@ -279,9 +296,9 @@ kbd { font-size: 0.82em; padding: 0.15em 0.45em; border: var(--rule-hair) solid 
 /* ══════════════════════════ hero SVG glyph ══════════════════════════ */
 
 .hero-glyph { position: absolute; top: 0; right: 0; width: clamp(120px, 14vw, 200px); height: clamp(120px, 14vw, 200px); opacity: 0.9; pointer-events: none; }
-.hero-glyph .stroke-l { fill: var(--color-ink); }
-.hero-glyph .stroke-r { fill: var(--color-accent); }
-.hero-glyph .hero-caret { fill: var(--color-accent); animation: caret-blink 1.15s steps(1, end) infinite; }
+.hero-glyph .stroke-l { fill: var(--color-brand); }
+.hero-glyph .stroke-r { fill: var(--color-brand-ink); }
+.hero-glyph .hero-caret { fill: var(--color-brand); animation: caret-blink 1.15s steps(1, end) infinite; }
 .hero-wrap { position: relative; }
 
 /* Video-first hero: title compact above, video sized to fit first fold. */

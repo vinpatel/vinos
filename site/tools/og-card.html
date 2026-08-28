@@ -1,0 +1,67 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif&display=block" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1200px;height:630px}
+  body{
+    background:#151a26;
+    color:#e8eaf0;
+    font-family:"Geist",system-ui,sans-serif;
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:72px 84px 60px;
+    position:relative;overflow:hidden;
+  }
+  /* ambient depth so the card is not a flat rectangle */
+  body::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(900px 520px at 88% -12%, rgba(79,209,197,.16), transparent 62%),
+               radial-gradient(700px 460px at -8% 108%, rgba(161,132,196,.13), transparent 60%);
+  }
+  body::after{
+    content:"";position:absolute;inset:0;opacity:.035;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .row{position:relative;display:flex;align-items:center;gap:20px}
+  svg{display:block}
+  .word{font-size:44px;letter-spacing:-.018em;font-weight:500}
+  .word em{font-style:normal;color:#4fd1c5}
+  h1{
+    position:relative;
+    font-family:"Instrument Serif",Georgia,serif;
+    font-size:94px;line-height:1.04;letter-spacing:-.022em;font-weight:400;
+    max-width:19ch;text-wrap:balance;
+  }
+  h1 .hl{color:#4fd1c5}
+  .foot{position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:56px;padding-top:26px;border-top:1px solid rgba(79,209,197,.22)}
+  .sub{font-size:24px;line-height:1.42;color:#a7aec2;letter-spacing:-.006em;max-width:44ch}
+  .sub b{color:#e8eaf0;font-weight:500}
+  .url{font-family:"Geist Mono",ui-monospace,monospace;font-size:21px;color:#4fd1c5;letter-spacing:.02em;white-space:nowrap}
+  
+</style></head><body>
+  <div class="row">
+    <svg viewBox="0 0 256 256" width="74" height="74" aria-hidden="true">
+      <g transform="translate(128,124)">
+        <path d="M -70,-70 L 0,70 L -22,70 L -92,-70 Z" fill="#4fd1c5"/>
+        <path d="M 70,-70 L 13,44 L 2,22 L 48,-70 Z" fill="#e6e8eb"/>
+        <rect x="28" y="54" width="30" height="16" fill="#4fd1c5"/>
+      </g>
+    </svg>
+    <span class="word">vin<em>OS</em></span>
+  </div>
+
+  <h1>The operating system your agents <span class="hl">run on.</span></h1>
+
+  <div class="foot">
+    <span class="sub">One codebase, two personas — <b>a workstation you drive</b> and <b>a node you never log into</b>.</span>
+    <span class="url">vinos.computer</span>
+  </div>
+</body></html>
+<!-- Source for site/static/img/og.png (1200x630 Open Graph card).
+     Regenerate after a positioning change:
+       chromium --headless --disable-gpu --hide-scrollbars --no-sandbox \
+         --window-size=1200,630 --virtual-time-budget=8000 \
+         --screenshot=site/static/img/og.png site/tools/og-card.html
+     Fonts load from Google Fonts, so this needs network. The mark is the
+     same geometry and the same #4fd1c5 as assets/logo/vinos.svg. -->

@@ -1,55 +1,67 @@
 ---
 title: "Install"
-description: "One command on any Arch. T2 Mac path included."
+description: "Flash the ISO and install to disk — including Apple T2 Macs, which the installer handles on its own."
 ---
 
-vinOS is an Arch layer — install Arch first, then run one command on top.
+There are two ways in. Take the first one unless you have a reason not to.
 
-## Which path are you?
+## 1. The ISO — recommended
 
-- **You have a 2018-2020 T2 Mac**: [T2 Mac path](#t2-mac).
-- **Everything else**: [Standard path](#standard).
+Download `vinos-1.4.0-x86_64.iso` from the
+[releases page](https://github.com/vinpatel/vinos/releases/latest), verify it
+against the published `sha256sums.txt`, and write it to any 8 GB+ stick:
 
-## T2 Mac
+```bash
+# Linux — replace sdX with your actual USB device, and check it twice
+sudo dd if=vinos-1.4.0-x86_64.iso of=/dev/sdX bs=4M status=progress oflag=sync
+```
 
-The T2 chip owns internal keyboard, trackpad, wifi, audio. Stock Arch
-can't drive that. Use the community [t2linux](https://wiki.t2linux.org)
-Arch build with the patched `linux-t2` kernel.
+Etcher and Rufus work fine too. Boot the stick, pick **Install vinOS to disk**
+from the menu, and answer the prompts. The installer partitions, pacstraps,
+installs the bootloader, creates your user, and reboots you into the installed
+system.
 
-1. Read + follow **[t2linux pre-install](https://wiki.t2linux.org/guides/preinstall/)** — Secure Boot off, allow external boot, shrink macOS partition.
-2. Follow **[t2linux Arch install](https://wiki.t2linux.org/distributions/arch/installation/)**. Use `t2archinstall` (guided) for the easy path.
-3. Finish Arch. Log in as your user. Then:
+### On an Apple T2 Mac
+
+Nothing extra to do. The installer detects Apple hardware and installs the
+`linux-t2` kernel to disk alongside the stock one, wires the Broadcom Wi-Fi
+quirks and the `apple-bce` early-boot modules, enables fan control and the
+Touch Bar daemon, and makes the T2 kernel the boot default.
+
+Two things worth knowing:
+
+- **Before you boot the stick:** on the Mac, disable Secure Boot and allow
+  booting from external media in Startup Security Utility (hold ⌘R at power-on
+  → Utilities → Startup Security Utility). Apple ships both locked down.
+- **If the installer cannot reach the T2 package mirror**, it says so and
+  finishes on the stock kernel instead of failing. That system boots to a
+  readable console — deliberately unsplashed — with the internal keyboard and
+  Wi-Fi still dead. Attach a USB keyboard and a wired connection, then run
+  `vinos-t2-enable` to finish the job.
+
+**Known T2 limits:** suspend is unreliable upstream, and Touch ID does not work
+under Linux. Everything else does.
+
+## 2. Layer it onto an Arch install you already have
+
+If you have a working Arch box you do not want to reinstall, vinOS can go on
+top of it. It is additive — it does not modify base packages.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/vinpatel/vinos/main/boot.sh | bash
 ```
 
-Reboot; you're in the vinOS Hyprland desktop with T2 hardware fully working.
-
-## Standard
-
-Any 2015+ Intel or AMD laptop/desktop.
-
-1. Boot the official Arch install ISO (or any Arch flavor's live media).
-2. Run `archinstall`. Pick your kernel, filesystem, timezone, user, sudo. **Profile: minimal** — vinOS handles the rest.
-3. Reboot into your new Arch. Log in.
-4. Run:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/vinpatel/vinos/main/boot.sh | bash
-```
-
-## What the one-liner does
-
-- Installs `git` if missing.
-- Clones this repo to `~/.local/share/vinos`.
-- Runs `install.sh` which orchestrates the numbered scripts (`01-base` → `06-hardware`).
-
-Everything is **idempotent** — safe to re-run. On failure, resume with:
+That installs `git` if missing, clones the repo to `~/.local/share/vinos`, and
+runs `install.sh`, which orchestrates the numbered scripts (`01-base` through
+`06-hardware`). Every step is idempotent, so it is safe to re-run. If one
+fails, resume past it:
 
 ```bash
 cd ~/.local/share/vinos && ./install.sh --skip NN
 ```
+
+This path does **not** set up the T2 kernel for you the way the ISO installer
+does — run `vinos-t2-enable` afterwards on Apple hardware.
 
 ## First moves
 
@@ -60,7 +72,7 @@ cd ~/.local/share/vinos && ./install.sh --skip NN
 
 ## Bundles
 
-Base is lean. Add what you need:
+The base install is deliberately small. Add what you actually use:
 
 ```bash
 vinos-install-ai            # ollama + claude-code + torch + aichat
@@ -77,10 +89,10 @@ Full catalog: [Bundles](/bundles/).
 
 ## Uninstall
 
-vinOS is additive — no base package modifications. To remove:
+For the layered install, vinOS is additive — no base package modifications:
 
 ```bash
-sudo pacman -Rns hyprland waybar foot mako walker ...  # any bundle
+sudo pacman -Rns hyprland waybar foot mako walker ...  # and any bundle
 rm -rf ~/.config/{hypr,waybar,foot,mako,walker} ~/.local/share/vinos
 sudo mv /etc/os-release.arch.bak /etc/os-release
 ```
