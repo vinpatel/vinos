@@ -233,8 +233,16 @@ from `base`; `rsync` was the only gap.
   correctly skips that entry. This is an upstream default, not a
   regression — but it leaves an installed machine with no recovery
   image if a module or microcode change breaks the autodetect initramfs.
-  Enabling it costs ~120 MB on a 512 MiB ESP that must also hold
-  `linux-t2` + its initramfs. Decision pending.
+  Enabling it costs ~120 MB per kernel on an ESP that, on Apple hardware,
+  now holds `linux-t2` alongside stock `linux` (the installer installs
+  both as of the T2 black-screen fix). That is what pushed the ESP from
+  512 MiB to 1 GiB in `disk/all.sh` — with fallbacks off the four images
+  come to ~110 MB and 512 MiB would have sufficed, but an ESP that fills
+  up fails silently (mkinitcpio writes a truncated image, the next boot
+  panics) and 512 MiB left no room to turn fallbacks back on. The
+  bootloader phase already emits fallback entries for both kernels when
+  the images exist, so enabling `PRESETS` is now a one-line decision with
+  the space to back it. Still pending.
 - Boot entry carries `quiet splash` and branding writes
   `plymouthd.conf Theme=vinos`, but plymouth is not in the base pacstrap
   set — the splash is a silent no-op on a base install.

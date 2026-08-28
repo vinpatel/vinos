@@ -61,6 +61,16 @@ if [[ -x "$ISO_DIR/qa/config-lint.sh" ]]; then
   "$ISO_DIR/qa/config-lint.sh" || die "config-lint FAILED — refusing to build"
 fi
 
+# Ship gate 0a — render the installer's bootloader phase for each hardware
+# profile and assert it boots what pacstrap installed. Catches the v1.4.0
+# black screen: a T2 Mac installed to disk was given a stock-kernel entry
+# with 'quiet splash', so it rebooted with no keyboard, no Wi-Fi, and no
+# console to run vinos-t2-enable from.
+if [[ -x "$ISO_DIR/qa/installer-boot-render.sh" ]]; then
+  log "running iso/qa/installer-boot-render.sh (installer boot-menu gate)"
+  "$ISO_DIR/qa/installer-boot-render.sh" || die "installer-boot-render FAILED — refusing to build"
+fi
+
 # Ship gate 0b — branding-check enforces docs/BRANDING.md (logo alpha,
 # wallpaper dims, GTK-CSS-safe waybar, product name spelling).
 if [[ -x "$ISO_DIR/qa/branding-check.sh" ]]; then
@@ -116,7 +126,27 @@ docker run --rm --privileged \
   -e VINOS_VERSION="$VINOS_VERSION" \
   "$IMG" \
   bash -euo pipefail -c "
-    cp -a /vinos-src /vinos
+    # Copy the source tree in, minus everything that is an OUTPUT rather
+    # than an input. This used to be a flat 'cp -a /vinos-src /vinos',
+    # which also copied iso/out — 72 GB of previously-built ISOs, qcow2
+    # images and QEMU screendumps — into the container on every single
+    # build. It cost ~10 minutes and 70 GB of writes before mkarchiso had
+    # even started, and it was pure waste twice over: iso/out is already
+    # bind-mounted at /out, so the build could always reach it directly.
+    #
+    # Excludes are outputs and caches only. If you add a directory here,
+    # be certain mkarchiso does not read from it.
+    mkdir -p /vinos
+    rsync -a \
+      --exclude 'iso/out/' \
+      --exclude 'iso/work/' \
+      --exclude 'iso/.aur-cache/' \
+      --exclude '.git/' \
+      --exclude 'site/public/' \
+      --exclude 'site/resources/' \
+      --exclude '*.iso' \
+      --exclude '*.qcow2' \
+      /vinos-src/ /vinos/
     cd /vinos
     export VINOS_VERSION='$VINOS_VERSION'
 

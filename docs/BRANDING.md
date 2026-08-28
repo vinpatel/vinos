@@ -57,11 +57,27 @@ palettes verbatim** — we authored these values, they are vinOS's colors.
 | Background raised | `#24283B` | popups, tooltips, waybar module bg (with alpha) |
 | Foreground primary | `#C0CAF5` | body text, waybar labels |
 | Foreground muted | `#565F89` | secondary text, disabled states |
-| Accent teal | `#7AA2F7` | V logo, links, focus rings, active workspace, plymouth caret |
+| Brand teal | `#4FD1C5` | **the V mark only** — `assets/logo/*.svg`, favicons, site brand mark |
+| Accent blue | `#7AA2F7` | links, focus rings, active workspace, plymouth caret |
 | Accent purple | `#BB9AF7` | vinos-menu highlights, `#custom-ai` waybar module |
 | Accent green | `#9ECE6A` | network up, battery ok |
 | Accent yellow | `#E0AF68` | cpu warning, battery warning |
 | Accent red | `#F7768E` | battery critical, disconnected |
+
+**Brand teal is not an accent, and it is not interchangeable with the blue.**
+The row above used to read "Accent teal `#7AA2F7` — V logo, links, focus
+rings", which was wrong twice over: `#7AA2F7` is blue, and the actual fill in
+`assets/logo/vinos.svg` has always been `#4FD1C5`. Because the doc named the
+wrong value, downstream surfaces each picked their own — vinos.computer
+painted the mark in the site's warm rust accent, and its `hugo.toml` declared
+a third colour again (`#33ccff`). Three logos, one product. The mark now
+takes its colour from one place: `assets/logo/vinos.svg`. The site mirrors it
+as `--color-brand` in `site/static/css/tokens.css`, and
+`iso/qa/branding-check.sh` fails the build if the two drift apart.
+
+The mark is also directional — in `assets/logo/vinos.svg` the **left** stroke
+and the cursor block carry the teal, and the right stroke is ink. The site had
+these mirrored, so the web logo was a horizontal flip of the one on the ISO.
 
 Named references live in `themes/<theme>/theme.conf` under `[palette]`.
 `iso/qa/branding-check.sh` diffs each theme's palette against this table

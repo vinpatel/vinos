@@ -116,6 +116,82 @@ else
   pass "product name spelling consistent in README + docs"
 fi
 
+# ---- logo colour is one colour, everywhere ----
+#
+# The V mark ships on four surfaces built by four different pipelines: the
+# SVG set in assets/logo/, the rasterized PNG favicons, the Plymouth theme
+# baked into the ISO, and the inline mark on vinos.computer. Each one used
+# to name its own colour, so the logo on the website was warm rust, the
+# logo in hugo.toml was #33ccff, docs/BRANDING.md claimed #7AA2F7, and only
+# the ISO actually carried the real one. Pin them together here.
+#
+# assets/logo/vinos.svg is the source of truth. Everything else is compared
+# against whatever IS in that file — so rebranding means editing one SVG
+# and re-running this, not hunting hex codes through the tree.
+
+LOGO_SVG="$REPO/assets/logo/vinos.svg"
+if [[ ! -f "$LOGO_SVG" ]]; then
+  fail "assets/logo/vinos.svg missing — the brand mark has no source of truth"
+else
+  # The left stroke's fill is the brand colour, by definition.
+  brand_hex="$(grep -o 'M -70,-70[^/]*fill="#[0-9a-fA-F]\{6\}"' "$LOGO_SVG" \
+               | grep -o '#[0-9a-fA-F]\{6\}' | head -1)"
+  if [[ -z "$brand_hex" ]]; then
+    fail "could not read the left-stroke fill out of assets/logo/vinos.svg"
+  else
+    brand_lc="$(printf '%s' "$brand_hex" | tr 'A-Z' 'a-z')"
+    pass "brand mark source of truth: assets/logo/vinos.svg → $brand_lc"
+
+    # (a) The favicon the browser tab shows must be the same mark.
+    fav="$REPO/site/static/img/favicon.svg"
+    if [[ -f "$fav" ]]; then
+      if grep -qi "$brand_lc" "$fav"; then
+        pass "site favicon.svg uses the brand teal"
+      else
+        fail "site/static/img/favicon.svg does not use $brand_lc — the tab icon is a different logo from the ISO"
+      fi
+    fi
+
+    # (b) hugo.toml must declare the same colour, not invent a third one.
+    toml="$REPO/site/hugo.toml"
+    if [[ -f "$toml" ]]; then
+      declared="$(sed -n 's/^[[:space:]]*brand[[:space:]]*=[[:space:]]*"\(#[0-9a-fA-F]\{6\}\)".*/\1/p' "$toml" | head -1 | tr 'A-Z' 'a-z')"
+      if [[ "$declared" == "$brand_lc" ]]; then
+        pass "site/hugo.toml brand param matches ($declared)"
+      elif [[ -z "$declared" ]]; then
+        fail "site/hugo.toml declares no brand param — nothing pins the site mark to the ISO mark"
+      else
+        fail "site/hugo.toml brand='$declared' but the logo is '$brand_lc' — two different logos for one product"
+      fi
+    fi
+
+    # (c) The site must paint the mark from a token, never from the page
+    #     accent. Painting it with --color-accent is what made the web
+    #     logo rust while the ISO logo stayed teal.
+    css="$REPO/site/static/css/vinos.css"
+    if [[ -f "$css" ]]; then
+      if grep -E '\.(nav-edge \.brand-mark|foot-mark|hero-glyph) [^{]*\{[^}]*fill: var\(--color-accent\)' "$css" >/dev/null; then
+        fail "site paints the brand mark with --color-accent — the web logo will not match the ISO logo. Use --color-brand."
+      else
+        pass "site paints every brand mark from --color-brand, not the page accent"
+      fi
+      # (d) …and on the correct stroke. The ISO mark is teal on the LEFT.
+      if grep -q '\.stroke-l { fill: var(--color-brand); }' "$css"; then
+        pass "brand teal is on the left stroke, matching assets/logo/vinos.svg"
+      else
+        fail "the site's .stroke-l is not the brand colour — the web mark is mirrored relative to the ISO mark"
+      fi
+    fi
+
+    # (e) The doc must name the real colour. It named #7AA2F7 for months.
+    if grep -qi "$brand_lc" "$REPO/docs/BRANDING.md" 2>/dev/null; then
+      pass "docs/BRANDING.md names the real brand colour"
+    else
+      fail "docs/BRANDING.md never mentions $brand_lc — the spec disagrees with the artwork"
+    fi
+  fi
+fi
+
 # ---- summary ----
 printf '\n%ssummary%s: %d pass · %d warn · %d fail\n' "$CYAN" "$RST" "$passes" "$warns" "$fails"
 if (( fails > 0 )); then

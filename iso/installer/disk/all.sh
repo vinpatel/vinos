@@ -1,8 +1,16 @@
 # disk/all.sh — partition, format, and mount the target disk.
 #
 # Layout (v1.4.0, UEFI-only):
-#   part 1  =  512 MiB   ef00  → mkfs.fat -F32 -n VINOS_EFI  →  /mnt/boot
+#   part 1  =  1 GiB     ef00  → mkfs.fat -F32 -n VINOS_EFI  →  /mnt/boot
 #   part 2  =  remainder 8300  → mkfs.ext4 -L VINOS_ROOT      →  /mnt
+#
+# The ESP is /boot, so every kernel and initramfs lives on it. 512 MiB was
+# enough while that meant one kernel; on Apple T2 hardware the pacstrap
+# phase installs linux-t2 alongside stock linux, and four images (two
+# kernels, two initramfs, plus fallbacks) overrun it. An ESP that fills up
+# does not fail loudly — mkinitcpio writes a truncated image and the next
+# boot panics — so the partition is sized for the worst case on every
+# machine rather than conditionally on the profile.
 #
 # Every step is verified. If the disk is 8-32 GiB we accept it but log
 # a warning; below 8 GiB preflight already refused it.
@@ -48,7 +56,7 @@ fi
 run wipefs -a "$DISK"
 run sgdisk --zap-all "$DISK"
 run sgdisk \
-  --new=1:0:+512MiB   --typecode=1:ef00 --change-name=1:VINOS_EFI \
+  --new=1:0:+1024MiB  --typecode=1:ef00 --change-name=1:VINOS_EFI \
   --new=2:0:0         --typecode=2:8300 --change-name=2:VINOS_ROOT \
   "$DISK"
 

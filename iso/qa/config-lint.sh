@@ -222,6 +222,83 @@ _check_limine_live_parity() {
   pass "limine live menu mirrors all $limine_n archiso boot entries"
 }
 
+# --- 6. installer boots what the installer installed --------------------
+#
+# The live medium and the installed disk are built by two different pieces
+# of code — config/limine/entries-live.conf for the USB, and
+# iso/installer/bootloader/all.sh for the disk. They drifted: the USB gave
+# Apple T2 Macs a linux-t2 entry with the T2 quirks, the installer wrote
+# one stock `vmlinuz-linux` entry with `quiet splash` for every machine,
+# and a T2 Mac that installed to disk rebooted into a black screen with no
+# console to recover from. Nothing in the tree compared them. This does.
+
+_check_installer_t2_parity() {
+  local live="$REPO/config/limine/entries-live.conf"
+  local boot="$REPO/iso/installer/bootloader/all.sh"
+  local pacs="$REPO/iso/installer/pacstrap/all.sh"
+  local t2en="$REPO/bin/vinos-t2-enable"
+
+  for f in "$live" "$boot" "$pacs" "$t2en"; do
+    [[ -f "$f" ]] || { fail "installer T2 parity: $f missing"; return; }
+  done
+
+  # (a) The installer must actually install the T2 kernel on Apple hardware.
+  if grep -q 'linux-t2' "$pacs"; then
+    pass "installer pacstrap phase installs linux-t2 on the t2mac profile"
+  else
+    fail "iso/installer/pacstrap/all.sh never mentions linux-t2 — an installed T2 Mac gets a stock kernel it cannot use"
+  fi
+
+  # (b) The T2 quirks the installer writes must be the ones the live medium
+  #     boots with. That live command line is the verified-on-hardware one;
+  #     anything the installer invents instead is untested.
+  local quirks
+  quirks="$(sed -n "s/^T2_QUIRKS='\(.*\)'.*/\1/p" "$boot" | head -1)"
+  if [[ -z "$quirks" ]]; then
+    fail "iso/installer/bootloader/all.sh has no T2_QUIRKS assignment — the installed T2 entry carries no T2 flags"
+  else
+    local live_t2_cmdlines missing=""
+    live_t2_cmdlines="$(sed -n 's/^[[:space:]]*kernel_cmdline:[[:space:]]*//p' "$live" | grep 'intel_iommu' || true)"
+    local knob
+    for knob in $quirks; do
+      printf '%s\n' "$live_t2_cmdlines" | grep -qF -- "$knob" || missing="$missing $knob"
+    done
+    if [[ -n "$missing" ]]; then
+      fail "installer T2 quirks not present on the live medium's T2 entries:$missing (config/limine/entries-live.conf is the verified command line)"
+    else
+      pass "installer T2 kernel flags match the live medium's verified T2 command line"
+    fi
+  fi
+
+  # (c) A T2 entry must exist and point at the T2 kernel.
+  if grep -q 'boot():/vmlinuz-linux-t2' "$boot"; then
+    pass "installer writes a limine entry for vmlinuz-linux-t2"
+  else
+    fail "iso/installer/bootloader/all.sh writes no vmlinuz-linux-t2 entry — the T2 kernel would be installed but unbootable"
+  fi
+
+  # (d) The stock-kernel-on-Apple-hardware fallback must not be splashed.
+  #     `quiet splash` over a kernel with no working display, keyboard or
+  #     Wi-Fi is indistinguishable from a dead machine.
+  if grep -q "that is the black screen this phase exists to prevent" "$boot"; then
+    pass "installer asserts the Apple-hardware stock fallback boots unsplashed"
+  else
+    fail "iso/installer/bootloader/all.sh has no guard against a splashed stock entry on Apple hardware — that is the v1.4.0 black screen"
+  fi
+
+  # (e) The brcmfmac recipe the installer seeds must match the one
+  #     vinos-t2-enable writes post-boot, or the same Mac gets different
+  #     Wi-Fi behaviour depending on which path configured it.
+  local a b
+  a="$(grep -o 'feature_disable=0x[0-9a-fA-F]*' "$pacs" | head -1)"
+  b="$(grep -o 'feature_disable=0x[0-9a-fA-F]*' "$t2en" | head -1)"
+  if [[ -n "$a" && "$a" == "$b" ]]; then
+    pass "brcmfmac recipe identical in the installer and vinos-t2-enable ($a)"
+  else
+    fail "brcmfmac feature_disable differs: installer='$a' vinos-t2-enable='$b' — the same Mac would get different Wi-Fi behaviour by install path"
+  fi
+}
+
 # --- Run --------------------------------------------------------------
 
 printf '\n\033[1;36m== iso/qa/config-lint.sh ==\033[0m\n'
@@ -230,6 +307,7 @@ _check_no_xdg_terminal_exec
 _check_wallpaper_present
 _check_exec_targets_present
 _check_limine_live_parity
+_check_installer_t2_parity
 
 printf '\n\033[1;36msummary\033[0m: %d pass · %d warn · %d fail\n' "$PASS" "$WARN" "$FAIL"
 [[ $FAIL -eq 0 ]] || exit 1

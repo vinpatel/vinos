@@ -103,6 +103,46 @@ chroot_run '
   systemctl disable sshd.service 2>/dev/null || true
 '
 
+# ── Apple T2 services ─────────────────────────────────────────────
+# Only when the pacstrap phase actually got the T2 stack in. t2fanrd is
+# not cosmetic on this hardware: without it the fans stay at their
+# firmware floor and a MacBook Pro under load will thermally throttle
+# itself into uselessness. tiny-dfr drives the Touch Bar.
+: "${T2_KERNEL:=0}"
+if (( T2_KERNEL == 1 )); then
+  log "enabling T2 services (t2fanrd, tiny-dfr)"
+  chroot_run '
+    systemctl enable t2fanrd.service  2>/dev/null || true
+    systemctl enable tiny-dfr.service 2>/dev/null || true
+  '
+  # vinos-first-run prompts to run vinos-t2-enable on Apple hardware.
+  # The installer has already done that work, so drop the same marker
+  # vinos-t2-enable drops and skip the prompt on a machine that is
+  # already sorted.
+  install -Dm 0644 /dev/null "$TARGET_ROOT/var/lib/vinos/t2-enable.done"
+elif [[ "$PROFILE" == "t2mac" ]]; then
+  # Apple hardware that did NOT get the T2 kernel. Leave the marker off
+  # so vinos-first-run prompts, and leave a note the operator will
+  # actually find — the boot menu already tells them, but the machine
+  # they are reading it on has no working internal keyboard.
+  warn "Apple hardware installed on the stock kernel — first boot will prompt for vinos-t2-enable"
+  install -Dm 0644 /dev/stdin "$TARGET_ROOT/etc/motd" <<'MOTD'
+
+  This is an Apple T2 Mac running the STOCK Linux kernel.
+
+  The internal keyboard, trackpad and Wi-Fi will not work until the T2
+  kernel is installed. The installer could not reach the arch-mact2
+  mirror while installing.
+
+  Attach a USB keyboard and a wired or USB network connection, then run:
+
+      vinos-t2-enable
+
+  It installs the T2 kernel, makes it the boot default, and reboots.
+
+MOTD
+fi
+
 # ── vinOS overlay ─────────────────────────────────────────────────
 # Clone the repo into the user's home and run install.sh. The overlay
 # scripts call `sudo pacman -S ...` and expect an interactive tty for a
