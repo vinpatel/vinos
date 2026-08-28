@@ -1,18 +1,18 @@
 ---
 title: "Install"
-description: "Flash the ISO and install to disk — including Apple T2 Macs, which the installer handles on its own."
+description: "Flash the ISO and install to disk, including Apple T2 Macs, which the installer handles on its own."
 ---
 
 There are two ways in. Take the first one unless you have a reason not to.
 
-## 1. The ISO — recommended
+## 1. The ISO (recommended)
 
 Download `vinos-1.4.0-x86_64.iso` from the
 [releases page](https://github.com/vinpatel/vinos/releases/latest), verify it
 against the published `sha256sums.txt`, and write it to any 8 GB+ stick:
 
 ```bash
-# Linux — replace sdX with your actual USB device, and check it twice
+# Linux: replace sdX with your actual USB device, and check it twice
 sudo dd if=vinos-1.4.0-x86_64.iso of=/dev/sdX bs=4M status=progress oflag=sync
 ```
 
@@ -35,7 +35,7 @@ Two things worth knowing:
   → Utilities → Startup Security Utility). Apple ships both locked down.
 - **If the installer cannot reach the T2 package mirror**, it says so and
   finishes on the stock kernel instead of failing. That system boots to a
-  readable console — deliberately unsplashed — with the internal keyboard and
+  readable console, deliberately unsplashed, with the internal keyboard and
   Wi-Fi still dead. Attach a USB keyboard and a wired connection, then run
   `vinos-t2-enable` to finish the job.
 
@@ -45,7 +45,7 @@ under Linux. Everything else does.
 ## 2. Layer it onto an Arch install you already have
 
 If you have a working Arch box you do not want to reinstall, vinOS can go on
-top of it. It is additive — it does not modify base packages.
+top of it. It is additive and does not modify base packages.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/vinpatel/vinos/main/boot.sh | bash
@@ -61,14 +61,14 @@ cd ~/.local/share/vinos && ./install.sh --skip NN
 ```
 
 This path does **not** set up the T2 kernel for you the way the ISO installer
-does — run `vinos-t2-enable` afterwards on Apple hardware.
+does. Run `vinos-t2-enable` afterwards on Apple hardware.
 
 ## First moves
 
-- **`Super + K`** — the keybindings cheat sheet.
-- **`Super + Ctrl + O`** — vinOS menu (bundles, wifi, theme, doctor, lock).
-- **`Super + Ctrl + W`** — wifi via impala.
-- **`Super + A`** — AI chat (install first with `vinos-install-ai`).
+- **`Super + K`**: the keybindings cheat sheet.
+- **`Super + Ctrl + O`**: vinOS menu (bundles, wifi, theme, doctor, lock).
+- **`Super + Ctrl + W`**: wifi via impala.
+- **`Super + A`**: AI chat (install first with `vinos-install-ai`).
 
 ## Bundles
 
@@ -89,7 +89,7 @@ Full catalog: [Bundles](/bundles/).
 
 ## Uninstall
 
-For the layered install, vinOS is additive — no base package modifications:
+For the layered install, vinOS is additive, with no base package modifications:
 
 ```bash
 sudo pacman -Rns hyprland waybar foot mako walker ...  # and any bundle

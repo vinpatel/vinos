@@ -1,10 +1,10 @@
 ---
 title: "Bundles"
-description: "Optional persona bundles — install what you actually use"
+description: "Optional persona bundles. Install what you actually use"
 ---
 
 Base vinOS is deliberately lean. Persona-specific apps opt in with one command.
-Every bundle is idempotent — safe to re-run.
+Every bundle is idempotent, so it is safe to re-run.
 
 ## Catalog
 

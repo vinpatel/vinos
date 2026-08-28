@@ -9,7 +9,7 @@
     {{ with .Pages }}
     <ul class="doc-list">
       {{ range .ByTitle }}
-      <li><a href="{{ .Permalink }}"><strong>{{ .Title }}</strong>{{ with .Description }} — <span class="muted">{{ . }}</span>{{ end }}</a></li>
+      <li><a href="{{ .Permalink }}"><strong>{{ .Title }}</strong>{{ with .Description }} <span class="muted">{{ . }}</span>{{ end }}</a></li>
       {{ end }}
     </ul>
     {{ end }}

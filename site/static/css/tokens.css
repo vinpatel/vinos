@@ -1,102 +1,141 @@
-/* Hallmark · theme: Almanac
- * paper-band: light  ·  display-style: classical-serif  ·  accent-hue: warm
- * All values OKLCH; token names semantic, not chromatic.
+/* vinOS design tokens
+ *
+ * System: tasteskill (design-taste-frontend). Retired the Hallmark "Almanac"
+ * token set on 2026-08-28.
+ *
+ * Three decisions worth knowing before you edit anything here:
+ *
+ * 1. ONE accent, and it is the brand teal. The old set carried a teal brand
+ *    mark AND a warm-rust typographic accent, so the logo and the headlines
+ *    pulled in opposite directions on every page. The mark wins, because its
+ *    value is fixed by assets/logo/vinos.svg, which is the same file the ISO,
+ *    Plymouth and the favicons rasterize from. Rust is gone. Do not add a
+ *    second accent.
+ *
+ * 2. Dark is the designed default, light is a real supported mode. Every
+ *    screenshot of the product is dark, so a light page framing dark images
+ *    was fighting its own content. Both modes are defined from the same
+ *    semantic names below; nothing outside this file should know a raw colour.
+ *
+ * 3. No serif. The display face is Geist at heavy weight. Instrument Serif
+ *    was the old display font and it reads as generic AI-editorial on a
+ *    systems product.
  */
 
 :root {
-  /* — surfaces — */
-  --color-paper:        oklch(96% 0.014 82);
-  --color-paper-2:      oklch(93% 0.016 82);
-  --color-paper-3:      oklch(89% 0.018 82);
+  color-scheme: dark light;
 
-  /* — ink & neutrals — */
-  --color-ink:          oklch(19% 0.010 60);
-  --color-ink-hover:    oklch(28% 0.010 60);
-  --color-ink-2:        oklch(30% 0.010 62);
-  --color-muted:        oklch(42% 0.010 65);
-  --color-neutral:      oklch(58% 0.010 70);
-  --color-rule:         oklch(82% 0.012 82);
-  --color-rule-strong:  oklch(72% 0.012 78);
+  /* surfaces (dark, the default) */
+  --bg:             oklch(15.5% 0.012 248);
+  --bg-2:           oklch(19% 0.014 248);
+  --bg-3:           oklch(23% 0.016 248);
+  --bg-inset:       oklch(12.5% 0.012 248);
 
-  /* — brand mark —
-   * NOT an accent. This is the vinOS logo teal, and its single source of
-   * truth is assets/logo/vinos.svg — the same file the ISO, the Plymouth
-   * theme and the PNG favicon set are rasterized from. #4FD1C5 in sRGB.
-   * The site used to paint the mark with --color-accent (warm rust), so
-   * the logo on vinos.computer was a different colour from the logo on
-   * the machine you downloaded. Only the mark and the "runs local"
-   * semantic column may use it; everything typographic uses the accent
-   * below, which keeps the two from competing for the same job.
-   */
-  --color-brand:        oklch(78.6% 0.114 186.6);
-  --color-brand-ink:    oklch(19% 0.010 60);
+  /* text */
+  --fg:             oklch(95% 0.006 248);
+  --fg-2:           oklch(82% 0.010 248);
+  --fg-muted:       oklch(66% 0.012 248);
+  --fg-faint:       oklch(52% 0.012 248);
 
-  /* — accent (warm rust; used sparingly, ≤3% viewport) — */
-  --color-accent:       oklch(52% 0.19 40);
-  --color-accent-2:     oklch(58% 0.18 42);
-  --color-focus:        oklch(58% 0.19 40);
+  /* lines */
+  --line:           oklch(28% 0.014 248);
+  --line-strong:    oklch(36% 0.016 248);
 
-  /* — semantic — */
-  --color-ok:           oklch(52% 0.14 145);
-  --color-warn:         oklch(66% 0.15 75);
-  --color-off:          oklch(56% 0.02 60);
+  /* The brand mark colour. Fixed, and deliberately NOT redefined in light
+   * mode: assets/logo/vinos.svg is the single source of truth, and the mark
+   * on the web has to match the mark on the ISO, the Plymouth splash and the
+   * favicons. iso/qa/branding-check.sh enforces this. Only the mark uses it.
+   * Everything else uses --accent below, which may shift per mode. */
+  --color-brand:    oklch(78.6% 0.114 186.6);
 
-  /* — dark panel (for terminal blocks; not a mode switch) — */
-  --color-panel:        oklch(22% 0.012 60);
-  --color-panel-ink:    oklch(92% 0.010 82);
-  --color-panel-rule:   oklch(32% 0.014 60);
-  --color-panel-muted:  oklch(74% 0.014 65);
+  /* accent: the vinOS mark teal, #4FD1C5
+   * --accent is for large text, marks, borders and fills.
+   * --accent-text is nudged lighter so small copy clears WCAG AA on --bg.
+   * --accent-ink is what sits ON a filled accent surface. */
+  --accent:         oklch(78.6% 0.114 186.6);
+  --accent-text:    oklch(83% 0.105 186.6);
+  --accent-dim:     oklch(45% 0.070 186.6);
+  --accent-ink:     oklch(16% 0.020 200);
 
-  /* — typography — */
-  --font-display:  "Instrument Serif", "Iowan Old Style", Georgia, serif;
-  --font-body:     "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono:     "Geist Mono", ui-monospace, "JetBrains Mono", "SF Mono", Menlo, monospace;
+  /* semantic, used only in the comparison table */
+  --ok:             oklch(78% 0.105 165);
+  --warn:           oklch(80% 0.090 85);
+  --off:            oklch(55% 0.010 248);
 
-  --text-2xs:      0.75rem;
-  --text-xs:       0.8125rem;
-  --text-sm:       0.9375rem;
-  --text-md:       1.0625rem;
-  --text-lg:       1.25rem;
-  --text-xl:       1.5rem;
-  --text-2xl:      2rem;
-  --text-3xl:      2.75rem;
-  --text-4xl:      3.75rem;
-  --text-display-s: clamp(3.5rem, 8vw, 6rem);
-  --text-display:   clamp(5rem, 14vw, 11rem);
-  --text-figure:    clamp(7rem, 22vw, 18rem);
+  /* type */
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "JetBrains Mono", "SF Mono", Menlo, monospace;
 
-  /* — spacing (4-pt scale, semantic) — */
-  --space-3xs:     0.25rem;
-  --space-2xs:     0.5rem;
-  --space-xs:      0.75rem;
-  --space-sm:      1rem;
-  --space-md:      1.5rem;
-  --space-lg:      2.25rem;
-  --space-xl:      3.5rem;
-  --space-2xl:     5rem;
-  --space-3xl:     7.5rem;
-  --space-4xl:     11rem;
+  --text-2xs:   0.75rem;
+  --text-xs:    0.8125rem;
+  --text-sm:    0.9375rem;
+  --text-md:    1.0625rem;
+  --text-lg:    1.1875rem;
+  --text-xl:    1.5rem;
+  --text-2xl:   2rem;
+  --display-sm: clamp(1.75rem, 3.4vw, 2.6rem);
+  --display:    clamp(2.15rem, 4vw, 3.25rem);
+  --display-lg: clamp(2.9rem, 7vw, 5.6rem);
 
-  /* — rules & radii — */
-  --rule-hair:     1px;
-  --rule-thin:     1.5px;
-  --rule-thick:    3px;
-  --radius-sm:     4px;
-  --radius-md:     6px;
+  /* space (4pt) */
+  --s-3xs: 0.25rem;
+  --s-2xs: 0.5rem;
+  --s-xs:  0.75rem;
+  --s-sm:  1rem;
+  --s-md:  1.5rem;
+  --s-lg:  2.25rem;
+  --s-xl:  3.5rem;
+  --s-2xl: 5rem;
+  --s-3xl: 7.5rem;
 
-  /* — motion — */
-  --dur-fast:      120ms;
-  --dur-med:       240ms;
-  --dur-slow:      500ms;
-  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in:       cubic-bezier(0.4, 0, 1, 1);
-  --ease-in-out:   cubic-bezier(0.65, 0, 0.35, 1);
+  /* radius: documented scale, applied everywhere
+   * sm = inline code, chips, kbd. md = buttons, inputs, small cards.
+   * lg = panels, media, large cards. full = the two nav pills only.
+   * The old sheet used a --radius-lg that was never defined, so every
+   * panel and the hero video silently rendered square. */
+  --r-sm:   4px;
+  --r-md:   8px;
+  --r-lg:   14px;
+  --r-full: 999px;
 
-  /* — layout — */
-  --measure:       62ch;
-  --measure-wide:  84ch;
-  --page-max:      74rem;
-  --page-gutter:   clamp(1.25rem, 4vw, 3rem);
+  /* motion */
+  --dur-fast: 130ms;
+  --dur-med:  260ms;
+  --dur-slow: 620ms;
+  --ease:     cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* layout */
+  --measure:  64ch;
+  --page-max: 76rem;
+  --gutter:   clamp(1.25rem, 4vw, 3rem);
+}
+
+/* Light mode. Same names, different values. The accent darkens because the
+ * teal that reads well on near-black fails contrast on near-white. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:          oklch(98% 0.003 248);
+    --bg-2:        oklch(95.5% 0.005 248);
+    --bg-3:        oklch(92% 0.007 248);
+    --bg-inset:    oklch(20% 0.014 248);
+
+    --fg:          oklch(21% 0.014 248);
+    --fg-2:        oklch(34% 0.012 248);
+    --fg-muted:    oklch(48% 0.012 248);
+    --fg-faint:    oklch(62% 0.010 248);
+
+    --line:        oklch(88% 0.006 248);
+    --line-strong: oklch(78% 0.008 248);
+
+    --accent:      oklch(52% 0.088 186.6);
+    --accent-text: oklch(46% 0.088 186.6);
+    --accent-dim:  oklch(88% 0.045 186.6);
+    --accent-ink:  oklch(99% 0.004 186.6);
+
+    --ok:          oklch(48% 0.100 165);
+    --warn:        oklch(56% 0.100 75);
+    --off:         oklch(62% 0.008 248);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

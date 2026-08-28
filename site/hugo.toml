@@ -1,9 +1,9 @@
 baseURL = "https://vinos.computer/"
 locale = "en-us"
-title = "vinOS — the operating system your agents run on"
+title = "vinOS: the operating system your agents run on"
 enableRobotsTXT = true
 enableGitInfo = false
-# No external theme — we ship layouts/ + static/ ourselves.
+# No external theme. We ship layouts/ + static/ ourselves.
 
 [params]
   description   = "vinOS is an agent runtime for x86_64 hardware you own. One codebase, two personas: a workstation you drive, and a headless node your agents run on. Local models by default, frontier models when they earn it."
@@ -15,7 +15,7 @@ enableGitInfo = false
   sponsorGH     = "https://github.com/sponsors/vinpatel"
   sponsorOC     = "https://opencollective.com/vinos"
   version       = "1.4.0"
-  # Brand mark colour — must equal the fill in assets/logo/vinos.svg,
+  # Brand mark colour. Must equal the fill in assets/logo/vinos.svg,
   # which is what the ISO, Plymouth and the favicons all use.
   brand         = "#4FD1C5"
   accent        = "#bb9af7"
